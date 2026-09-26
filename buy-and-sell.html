@@ -729,7 +729,19 @@ for (const photo of photos) {
 
   const newCard = document.createElement("article");
   newCard.className = "card";
+if (photos.length > 0) {
+  const imageURL = URL.createObjectURL(photos[0]);
 
+  const image = document.createElement("img");
+  image.src = imageURL;
+  image.alt = productName;
+  image.style.width = "100%";
+  image.style.height = "220px";
+  image.style.objectFit = "cover";
+  image.style.borderRadius = "14px 14px 0 0";
+
+  newCard.appendChild(image);
+}
   newCard.setAttribute("data-name", productName);
   newCard.setAttribute("data-category", category.toLowerCase());
   newCard.setAttribute("data-location", location);
