@@ -522,14 +522,65 @@ footer{
 <section id="sell" style="margin-top:50px;">
   <div class="filters">
     <h2>Sell an Item</h2>
+
     <p style="color:var(--muted);margin:8px 0 18px;">
-      Ready to sell? ShukAfrica will make it easy for sellers to list
-      their products and reach buyers.
+      List your product on ShukAfrica and connect with buyers.
     </p>
 
-    <button class="btn sell" id="sellButton">
-      ＋ Start Selling
-    </button>
+    <form id="sellerForm">
+
+      <input
+        type="text"
+        id="sellerProductName"
+        placeholder="Product name"
+        required
+      >
+
+      <input
+        type="number"
+        id="sellerPrice"
+        placeholder="Price"
+        min="0"
+        required
+      >
+
+      <select id="sellerCategory" required>
+        <option value="">Select category</option>
+        <option>Electronics</option>
+        <option>Vehicles</option>
+        <option>Equipment</option>
+        <option>Agriculture</option>
+        <option>Fashion</option>
+        <option>Property</option>
+        <option>Other</option>
+      </select>
+
+      <input
+        type="text"
+        id="sellerLocation"
+        placeholder="Location (e.g. Accra)"
+        required
+      >
+
+      <input
+        type="tel"
+        id="sellerPhone"
+        placeholder="Phone / WhatsApp number"
+        required
+      >
+
+      <textarea
+        id="sellerDescription"
+        placeholder="Describe your product"
+        rows="5"
+        required
+      ></textarea>
+
+      <button type="submit" class="btn sell">
+        ＋ List Product
+      </button>
+
+    </form>
   </div>
 </section>
 
