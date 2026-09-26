@@ -693,12 +693,26 @@ document.querySelectorAll(".view").forEach(button => {
 });
 
 
-document.getElementById("sellButton").addEventListener("click", () => {
+document.getElementById("sellerForm").addEventListener("submit", function(event) {
+  event.preventDefault();
+
+  const productName = document.getElementById("sellerProductName").value;
+  const price = document.getElementById("sellerPrice").value;
+  const category = document.getElementById("sellerCategory").value;
+  const location = document.getElementById("sellerLocation").value;
+  const phone = document.getElementById("sellerPhone").value;
+  const description = document.getElementById("sellerDescription").value;
 
   alert(
-    "Seller registration and product listing will be connected here in the next stage."
+    "Your product has been listed!\n\n" +
+    "Product: " + productName + "\n" +
+    "Price: GH₵ " + price + "\n" +
+    "Category: " + category + "\n" +
+    "Location: " + location + "\n\n" +
+    "ShukAfrica will connect the listing to the marketplace database in the next stage."
   );
 
+  this.reset();
 });
 
 </script>
