@@ -703,17 +703,45 @@ document.getElementById("sellerForm").addEventListener("submit", function(event)
   const phone = document.getElementById("sellerPhone").value;
   const description = document.getElementById("sellerDescription").value;
 
-  alert(
-    "Your product has been listed!\n\n" +
-    "Product: " + productName + "\n" +
-    "Price: GH₵ " + price + "\n" +
-    "Category: " + category + "\n" +
-    "Location: " + location + "\n\n" +
-    "ShukAfrica will connect the listing to the marketplace database in the next stage."
-  );
+  const productGrid = document.getElementById("productGrid");
+
+  const newCard = document.createElement("article");
+  newCard.className = "card";
+
+  newCard.setAttribute("data-name", productName);
+  newCard.setAttribute("data-category", category.toLowerCase());
+  newCard.setAttribute("data-location", location);
+  newCard.setAttribute("data-price", price);
+
+  newCard.innerHTML = `
+    <div class="card-body">
+      <span class="badge">${category}</span>
+
+      <h3>${productName}</h3>
+
+      <div class="price">GH₵ ${Number(price).toLocaleString()}</div>
+
+      <p>📍 ${location}</p>
+
+      <p>${description}</p>
+
+      <a
+        class="btn buy"
+        href="https://wa.me/${phone.replace(/[^0-9]/g, "")}"
+        target="_blank"
+      >
+        WhatsApp Seller
+      </a>
+    </div>
+  `;
+
+  productGrid.prepend(newCard);
+
+  alert("Your product has been listed successfully!");
 
   this.reset();
 });
+  
 
 </script>
 
