@@ -711,7 +711,20 @@ document.getElementById("sellerForm").addEventListener("submit", function(event)
   const location = document.getElementById("sellerLocation").value;
   const phone = document.getElementById("sellerPhone").value;
   const description = document.getElementById("sellerDescription").value;
+  
+const photos = document.getElementById("sellerPhotos").files;
 
+if (photos.length > 5) {
+  alert("You can upload a maximum of 5 photos.");
+  return;
+}
+
+for (const photo of photos) {
+  if (photo.size > 2 * 1024 * 1024) {
+    alert("Each photo must be 2 MB or smaller.");
+    return;
+  }
+}
   const productGrid = document.getElementById("productGrid");
 
   const newCard = document.createElement("article");
