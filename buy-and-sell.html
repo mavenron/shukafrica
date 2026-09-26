@@ -691,7 +691,7 @@ document.querySelectorAll(".view").forEach(button => {
     const card = button.closest(".card");
     const name = card.dataset.name;
 
-    window.location.href = "product.html";
+    window.location.href = "product.html?product=" + encodeURIComponent(name);
 
   });
 
