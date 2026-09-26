@@ -1,1 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <title>Product Details — ShukAfrica</title>
+
+  <style>
+    :root{
+      --bg:#0b0d0c;
+      --panel:#151918;
+      --panel2:#1c211f;
+      --gold:#d7a85b;
+      --text:#f5f1e8;
+      --muted:#9d a39f;
+      --border:#2c332f;
+      --green:#1f6b4f;
+    }
+
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+    }
+
+    body{
+      font-family:Arial, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.6;
+    }
+
+    a{
+      color:inherit;
+      text-decoration:none;
+    }
+
+    .wrap{
+      width:min(1100px,92%);
+      margin:auto;
+    }
+
+    header{
+      padding:20px 0;
+      border-bottom:1px solid var(--border);
+    }
+
+    .header-inner{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:15px;
+    }
+
+    .logo{
+      font-size:22px;
+      font-weight:800;
+      letter-spacing:1px;
+      color:var(--gold);
+    }
+
+    .back{
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .back:hover{
+      color:var(--gold);
+    }
+
+    main{
+      padding:35px 0 60px;
+    }
+
+    .product-layout{
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      gap:35px;
+    }
+
+    .gallery{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:18px;
+      overflow:hidden;
+    }
+
+    .main-image{
+      width:100%;
+      height:450px;
+      object-fit:cover;
+      display:block;
+      background:#202522;
+    }
+
+    .gallery-placeholder{
+      height:450px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--muted);
+      font-size:18px;
+    }
+
+    .product-info{
+      padding-top:5px;
+    }
+
+    .badge{
+      display:inline-block;
+      background:rgba(215,168,91,.12);
+      color:var(--gold);
+      border:1px solid rgba(215,168,91,.3);
+      padding:6px 11px;
+      border-radius:20px;
+      font-size:12px;
+      margin-bottom:15px;
+    }
+
+    h1{
+      font-size:34px;
+      line-height:1.2;
+      margin-bottom:15px;
+    }
+
+    .price{
+      color:var(--gold);
+      font-size:30px;
+      font-weight:800;
+      margin-bottom:12px;
+    }
+
+    .location{
+      color:var(--muted);
+      margin-bottom:25px;
+    }
+
+    .description-box,
+    .seller-box{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:20px;
+      margin-top:20px;
+    }
+
+    .section-title{
+      font-size:17px;
+      margin-bottom:10px;
+    }
+
+    .description{
+      color:#d2d6d3;
+      white-space:pre-wrap;
+    }
+
+    .seller-name{
+      font-size:18px;
+      font-weight:700;
+      margin-bottom:5px;
+    }
+
+    .seller-location{
+      color:var(--muted);
+      margin-bottom:15px;
+    }
+
+    .actions{
+      display:flex;
+      gap:12px;
+      margin-top:25px;
+    }
+
+    .btn{
+      flex:1;
+      border:0;
+      border-radius:12px;
+      padding:14px 18px;
+      font-size:15px;
+      font-weight:700;
+      cursor:pointer;
+      text-align:center;
+    }
+
+    .contact{
+      background:var(--gold);
+      color:#111;
+    }
+
+    .save{
+      background:var(--panel2);
+      color:var(--text);
+      border:1px solid var(--border);
+    }
+
+    .notice{
+      margin-top:25px;
+      color:var(--muted);
+      font-size:13px;
+      text-align:center;
+    }
+
+    @media(max-width:800px){
+      .product-layout{
+        grid-template-columns:1fr;
+      }
+
+      .main-image,
+      .gallery-placeholder{
+        height:330px;
+      }
+
+      h1{
+        font-size:28px;
+      }
+
+      .price{
+        font-size:26px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="wrap header-inner">
+
+    <a href="index.html" class="logo">
+      SHUKAFRICA
+    </a>
+
+    <a href="buy-and-sell.html" class="back">
+      ← Back to Buy & Sell
+    </a>
+
+  </div>
+</header>
+
+<main>
+
+  <div class="wrap">
+
+    <div class="product-layout">
+
+      <!-- PRODUCT PHOTO -->
+
+      <div class="gallery">
+
+        <div class="gallery-placeholder">
+          Product photo
+        </div>
+
+      </div>
+
+
+      <!-- PRODUCT INFORMATION -->
+
+      <div class="product-info">
+
+        <span class="badge">
+          Electronics
+        </span>
+
+        <h1>
+          Samsung Galaxy A55
+        </h1>
+
+        <div class="price">
+          GH₵ 2,800
+        </div>
+
+        <div class="location">
+          📍 Accra
+        </div>
+
+
+        <!-- DESCRIPTION -->
+
+        <div class="description-box">
+
+          <h2 class="section-title">
+            Description
+          </h2>
+
+          <p class="description">
+            Samsung Galaxy A55 in good condition.
+            Everything works properly.
+            Available for inspection in Accra.
+          </p>
+
+        </div>
+
+
+        <!-- SELLER -->
+
+        <div class="seller-box">
+
+          <h2 class="section-title">
+            Seller
+          </h2>
+
+          <div class="seller-name">
+            ShukAfrica Seller
+          </div>
+
+          <div class="seller-location">
+            📍 Accra
+          </div>
+
+        </div>
+
+
+        <!-- ACTIONS -->
+
+        <div class="actions">
+
+          <button class="btn save">
+            ♡ Save
+          </button>
+
+          <button class="btn contact">
+            Contact Seller
+          </button>
+
+        </div>
+
+        <p class="notice">
+          Seller contact and verification will be connected
+          when the ShukAfrica marketplace database is added.
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</main>
+
+</body>
+          </html>
