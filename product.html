@@ -354,9 +354,33 @@
   const params = new URLSearchParams(window.location.search);
   const productName = params.get("product");
 
-  if (productName) {
-    document.getElementById("productName").textContent = productName;
-  }
+  
+    const params = new URLSearchParams(window.location.search);
+
+const productName = params.get("product");
+const productPrice = params.get("price");
+const productCategory = params.get("category");
+const productLocation = params.get("location");
+
+if (productName) {
+  document.getElementById("productName").textContent = productName;
+}
+
+if (productPrice) {
+  document.getElementById("productPrice").textContent =
+    "GH₵ " + Number(productPrice).toLocaleString();
+}
+
+if (productCategory) {
+  document.getElementById("productCategory").textContent =
+    productCategory;
+}
+
+if (productLocation) {
+  document.getElementById("productLocation").textContent =
+    "📍 " + productLocation;
+}
+  
 </script>
 
 </body>
