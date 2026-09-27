@@ -837,6 +837,21 @@ newCard.setAttribute("data-seller", seller);
 
   productGrid.prepend(newCard);
 
+newCard.querySelector(".view").addEventListener("click", function() {
+
+  const params = new URLSearchParams({
+    product: productName,
+    price: price,
+    category: category,
+    location: location,
+    description: description,
+    seller: seller
+  });
+
+  window.location.href = "product.html?" + params.toString();
+
+});
+
   alert("Your product has been listed successfully!");
 
   this.reset();
