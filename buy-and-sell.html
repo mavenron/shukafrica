@@ -839,6 +839,8 @@ newCard.setAttribute("data-seller", seller);
 
   productGrid.prepend(newCard);
 
+localStorage.setItem("shukAfricaListings", productGrid.innerHTML);
+
 newCard.querySelector(".view").addEventListener("click", function() {
 
   const params = new URLSearchParams({
