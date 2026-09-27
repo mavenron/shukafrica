@@ -802,11 +802,14 @@ if (photos.length > 0) {
 
   newCard.appendChild(image);
 }
-  newCard.setAttribute("data-price", price);
-newCard.setAttribute("data-seller", seller);
+  
+
   newCard.setAttribute("data-category", category.toLowerCase());
-  newCard.setAttribute("data-location", location);
-  newCard.setAttribute("data-price", price);
+newCard.setAttribute("data-location", location);
+newCard.setAttribute("data-price", price);
+newCard.setAttribute("data-seller", seller);
+  
+  
 
   newCard.innerHTML = `
     <div class="card-body">
