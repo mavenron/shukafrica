@@ -284,6 +284,21 @@ form {
     </div>
 
   </main>
+<script>
 
+document.getElementById("deliveryRequestForm").addEventListener("submit", function(event) {
+  event.preventDefault();
+
+  alert("Your delivery request has been received.");
+});
+
+
+document.getElementById("deliveryPartnerForm").addEventListener("submit", function(event) {
+  event.preventDefault();
+
+  alert("Your delivery partner application has been received.");
+});
+
+</script>
 </body>
 </html>
