@@ -764,7 +764,8 @@ window.location.href = "product.html?" + params.toString();
 document.getElementById("sellerForm").addEventListener("submit", function(event) {
   event.preventDefault();
 
-  const productName = document.getElementById("sellerProductName").value;
+  const seller = document.getElementById("sellerName").value;
+const productName = document.getElementById("sellerProductName").value;
   const price = document.getElementById("sellerPrice").value;
   const category = document.getElementById("sellerCategory").value;
   const location = document.getElementById("sellerLocation").value;
