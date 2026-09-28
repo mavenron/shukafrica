@@ -438,6 +438,7 @@ if (grabDeliveryBtn && acceptedPartner) {
   grabDeliveryBtn.addEventListener("click", function() {
 
     acceptedPartner.style.display = "block";
+    document.getElementById("deliveryStatus").textContent = "Partner Accepted";
     grabDeliveryBtn.textContent = "Delivery Accepted";
     grabDeliveryBtn.disabled = true;
 
