@@ -463,26 +463,3 @@ if (grabDeliveryBtn && acceptedPartner) {
 </body>
 </html>
 
-</script>
-  }
-
-const grabDeliveryBtn = document.getElementById("grabDeliveryBtn");
-const acceptedPartner = document.getElementById("acceptedPartner");
-
-if (grabDeliveryBtn) {
-
-  grabDeliveryBtn.addEventListener("click", function() {
-
-    acceptedPartner.style.display = "block";
-
-    grabDeliveryBtn.textContent = "Delivery Accepted";
-
-    grabDeliveryBtn.disabled = true;
-
-    alert("Delivery accepted.");
-
-  });
-
-}
-</body>
-</html>
