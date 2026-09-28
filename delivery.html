@@ -134,48 +134,106 @@ form {
       <div class="card">
         <div class="icon">📦</div>
 
-        <h2>Request a Delivery</h2>
+    <h2>Request a Delivery</h2>
 
-        <p>
-          Need something delivered? Submit your pickup,
-          destination and package details.
-        </p> 
+<p>
+  Need something delivered? Submit your pickup,
+  destination and package details.
+</p>
 
 <form id="deliveryRequestForm">
 
-    Delivery Type
-    [Select delivery type]
+  <label>Delivery Type</label>
+  <select id="deliveryType" required>
+    <option value="">Select delivery type</option>
+    <option value="standard">Standard Delivery</option>
+    <option value="express">Express Delivery</option>
+  </select>
 
-    Name
-    [Name]
+  <label>Name</label>
+  <input
+    type="text"
+    placeholder="Name"
+    required
+  >
 
-    Phone / WhatsApp
-    [Phone / WhatsApp]
+  <label>Phone / WhatsApp</label>
+  <input
+    type="tel"
+    placeholder="Phone / WhatsApp"
+    required
+  >
 
-    Pickup Location
-    [Where should the package be picked up?]
+  <label>Pickup Location</label>
+  <input
+    type="text"
+    placeholder="Where should the package be picked up?"
+    required
+  >
 
-    Destination
-    [Where should the package be delivered?]
+  <label>Destination</label>
+  <input
+    type="text"
+    placeholder="Where should the package be delivered?"
+    required
+  >
 
-    Delivery For
-    [Select]
+  <label>Delivery For</label>
+  <select id="deliveryFor" required>
+    <option value="">Select</option>
+    <option value="self">Self</option>
+    <option value="other">Someone Else</option>
+  </select>
 
-    Package / Item
-    [...]
+  <div id="recipientFields" style="display: none;">
 
-    Package Size or Weight
-    [...]
+    <label>Recipient Name</label>
+    <input
+      type="text"
+      id="recipientName"
+      placeholder="Recipient name"
+    >
 
-    Date & Time
-    [...]
+    <label>Recipient Phone / WhatsApp</label>
+    <input
+      type="tel"
+      id="recipientPhone"
+      placeholder="Recipient phone / WhatsApp"
+    >
 
-    Special Instructions
-    [...]
+  </div>
 
-    [Request Delivery]
+  <label>Package / Item</label>
+  <input
+    type="text"
+    placeholder="Package / Item"
+    required
+  >
 
-      </form>
+  <label>Package Size or Weight</label>
+  <input
+    type="text"
+    placeholder="Package size or weight"
+    required
+  >
+
+  <label>Preferred Pickup Date & Time</label>
+  <input
+    type="datetime-local"
+    required
+  >
+
+  <label>Special Instructions</label>
+  <textarea
+    placeholder="Additional information for the delivery partner"
+    rows="4"
+  ></textarea>
+
+  <button type="submit" class="btn">
+    Request Delivery
+  </button>
+
+</form>
           
       
       </div>
