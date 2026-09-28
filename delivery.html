@@ -400,7 +400,6 @@ form {
        </div>
 
   </main>
-
 <script>
 
 document.getElementById("deliveryRequestForm").addEventListener("submit", function(event) {
@@ -425,31 +424,44 @@ const recipientName = document.getElementById("recipientName");
 const recipientPhone = document.getElementById("recipientPhone");
 
 if (deliveryFor) {
-
   deliveryFor.addEventListener("change", function() {
 
     if (this.value === "other") {
-
       recipientFields.style.display = "block";
-
       recipientName.required = true;
       recipientPhone.required = true;
-
     } else {
-
       recipientFields.style.display = "none";
-
       recipientName.required = false;
       recipientPhone.required = false;
-
       recipientName.value = "";
       recipientPhone.value = "";
-
     }
 
   });
-
 }
+
+
+// Grab Delivery
+
+const grabDeliveryBtn = document.getElementById("grabDeliveryBtn");
+const acceptedPartner = document.getElementById("acceptedPartner");
+
+if (grabDeliveryBtn && acceptedPartner) {
+  grabDeliveryBtn.addEventListener("click", function() {
+
+    acceptedPartner.style.display = "block";
+    grabDeliveryBtn.textContent = "Delivery Accepted";
+    grabDeliveryBtn.disabled = true;
+
+    alert("Delivery accepted.");
+
+  });
+}
+
+</script>
+</body>
+</html>
 
 </script>
   }
@@ -468,14 +480,6 @@ if (grabDeliveryBtn) {
     grabDeliveryBtn.disabled = true;
 
     alert("Delivery accepted.");
-
-  });
-
-}
-
-</script>
-</body>
-</html>
 
   });
 
