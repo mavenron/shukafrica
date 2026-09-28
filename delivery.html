@@ -429,20 +429,22 @@ if (deliveryFor) {
     }
 
   });
-}
-
-
 // Grab Delivery
 
 const grabDeliveryBtn = document.getElementById("grabDeliveryBtn");
 const acceptedPartner = document.getElementById("acceptedPartner");
+const deliveryStatus = document.getElementById("deliveryStatus");
 
-if (grabDeliveryBtn && acceptedPartner) {
+if (grabDeliveryBtn) {
+
   grabDeliveryBtn.addEventListener("click", function() {
 
     acceptedPartner.style.display = "block";
-    document.getElementById("deliveryStatus").textContent = "Partner Accepted";
+
+    deliveryStatus.textContent = "Partner Accepted";
+
     grabDeliveryBtn.textContent = "Delivery Accepted";
+
     grabDeliveryBtn.disabled = true;
 
     alert("Delivery accepted.");
