@@ -321,9 +321,10 @@ form {
       
       
 
-    </div>
+       </div>
 
   </main>
+
 <script>
 
 document.getElementById("deliveryRequestForm").addEventListener("submit", function(event) {
@@ -339,6 +340,42 @@ document.getElementById("deliveryPartnerForm").addEventListener("submit", functi
   alert("Your delivery partner application has been received.");
 });
 
+
+// Recipient fields
+
+const deliveryFor = document.getElementById("deliveryFor");
+const recipientFields = document.getElementById("recipientFields");
+const recipientName = document.getElementById("recipientName");
+const recipientPhone = document.getElementById("recipientPhone");
+
+if (deliveryFor) {
+
+  deliveryFor.addEventListener("change", function() {
+
+    if (this.value === "other") {
+
+      recipientFields.style.display = "block";
+
+      recipientName.required = true;
+      recipientPhone.required = true;
+
+    } else {
+
+      recipientFields.style.display = "none";
+
+      recipientName.required = false;
+      recipientPhone.required = false;
+
+      recipientName.value = "";
+      recipientPhone.value = "";
+
+    }
+
+  });
+
+}
+
 </script>
+
 </body>
 </html>
