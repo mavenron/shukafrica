@@ -249,62 +249,104 @@ form {
     services in your operating areas.
   </p>
 
-  <form id="deliveryPartnerForm">
+<form id="deliveryPartnerForm">
 
+  <label>Name</label>
+  <input
+    type="text"
+    placeholder="Name"
+    required
+  >
+
+  <label>Phone / WhatsApp</label>
+  <input
+    type="tel"
+    placeholder="Phone / WhatsApp"
+    required
+  >
+
+  <label>Vehicle Type</label>
+  <select required>
+    <option value="">Select vehicle type</option>
+    <option>Motorbike</option>
+    <option>Car</option>
+    <option>Van</option>
+    <option>Truck</option>
+    <option>Other</option>
+  </select>
+
+  <label>Vehicle Registration Number</label>
+  <input
+    type="text"
+    placeholder="Vehicle registration number"
+    required
+  >
+
+  <label>Driver / Rider Licence Number</label>
+  <input
+    type="text"
+    placeholder="Driver / Rider licence number"
+    required
+  >
+
+  <label>Insurance Policy Number</label>
+  <input
+    type="text"
+    placeholder="Insurance policy number"
+    required
+  >
+
+  <label>Where Do You Operate?</label>
+  <input
+    type="text"
+    placeholder="City or area"
+    required
+  >
+
+  <label>Areas You Cover</label>
+  <input
+    type="text"
+    placeholder="Areas you cover"
+    required
+  >
+
+  <label>Photo ID</label>
+  <p style="color:#aab7b8; font-size:14px;">
+    Upload a clear photo of your Ghana Card or other valid ID.
+  </p>
+
+  <input
+    type="file"
+    accept="image/*"
+    required
+  >
+
+  <label>Emergency Contact — Close Relative</label>
+  <input
+    type="text"
+    placeholder="Emergency contact name"
+    required
+  >
+
+  <label>Emergency Contact Number</label>
+  <input
+    type="tel"
+    placeholder="Emergency contact number"
+    required
+  >
+
+  <label>
     <input
-      type="text"
-      placeholder="Full legal name"
+      type="checkbox"
       required
     >
+    I confirm that the information provided is accurate
+    and may be verified by ShukAfrica.
+  </label>
 
-    <input
-      type="tel"
-      placeholder="Phone / WhatsApp"
-      required
-    >
-
-    <select required>
-      <option value="">Vehicle type</option>
-      <option>Motorbike</option>
-      <option>Car</option>
-      <option>Van</option>
-      <option>Truck</option>
-      <option>Other</option>
-    </select>
-
-    <input
-      type="text"
-      placeholder="Vehicle registration number"
-      required
-    >
-
-    <input
-      type="text"
-      placeholder="Driver / Rider licence number"
-      required
-    >
-
-    <input
-      type="text"
-      placeholder="Insurance policy number"
-      required
-    >
-
-    <input
-      type="text"
-      placeholder="Where do you operate?"
-      required
-    >
-
-    <input
-      type="text"
-      placeholder="Areas you cover"
-      required
-    >
-
-    <button type="submit" class="btn">
-      Register as Partner
-    </button>
+  <button type="submit" class="btn">
+    Register as Partner
+  </button>
 
   </form>
 </div>
