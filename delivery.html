@@ -1,1 +1,484 @@
-<!DOCTYPE html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShukAfrica - Delivery Portal</title>
+  <style>
+    body {
+      background-color: #0b141a;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .portal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .form-container, .live-deliveries {
+      background-color: #111b21;
+      border: 1px solid #1f2c33;
+      padding: 20px;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #f7a600;
+      font-size: 1.3rem;
+      border-bottom: 1px solid #1f2c33;
+      padding-bottom: 10px;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      margin-bottom: 4px;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    input[type="text"], input[type="tel"], input[type="number"], select, textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #1f2c33;
+      background-color: #182229;
+      color: #fff;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: 1px solid #f7a600;
+      border-color: #f7a600;
+    }
+
+    .btn {
+      background-color: #f7a600;
+      color: #000;
+      border: none;
+      padding: 12px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 12px;
+    }
+
+    .btn-secondary { background-color: #17a2b8; color: #fff; }
+    .btn-danger { background-color: #dc3545; color: #fff; }
+    .btn-warning { background-color: #ffc107; color: #000; }
+    .btn-success { background-color: #25d366; color: #fff; }
+
+    .btn:disabled {
+      background-color: #333;
+      color: #888;
+      cursor: not-allowed;
+    }
+
+    .delivery-job {
+      border: 1px solid #1f2c33;
+      background-color: #182229;
+      padding: 15px;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+
+    .negotiation-box {
+      background-color: #111b21;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 10px;
+      border-left: 4px solid #f7a600;
+    }
+
+    .action-group {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .error-msg {
+      color: #ff5c5c;
+      font-size: 0.85rem;
+      margin-top: 4px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="portal-grid">
+
+    <!-- 1. Customer Delivery Request Form -->
+    <div class="form-container">
+      <h2>Request a Delivery</h2>
+      <form id="deliveryRequestForm">
+        
+        <label>Full Name</label>
+        <input type="text" id="custName" placeholder="e.g. Kweku Mensah" required>
+
+        <label>Phone Number / WhatsApp</label>
+        <input type="tel" id="custPhone" placeholder="e.g. 0244123456" required>
+        <div id="custPhoneError" class="error-msg">⚠️ Unrecognized user name or phone number. Please sign up or register as a partner first.</div>
+
+        <label>Pickup Location</label>
+        <input type="text" id="pickupLoc" placeholder="e.g. Kotokuraba Market" required>
+
+        <label>Destination Location</label>
+        <input type="text" id="destLoc" placeholder="e.g. Abura" required>
+
+        <label>Who is this delivery for?</label>
+        <select id="deliveryFor" required>
+          <option value="myself">Self</option>
+          <option value="other">Other (Someone Else)</option>
+        </select>
+
+        <!-- Optional Special Instructions (For Self) -->
+        <div id="selfInstructionsField">
+          <label>Special Instructions (Optional)</label>
+          <textarea id="specialNotes" rows="2" placeholder="e.g. Leave package with shop attendant at Gate B"></textarea>
+        </div>
+
+        <!-- Mandatory Recipient Fields (For Other) -->
+        <div id="recipientFields" style="display: none;">
+          <label>Recipient Name</label>
+          <input type="text" id="recipientName" placeholder="Recipient's full name">
+
+          <label>Recipient Phone Number</label>
+          <input type="tel" id="recipientPhone" placeholder="024 XXX XXXX">
+        </div>
+
+        <label>Offered Delivery Fare (GHS)</label>
+        <input type="number" id="offerPrice" placeholder="e.g. 25" min="1" required>
+
+        <button type="submit" class="btn">Post Delivery Request</button>
+      </form>
+    </div>
+
+    <!-- 2. Streamlined Partner Registration Form -->
+    <div class="form-container">
+      <h2>Partner Quick Sign-Up</h2>
+      <form id="deliveryPartnerForm">
+        <label>Full Name</label>
+        <input type="text" id="partnerName" placeholder="e.g. Yaw Boakye" required>
+
+        <label>Phone Number / WhatsApp</label>
+        <input type="tel" id="partnerPhone" placeholder="e.g. 0501234567" required>
+
+        <label>Number Plate</label>
+        <input type="text" id="numberPlate" placeholder="e.g. M-24-CC 4012" required>
+
+        <button type="submit" class="btn">Register as Partner</button>
+      </form>
+    </div>
+
+    <!-- 3. Live Delivery Requests Section -->
+    <section class="live-deliveries">
+      <h2>Live Delivery Requests</h2>
+      <p style="font-size: 0.85rem; color: #aab7b8;">View, negotiate fare, or accept requests in real-time.</p>
+
+      <!-- Push Notification Action Buttons -->
+      <button type="button" id="enablePushBtn" class="btn btn-success">
+        🔔 Enable Job Notifications
+      </button>
+      
+      <button type="button" id="testAlertBtn" class="btn btn-secondary" style="display: none; margin-top: 8px;">
+        🚀 Send Test Notification
+      </button>
+
+      <div class="delivery-job" id="deliveryJobCard">
+        <h3 style="margin-top: 0; color: #f7a600;">Express Delivery</h3>
+        <p><strong>Customer:</strong> <span id="jobCustomerName">Kweku Mensah</span> (<span id="jobCustomerPhone">0244123456</span>)</p>
+        <p><strong>Pickup:</strong> <span id="jobPickup">Kotokuraba</span></p>
+        <p><strong>Destination:</strong> <span id="jobDest">Abura</span></p>
+        <p><strong>For:</strong> <span id="jobRecipientType">Self</span></p>
+        <p id="jobNotesContainer" style="display: none;"><strong>Instructions:</strong> <span id="jobNotes">--</span></p>
+        <p><strong>Initial Offered Fare:</strong> <span style="color: #25d366; font-weight: bold;">GHS <span id="jobFare">25</span></span></p>
+        <p><strong>Status:</strong> <span id="deliveryStatus" style="color: #ffc107;">Waiting for Partner</span></p>
+
+        <!-- System Witness Banner -->
+        <div id="systemWitnessBanner" style="display: none; background-color: #111b21; border: 1px solid #25d366; padding: 12px; border-radius: 6px; margin: 10px 0;">
+          <p style="margin: 0; color: #25d366; font-weight: bold;">📜 System Witnessed Agreement</p>
+          <p style="margin: 5px 0 0 0;">Agreed Fare Assessed by Customer: <span id="agreedFareText" style="font-size: 18px; font-weight: bold; color: #fff;">GHS 26</span></p>
+        </div>
+
+        <!-- Accepted Partner Info Container -->
+        <div id="acceptedPartner" style="display: none; background-color: #111b21; padding: 10px; border-radius: 6px; margin-top: 10px; border-left: 4px solid #25d366;">
+          <p style="margin:0;"><strong>Partner:</strong> <span id="assignedPartnerName">Kwame Mensah</span></p>
+          <p style="margin:5px 0 0 0;"><strong>Phone / WhatsApp:</strong> <span id="assignedPartnerPhone">024 000 0000</span></p>
+          <p style="margin:5px 0 0 0;"><strong>Number Plate:</strong> <span id="assignedPartnerPlate">M-24-CC 4012</span></p>
+        </div>
+
+        <!-- STEP 1: Partner Sends Counter Offer -->
+        <div id="partnerCounterBox" class="negotiation-box">
+          <label style="margin-top: 0;">1. Partner Counter Offer (GHS):</label>
+          <input type="number" id="counterPriceInput" placeholder="e.g. 27">
+          <button type="button" id="sendCounterBtn" class="btn btn-secondary">Send Counter Offer</button>
+        </div>
+
+        <!-- STEP 2: Customer Assesses Counter Offer -->
+        <div id="customerAssessBox" class="negotiation-box" style="display: none; border-left-color: #17a2b8;">
+          <p style="margin-top:0;"><strong>Driver Counter Offer:</strong> <span id="counterPriceText" style="font-weight: bold; color: #f7a600;">GHS 27</span></p>
+          <label>2. Customer Assesses & Sets Agreed Fare (GHS):</label>
+          <input type="number" id="agreedPriceInput" placeholder="e.g. 26" value="26">
+          <button type="button" id="assessAgreedBtn" class="btn">Set Agreed Amount (Customer)</button>
+        </div>
+
+        <!-- STEP 3: Action Buttons -->
+        <div class="action-group">
+          <button id="acceptInitialBtn" class="btn btn-success">Accept Initial Fare (GHS <span id="btnInitialFare">25</span>)</button>
+          <button id="grabLockedBtn" class="btn btn-success" style="display: none;">3. Grab & Lock Delivery</button>
+          <button id="releaseDeliveryBtn" class="btn btn-warning" style="display: none;">🔄 Release Delivery (Partner)</button>
+          <button id="cancelDeliveryBtn" class="btn btn-danger">❌ Cancel Request (Customer)</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+      // Database for Client Validation
+      const registeredDatabase = [
+        { name: "kweku mensah", phone: "0244123456", role: "customer" },
+        { name: "yaw boakye", phone: "0501234567", role: "partner", plate: "M-24-CC 4012" }
+      ];
+
+      // Form Elements
+      const requestForm = document.getElementById("deliveryRequestForm");
+      const partnerForm = document.getElementById("deliveryPartnerForm");
+      
+      const custNameInput = document.getElementById("custName");
+      const custPhoneInput = document.getElementById("custPhone");
+      const custPhoneError = document.getElementById("custPhoneError");
+
+      const deliveryFor = document.getElementById("deliveryFor");
+      const selfInstructionsField = document.getElementById("selfInstructionsField");
+      const recipientFields = document.getElementById("recipientFields");
+      const recipientName = document.getElementById("recipientName");
+      const recipientPhone = document.getElementById("recipientPhone");
+
+      // Recipient Dynamic Toggle
+      if (deliveryFor) {
+        deliveryFor.addEventListener("change", function () {
+          if (this.value === "other") {
+            recipientFields.style.display = "block";
+            selfInstructionsField.style.display = "none";
+            recipientName.required = true;
+            recipientPhone.required = true;
+          } else {
+            recipientFields.style.display = "none";
+            selfInstructionsField.style.display = "block";
+            recipientName.required = false;
+            recipientPhone.required = false;
+            recipientName.value = "";
+            recipientPhone.value = "";
+          }
+        });
+      }
+
+      // Partner Registration Handler
+      if (partnerForm) {
+        partnerForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+          const pName = document.getElementById("partnerName").value.trim();
+          const pPhone = document.getElementById("partnerPhone").value.trim();
+          const pPlate = document.getElementById("numberPlate").value.trim();
+
+          registeredDatabase.push({ name: pName.toLowerCase(), phone: pPhone, role: "partner", plate: pPlate });
+
+          alert(`Partner ${pName} (${pPlate}) registered successfully! You can now accept requests.`);
+          partnerForm.reset();
+        });
+      }
+
+      // Customer Delivery Request Form Handler
+      if (requestForm) {
+        requestForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const enteredName = custNameInput.value.trim().toLowerCase();
+          const enteredPhone = custPhoneInput.value.trim();
+
+          const userExists = registeredDatabase.some(
+            user => user.phone === enteredPhone && user.name === enteredName
+          );
+
+          if (!userExists) {
+            custPhoneError.style.display = "block";
+            alert("Security Error: Unrecognized Name or Phone Number. Please sign up or register first.");
+            return;
+          }
+
+          custPhoneError.style.display = "none";
+
+          const offerVal = document.getElementById("offerPrice").value;
+
+          // Update Live Job Card
+          document.getElementById("jobCustomerName").textContent = custNameInput.value;
+          document.getElementById("jobCustomerPhone").textContent = enteredPhone;
+          document.getElementById("jobPickup").textContent = document.getElementById("pickupLoc").value;
+          document.getElementById("jobDest").textContent = document.getElementById("destLoc").value;
+          document.getElementById("jobFare").textContent = offerVal;
+          document.getElementById("btnInitialFare").textContent = offerVal;
+
+          if (deliveryFor.value === "other") {
+            document.getElementById("jobRecipientType").textContent = `Other: ${recipientName.value} (${recipientPhone.value})`;
+            document.getElementById("jobNotesContainer").style.display = "none";
+          } else {
+            document.getElementById("jobRecipientType").textContent = "Self";
+            const notes = document.getElementById("specialNotes").value;
+            if (notes) {
+              document.getElementById("jobNotesContainer").style.display = "block";
+              document.getElementById("jobNotes").textContent = notes;
+            } else {
+              document.getElementById("jobNotesContainer").style.display = "none";
+            }
+          }
+
+          // Reset Job Card Visual State
+          const jobCard = document.getElementById("deliveryJobCard");
+          jobCard.style.opacity = "1";
+          document.getElementById("deliveryStatus").textContent = "Waiting for Partner";
+          document.getElementById("deliveryStatus").style.color = "#ffc107";
+          document.getElementById("partnerCounterBox").style.display = "block";
+          document.getElementById("acceptInitialBtn").style.display = "block";
+          document.getElementById("cancelDeliveryBtn").disabled = false;
+          document.getElementById("cancelDeliveryBtn").textContent = "❌ Cancel Request (Customer)";
+
+          alert("Delivery request validated and posted successfully!");
+        });
+      }
+
+      // Push Notification Setup
+      const enablePushBtn = document.getElementById("enablePushBtn");
+      const testAlertBtn = document.getElementById("testAlertBtn");
+
+      if (enablePushBtn) {
+        enablePushBtn.addEventListener("click", async function () {
+          if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+            alert("Push notifications are not supported on this browser.");
+            return;
+          }
+
+          try {
+            const permission = await Notification.requestPermission();
+            if (permission === "granted") {
+              const registration = await navigator.serviceWorker.register("./sw.js");
+              alert("Notifications enabled!");
+              enablePushBtn.textContent = "✓ Notifications Active";
+              enablePushBtn.disabled = true;
+              if (testAlertBtn) testAlertBtn.style.display = "block";
+            } else if (permission === "denied") {
+              alert("Permission denied. Enable notifications in browser settings.");
+            }
+          } catch (error) {
+            console.error("Error setting up notifications:", error);
+          }
+        });
+      }
+
+      if (testAlertBtn) {
+        testAlertBtn.addEventListener("click", async function () {
+          const registration = await navigator.serviceWorker.ready;
+          registration.showNotification("New Live Delivery Alert! 📦", {
+            body: "Express Delivery available: Pickup in Kotokuraba -> Abura.",
+            vibrate: [200, 100, 200],
+            data: { url: "./delivery.html" }
+          });
+        });
+      }
+
+      // Negotiation Elements
+      const partnerCounterBox = document.getElementById("partnerCounterBox");
+      const counterPriceInput = document.getElementById("counterPriceInput");
+      const sendCounterBtn = document.getElementById("sendCounterBtn");
+
+      const customerAssessBox = document.getElementById("customerAssessBox");
+      const counterPriceText = document.getElementById("counterPriceText");
+      const agreedPriceInput = document.getElementById("agreedPriceInput");
+      const assessAgreedBtn = document.getElementById("assessAgreedBtn");
+
+      const systemWitnessBanner = document.getElementById("systemWitnessBanner");
+      const agreedFareText = document.getElementById("agreedFareText");
+
+      const acceptInitialBtn = document.getElementById("acceptInitialBtn");
+      const grabLockedBtn = document.getElementById("grabLockedBtn");
+      const releaseDeliveryBtn = document.getElementById("releaseDeliveryBtn");
+      const cancelDeliveryBtn = document.getElementById("cancelDeliveryBtn");
+      
+      const acceptedPartner = document.getElementById("acceptedPartner");
+      const deliveryStatus = document.getElementById("deliveryStatus");
+
+      // Direct Grab at Initial Fare
+      if (acceptInitialBtn) {
+        acceptInitialBtn.addEventListener("click", function () {
+          const currentFare = document.getElementById("jobFare").textContent;
+          if (acceptedPartner) acceptedPartner.style.display = "block";
+          if (deliveryStatus) {
+            deliveryStatus.textContent = `Partner Accepted (GHS ${currentFare})`;
+            deliveryStatus.style.color = "#25d366";
+          }
+
+          acceptInitialBtn.style.display = "none";
+          if (partnerCounterBox) partnerCounterBox.style.display = "none";
+          if (releaseDeliveryBtn) releaseDeliveryBtn.style.display = "block";
+
+          alert(`Delivery grabbed and locked at initial fare GHS ${currentFare}!`);
+        });
+      }
+
+      // Step 1: Partner Sends Counter Offer
+      if (sendCounterBtn) {
+        sendCounterBtn.addEventListener("click", function () {
+          const counterVal = counterPriceInput.value;
+          if (!counterVal || counterVal <= 0) {
+            alert("Please enter a valid counter offer amount.");
+            return;
+          }
+
+          counterPriceText.textContent = `GHS ${counterVal}`;
+          if (deliveryStatus) {
+            deliveryStatus.textContent = `Counter Offer Sent (GHS ${counterVal})`;
+            deliveryStatus.style.color = "#17a2b8";
+          }
+          
+          if (partnerCounterBox) partnerCounterBox.style.display = "none";
+          if (customerAssessBox) customerAssessBox.style.display = "block";
+
+          alert(`Counter offer of GHS ${counterVal} sent to customer.`);
+        });
+      }
+
+      // Step 2: Customer Assesses Counter Offer & Sets Agreed Fare
+      if (assessAgreedBtn) {
+        assessAgreedBtn.addEventListener("click", function () {
+          const finalFare = agreedPriceInput.value;
+          if (!finalFare || finalFare <= 0) {
+            alert("Please enter a valid agreed amount.");
+            return;
+          }
+
+          agreedFareText.textContent = `GHS ${finalFare}`;
+          if (systemWitnessBanner) systemWitnessBanner.style.display = "block";
+          if (deliveryStatus) {
+            deliveryStatus.textContent = `Agreed Fare Set: GHS ${finalFare} (Awaiting Partner Lock)`;
+            deliveryStatus.style.color = "#ffc107";
+          }
+
+          if (customerAssessBox) customerAssessBox.style.display = "none";
+          if (acceptInitialBtn) acceptInitialBtn.style.display = "none";
+          if (grabLockedBtn) grabLockedBtn.style.display = "block";
+
+          alert(`Customer assessed agreed fare at GHS ${finalFare}. System witnessed. Part
