@@ -224,10 +224,25 @@ textarea:focus{
 </div>
 
       <div class="field">
-        <label>IMAGES</label>
-        <div class="images">
-          + Add up to 5 images
-        </div>
+  <label>PHOTOS</label>
+
+  <input
+    type="file"
+    id="rentalImages"
+    accept="image/*"
+    multiple
+  >
+
+  <small style="display:block;margin-top:8px;color:#a8b6b3;">
+    1–5 images required • Maximum 2 MB per image
+  </small>
+
+  <div id="imagePreview" style="
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:12px;
+  "></div>
       </div>
 
       <div class="field">
