@@ -197,7 +197,15 @@
   <!-- Complete Script -->
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-      
+      // TEST: Check if Job Alerts button responds
+const testBtn = document.getElementById("enablePushBtn");
+
+if (testBtn) {
+  testBtn.addEventListener("click", function (event) {
+    event.stopImmediatePropagation();
+    alert("Job Alerts button is working!");
+  }, true);
+}
       // 1. Delivery Request Form
       const requestForm = document.getElementById("deliveryRequestForm");
       if (requestForm) {
