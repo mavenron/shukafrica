@@ -320,7 +320,166 @@ if (gpsStatus) {
         });
       }
 
-      // 4.  
+      // 4. ShukAfrica Job Alerts
+
+const enablePushBtn = document.getElementById("enablePushBtn");
+const enableGpsBtn = document.getElementById("enableGpsBtn");
+const notificationStatus = document.getElementById("notificationStatus");
+const gpsStatus = document.getElementById("gpsStatus");
+const testAlertBtn = document.getElementById("testAlertBtn");
+
+
+// 🔔 ENABLE JOB NOTIFICATIONS
+if (enablePushBtn) {
+
+  enablePushBtn.addEventListener("click", async function () {
+
+    try {
+
+      // Check browser support
+      if (!("Notification" in window)) {
+
+        alert("Notifications are not supported on this browser.");
+        return;
+
+      }
+
+      // Request notification permission
+      const permission = await Notification.requestPermission();
+
+      if (permission === "granted") {
+
+        if (notificationStatus) {
+          notificationStatus.textContent =
+            "✓ Notifications are enabled.";
+          notificationStatus.style.color = "#25d366";
+        }
+
+        enablePushBtn.textContent =
+          "✓ Job Notifications Enabled";
+
+        enablePushBtn.disabled = true;
+
+        if (testAlertBtn) {
+          testAlertBtn.style.display = "block";
+        }
+
+      } else {
+
+        if (notificationStatus) {
+          notificationStatus.textContent =
+            "Notifications are not enabled.";
+          notificationStatus.style.color = "#ffc107";
+        }
+
+        alert(
+          "Please allow notifications in your browser settings so ShukAfrica can send job alerts."
+        );
+
+      }
+
+    } catch (error) {
+
+      console.error("Notification error:", error);
+      alert("Unable to enable notifications.");
+
+    }
+
+  });
+
+}
+
+
+// 📍 ENABLE GPS LOCATION
+if (enableGpsBtn) {
+
+  enableGpsBtn.addEventListener("click", function () {
+
+    if (!navigator.geolocation) {
+
+      if (gpsStatus) {
+        gpsStatus.textContent =
+          "📍 GPS is not supported on this device.";
+        gpsStatus.style.color = "#dc3545";
+      }
+
+      return;
+    }
+
+    if (gpsStatus) {
+      gpsStatus.textContent =
+        "📍 Requesting GPS location...";
+      gpsStatus.style.color = "#aab7b8";
+    }
+
+    navigator.geolocation.getCurrentPosition(
+
+      function (position) {
+
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+
+        console.log(
+          "ShukAfrica GPS:",
+          latitude,
+          longitude
+        );
+
+        // Temporary frontend storage
+        localStorage.setItem(
+          "shukafrica_partner_latitude",
+          latitude
+        );
+
+        localStorage.setItem(
+          "shukafrica_partner_longitude",
+          longitude
+        );
+
+        if (gpsStatus) {
+
+          gpsStatus.textContent =
+            "✓ GPS location detected";
+
+          gpsStatus.style.color = "#25d366";
+        }
+
+        enableGpsBtn.textContent =
+          "✓ Location Enabled";
+
+        enableGpsBtn.disabled = true;
+
+      },
+
+      function (error) {
+
+        console.log("GPS Error:", error);
+
+        if (gpsStatus) {
+
+          gpsStatus.textContent =
+            "📍 GPS permission was not granted.";
+
+          gpsStatus.style.color = "#ffc107";
+        }
+
+        alert(
+          "Please allow location access so ShukAfrica can use GPS for delivery matching."
+        );
+
+      },
+
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 30000
+      }
+
+    );
+
+  });
+
+}
 
       // 5. Test Notification Trigger
       if (testAlertBtn) {
