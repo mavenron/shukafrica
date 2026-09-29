@@ -429,23 +429,52 @@ if (deliveryFor) {
     }
 
   });
-  // Grab Delivery
-const grabDeliveryBtn = document.getElementById("grabDeliveryBtn");
-const acceptedPartner = document.getElementById("acceptedPartner");
-const deliveryStatus = document.getElementById("deliveryStatus");
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grab Delivery</title>
+</head>
+<body>
 
-if (grabDeliveryBtn) {
-  grabDeliveryBtn.addEventListener("click", function() {
-    acceptedPartner.style.display = "block";
-    deliveryStatus.textContent = "Partner Accepted";
-    grabDeliveryBtn.textContent = "Delivery Accepted";
-    grabDeliveryBtn.disabled = true;
+  <!-- Delivery UI Elements -->
+  <button id="grabDeliveryBtn">Accept Delivery</button>
+  <div id="acceptedPartner" style="display: none; margin-top: 10px;">
+    <strong>Partner:</strong> Driver Assigned
+  </div>
+  <p id="deliveryStatus">Status: Pending</p>
 
-    alert("Delivery accepted.");
-  });
-}
+  <!-- Script placed at bottom to ensure DOM elements are loaded -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const grabDeliveryBtn = document.getElementById("grabDeliveryBtn");
+      const acceptedPartner = document.getElementById("acceptedPartner");
+      const deliveryStatus = document.getElementById("deliveryStatus");
 
-</script>
+      if (grabDeliveryBtn) {
+        grabDeliveryBtn.addEventListener("click", function () {
+          // Check element existence before updating style/text
+          if (acceptedPartner) {
+            acceptedPartner.style.display = "block";
+          }
+          
+          if (deliveryStatus) {
+            deliveryStatus.textContent = "Status: Partner Accepted";
+          }
+
+          // Lock button and update text
+          grabDeliveryBtn.textContent = "Delivery Accepted";
+          grabDeliveryBtn.disabled = true;
+
+          alert("Delivery accepted.");
+        });
+      } else {
+        console.error("Element #grabDeliveryBtn was not found on the page.");
+      }
+    });
+  </script>
+
 </body>
-</html>  
+</html>
 
