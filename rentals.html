@@ -1,1 +1,283 @@
-<a class="service rent" href="rentals.html">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Rentals — ShukAfrica</title>
+
+  <style>
+    :root{
+      --bg:#071112;
+      --panel:#101d1e;
+      --line:#263738;
+      --text:#f5f7f5;
+      --muted:#a8b6b3;
+      --gold:#ffb52e;
+      --green:#00a86b;
+      --red:#ed3e35;
+      --radius:18px;
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:Arial,sans-serif;
+    }
+
+    .wrap{
+      width:min(900px,calc(100% - 28px));
+      margin:auto;
+    }
+
+    header{
+      border-bottom:1px solid var(--line);
+      background:#071112;
+      padding:18px 0;
+    }
+
+    .top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .brand{
+      font-size:23px;
+      font-weight:800;
+    }
+
+    .brand span{
+      color:var(--gold);
+    }
+
+    .back{
+      color:var(--gold);
+      text-decoration:none;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    main{
+      padding:30px 0 50px;
+    }
+
+    h1{
+      margin:0;
+      font-size:32px;
+    }
+
+    .intro{
+      color:var(--muted);
+      margin:7px 0 28px;
+      font-size:14px;
+    }
+
+    .form-box{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:22px;
+    }
+
+    .field{
+      margin-bottom:20px;
+    }
+
+    label{
+      display:block;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.6px;
+      margin-bottom:8px;
+    }
+
+    input,
+    textarea,
+    select{
+      width:100%;
+      border:1px solid #354647;
+      background:#0b1819;
+      color:white;
+      border-radius:11px;
+      padding:13px;
+      outline:none;
+    }
+
+    textarea{
+      min-height:110px;
+      resize:vertical;
+    }
+
+    .availability{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    .availability label{
+      margin:0;
+    }
+
+    .availability input{
+      display:none;
+    }
+
+    .availability span{
+      display:block;
+      text-align:center;
+      padding:13px;
+      border:1px solid #354647;
+      border-radius:11px;
+      cursor:pointer;
+    }
+
+    .availability input:checked + span{
+      border-color:var(--green);
+      background:#09271f;
+    }
+
+    .images{
+      border:1px dashed #50605f;
+      border-radius:12px;
+      padding:20px;
+      text-align:center;
+      color:var(--muted);
+    }
+
+    .post{
+      width:100%;
+      border:0;
+      border-radius:999px;
+      background:var(--gold);
+      color:#111;
+      padding:14px;
+      font-weight:800;
+      cursor:pointer;
+      font-size:14px;
+    }
+
+    .note{
+      margin-top:18px;
+      padding:13px;
+      border-radius:10px;
+      background:#171d1d;
+      color:var(--muted);
+      font-size:11px;
+      text-align:center;
+    }
+
+    @media(max-width:600px){
+      h1{
+        font-size:27px;
+      }
+
+      .form-box{
+        padding:17px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="wrap top">
+    <div class="brand">
+      SHUK<span>AFRICA</span>
+    </div>
+
+    <a href="index.html" class="back">← Back</a>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <h1>RENTALS</h1>
+
+    <p class="intro">
+      Rent products, properties and equipment across the region.
+    </p>
+
+    <div class="form-box">
+
+      <div class="field">
+        <label>WHAT ARE YOU RENTING?</label>
+        <input type="text" placeholder="e.g. 2 Bedroom House, Toyota Corolla, Excavator">
+      </div>
+
+      <div class="field">
+        <label>IMAGES</label>
+        <div class="images">
+          + Add up to 5 images
+        </div>
+      </div>
+
+      <div class="field">
+        <label>PRICE</label>
+        <input type="text" placeholder="e.g. GH₵ 3,000/month">
+      </div>
+
+      <div class="field">
+        <label>AVAILABILITY</label>
+
+        <div class="availability">
+          <label>
+            <input type="radio" name="availability" checked>
+            <span>🟢 Available</span>
+          </label>
+
+          <label>
+            <input type="radio" name="availability">
+            <span>🔴 Not Available</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>CONDITION</label>
+        <select>
+          <option>New</option>
+          <option>Good Condition</option>
+          <option>Used</option>
+          <option>Needs Repair</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>RENTAL TERMS &amp; REQUIREMENTS</label>
+        <textarea placeholder="Enter any important rental terms or requirements..."></textarea>
+      </div>
+
+      <div class="field">
+        <label>LOCATION</label>
+        <input type="text" placeholder="City / Town / Area">
+      </div>
+
+      <div class="field">
+        <label>CONTACT</label>
+        <input type="text" placeholder="Phone / WhatsApp">
+      </div>
+
+      <button class="post" type="button">
+        POST RENTAL
+      </button>
+
+      <div class="note">
+        ShukAfrica connects renters with owners. Payment and rental agreements are handled directly between the parties.
+      </div>
+
+    </div>
+
+  </div>
+</main>
+
+</body>
+  </html>
