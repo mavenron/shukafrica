@@ -124,9 +124,25 @@
     <p>View, negotiate fare, or accept requests in real-time.</p>
 
     <!-- Notification Action Buttons -->
-    <button type="button" id="enablePushBtn" class="btn" style="background-color: #25d366; color: #fff;">
-      🔔 Enable Job Notifications
-    </button>
+    <div style="background:#182229; padding:12px; border-radius:8px; margin:15px 0;">
+  <p style="margin:0 0 8px 0; font-weight:bold;">
+    🔔 ShukAfrica Job Alerts
+  </p>
+
+  <p style="margin:0 0 10px 0; color:#aab7b8; font-size:14px;">
+    Nearby delivery partners will be notified when a delivery matching their vehicle type and location is posted.
+  </p>
+
+  <button type="button" id="enablePushBtn" class="btn"
+    style="background-color:#25d366; color:#fff;">
+    🔔 Enable Job Alerts
+  </button>
+
+  <p id="notificationStatus"
+     style="font-size:13px; color:#aab7b8; margin:8px 0 0 0;">
+    Notifications are not enabled.
+  </p>
+    </div>
     
     <button type="button" id="testAlertBtn" class="btn btn-secondary" style="display: none;">
       🚀 Send Test Notification
