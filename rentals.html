@@ -276,7 +276,15 @@ textarea:focus{
         <input type="text" placeholder="Phone / WhatsApp">
       </div>
 
-      <button class="post" id="postRentalBtn">POST RENTAL</button>
+      <button class="post" type="button" onclick="showRentalMessage()">
+  POST RENTAL
+</button>
+
+<script>
+function showRentalMessage() {
+  alert("Your rental listing has been submitted successfully!");
+}
+</script>
         
 
       <div class="note">
