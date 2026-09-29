@@ -237,7 +237,72 @@ if (testBtn) {
           alert("Your delivery partner application has been received.");
         });
       }
+// 2B. ShukAfrica GPS Location
 
+const gpsStatus = document.getElementById("gpsStatus");
+
+if (gpsStatus) {
+
+  if (!navigator.geolocation) {
+
+    gpsStatus.textContent =
+      "📍 GPS is not supported on this device.";
+    gpsStatus.style.color = "#dc3545";
+
+  } else {
+
+    gpsStatus.textContent =
+      "📍 Requesting GPS location...";
+
+    navigator.geolocation.getCurrentPosition(
+
+      function (position) {
+
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+
+        console.log("ShukAfrica GPS:", latitude, longitude);
+
+        // Temporary frontend storage
+        localStorage.setItem(
+          "shukafrica_partner_latitude",
+          latitude
+        );
+
+        localStorage.setItem(
+          "shukafrica_partner_longitude",
+          longitude
+        );
+
+        gpsStatus.textContent =
+          "📍 GPS location detected";
+
+        gpsStatus.style.color = "#25d366";
+
+      },
+
+      function (error) {
+
+        console.log("GPS Error:", error);
+
+        gpsStatus.textContent =
+          "📍 GPS permission was not granted.";
+
+        gpsStatus.style.color = "#ffc107";
+
+      },
+
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 30000
+      }
+
+    );
+
+  }
+
+}
       // 3. Recipient Toggle
       const deliveryFor = document.getElementById("deliveryFor");
       const recipientFields = document.getElementById("recipientFields");
