@@ -1,2 +1,203 @@
-<!DOCTYPE
-  <
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShukAfrica - Delivery Portal</title>
+  <style>
+    body {
+      background-color: #0b141a;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .form-container, .live-deliveries {
+      background-color: #111b21;
+      border: 1px solid #1f2c33;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      max-width: 500px;
+    }
+    label {
+      display: block;
+      margin-top: 12px;
+      margin-bottom: 4px;
+      font-weight: bold;
+    }
+    input[type="text"], input[type="tel"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #1f2c33;
+      background-color: #182229;
+      color: #fff;
+      box-sizing: border-box;
+    }
+    .btn {
+      background-color: #f7a600;
+      color: #000;
+      border: none;
+      padding: 12px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+    }
+    .btn:disabled {
+      background-color: #333;
+      color: #888;
+      cursor: not-allowed;
+    }
+    .delivery-job {
+      border-top: 1px solid #1f2c33;
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Partner Registration Form -->
+  <div class="form-container">
+    <h2>Partner Registration</h2>
+    <form id="deliveryPartnerForm">
+      <label>Areas You Cover</label>
+      <input type="text" placeholder="Areas you cover" required>
+
+      <label>Photo ID</label>
+      <p style="color:#aab7b8; font-size:14px; margin: 2px 0 8px 0;">
+        Upload a clear photo of your Ghana Card or other valid ID.
+      </p>
+      <input type="file" accept="image/*" required>
+
+      <label>Emergency Contact — Close Relative</label>
+      <input type="text" placeholder="Emergency contact name" required>
+
+      <label>Emergency Contact Number</label>
+      <input type="tel" placeholder="Emergency contact number" required>
+
+      <label style="margin-top: 15px; font-weight: normal;">
+        <input type="checkbox" required>
+        I confirm that the information provided is accurate and may be verified by ShukAfrica.
+      </label>
+
+      <button type="submit" class="btn">Register as Partner</button>
+    </form>
+  </div>
+
+  <!-- Live Delivery Requests Section -->
+  <section class="live-deliveries">
+    <h2>Live Delivery Requests</h2>
+    <p>Nearby delivery partners can view and grab available requests.</p>
+
+    <!-- 1. NOTIFICATION BUTTONS LOCATED HERE -->
+    <button type="button" id="enablePushBtn" class="btn" style="background-color: #25d366; color: #fff;">
+      🔔 Enable Job Notifications
+    </button>
+    
+    <button type="button" id="testAlertBtn" class="btn" style="background-color: #17a2b8; color: #fff; display: none;">
+      🚀 Send Test Notification
+    </button>
+
+    <div class="delivery-job">
+      <h3>Express Delivery</h3>
+      <p><strong>Pickup:</strong> Kotokuraba</p>
+      <p><strong>Destination:</strong> Abura</p>
+      <p><strong>Package:</strong> Documents</p>
+      <p><strong>Status:</strong> <span id="deliveryStatus">Waiting for Partner</span></p>
+
+      <!-- Accepted Partner Details -->
+      <div id="acceptedPartner" style="display: none; background-color: #182229; padding: 10px; border-radius: 6px; margin-top: 10px;">
+        <p><strong>Partner:</strong> Kwame Mensah</p>
+        <p><strong>Phone / WhatsApp:</strong> 024 000 0000</p>
+        <p><strong>Vehicle:</strong> Motorbike</p>
+        <p><strong>Registration:</strong> AS 1234-24</p>
+      </div>
+
+      <button id="grabDeliveryBtn" class="btn">Grab Delivery</button>
+    </div>
+  </section>
+
+  <!-- 2. SCRIPT LOCATED AT THE VERY BOTTOM (BEFORE </body>) -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      
+      const enablePushBtn = document.getElementById("enablePushBtn");
+      const testAlertBtn = document.getElementById("testAlertBtn");
+
+      // Enable Notifications Logic
+      if (enablePushBtn) {
+        enablePushBtn.addEventListener("click", async function () {
+          if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+            alert("Push notifications are not supported on this browser.");
+            return;
+          }
+
+          try {
+            const permission = await Notification.requestPermission();
+
+            if (permission === "granted") {
+              const registration = await navigator.serviceWorker.register("./sw.js");
+              console.log("Service Worker registered successfully:", registration);
+
+              alert("Notifications enabled!");
+              enablePushBtn.textContent = "✓ Notifications Active";
+              enablePushBtn.disabled = true;
+
+              if (testAlertBtn) testAlertBtn.style.display = "block";
+            } else if (permission === "denied") {
+              alert("Permission was denied. Please allow notifications in browser settings.");
+            }
+          } catch (error) {
+            console.error("Error setting up notifications:", error);
+          }
+        });
+      }
+
+      // Test Notification Trigger
+      if (testAlertBtn) {
+        testAlertBtn.addEventListener("click", async function () {
+          const registration = await navigator.serviceWorker.ready;
+          
+          registration.showNotification("New Live Delivery Alert! 📦", {
+            body: "Express Delivery available: Pickup in Kotokuraba -> Abura.",
+            vibrate: [200, 100, 200],
+            data: { url: "./delivery.html" }
+          });
+        });
+      }
+
+      // Partner Registration Form Submission
+      const partnerForm = document.getElementById("deliveryPartnerForm");
+      if (partnerForm) {
+        partnerForm.addEventListener("submit", function (event) {
+          event.preventDefault();
+          alert("Your delivery partner application has been received.");
+        });
+      }
+
+      // Grab Delivery Button Logic
+      const grabDeliveryBtn = document.getElementById("grabDeliveryBtn");
+      const acceptedPartner = document.getElementById("acceptedPartner");
+      const deliveryStatus = document.getElementById("deliveryStatus");
+
+      if (grabDeliveryBtn) {
+        grabDeliveryBtn.addEventListener("click", function () {
+          if (acceptedPartner) acceptedPartner.style.display = "block";
+          if (deliveryStatus) deliveryStatus.textContent = "Partner Accepted";
+
+          grabDeliveryBtn.textContent = "Delivery Accepted";
+          grabDeliveryBtn.disabled = true;
+
+          alert("Delivery accepted.");
+        });
+      }
+
+    });
+  </script>
+</body>
+</html>
+
+  
