@@ -1,3 +1,893 @@
 <!DOCTYPE html>
 <html lang="en">
-<
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShukAfrica - Delivery Portal</title>
+
+  <style>
+    body {
+      background-color: #0b141a;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    .form-container,
+    .live-deliveries {
+      background-color: #111b21;
+      border: 1px solid #1f2c33;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      max-width: 500px;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      margin-bottom: 4px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="tel"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #1f2c33;
+      background-color: #182229;
+      color: #fff;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .delivery-type {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .delivery-type label {
+      flex: 1;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .delivery-type input {
+      display: none;
+    }
+
+    .type-option {
+      display: block;
+      text-align: center;
+      padding: 12px;
+      border: 1px solid #1f2c33;
+      border-radius: 6px;
+      background: #182229;
+    }
+
+    .delivery-type input:checked + .type-option {
+      background: #f7a600;
+      color: #000;
+      border-color: #f7a600;
+      font-weight: bold;
+    }
+
+    .btn {
+      background-color: #f7a600;
+      color: #000;
+      border: none;
+      padding: 12px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 12px;
+    }
+
+    .btn-secondary {
+      background-color: #17a2b8;
+      color: #fff;
+    }
+
+    .btn-success {
+      background-color: #25d366;
+      color: #fff;
+    }
+
+    .btn-danger {
+      background-color: #dc3545;
+      color: #fff;
+    }
+
+    .btn-warning {
+      background-color: #ffc107;
+      color: #000;
+    }
+
+    .btn:disabled {
+      background-color: #333;
+      color: #888;
+      cursor: not-allowed;
+    }
+
+    .account-field {
+      background-color: #182229;
+      border: 1px solid #1f2c33;
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 8px;
+      color: #b9c3c7;
+    }
+
+    .account-field strong {
+      color: #fff;
+    }
+
+    .delivery-job {
+      border-top: 1px solid #1f2c33;
+      padding-top: 15px;
+      margin-top: 15px;
+    }
+
+    .delivery-info {
+      background-color: #182229;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+
+    .negotiation-box {
+      background-color: #182229;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 12px;
+      border-left: 4px solid #f7a600;
+    }
+
+    .action-group {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .status {
+      font-weight: bold;
+    }
+
+    .witness {
+      display: none;
+      background-color: #182229;
+      border: 1px solid #25d366;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 12px;
+    }
+
+    .witness-title {
+      color: #25d366;
+      font-weight: bold;
+    }
+
+    .muted {
+      color: #aab7b8;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- =========================================
+       1. CUSTOMER REQUESTS DELIVERY
+       ========================================= -->
+  <div class="form-container">
+
+    <h2>Request a Delivery</h2>
+
+    <form id="deliveryRequestForm">
+
+      <!-- Delivery Type -->
+      <label>Delivery Type</label>
+
+      <div class="delivery-type">
+
+        <label>
+          <input type="radio" name="deliveryType" value="express" required>
+          <span class="type-option">⚡ Express</span>
+        </label>
+
+        <label>
+          <input type="radio" name="deliveryType" value="standard">
+          <span class="type-option">📦 Standard</span>
+        </label>
+
+      </div>
+
+      <!-- Customer Account Information -->
+      <label>Your Information</label>
+
+      <div class="account-field">
+        <strong>Name:</strong>
+        <span id="customerName">Account Name</span>
+      </div>
+
+      <div class="account-field">
+        <strong>Phone / WhatsApp:</strong>
+        <span id="customerPhone">024 XXX XXXX</span>
+      </div>
+
+      <!-- Pickup -->
+      <label>Pickup Location</label>
+      <input
+        type="text"
+        id="pickupLocation"
+        placeholder="e.g. Kotokuraba Market"
+        required
+      >
+
+      <!-- Destination -->
+      <label>Destination</label>
+      <input
+        type="text"
+        id="destinationLocation"
+        placeholder="e.g. Abura"
+        required
+      >
+
+      <!-- Delivery For -->
+      <label>Who is this delivery for?</label>
+
+      <select id="deliveryFor" required>
+        <option value="myself">Myself</option>
+        <option value="other">Someone Else</option>
+      </select>
+
+      <!-- Recipient -->
+      <div id="recipientFields" style="display:none;">
+
+        <label>Recipient Name</label>
+        <input
+          type="text"
+          id="recipientName"
+          placeholder="Recipient's name"
+        >
+
+        <label>Recipient Phone / WhatsApp</label>
+        <input
+          type="tel"
+          id="recipientPhone"
+          placeholder="024 XXX XXXX"
+        >
+
+      </div>
+
+      <!-- Special Instructions -->
+      <label>Special Instructions <span class="muted">(Optional)</span></label>
+
+      <textarea
+        id="specialInstructions"
+        placeholder="e.g. Requires a truck, use a car, fragile item, handle carefully..."
+      ></textarea>
+
+      <!-- Order -->
+      <button type="submit" class="btn">
+        ORDER DELIVERY
+      </button>
+
+    </form>
+  </div>
+
+
+  <!-- =========================================
+       2. LIVE DELIVERY REQUESTS
+       ========================================= -->
+  <section class="live-deliveries">
+
+    <h2>Live Delivery Requests</h2>
+
+    <p class="muted">
+      Open delivery requests are available to delivery partners.
+    </p>
+
+    <!-- Notifications -->
+    <button
+      type="button"
+      id="enablePushBtn"
+      class="btn btn-success"
+    >
+      🔔 Enable Job Notifications
+    </button>
+
+    <button
+      type="button"
+      id="testAlertBtn"
+      class="btn btn-secondary"
+      style="display:none;"
+    >
+      🚀 Send Test Notification
+    </button>
+
+
+    <!-- =====================================
+         LIVE DELIVERY CARD
+         ===================================== -->
+    <div
+      class="delivery-job"
+      id="deliveryJobCard"
+      style="display:none;"
+    >
+
+      <h3 id="liveDeliveryTitle">
+        Express Delivery
+      </h3>
+
+      <div class="delivery-info">
+
+        <p>
+          <strong>Pickup:</strong>
+          <span id="livePickup"></span>
+        </p>
+
+        <p>
+          <strong>Destination:</strong>
+          <span id="liveDestination"></span>
+        </p>
+
+        <p>
+          <strong>Delivery For:</strong>
+          <span id="liveDeliveryFor"></span>
+        </p>
+
+        <p id="liveRecipientRow" style="display:none;">
+          <strong>Recipient:</strong>
+          <span id="liveRecipient"></span>
+        </p>
+
+        <p id="liveInstructionsRow" style="display:none;">
+          <strong>Instructions:</strong>
+          <span id="liveInstructions"></span>
+        </p>
+
+        <p>
+          <strong>Status:</strong>
+          <span
+            id="deliveryStatus"
+            class="status"
+          >
+            Open — Accepting Quotes
+          </span>
+        </p>
+
+      </div>
+
+
+      <!-- =====================================
+           RIDER QUOTE
+           ===================================== -->
+      <div
+        id="riderQuoteBox"
+        class="negotiation-box"
+      >
+
+        <label style="margin-top:0;">
+          Rider / Driver Quote (GHS)
+        </label>
+
+        <input
+          type="number"
+          id="counterPriceInput"
+          placeholder="Enter your delivery price"
+          min="1"
+        >
+
+        <button
+          type="button"
+          id="sendCounterBtn"
+          class="btn btn-secondary"
+        >
+          Send Quote
+        </button>
+
+      </div>
+
+
+      <!-- =====================================
+           CUSTOMER FINAL PAYMENT
+           ===================================== -->
+      <div
+        id="customerAssessBox"
+        class="negotiation-box"
+        style="display:none; border-left-color:#17a2b8;"
+      >
+
+        <p>
+          <strong>Rider's Quote:</strong>
+          <span
+            id="counterPriceText"
+            style="font-weight:bold; color:#f7a600;"
+          >
+            GHS 0
+          </span>
+        </p>
+
+        <label>
+          Final Payment You Want to Pay (GHS)
+        </label>
+
+        <input
+          type="number"
+          id="agreedPriceInput"
+          placeholder="Enter final payment"
+          min="1"
+        >
+
+        <button
+          type="button"
+          id="assessAgreedBtn"
+          class="btn"
+        >
+          Submit Final Payment
+        </button>
+
+      </div>
+
+
+      <!-- =====================================
+           SYSTEM WITNESS
+           ===================================== -->
+      <div
+        id="systemWitnessBanner"
+        class="witness"
+      >
+
+        <div class="witness-title">
+          📜 System Witnessed Agreement
+        </div>
+
+        <p>
+          Final Payment:
+          <strong id="agreedFareText">
+            GHS 0
+          </strong>
+        </p>
+
+        <p class="muted">
+          The customer has set the final payment.
+          The selected rider must now Grab & Lock the delivery.
+        </p>
+
+      </div>
+
+
+      <!-- =====================================
+           WINNING RIDER ACCOUNT INFORMATION
+           ===================================== -->
+      <div
+        id="acceptedPartner"
+        class="delivery-info"
+        style="display:none;"
+      >
+
+        <h3 style="margin-top:0;">
+          🚚 Delivery Partner
+        </h3>
+
+        <p>
+          <strong>Name:</strong>
+          <span id="partnerName"></span>
+        </p>
+
+        <p>
+          <strong>Phone / WhatsApp:</strong>
+          <span id="partnerPhone"></span>
+        </p>
+
+        <p>
+          <strong>Number Plate:</strong>
+          <span id="partnerPlate"></span>
+        </p>
+
+        <p>
+          <strong>Vehicle:</strong>
+          <span id="partnerVehicle"></span>
+        </p>
+
+      </div>
+
+
+      <!-- =====================================
+           RIDER ACTIONS
+           ===================================== -->
+      <div class="action-group">
+
+        <button
+          id="grabLockedBtn"
+          class="btn btn-success"
+          style="display:none;"
+        >
+          🔒 Grab & Lock Delivery
+        </button>
+
+        <button
+          id="releaseDeliveryBtn"
+          class="btn btn-warning"
+          style="display:none;"
+        >
+          🔄 Release Delivery
+        </button>
+
+        <button
+          id="cancelDeliveryBtn"
+          class="btn btn-danger"
+        >
+          ❌ Cancel / Delete Request
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================================
+       JAVASCRIPT
+       ========================================= -->
+  <script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+
+      /* ========================================
+         TEMPORARY ACCOUNT DATA
+         ----------------------------------------
+         Later these values will come automatically
+         from the logged-in ShukAfrica account.
+         ======================================== */
+
+      const customerAccount = {
+        name: "Account Name",
+        phone: "024 XXX XXXX"
+      };
+
+      const riderAccount = {
+        name: "Kwame Mensah",
+        phone: "024 000 0000",
+        numberPlate: "GR 1234-24",
+        vehicle: "Motorbike"
+      };
+
+
+      /* ========================================
+         DISPLAY ACCOUNT INFORMATION
+         ======================================== */
+
+      document.getElementById("customerName").textContent =
+        customerAccount.name;
+
+      document.getElementById("customerPhone").textContent =
+        customerAccount.phone;
+
+
+      /* ========================================
+         CUSTOMER FORM
+         ======================================== */
+
+      const requestForm =
+        document.getElementById("deliveryRequestForm");
+
+      const deliveryJobCard =
+        document.getElementById("deliveryJobCard");
+
+      const deliveryFor =
+        document.getElementById("deliveryFor");
+
+      const recipientFields =
+        document.getElementById("recipientFields");
+
+      const recipientName =
+        document.getElementById("recipientName");
+
+      const recipientPhone =
+        document.getElementById("recipientPhone");
+
+
+      /* ========================================
+         SELF / SOMEONE ELSE
+         ======================================== */
+
+      deliveryFor.addEventListener("change", function () {
+
+        if (this.value === "other") {
+
+          recipientFields.style.display = "block";
+
+          recipientName.required = true;
+          recipientPhone.required = true;
+
+        } else {
+
+          recipientFields.style.display = "none";
+
+          recipientName.required = false;
+          recipientPhone.required = false;
+
+          recipientName.value = "";
+          recipientPhone.value = "";
+        }
+
+      });
+
+
+      /* ========================================
+         SUBMIT CUSTOMER DELIVERY ORDER
+         ======================================== */
+
+      requestForm.addEventListener("submit", function (event) {
+
+        event.preventDefault();
+
+
+        const deliveryType =
+          document.querySelector(
+            'input[name="deliveryType"]:checked'
+          ).value;
+
+        const pickup =
+          document.getElementById("pickupLocation").value.trim();
+
+        const destination =
+          document.getElementById("destinationLocation").value.trim();
+
+        const specialInstructions =
+          document.getElementById("specialInstructions").value.trim();
+
+
+        /* Display delivery type */
+
+        document.getElementById("liveDeliveryTitle").textContent =
+          deliveryType === "express"
+            ? "⚡ Express Delivery"
+            : "📦 Standard Delivery";
+
+
+        /* Display locations */
+
+        document.getElementById("livePickup").textContent =
+          pickup;
+
+        document.getElementById("liveDestination").textContent =
+          destination;
+
+
+        /* Display delivery recipient */
+
+        if (deliveryFor.value === "other") {
+
+          document.getElementById("liveDeliveryFor").textContent =
+            "Someone Else";
+
+          document.getElementById("liveRecipient").textContent =
+            recipientName.value +
+            " — " +
+            recipientPhone.value;
+
+          document.getElementById("liveRecipientRow").style.display =
+            "block";
+
+        } else {
+
+          document.getElementById("liveDeliveryFor").textContent =
+            "Myself";
+
+          document.getElementById("liveRecipientRow").style.display =
+            "none";
+        }
+
+
+        /* Special instructions */
+
+        if (specialInstructions) {
+
+          document.getElementById("liveInstructions").textContent =
+            specialInstructions;
+
+          document.getElementById("liveInstructionsRow").style.display =
+            "block";
+
+        } else {
+
+          document.getElementById("liveInstructionsRow").style.display =
+            "none";
+        }
+
+
+        /* Put order LIVE */
+
+        deliveryJobCard.style.display = "block";
+
+        document.getElementById("deliveryStatus").textContent =
+          "Open — Accepting Quotes";
+
+        document.getElementById("deliveryStatus").style.color =
+          "#f7a600";
+
+
+        /* Reset delivery controls */
+
+        document.getElementById("riderQuoteBox").style.display =
+          "block";
+
+        document.getElementById("customerAssessBox").style.display =
+          "none";
+
+        document.getElementById("systemWitnessBanner").style.display =
+          "none";
+
+        document.getElementById("acceptedPartner").style.display =
+          "none";
+
+        document.getElementById("grabLockedBtn").style.display =
+          "none";
+
+        document.getElementById("releaseDeliveryBtn").style.display =
+          "none";
+
+
+        alert(
+          "Your delivery order is now LIVE. Delivery partners can send their quotes."
+        );
+
+      });
+
+
+      /* ========================================
+         RIDER SENDS QUOTE
+         ======================================== */
+
+      const sendCounterBtn =
+        document.getElementById("sendCounterBtn");
+
+      const counterPriceInput =
+        document.getElementById("counterPriceInput");
+
+
+      sendCounterBtn.addEventListener("click", function () {
+
+        const quote =
+          Number(counterPriceInput.value);
+
+
+        if (!quote || quote <= 0) {
+
+          alert("Please enter a valid delivery quote.");
+
+          return;
+        }
+
+
+        document.getElementById("counterPriceText").textContent =
+          `GHS ${quote}`;
+
+
+        document.getElementById("deliveryStatus").textContent =
+          `Rider Quote Received: GHS ${quote}`;
+
+        document.getElementById("deliveryStatus").style.color =
+          "#17a2b8";
+
+
+        document.getElementById("riderQuoteBox").style.display =
+          "none";
+
+        document.getElementById("customerAssessBox").style.display =
+          "block";
+
+
+        alert(
+          `Rider quote of GHS ${quote} has been sent to the customer.`
+        );
+
+      });
+
+
+      /* ========================================
+         CUSTOMER SETS FINAL PAYMENT
+         ======================================== */
+
+      const assessAgreedBtn =
+        document.getElementById("assessAgreedBtn");
+
+      const agreedPriceInput =
+        document.getElementById("agreedPriceInput");
+
+
+      assessAgreedBtn.addEventListener("click", function () {
+
+        const finalPayment =
+          Number(agreedPriceInput.value);
+
+
+        if (!finalPayment || finalPayment <= 0) {
+
+          alert("Please enter a valid final payment amount.");
+
+          return;
+        }
+
+
+        document.getElementById("agreedFareText").textContent =
+          `GHS ${finalPayment}`;
+
+
+        document.getElementById("systemWitnessBanner").style.display =
+          "block";
+
+
+        document.getElementById("deliveryStatus").textContent =
+          `Final Payment Set: GHS ${finalPayment} — Awaiting Rider Lock`;
+
+        document.getElementById("deliveryStatus").style.color =
+          "#f7a600";
+
+
+        document.getElementById("customerAssessBox").style.display =
+          "none";
+
+
+        document.getElementById("grabLockedBtn").style.display =
+          "block";
+
+
+        alert(
+          `Final payment of GHS ${finalPayment} has been submitted. The rider can now Grab & Lock the delivery.`
+        );
+
+      });
+
+
+      /* ========================================
+         RIDER GRABS AND LOCKS
+         ======================================== */
+
+      const grabLockedBtn =
+        document.getElementById("grabLockedBtn");
+
+
+      grabLockedBtn.addEventListener("click", function () {
+
+
+        /* Display the winning rider's account */
+
+        document.getElementById("partnerName").textContent =
+          riderAccount.name;
+
+        document.getElementById("partnerPhone").textContent =
+          riderAccount.phone;
+
+        document.getElementById("partnerPlate").textContent =
+          riderAccount.numberPlate;
+
+        document.getElementById("partnerVehicle").textContent =
+          riderAccount.vehicle;
+
+
+        document.getElementById("acceptedPartner").style.display =
+          "block";
+
+
+        document.getElementById("deliveryStatus")
