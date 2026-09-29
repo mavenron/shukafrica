@@ -133,26 +133,34 @@
     Nearby delivery partners will be notified when a delivery matching their vehicle type and location is posted.
   </p>
 
-  <button
+  <!-- Notification Permission -->
+<button
   type="button"
   id="enablePushBtn"
   class="btn"
   style="background-color:#25d366; color:#fff;">
+  🔔 Enable Job Notifications
+</button>
 
-  <p id="notificationStatus"
+<p id="notificationStatus"
    style="font-size:13px; color:#aab7b8; margin:8px 0 0 0;">
   Notifications are not enabled.
 </p>
 
-<div id="gpsStatus"
-     style="margin-top:12px;
-            padding:12px;
-            background:#182229;
-            border-radius:8px;
-            color:#aab7b8;
-            font-size:14px;">
-  📍 GPS status: Not connected
-</div> 
+
+<!-- GPS Permission -->
+<button
+  type="button"
+  id="enableGpsBtn"
+  class="btn"
+  style="background-color:#17a2b8; color:#fff;">
+  📍 Enable Location
+</button>
+
+<p id="gpsStatus"
+   style="font-size:13px; color:#aab7b8; margin:8px 0 0 0;">
+  GPS location is not enabled.
+</p>
     </div>
     
     <button type="button" id="testAlertBtn" class="btn btn-secondary" style="display: none;">
