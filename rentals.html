@@ -279,12 +279,38 @@ textarea:focus{
       <button class="post" type="button" onclick="postRental()">
   POST RENTAL
 </button>
+
 <div id="rentalListings"></div>
+
 <script>
-function showRentalMessage() {
-  alert("Your rental listing has been submitted successfully!");
+function postRental() {
+  const title = document.querySelector('input[placeholder*="3 BEDROOM"]')?.value.trim();
+  const description = document.querySelector('textarea')?.value.trim();
+
+  if (!title || !description) {
+    alert("Please enter the rental headline and description.");
+    return;
+  }
+
+  const listing = document.getElementById("rentalListings");
+
+  listing.innerHTML += `
+    <div style="
+      margin-top:20px;
+      padding:18px;
+      border:1px solid #263738;
+      border-radius:18px;
+      background:#101d1e;
+    ">
+      <h2 style="margin-top:0;">${title}</h2>
+      <p>${description}</p>
+      <div style="color:#00a86b;font-weight:bold;">🟢 AVAILABLE</div>
+    </div>
+  `;
+
+  alert("Your rental listing has been posted!");
 }
-</script>
+</script> 
         
 
       <div class="note">
