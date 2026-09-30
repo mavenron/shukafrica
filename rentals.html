@@ -387,7 +387,15 @@ files.slice(1).forEach(file => {
 
   otherImages += `
     <img
-      src="${imageUrl}"
+  src="${imageUrl}"
+  onclick="window.open(this.src, '_blank')"
+  style="
+    width:90px;
+    height:70px;
+    object-fit:cover;
+    border-radius:10px;
+    cursor:zoom-in;
+  "
       alt="Rental photo"
       onerror="this.style.display='none'"
       style="
