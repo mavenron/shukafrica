@@ -484,13 +484,7 @@ files.slice(1).forEach(file => {
 
         </div>
 
-       <h3>DESCRIPTION</h3>
-
-<p>
-  ${description}
-</p>
-
-<h3>CONTACT</h3>
+       <h3>CONTACT</h3>
 
 <p style="
   font-size:16px;
@@ -498,6 +492,46 @@ files.slice(1).forEach(file => {
 ">
   📞 ${contact || "Contact not provided"}
 </p>
+
+<div style="
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:10px;
+">
+
+  <a
+    href="tel:${contact}"
+    style="
+      text-decoration:none;
+      background:#00a86b;
+      color:white;
+      padding:11px 18px;
+      border-radius:999px;
+      font-weight:800;
+      display:inline-block;
+    "
+  >
+    📞 CALL
+  </a>
+
+  <a
+    href="https://wa.me/${contact}"
+    target="_blank"
+    style="
+      text-decoration:none;
+      background:#25D366;
+      color:white;
+      padding:11px 18px;
+      border-radius:999px;
+      font-weight:800;
+      display:inline-block;
+    "
+  >
+    💬 WHATSAPP
+  </a>
+
+</div>
 
 <h3>CONDITION</h3>
 
