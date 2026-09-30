@@ -324,26 +324,7 @@ rentalImages.addEventListener("change", function() {
       return;
     }
 
-    const img = document.createElement("img");
-    img.src = URL.createObjectURL(file);
-    img.style.width = "90px";
-    img.style.height = "70px";
-    img.style.objectFit = "cover";
-    img.style.borderRadius = "10px";
-
-    imagePreview.appendChild(img);
-  }
-});
-<script>
-function postRental() {
-  const title = document.querySelector('input[placeholder*="3 BEDROOM"]')?.value.trim();
-  const description = document.querySelector('textarea')?.value.trim();
-
-  if (!title || !description) {
-    alert("Please enter the rental headline and description.");
-    return;
-  }
-
+    
         
 
       <div class="note">
