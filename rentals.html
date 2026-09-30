@@ -597,7 +597,29 @@ files.slice(1).forEach(file => {
   alert("Your rental listing has been posted!");
 
 }
+function editRental(button) {
 
+  const card = button.closest('div[style*="border:1px solid #263738"]');
+
+  if (!card) return;
+
+  const title = card.querySelector("h2")?.textContent || "";
+  const description = card.querySelector("p")?.textContent || "";
+
+  document.querySelector(
+    'input[placeholder*="3 BEDROOM"]'
+  ).value = title;
+
+  document.querySelector(
+    'textarea[placeholder*="Describe the rental"]'
+  ).value = description;
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+
+}
 </script>
 
 
