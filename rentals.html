@@ -351,6 +351,9 @@ function postRental() {
 const location = document.querySelector(
   'input[placeholder="City / Town / Area"]'
 )?.value.trim();
+  const contact = document.querySelector(
+  'input[placeholder="Phone / WhatsApp"]'
+)?.value.trim();
   const description = document.querySelector(
     'textarea[placeholder*="Describe the rental"]'
   )?.value.trim();
@@ -463,7 +466,14 @@ const price = document.querySelector(
         </div>
 
         <h3>DESCRIPTION</h3>
+<h3>CONTACT</h3>
 
+<p style="
+  font-size:16px;
+  font-weight:bold;
+">
+  📞 ${contact || "Contact not provided"}
+</p>
         <p>${description}</p>
 <div style="
   color:#ffb52e;
