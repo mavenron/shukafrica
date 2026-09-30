@@ -439,10 +439,48 @@ files.slice(1).forEach(file => {
         font-weight:bold;
         margin-bottom:15px;
       ">
-        🟢 AVAILABLE
-      
+        <div style="
+  color:#00a86b;
+  font-weight:bold;
+  margin-bottom:15px;
+">
+  🟢 AVAILABLE
+</div>
+
+<button
+  type="button"
+  onclick="editRental(this)"
+  style="
+    margin-top:10px;
+    margin-right:8px;
+    border:0;
+    border-radius:999px;
+    background:#ffb52e;
+    color:#111;
+    padding:11px 16px;
+    font-weight:800;
+    cursor:pointer;
+  "
 >
   ✏️ EDIT RENTAL
+</button>
+
+<button
+  type="button"
+  onclick="this.closest('div[style*=&quot;border:1px solid #263738&quot;]').remove()"
+  style="
+    margin-top:10px;
+    margin-right:8px;
+    border:0;
+    border-radius:999px;
+    background:#ed3e35;
+    color:white;
+    padding:11px 16px;
+    font-weight:800;
+    cursor:pointer;
+  "
+>
+  🗑️ DELETE RENTAL
 </button>
 
       <button
