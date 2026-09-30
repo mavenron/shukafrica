@@ -310,22 +310,6 @@ rentalImages.addEventListener("change", function() {
     return;
   }
 
-  if (files.length > 5) {
-    alert("You can upload a maximum of 5 images.");
-    this.value = "";
-    return;
-  }
-
-  for (const file of files) {
-    if (file.size > 2 * 1024 * 1024) {
-      alert(file.name + " is larger than 2 MB.");
-      this.value = "";
-      imagePreview.innerHTML = "";
-      return;
-    }
-
-    
-        
 
       <div class="note">
         ShukAfrica connects renters with owners. Payment and rental agreements are handled directly between the parties.
