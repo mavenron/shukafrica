@@ -296,11 +296,14 @@ textarea:focus{
 </button>
 
 <div id="rentalListings"></div>
+      
   <script>
+
 const rentalImages = document.getElementById("rentalImages");
 const imagePreview = document.getElementById("imagePreview");
 
 rentalImages.addEventListener("change", function() {
+
   imagePreview.innerHTML = "";
 
   const files = Array.from(this.files);
@@ -310,6 +313,165 @@ rentalImages.addEventListener("change", function() {
     this.value = "";
     return;
   }
+
+  if (files.length > 5) {
+    alert("You can upload a maximum of 5 images.");
+    this.value = "";
+    return;
+  }
+
+  for (const file of files) {
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert(file.name + " is larger than 2 MB.");
+      this.value = "";
+      imagePreview.innerHTML = "";
+      return;
+    }
+
+    const img = document.createElement("img");
+
+    img.src = URL.createObjectURL(file);
+    img.style.width = "90px";
+    img.style.height = "70px";
+    img.style.objectFit = "cover";
+    img.style.borderRadius = "10px";
+
+    imagePreview.appendChild(img);
+  }
+
+});
+
+
+function postRental() {
+
+  const title = document.querySelector(
+    'input[placeholder*="3 BEDROOM"]'
+  )?.value.trim();
+
+  const description = document.querySelector(
+    'textarea[placeholder*="Describe the rental"]'
+  )?.value.trim();
+
+  const files = Array.from(rentalImages.files);
+
+  if (!title || !description) {
+    alert("Please enter the rental headline and description.");
+    return;
+  }
+
+  if (files.length < 1) {
+    alert("Please select at least 1 rental photo.");
+    return;
+  }
+
+  const listing = document.getElementById("rentalListings");
+
+  const mainImage = URL.createObjectURL(files[0]);
+
+  let otherImages = "";
+
+  files.slice(1).forEach(file => {
+
+    const imageUrl = URL.createObjectURL(file);
+
+    otherImages += `
+      <img src="${imageUrl}" style="
+        width:90px;
+        height:70px;
+        object-fit:cover;
+        border-radius:10px;
+      ">
+    `;
+
+  });
+
+  listing.innerHTML += `
+    <div style="
+      margin-top:20px;
+      padding:18px;
+      border:1px solid #263738;
+      border-radius:18px;
+      background:#101d1e;
+    ">
+
+      <img src="${mainImage}" style="
+        width:100%;
+        height:220px;
+        object-fit:cover;
+        border-radius:14px;
+        display:block;
+        margin-bottom:15px;
+      ">
+
+      <h2 style="margin-top:0;">${title}</h2>
+
+      <p>${description}</p>
+
+      <div style="
+        color:#00a86b;
+        font-weight:bold;
+        margin-bottom:15px;
+      ">
+        🟢 AVAILABLE
+      </div>
+
+      <button
+        type="button"
+        onclick="this.nextElementSibling.style.display =
+        this.nextElementSibling.style.display === 'none'
+        ? 'block' : 'none'"
+        style="
+          border:0;
+          border-radius:999px;
+          background:#ffb52e;
+          color:#111;
+          padding:11px 16px;
+          font-weight:800;
+          cursor:pointer;
+        "
+      >
+        VIEW DETAILS →
+      </button>
+
+      <div style="
+        display:none;
+        margin-top:15px;
+      ">
+
+        <h3>PHOTOS</h3>
+
+        <div style="
+          display:flex;
+          flex-wrap:wrap;
+          gap:10px;
+        ">
+
+          <img src="${mainImage}" style="
+            width:90px;
+            height:70px;
+            object-fit:cover;
+            border-radius:10px;
+          ">
+
+          ${otherImages}
+
+        </div>
+
+        <h3>DESCRIPTION</h3>
+
+        <p>${description}</p>
+
+      </div>
+
+    </div>
+  `;
+
+  alert("Your rental listing has been posted!");
+
+}
+
+</script>
 
 
       <div class="note">
