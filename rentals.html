@@ -352,7 +352,9 @@ function postRental() {
   const description = document.querySelector(
     'textarea[placeholder*="Describe the rental"]'
   )?.value.trim();
-
+const price = document.querySelector(
+  'input[placeholder*="GH₵"]'
+)?.value.trim();
   const files = Array.from(rentalImages.files);
 
   if (!title || !description) {
