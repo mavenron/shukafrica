@@ -441,7 +441,22 @@ files.slice(1).forEach(file => {
       ">
         🟢 AVAILABLE
       </div>
-
+<button
+  type="button"
+  onclick="this.closest('div[style*=&quot;border:1px solid #263738&quot;]').remove()"
+  style="
+    margin-top:10px;
+    border:0;
+    border-radius:999px;
+    background:#ed3e35;
+    color:white;
+    padding:10px 16px;
+    font-weight:800;
+    cursor:pointer;
+  "
+>
+  🗑️ DELETE RENTAL
+</button>
       <button
         type="button"
         onclick="this.nextElementSibling.style.display =
