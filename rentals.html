@@ -296,7 +296,44 @@ textarea:focus{
 </button>
 
 <div id="rentalListings"></div>
+const rentalImages = document.getElementById("rentalImages");
+const imagePreview = document.getElementById("imagePreview");
 
+rentalImages.addEventListener("change", function() {
+  imagePreview.innerHTML = "";
+
+  const files = Array.from(this.files);
+
+  if (files.length < 1) {
+    alert("Please select at least 1 image.");
+    this.value = "";
+    return;
+  }
+
+  if (files.length > 5) {
+    alert("You can upload a maximum of 5 images.");
+    this.value = "";
+    return;
+  }
+
+  for (const file of files) {
+    if (file.size > 2 * 1024 * 1024) {
+      alert(file.name + " is larger than 2 MB.");
+      this.value = "";
+      imagePreview.innerHTML = "";
+      return;
+    }
+
+    const img = document.createElement("img");
+    img.src = URL.createObjectURL(file);
+    img.style.width = "90px";
+    img.style.height = "70px";
+    img.style.objectFit = "cover";
+    img.style.borderRadius = "10px";
+
+    imagePreview.appendChild(img);
+  }
+});
 <script>
 function postRental() {
   const title = document.querySelector('input[placeholder*="3 BEDROOM"]')?.value.trim();
