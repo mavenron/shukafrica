@@ -381,20 +381,25 @@ const price = document.querySelector(
 
   let otherImages = "";
 
-  files.slice(1).forEach(file => {
+files.slice(1).forEach(file => {
 
-    const imageUrl = URL.createObjectURL(file);
+  const imageUrl = URL.createObjectURL(file);
 
-    otherImages += `
-      <img src="${imageUrl}" style="
+  otherImages += `
+    <img
+      src="${imageUrl}"
+      alt="Rental photo"
+      onerror="this.style.display='none'"
+      style="
         width:90px;
         height:70px;
         object-fit:cover;
         border-radius:10px;
-      ">
-    `;
+      "
+    >
+  `;
 
-  });
+});
 
   listing.innerHTML += `
     <div style="
