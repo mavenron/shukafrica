@@ -468,7 +468,12 @@ const price = document.querySelector(
 
         </div>
 
-        <h3>DESCRIPTION</h3>
+       <h3>DESCRIPTION</h3>
+
+<p>
+  ${description}
+</p>
+
 <h3>CONTACT</h3>
 
 <p style="
@@ -477,13 +482,20 @@ const price = document.querySelector(
 ">
   📞 ${contact || "Contact not provided"}
 </p>
+
 <h3>CONDITION</h3>
 
 <p>
   🛠️ ${condition}
 </p>
-        <p>${description}</p>
-<div style="
+
+<h3>RENTAL TERMS & REQUIREMENTS</h3>
+
+<p>
+  ${terms || "No special rental terms provided."}
+</p>
+
+<div style=" 
   color:#ffb52e;
   font-size:18px;
   font-weight:bold;
