@@ -1,1 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071112">
 
+  <title>Open Market — ShukAfrica</title>
+  <meta name="description" content="ShukAfrica Open Market — Sell Products & Services.">
+
+  <style>
+    :root{
+      --bg:#071112;
+      --panel:#101d1e;
+      --panel2:#142425;
+      --line:#263738;
+      --text:#f5f7f5;
+      --muted:#a8b6b3;
+      --gold:#d4883a;
+      --gold2:#ffb52e;
+      --green:#00a86b;
+      --blue:#1688db;
+      --purple:#a34cdd;
+      --radius:18px;
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    html{
+      scroll-behavior:smooth;
+    }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:Arial, sans-serif;
+    }
+
+    a{
+      color:inherit;
+      text-decoration:none;
+    }
+
+    .wrap{
+      width:min(1100px,92%);
+      margin:auto;
+    }
+
+    /* HEADER */
+    .header{
+      border-bottom:1px solid var(--line);
+      background:rgba(7,17,18,.96);
+      position:sticky;
+      top:0;
+      z-index:20;
+    }
+
+    .nav{
+      min-height:72px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:11px;
+    }
+
+    .brand-mark{
+      width:42px;
+      height:42px;
+      border-radius:13px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(135deg,var(--gold2),var(--gold));
+      color:#111;
+      font-size:22px;
+      font-weight:900;
+    }
+
+    .brand-name{
+      font-size:20px;
+      font-weight:900;
+      letter-spacing:-.4px;
+    }
+
+    .brand-name span{
+      color:var(--gold2);
+    }
+
+    .tagline{
+      color:var(--muted);
+      font-size:10px;
+      margin-top:2px;
+    }
+
+    .back{
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .back:hover{
+      color:var(--gold2);
+    }
+
+    /* HERO */
+    .hero{
+      text-align:center;
+      padding:55px 0 30px;
+    }
+
+    .eyebrow{
+      display:inline-block;
+      padding:7px 13px;
+      border:1px solid #765321;
+      border-radius:999px;
+      color:#f7c65b;
+      background:#21190d;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.5px;
+      margin-bottom:15px;
+    }
+
+    h1{
+      margin:0;
+      font-size:clamp(34px,7vw,58px);
+      line-height:1;
+      letter-spacing:-2px;
+    }
+
+    h1 span{
+      color:var(--gold2);
+    }
+
+    .hero p{
+      max-width:650px;
+      margin:17px auto 0;
+      color:var(--muted);
+      line-height:1.65;
+      font-size:15px;
+    }
+
+    /* CATEGORY GRID */
+    .choice-title{
+      text-align:center;
+      margin:25px 0 17px;
+    }
+
+    .choice-title h2{
+      margin:0;
+      font-size:22px;
+    }
+
+    .choice-title p{
+      color:var(--muted);
+      font-size:13px;
+      margin:7px 0 0;
+    }
+
+    .market-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:15px;
+      padding-bottom:22px;
+    }
+
+    .market-card{
+      min-height:220px;
+      padding:22px;
+      border-radius:var(--radius);
+      border:1px solid var(--line);
+      background:linear-gradient(155deg,#142425,#0d191a);
+      display:flex;
+      flex-direction:column;
+      transition:.2s ease;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .market-card:hover{
+      transform:translateY(-4px);
+      border-color:var(--gold);
+    }
+
+    .market-card.shop{
+      border-color:#765321;
+      background:linear-gradient(155deg,#29200d,#101d1e);
+    }
+
+    .market-card.store{
+      border-color:#176a4d;
+      background:linear-gradient(155deg,#0d3025,#101d1e);
+    }
+
+    .market-card.home{
+      border-color:#245c7e;
+      background:linear-gradient(155deg,#102a39,#101d1e);
+    }
+
+    .market-card.jobs{
+      border-color:#673e86;
+      background:linear-gradient(155deg,#251535,#101d1e);
+    }
+
+    .icon{
+      font-size:43px;
+      margin-bottom:20px;
+    }
+
+    .market-card h3{
+      margin:0;
+      font-size:19px;
+      letter-spacing:.3px;
+    }
+
+    .market-card p{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.55;
+    }
+
+    .card-arrow{
+      margin-top:auto;
+      padding-top:20px;
+      color:var(--gold2);
+      font-size:13px;
+      font-weight:800;
+    }
+
+    /* MANAGE */
+    .manage{
+      margin:25px 0 60px;
+      padding:25px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:var(--panel);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+    }
+
+    .manage h3{
+      margin:0 0 6px;
+      font-size:18px;
+    }
+
+    .manage p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .btn{
+      border:0;
+      border-radius:12px;
+      padding:12px 18px;
+      font-weight:800;
+      cursor:pointer;
+      font-size:13px;
+    }
+
+    .btn-gold{
+      background:linear-gradient(135deg,var(--gold2),var(--gold));
+      color:#111;
+    }
+
+    .btn-outline{
+      background:transparent;
+      color:var(--text);
+      border:1px solid var(--line);
+    }
+
+    /* FOOTER */
+    .footer{
+      border-top:1px solid var(--line);
+      padding:25px 0;
+      color:var(--muted);
+      font-size:12px;
+      text-align:center;
+    }
+
+    /* MOBILE */
+    @media(max-width:850px){
+      .market-grid{
+        grid-template-columns:repeat(2,1fr);
+      }
+    }
+
+    @media(max-width:560px){
+      .nav{
+        min-height:65px;
+      }
+
+      .brand-name{
+        font-size:18px;
+      }
+
+      .back{
+        font-size:12px;
+      }
+
+      .hero{
+        padding:42px 0 22px;
+      }
+
+      .hero p{
+        font-size:14px;
+      }
+
+      .market-grid{
+        grid-template-columns:1fr;
+      }
+
+      .market-card{
+        min-height:175px;
+      }
+
+      .manage{
+        flex-direction:column;
+        align-items:stretch;
+        text-align:center;
+      }
+
+      .manage .btn{
+        width:100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="header">
+    <div class="wrap nav">
+
+      <a class="brand" href="index.html">
+        <div class="brand-mark">S</div>
+        <div>
+          <div class="brand-name">Shuk<span>Africa</span></div>
+          <div class="tagline">West Africa, connected.</div>
+        </div>
+      </a>
+
+      <a class="back" href="index.html">← Back to ShukAfrica</a>
+
+    </div>
+  </header>
+
+
+  <main>
+
+    <section class="hero">
+      <div class="wrap">
+
+        <div class="eyebrow">SHUKAFRICA OPEN MARKET</div>
+
+        <h1>Sell Products <span>&amp;</span> Services</h1>
+
+        <p>
+          Create a listing and let people across the region discover
+          what you sell, what you offer, or the work you are looking for.
+        </p>
+
+      </div>
+    </section>
+
+
+    <section class="wrap">
+
+      <div class="choice-title">
+        <h2>What would you like to do?</h2>
+        <p>Choose the category that best matches your listing.</p>
+      </div>
+
+
+      <div class="market-grid">
+
+        <a class="market-card shop" href="open-market-listing.html?category=shop">
+
+          <div class="icon">🏪</div>
+
+          <h3>MY SHOP</h3>
+
+          <p>
+            For businesses with a physical shop or business location.
+          </p>
+
+          <div class="card-arrow">
+            Create Shop Listing →
+          </div>
+
+        </a>
+
+
+        <a class="market-card store" href="open-market-listing.html?category=store">
+
+          <div class="icon">🛒</div>
+
+          <h3>MY STORE</h3>
+
+          <p>
+            Sell products, groceries, food, baked goods and other items.
+          </p>
+
+          <div class="card-arrow">
+            Create Store Listing →
+          </div>
+
+        </a>
+
+
+        <a class="market-card home" href="open-market-listing.html?category=home-service">
+
+          <div class="icon">🏠</div>
+
+          <h3>HOME SERVICE</h3>
+
+          <p>
+            Offer services at the customer's home, workplace or location.
+          </p>
+
+          <div class="card-arrow">
+            Create Service Listing →
+          </div>
+
+        </a>
+
+
+        <a class="market-card jobs" href="open-market-listing.html?category=jobs">
+
+          <div class="icon">💼</div>
+
+          <h3>JOBS AVAILABLE</h3>
+
+          <p>
+            Workers Needed • Looking for Work
+          </p>
+
+          <div class="card-arrow">
+            Find Your Job Path →
+          </div>
+
+        </a>
+
+      </div>
+
+
+      <div class="manage">
+
+        <div>
+          <h3>Already have a listing?</h3>
+          <p>Edit, update or remove your Open Market listings.</p>
+        </div>
+
+        <a class="btn btn-outline" href="manage-listings.html">
+          Manage My Listings →
+        </a>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <footer class="footer">
+    <div class="wrap">
+      © 2026 ShukAfrica. All rights reserved.
+    </div>
+  </footer>
+
+</body>
+        </html>
