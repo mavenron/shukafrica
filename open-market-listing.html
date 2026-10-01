@@ -896,7 +896,115 @@ const videoFile = document.getElementById("video").files[0];
 
     }
 
+/* MEDIA PREVIEW */
 
+const previewImages = document.getElementById("previewImages");
+const previewImagesStatus = document.getElementById("previewImagesStatus");
+const previewVideo = document.getElementById("previewVideo");
+const previewVideoStatus = document.getElementById("previewVideoStatus");
+
+previewImages.innerHTML = "";
+
+
+/* IMAGES */
+
+if(imageFiles.length > 5){
+
+  alert("You can select a maximum of 5 images.");
+
+  return;
+
+}
+
+let invalidImage = false;
+
+for(const file of imageFiles){
+
+  if(file.size > 5 * 1024 * 1024){
+
+    alert("Each image must be 5 MB or smaller.");
+
+    invalidImage = true;
+
+    break;
+
+  }
+
+}
+
+if(invalidImage){
+  return;
+}
+
+
+if(imageFiles.length > 0){
+
+  previewImagesStatus.textContent =
+    imageFiles.length + " image" +
+    (imageFiles.length > 1 ? "s" : "") +
+    " selected.";
+
+  Array.from(imageFiles).forEach(file => {
+
+    const img = document.createElement("img");
+
+    img.src = URL.createObjectURL(file);
+
+    previewImages.appendChild(img);
+
+  });
+
+}else{
+
+  previewImagesStatus.textContent = "No images selected.";
+
+}
+
+
+/* VIDEO */
+
+previewVideo.style.display = "none";
+previewVideo.removeAttribute("src");
+
+if(videoFile){
+
+  if(videoFile.size > 15 * 1024 * 1024){
+
+    alert("The video must be 15 MB or smaller.");
+
+    return;
+
+  }
+
+  previewVideoStatus.textContent = "✓ Video selected.";
+
+  const videoURL = URL.createObjectURL(videoFile);
+
+  previewVideo.src = videoURL;
+  previewVideo.style.display = "block";
+
+  previewVideo.onloadedmetadata = function(){
+
+    if(previewVideo.duration > 10){
+
+      alert("The video must be 10 seconds or shorter.");
+
+      previewVideo.pause();
+      previewVideo.style.display = "none";
+      previewVideoStatus.textContent =
+        "Video is too long. Please select a video of 10 seconds or less.";
+
+      document.getElementById("video").value = "";
+
+    }
+
+  };
+
+}else{
+
+  previewVideoStatus.textContent = "No video selected.";
+
+      }
     document.getElementById("preview").style.display = "block";
 
     document.getElementById("preview").scrollIntoView({
