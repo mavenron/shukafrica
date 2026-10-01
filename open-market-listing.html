@@ -730,22 +730,42 @@
 
   /* JOB BUTTONS */
 
-  document.querySelectorAll(".jobs-option").forEach(button => {
+  
+const changeJobChoice = document.getElementById("changeJobChoice");
 
-    button.addEventListener("click", function(){
+document.querySelectorAll(".jobs-option").forEach(button => {
 
-      document.querySelectorAll(".jobs-option").forEach(btn => {
-        btn.classList.remove("active");
-      });
+  button.addEventListener("click", function(){
 
-      this.classList.add("active");
+    selectedJob = this.dataset.job;
 
-      selectedJob = this.dataset.job;
-
+    document.querySelectorAll(".jobs-option").forEach(btn => {
+      btn.style.display = "none";
+      btn.classList.remove("active");
     });
+
+    this.style.display = "block";
+    this.classList.add("active");
+
+    changeJobChoice.style.display = "block";
 
   });
 
+});
+
+
+changeJobChoice.addEventListener("click", function(){
+
+  document.querySelectorAll(".jobs-option").forEach(btn => {
+    btn.style.display = "block";
+    btn.classList.remove("active");
+  });
+
+  selectedJob = "";
+
+  changeJobChoice.style.display = "none";
+
+});
 
   /* PREVIEW */
 
