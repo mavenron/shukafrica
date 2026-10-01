@@ -1,13 +1,150 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShukAfrica Open Market</title>
+
+<style>
+body{
+  margin:0;
+  background:#071112;
+  color:white;
+  font-family:Arial,sans-serif;
+}
+
+.container{
+  width:90%;
+  max-width:900px;
+  margin:auto;
+  padding:30px 0;
+}
+
+h1{
+  color:#ffb52e;
+  text-align:center;
+}
+
+.subtitle{
+  text-align:center;
+  color:#a8b6b3;
+  margin-bottom:30px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:15px;
+}
+
+.card{
+  display:block;
+  background:#101d1e;
+  border:1px solid #263738;
+  border-radius:15px;
+  padding:25px;
+  color:white;
+  text-decoration:none;
+}
+
+.card:hover{
+  border-color:#ffb52e;
+}
+
+.icon{
+  font-size:35px;
+}
+
+.card h2{
+  margin:10px 0;
+}
+
+.card p{
+  color:#a8b6b3;
+  line-height:1.5;
+}
+
+.arrow{
+  color:#ffb52e;
+  font-size:22px;
+}
+
+.manage{
+  display:block;
+  margin-top:20px;
+  padding:18px;
+  text-align:center;
+  background:#142425;
+  border-radius:12px;
+  color:#ffb52e;
+  text-decoration:none;
+}
+
+.back{
+  display:block;
+  margin-bottom:25px;
+  color:#a8b6b3;
+  text-decoration:none;
+}
+
+@media(max-width:600px){
+  .grid{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+
 <body>
 
-<h1>SHUKAFRICA OPEN MARKET</h1>
+<div class="container">
 
-<p>MY SHOP</p>
-<p>MY STORE</p>
-<p>HOME SERVICE</p>
-<p>JOBS AVAILABLE</p>
+<a class="back" href="index.html">← Back to Home</a>
+
+<h1>🛍️ OPEN MARKET</h1>
+
+<p class="subtitle">
+Your space to be seen. Sell products, promote your business,
+offer services or find work.
+</p>
+
+<div class="grid">
+
+<a class="card" href="open-market-listing.html?category=shop">
+  <div class="icon">🏪</div>
+  <h2>My Shop</h2>
+  <p>Promote your physical shop or business location.</p>
+  <div class="arrow">→</div>
+</a>
+
+<a class="card" href="open-market-listing.html?category=store">
+  <div class="icon">🛒</div>
+  <h2>My Store</h2>
+  <p>Sell groceries, food, baked goods and other products.</p>
+  <div class="arrow">→</div>
+</a>
+
+<a class="card" href="open-market-listing.html?category=home-service">
+  <div class="icon">🏠</div>
+  <h2>Home Service</h2>
+  <p>Offer services at the customer's home or location.</p>
+  <div class="arrow">→</div>
+</a>
+
+<a class="card" href="open-market-listing.html?category=jobs">
+  <div class="icon">💼</div>
+  <h2>Jobs Available</h2>
+  <p>Workers Needed • Looking for Work.</p>
+  <div class="arrow">→</div>
+</a>
+
+</div>
+
+<a class="manage" href="manage-listings.html">
+  📋 Manage My Listings →
+</a>
+
+</div>
 
 </body>
 </html>
