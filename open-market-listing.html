@@ -846,7 +846,8 @@ changeJobChoice.addEventListener("click", function(){
     const price = document.getElementById("price").value.trim();
     const location = document.getElementById("location").value.trim();
     const description = document.getElementById("description").value.trim();
-
+const imageFiles = document.getElementById("images").files;
+const videoFile = document.getElementById("video").files[0];
     if(!title || !name || !contact || !location || !description){
 
       alert("Please complete the required fields before previewing.");
