@@ -1055,7 +1055,76 @@ if(videoFile){
     document.getElementById("preview").style.display = "none";
 
   });
+/* PUBLISH LISTING */
 
+document.getElementById("publishBtn").addEventListener("click", function(){
+
+  const title = document.getElementById("listingTitle").value.trim();
+  const name = document.getElementById("businessName").value.trim();
+  const contact = document.getElementById("contact").value.trim();
+  const price = document.getElementById("price").value.trim();
+  const location = document.getElementById("location").value.trim();
+  const description = document.getElementById("description").value.trim();
+
+  let categoryName = categoryLabel.textContent;
+
+  if(category === "jobs"){
+    categoryName += " — " + selectedJob;
+  }
+
+  let delivery = "";
+
+  if(category === "shop" || category === "store"){
+
+    const deliveryOption =
+      document.querySelector('input[name="delivery"]:checked');
+
+    delivery = deliveryOption ? deliveryOption.value : "No";
+
+  }
+
+  const listing = {
+
+    id: Date.now(),
+
+    category: categoryName,
+
+    title: title,
+
+    name: name,
+
+    contact: contact,
+
+    price: price,
+
+    location: location,
+
+    delivery: delivery,
+
+    description: description,
+
+    createdAt: new Date().toISOString()
+
+  };
+
+
+  const existingListings =
+    JSON.parse(localStorage.getItem("shukafricaListings") || "[]");
+
+  existingListings.push(listing);
+
+  localStorage.setItem(
+    "shukafricaListings",
+    JSON.stringify(existingListings)
+  );
+
+
+  alert("Your listing has been published successfully!");
+
+
+  window.location.href = "manage-listings.html";
+
+});
 </script>
 
 </body>
