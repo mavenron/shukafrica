@@ -967,7 +967,7 @@ if(videoFile){
 
   if(videoFile.size > 30 * 1024 * 1024){
 
-    alert("The video must be 15 MB or smaller.");
+    alert("The video must be 30 MB or smaller.");
 
     return;
 
@@ -984,12 +984,12 @@ if(videoFile){
 
     if(previewVideo.duration > 15){
 
-      alert("The video must be 10 seconds or shorter.");
+      alert("The video must be 15 seconds or shorter.");
 
       previewVideo.pause();
       previewVideo.style.display = "none";
       previewVideoStatus.textContent =
-        "Video is too long. Please select a video of 10 seconds or less.";
+        "Video is too long. Please select a video of 15 seconds or less.";
 
       document.getElementById("video").value = "";
 
