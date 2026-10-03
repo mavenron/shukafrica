@@ -72,13 +72,10 @@
     main{
       padding:35px 0 60px;
     }
-
-    .product-layout{
-      display:grid;
-      grid-template-columns:1.1fr .9fr;
-      gap:35px;
-    }
-
+.product-layout{
+  max-width:800px;
+  margin:auto;
+}
     .gallery{
       background:var(--panel);
       border:1px solid var(--border);
@@ -183,11 +180,6 @@
       font-size:13px;
       text-align:center;
     }
-
-    @media(max-width:800px){
-      .product-layout{
-        grid-template-columns:1fr;
-      }
 
       h1{
         font-size:28px;
