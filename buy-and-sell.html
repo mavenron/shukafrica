@@ -685,10 +685,6 @@ function filterProducts(){
     const matchesSearch =
       name.includes(searchText);
 
-    const matchesCategory =
-      selectedCategory === "all" ||
-      cardCategory === selectedCategory;
-
     const matchesLocation =
       selectedLocation === "all" ||
       cardLocation === selectedLocation;
@@ -698,10 +694,9 @@ function filterProducts(){
       cardPrice <= Number(selectedPrice);
 
     const show =
-      matchesSearch &&
-      matchesCategory &&
-      matchesLocation &&
-      matchesPrice;
+  matchesSearch &&
+  matchesLocation &&
+  matchesPrice;
 
     card.style.display = show ? "" : "block";
 
