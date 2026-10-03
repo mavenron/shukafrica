@@ -646,8 +646,6 @@ const price = document.getElementById("price");
 
 const savedListings = localStorage.getItem("shukAfricaMarketListings");
 
-const savedListings = localStorage.getItem("shukAfricaMarketListings");
-
 if (savedListings) {
   document.getElementById("productGrid").innerHTML = savedListings;
 }
@@ -667,7 +665,6 @@ function filterProducts(){
   cards.forEach(card => {
 
     const name = card.dataset.name.toLowerCase();
-    const cardCategory = card.dataset.category;
     const cardLocation = card.dataset.location;
     const cardPrice = Number(card.dataset.price);
 
