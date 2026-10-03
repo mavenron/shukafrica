@@ -1,9 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Rentals — ShukAfrica</title>
+
+  <style>
+    :root{
+      --bg:#071112;
+      --panel:#101d1e;
+      --line:#263738;
+      --text:#f5f7f5;
+      --muted:#a8b6b3;
+      --gold:#ffb52e;
+      --green:#00a86b;
+      --red:#ed3e35;
+      --radius:18px;
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:Arial,sans-serif;
+    }
+
+    .wrap{
+      width:min(900px,calc(100% - 28px));
+      margin:auto;
+    }
+
+    header{
+      border-bottom:1px solid var(--line);
+      background:#071112;
+      padding:18px 0;
+    }
+
+    .top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .brand{
+      font-size:23px;
+      font-weight:800;
+    }
+
+    .brand span{
+      color:var(--gold);
+    }
+
+    .back{
+      color:var(--gold);
+      text-decoration:none;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    main{
+      padding:30px 0 50px;
+    }
+
+    h1{
+      margin:0;
+      font-size:32px;
+    }
+
+    .intro{
+      color:var(--muted);
+      margin:7px 0 28px;
+      font-size:14px;
+    }
+
+    .form-box{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:22px;
+    }
+
+    .field{
+      margin-bottom:20px;
+    }
+
+    label{
+      display:block;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.6px;
+      margin-bottom:8px;
+    }
+
+    input,
+    textarea,
+    select{
+      width:100%;
+      border:1px solid #354647;
+      background:#0b1819;
+      color:white;
+      border-radius:11px;
+      padding:13px;
+      outline:none;
+    }
+
+    textarea{
+      min-height:160px;
+      resize:vertical;
+      line-height:1.5;
+    }
+
+    textarea:focus{
+      border-color:#ffb52e;
+    }
+
+    .availability{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    .availability label{
+      margin:0;
+    }
+
+    .availability input{
+      display:none;
+    }
+
+    .availability span{
+      display:block;
+      text-align:center;
+      padding:13px;
+      border:1px solid #354647;
+      border-radius:11px;
+      cursor:pointer;
+    }
+
+    .availability input:checked + span{
+      border-color:var(--green);
+      background:#09271f;
+    }
+
+    .images{
+      border:1px dashed #50605f;
+      border-radius:12px;
+      padding:20px;
+      text-align:center;
+      color:var(--muted);
+    }
+
+    .post{
+      width:100%;
+      border:0;
+      border-radius:999px;
+      background:var(--gold);
+      color:#111;
+      padding:14px;
+      font-weight:800;
+      cursor:pointer;
+      font-size:14px;
+    }
+
+    .note{
+      margin-top:18px;
+      padding:13px;
+      border-radius:10px;
+      background:#171d1d;
+      color:var(--muted);
+      font-size:11px;
+      text-align:center;
+    }
+
+    @media(max-width:600px){
+      h1{
+        font-size:27px;
+      }
+
+      .form-box{
+        padding:17px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="wrap top">
+    <div class="brand">
+      SHUK<span>AFRICA</span>
+    </div>
+
+    <a href="index.html" class="back">← Back</a>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <h1>RENTALS</h1>
+
+    <p class="intro">
+      Rent products, properties and equipment across the region.
+    </p>
+
+    <div class="form-box">
+
+      <div class="field">
+        <label>RENTAL TITLE / HEADLINE</label>
+        <input type="text" id="rentalTitle" placeholder="e.g. Toyota Corolla for Rent">
+      </div>
+
+      <div class="field">
+        <label>DESCRIPTION</label>
+        <textarea id="rentalDescription" placeholder="Describe the rental..."></textarea>
+      </div>
+
+      <div class="field">
+        <label>PHOTOS</label>
+
+        <input
+          type="file"
+          id="rentalImages"
+          accept="image/*"
+          multiple
+        >
+
+        <small style="display:block;margin-top:8px;color:#a8b6b3;">
+          1–5 images required • Maximum 2 MB per image
+        </small>
+
+        <div id="imagePreview" style="
+          display:flex;
+          flex-wrap:wrap;
+          gap:10px;
+          margin-top:12px;
+        "></div>
+      </div>
+
+      <div class="field">
+        <label>PRICE</label>
+        <input type="text" id="rentalPrice" placeholder="e.g. GH₵ 3,000/month">
+      </div>
+
+      <div class="field">
+        <label>AVAILABILITY</label>
+
+        <div class="availability">
+          <label>
+            <input type="radio" name="availability" value="Available" checked>
+            <span>🟢 Available</span>
+          </label>
+
+          <label>
+            <input type="radio" name="availability" value="Not Available">
+            <span>🔴 Not Available</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>CONDITION</label>
+        <select id="rentalCondition">
+          <option>New</option>
+          <option>Good Condition</option>
+          <option>Used</option>
+          <option>Needs Repair</option>
+        </select>
+      </div> 
+
+      <div class="field">
+        <label>RENTAL TERMS &amp; REQUIREMENTS</label>
+        <textarea id="rentalTerms" placeholder="Enter rental terms and requirements"></textarea>
+      </div>
+
+      <div class="field">
+        <label>LOCATION</label>
+        <input type="text" id="rentalLocation" placeholder="e.g. Accra, Ghana">
+      </div>
+
+      <div class="field">
+        <label>CONTACT</label>
+        <input type="text" id="rentalContact" placeholder="Phone / WhatsApp">
+      </div>
+
+      <button class="post" type="button" onclick="postRental()">
+        POST RENTAL
+      </button>
+
+      <div id="rentalListings"></div>
+
+      <div class="note">
+        ShukAfrica connects renters with owners. Payment and rental agreements are handled directly between the parties.
+      </div>
+
+    </div>
+
+  </div>
+</main>
+
 <script>
 const rentalImages = document.getElementById("rentalImages");
 const imagePreview = document.getElementById("imagePreview");
 
 rentalImages.addEventListener("change", function() {
+
   imagePreview.innerHTML = "";
+
   const files = Array.from(this.files);
 
   if (files.length < 1) {
@@ -19,6 +328,7 @@ rentalImages.addEventListener("change", function() {
   }
 
   for (const file of files) {
+
     if (file.size > 2 * 1024 * 1024) {
       alert(file.name + " is larger than 2 MB.");
       this.value = "";
@@ -27,6 +337,7 @@ rentalImages.addEventListener("change", function() {
     }
 
     const img = document.createElement("img");
+
     img.src = URL.createObjectURL(file);
     img.style.width = "90px";
     img.style.height = "70px";
@@ -35,9 +346,12 @@ rentalImages.addEventListener("change", function() {
 
     imagePreview.appendChild(img);
   }
+
 });
 
+
 function postRental() {
+
   const title = document.getElementById("rentalTitle").value.trim();
   const location = document.getElementById("rentalLocation").value.trim();
   const contact = document.getElementById("rentalContact").value.trim();
@@ -63,12 +377,15 @@ function postRental() {
   }
 
   const listing = document.getElementById("rentalListings");
+
   const mainImage = URL.createObjectURL(files[0]);
 
   let otherImages = "";
 
   files.slice(1).forEach(file => {
+
     const imageUrl = URL.createObjectURL(file);
+
     otherImages += `
       <img
         src="${imageUrl}"
@@ -84,7 +401,10 @@ function postRental() {
         onerror="this.style.display='none'"
       >
     `;
+
   });
+
+  const cleanPhone = contact.replace(/[^0-9+]/g, '');
 
   const cardHTML = `
     <div class="rental-card" style="
@@ -94,6 +414,7 @@ function postRental() {
       border-radius:18px;
       background:#101d1e;
     ">
+
       <a href="javascript:void(0)" onclick="window.open('${mainImage}', '_blank')">
         <img src="${mainImage}" style="
           width:100%;
@@ -118,11 +439,19 @@ function postRental() {
         ${availability === "Available" ? "🟢 AVAILABLE" : "🔴 NOT AVAILABLE"}
       </div>
 
-      <div style="color:#ffb52e; font-size:18px; font-weight:bold; margin:10px 0;">
+      <div style="
+        color:#ffb52e;
+        font-size:18px;
+        font-weight:bold;
+        margin:10px 0;
+      ">
         💰 ${price || "Price not provided"}
       </div>
 
-      <div style="color:#a8b6b3; margin:8px 0;">
+      <div style="
+        color:#a8b6b3;
+        margin:8px 0;
+      ">
         📍 ${location || "Location not provided"}
       </div>
 
@@ -164,8 +493,9 @@ function postRental() {
 
       <button
         type="button"
-        onclick="const details = this.nextElementSibling; details.style.display = details.style.display === 'none' ? 'block' : 'none';"
+        onclick="toggleDetails(this)"
         style="
+          margin-top:10px;
           border:0;
           border-radius:999px;
           background:#ffb52e;
@@ -178,43 +508,118 @@ function postRental() {
         VIEW DETAILS →
       </button>
 
-      <div style="display:none; margin-top:15px;">
+      <div class="details-panel" style="
+        display:none;
+        margin-top:15px;
+      ">
+
         <h3>PHOTOS</h3>
-        <div style="display:flex; flex-wrap:wrap; gap:10px;">
-          <img src="${mainImage}" style="width:90px; height:70px; object-fit:cover; border-radius:10px;">
+
+        <div style="
+          display:flex;
+          flex-wrap:wrap;
+          gap:10px;
+        ">
+          <img src="${mainImage}" style="
+            width:90px;
+            height:70px;
+            object-fit:cover;
+            border-radius:10px;
+          ">
           ${otherImages}
         </div>
 
         <h3>CONTACT</h3>
-        <p style="font-size:16px; font-weight:bold;">
+
+        <p style="
+          font-size:16px;
+          font-weight:bold;
+        ">
           📞 ${contact || "Contact not provided"}
         </p>
 
-        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
-          <a href="tel:${contact}" style="text-decoration:none; background:#00a86b; color:white; padding:11px 18px; border-radius:999px; font-weight:800; display:inline-block;">
+        <div style="
+          display:flex;
+          gap:10px;
+          flex-wrap:wrap;
+          margin-top:10px;
+        ">
+
+          <a
+            href="tel:${cleanPhone}"
+            style="
+              text-decoration:none;
+              background:#00a86b;
+              color:white;
+              padding:11px 18px;
+              border-radius:999px;
+              font-weight:800;
+              display:inline-block;
+            "
+          >
             📞 CALL
           </a>
-          <a href="https://wa.me/${contact.replace(/[^0-9]/g, '')}" target="_blank" style="text-decoration:none; background:#25D366; color:white; padding:11px 18px; border-radius:999px; font-weight:800; display:inline-block;">
+
+          <a
+            href="https://wa.me/${cleanPhone.replace('+', '')}"
+            target="_blank"
+            style="
+              text-decoration:none;
+              background:#25D366;
+              color:white;
+              padding:11px 18px;
+              border-radius:999px;
+              font-weight:800;
+              display:inline-block;
+            "
+          >
             💬 WHATSAPP
           </a>
+
         </div>
 
         <h3>CONDITION</h3>
-        <p>🛠️ ${condition}</p>
+
+        <p>
+          🛠️ ${condition}
+        </p>
 
         <h3>RENTAL TERMS & REQUIREMENTS</h3>
-        <p>${terms || "No special rental terms provided."}</p>
+
+        <p>
+          ${terms || "No special rental terms provided."}
+        </p>
+
       </div>
     </div>
   `;
 
   listing.insertAdjacentHTML("beforeend", cardHTML);
 
+  // Clear input fields
+  document.getElementById("rentalTitle").value = "";
+  document.getElementById("rentalDescription").value = "";
+  document.getElementById("rentalPrice").value = "";
+  document.getElementById("rentalTerms").value = "";
+  document.getElementById("rentalLocation").value = "";
+  document.getElementById("rentalContact").value = "";
+  rentalImages.value = "";
+  imagePreview.innerHTML = "";
+
   alert("Your rental listing has been posted!");
 }
 
+function toggleDetails(button) {
+  const details = button.closest(".rental-card").querySelector(".details-panel");
+  if (details) {
+    details.style.display = (details.style.display === "none" || !details.style.display) ? "block" : "none";
+  }
+}
+
 function editRental(button) {
+
   const card = button.closest(".rental-card");
+
   if (!card) return;
 
   const title = card.querySelector("h2")?.textContent || "";
@@ -227,6 +632,10 @@ function editRental(button) {
     top: 0,
     behavior: "smooth"
   });
+
 }
 </script>
 
+</body>
+  </html>
+  
