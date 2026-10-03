@@ -1,1 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Market Category | ShukAfrica</title>
 
+<style>
+:root{
+  --bg:#071112;
+  --panel:#101d1e;
+  --panel2:#142425;
+  --line:#263738;
+  --text:#f5f7f5;
+  --muted:#a8b6b3;
+  --gold:#d4883a;
+  --gold2:#ffb52e;
+  --green:#00a86b;
+  --blue:#1688db;
+  --red:#ed3e35;
+  --radius:18px;
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:Arial,Helvetica,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.5;
+}
+
+header{
+  background:rgba(7,17,18,.96);
+  border-bottom:1px solid var(--line);
+  padding:16px 5%;
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+
+.nav{
+  max-width:1200px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+}
+
+.logo{
+  color:var(--gold2);
+  font-size:24px;
+  font-weight:900;
+  letter-spacing:1px;
+}
+
+.back{
+  color:var(--text);
+  text-decoration:none;
+  border:1px solid var(--line);
+  padding:9px 15px;
+  border-radius:12px;
+}
+
+.back:hover{
+  border-color:var(--gold);
+}
+
+main{
+  max-width:1200px;
+  margin:auto;
+  padding:35px 5% 70px;
+}
+
+.hero{
+  text-align:center;
+  margin-bottom:30px;
+}
+
+.hero .icon{
+  font-size:55px;
+  margin-bottom:8px;
+}
+
+.hero h1{
+  font-size:clamp(30px,5vw,52px);
+  margin-bottom:10px;
+}
+
+.hero h1 span{
+  color:var(--gold2);
+}
+
+.hero p{
+  color:var(--muted);
+  max-width:700px;
+  margin:auto;
+}
+
+.actions{
+  display:flex;
+  justify-content:center;
+  gap:12px;
+  margin:25px 0;
+  flex-wrap:wrap;
+}
+
+.btn{
+  border:0;
+  border-radius:12px;
+  padding:13px 20px;
+  font-weight:800;
+  cursor:pointer;
+  text-decoration:none;
+  display:inline-block;
+}
+
+.buy{
+  background:var(--gold2);
+  color:#111;
+}
+
+.sell{
+  background:var(--green);
+  color:white;
+}
+
+.filters{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:20px;
+  margin-bottom:28px;
+}
+
+.search{
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:var(--panel2);
+  color:var(--text);
+  font-size:16px;
+  margin-bottom:15px;
+}
+
+.filter-row{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+
+select{
+  width:100%;
+  padding:13px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:var(--panel2);
+  color:var(--text);
+}
+
+.section-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:18px;
+}
+
+.section-title h2{
+  font-size:24px;
+}
+
+.section-title span{
+  color:var(--muted);
+  font-size:14px;
+}
+
+.products{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+}
+
+.card{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  overflow:hidden;
+  transition:.2s;
+}
+
+.card:hover{
+  transform:translateY(-3px);
+  border-color:var(--gold);
+}
+
+.photo{
+  height:180px;
+  background:var(--panel2);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:60px;
+}
+
+.info{
+  padding:18px;
+}
+
+.category{
+  color:var(--gold2);
+  font-size:12px;
+  font-weight:800;
+  text-transform:uppercase;
+}
+
+.info h3{
+  margin:7px 0;
+  font-size:19px;
+}
+
+.price{
+  font-size:20px;
+  font-weight:900;
+  margin:10px 0;
+}
+
+.location{
+  color:var(--muted);
+  font-size:14px;
+  margin-bottom:15px;
+}
+
+.card-actions{
+  display:flex;
+  gap:8px;
+}
+
+.view{
+  flex:1;
+  background:var(--blue);
+  color:white;
+  border:0;
+  padding:11px;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:700;
+}
+
+.heart{
+  width:45px;
+  border:1px solid var(--line);
+  background:var(--panel2);
+  color:white;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:18px;
+}
+
+.heart.saved{
+  color:var(--red);
+}
+
+.empty{
+  display:none;
+  text-align:center;
+  color:var(--muted);
+  padding:50px 20px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+}
+
+footer{
+  border-top:1px solid var(--line);
+  padding:25px 5%;
+  text-align:center;
+  color:var(--muted);
+}
+
+@media(max-width:800px){
+  .products{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+@media(max-width:520px){
+  .products{
+    grid-template-columns:1fr;
+  }
+
+  .nav{
+    flex-direction:column;
+  }
+
+  .hero h1{
+    font-size:34px;
+  }
+
+  .filter-row{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="nav">
+    <div class="logo">SHUKAFRICA</div>
+
+    <a class="back" href="buy-and-sell.html">
+      ← Buy & Sell
+    </a>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+
+  <div class="icon" id="categoryIcon">🛒</div>
+
+  <h1>
+    <span id="categoryTitle">Market</span>
+  </h1>
+
+  <p id="categoryDescription">
+    Discover products from sellers across Africa.
+  </p>
+
+  <div class="actions">
+    <a class="btn buy" href="buy-and-sell.html">
+      🛒 All Products
+    </a>
+
+    <a class="btn sell" href="buy-and-sell.html#sell">
+      ＋ Sell an Item
+    </a>
+  </div>
+
+</section>
+
+
+<section class="filters">
+
+  <input
+    id="search"
+    class="search"
+    type="text"
+    placeholder="🔎 Search in this category..."
+  >
+
+  <div class="filter-row">
+
+    <select id="location">
+      <option value="all">All Locations</option>
+      <option value="Accra">Accra</option>
+      <option value="Kumasi">Kumasi</option>
+      <option value="Cape Coast">Cape Coast</option>
+      <option value="Takoradi">Takoradi</option>
+      <option value="Tema">Tema</option>
+      <option value="Sunyani">Sunyani</option>
+    </select>
+
+    <select id="price">
+      <option value="all">Any Price</option>
+      <option value="1000">Under GH₵1,000</option>
+      <option value="5000">Under GH₵5,000</option>
+      <option value="10000">Under GH₵10,000</option>
+      <option value="50000">Under GH₵50,000</option>
+      <option value="100000">Under GH₵100,000</option>
+    </select>
+
+  </div>
+
+</section>
+
+
+<section>
+
+  <div class="section-title">
+    <h2 id="listTitle">Latest Listings</h2>
+    <span id="count">0 products</span>
+  </div>
+
+  <div class="products" id="productGrid">
+
+    <article class="card"
+      data-name="Samsung Galaxy A55"
+      data-category="electronics"
+      data-location="Accra"
+      data-price="2800"
+      data-description="Samsung Galaxy A55 in good condition. Everything works properly."
+      data-seller="ShukAfrica Seller">
+
+      <div class="photo">📱</div>
+
+      <div class="info">
+        <div class="category">Electronics</div>
+
+        <h3>Samsung Galaxy A55</h3>
+
+        <div class="price">GH₵ 2,800</div>
+
+        <div class="location">
+          📍 Accra, Ghana
+        </div>
+
+        <div class="card-actions">
+          <button class="view">View Product</button>
+          <button class="heart">♡</button>
+        </div>
+      </div>
+
+    </article>
+
+
+    <article class="card"
+      data-name="Generator 5.5kVA"
+      data-category="equipment"
+      data-location="Kumasi"
+      data-price="4500"
+      data-description="Generator 5.5kVA in good working condition."
+      data-seller="ShukAfrica Seller">
+
+      <div class="photo">⚡</div>
+
+      <div class="info">
+        <div class="category">Equipment</div>
+
+        <h3>Generator 5.5kVA</h3>
+
+        <div class="price">GH₵ 4,500</div>
+
+        <div class="location">
+          📍 Kumasi, Ghana
+        </div>
+
+        <div class="card-actions">
+          <button class="view">View Product</button>
+          <button class="heart">♡</button>
+        </div>
+      </div>
+
+    </article>
+
+
+    <article class="card"
+      data-name="Tractor (Used)"
+      data-category="agriculture"
+      data-location="Takoradi"
+      data-price="95000"
+      data-description="Used tractor in good working condition."
+      data-seller="ShukAfrica Seller">
+
+      <div class="photo">🚜</div>
+
+      <div class="info">
+        <div class="category">Agriculture</div>
+
+        <h3>Tractor (Used)</h3>
+
+        <div class="price">GH₵ 95,000</div>
+
+        <div class="location">
+          📍 Takoradi, Ghana
+        </div>
+
+        <div class="card-actions">
+          <button class="view">View Product</button>
+          <button class="heart">♡</button>
+        </div>
+      </div>
+
+    </article>
+
+
+    <article class="card"
+      data-name="African Print Dresses"
+      data-category="fashion"
+      data-location="Cape Coast"
+      data-price="250"
+      data-description="Beautiful African print dresses available in different styles."
+      data-seller="ShukAfrica Seller">
+
+      <div class="photo">👗</div>
+
+      <div class="info">
+        <div class="category">Fashion</div>
+
+        <h3>African Print Dresses</h3>
+
+        <div class="price">GH₵ 250</div>
+
+        <div class="location">
+          📍 Cape Coast, Ghana
+        </div>
+
+        <div class="card-actions">
+          <button class="view">View Product</button>
+          <button class="heart">♡</button>
+        </div>
+      </div>
+
+    </article>
+
+
+    <article class="card"
+      data-name="3 Bedroom House"
+      data-category="property"
+      data-location="Tema"
+      data-price="3000"
+      data-description="Spacious 3 bedroom house available for rent in Tema."
+      data-seller="ShukAfrica Seller">
+
+      <div class="photo">🏠</div>
+
+      <div class="info">
+        <div class="category">Property</div>
+
+        <h3>3 Bedroom House</h3>
+
+        <div class="price">GH₵ 3,000 / month</div>
+
+        <div class="location">
+          📍 Tema, Ghana
+        </div>
+
+        <div class="card-actions">
+          <button class="view">View Product</button>
+          <button class="heart">♡</button>
+        </div>
+      </div>
+
+    </article>
+
+
+    <article class="card"
+      data-name="Bajaj Motorcycle"
+      data-category="vehicles"
+      data-location="Sunyani"
+      data-price="12500"
+      data-description="Bajaj motorcycle in good working condition."
+      data-seller="ShukAfrica Seller">
+
+      <div class="photo">🏍️</div>
+
+      <div class="info">
+        <div class="category">Vehicles</div>
+
+        <h3>Motorcycle (Bajaj)</h3>
+
+        <div class="price">GH₵ 12,500</div>
+
+        <div class="location">
+          📍 Sunyani, Ghana
+        </div>
+
+        <div class="card-actions">
+          <button class="view">View Product</button>
+          <button class="heart">♡</button>
+        </div>
+      </div>
+
+    </article>
+
+  </div>
+
+  <div class="empty" id="empty">
+    No products found in this category.
+  </div>
+
+</section>
+
+</main>
+
+
+<footer>
+  © 2026 ShukAfrica — Buy. Sell. Connect.
+</footer>
+
+
+<script>
+
+const categoryData = {
+
+  electronics:{
+    name:"Electronics",
+    icon:"📱",
+    description:"Phones, computers, televisions, appliances and electronic products.",
+  },
+
+  fashion:{
+    name:"Fashion",
+    icon:"👗",
+    description:"African fashion, clothing, shoes, accessories and more.",
+  },
+
+  agriculture:{
+    name:"Agriculture",
+    icon:"🚜",
+    description:"Farm machinery, tools, livestock, produce and agricultural products.",
+  },
+
+  vehicles:{
+    name:"Vehicles",
+    icon:"🏍️",
+    description:"Cars, motorcycles, trucks and other vehicles.",
+  },
+
+  equipment:{
+    name:"Equipment",
+    icon:"⚡",
+    description:"Generators, machinery, tools and professional equipment.",
+  },
+
+  property:{
+    name:"Property",
+    icon:"🏠",
+    description:"Houses, apartments, land and other properties.",
+  },
+
+  services:{
+    name:"Services",
+    icon:"🛠️",
+    description:"Businesses and individuals offering products and services.",
+  }
+
+};
+
+
+const params = new URLSearchParams(window.location.search);
+
+const selectedCategory =
+  params.get("category") || "all";
+
+
+const categoryInfo =
+  categoryData[selectedCategory];
+
+
+if(categoryInfo){
+
+  document.getElementById("categoryIcon").textContent =
+    categoryInfo.icon;
+
+  document.getElementById("categoryTitle").textContent =
+    categoryInfo.name;
+
+  document.getElementById("categoryDescription").textContent =
+    categoryInfo.description;
+
+  document.getElementById("listTitle").textContent =
+    categoryInfo.name + " Listings";
+
+}else{
+
+  document.getElementById("categoryIcon").textContent = "🛒";
+
+  document.getElementById("categoryTitle").textContent =
+    "Market";
+
+  document.getElementById("categoryDescription").textContent =
+    "Discover products from sellers across Africa.";
+
+}
+
+
+const search =
+  document.getElementById("search");
+
+const locationFilter =
+  document.getElementById("location");
+
+const price =
+  document.getElementById("price");
+
+const cards =
+  [...document.querySelectorAll(".card")];
+
+const count =
+  document.getElementById("count");
+
+const empty =
+  document.getElementById("empty");
+
+
+function filterProducts(){
+
+  const searchText =
+    search.value.toLowerCase();
+
+  const selectedLocation =
+    locationFilter.value;
+
+  const selectedPrice =
+    price.value;
+
+  let visible = 0;
+
+
+  cards.forEach(card => {
+
+    const name =
+      card.dataset.name.toLowerCase();
+
+    const description =
+      (card.dataset.description || "").toLowerCase();
+
+    const cardCategory =
+      card.dataset.category;
+
+    const cardLocation =
+      card.dataset.location;
+
+    const cardPrice =
+      Number(card.dataset.price);
+
+
+    const matchesSearch =
+      name.includes(searchText) ||
+      description.includes(searchText);
+
+
+    const matchesCategory =
+      selectedCategory === "all" ||
+      cardCategory === selectedCategory;
+
+
+    const matchesLocation =
+      selectedLocation === "all" ||
+      cardLocation === selectedLocation;
+
+
+    const matchesPrice =
+      selectedPrice === "all" ||
+      cardPrice <= Number(selectedPrice);
+
+
+    const show =
+      matchesSearch &&
+      matchesCategory &&
+      matchesLocation &&
+      matchesPrice;
+
+
+    card.style.display =
+      show ? "" : "none";
+
+
+    if(show){
+      visible++;
+    }
+
+  });
+
+
+  count.textContent =
+    visible +
+    (visible === 1 ? " product" : " products");
+
+
+  empty.style.display =
+    visible === 0 ? "block" : "none";
+
+}
+
+
+search.addEventListener(
+  "input",
+  filterProducts
+);
+
+locationFilter.addEventListener(
+  "change",
+  filterProducts
+);
+
+price.addEventListener(
+  "change",
+  filterProducts
+);
+
+
+document.querySelectorAll(".heart").forEach(button => {
+
+  button.addEventListener("click", () => {
+
+    button.classList.toggle("saved");
+
+    button.textContent =
+      button.classList.contains("saved")
+      ? "♥"
+      : "♡";
+
+  });
+
+});
+
+
+document.querySelectorAll(".view").forEach(button => {
+
+  button.addEventListener("click", () => {
+
+    const card =
+      button.closest(".card");
+
+    const params =
+      new URLSearchParams({
+
+        product:card.dataset.name,
+
+        price:card.dataset.price,
+
+        category:card.dataset.category,
+
+        location:card.dataset.location,
+
+        description:card.dataset.description,
+
+        seller:card.dataset.seller
+
+      });
+
+
+    window.location.href =
+      "product.html?" +
+      params.toString();
+
+  });
+
+});
+
+
+filterProducts();
+
+</script>
+
+</body>
+</html>
