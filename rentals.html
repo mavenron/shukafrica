@@ -352,25 +352,17 @@ rentalImages.addEventListener("change", function() {
 
 function postRental() {
 
-  const title = document.querySelector(
-    'input[placeholder*="3 BEDROOM"]'
-  )?.value.trim();
-const location = document.querySelector(
-  'input[placeholder="City / Town / Area"]'
-)?.value.trim();
-  const contact = document.querySelector(
-  'input[placeholder="Phone / WhatsApp"]'
-)?.value.trim();
-  const condition = document.querySelector('select')?.value;
-  const terms = document.querySelector(
-  'textarea[placeholder*="important rental terms"]'
-)?.value.trim();
-  const description = document.querySelector(
-    'textarea[placeholder*="Describe the rental"]'
-  )?.value.trim();
-const price = document.querySelector(
-  'input[placeholder*="GH₵"]'
-)?.value.trim();
+  const title = document.getElementById("rentalTitle").value.trim();
+const location = document.getElementById("rentalLocation").value.trim();
+const contact = document.getElementById("rentalContact").value.trim();
+const condition = document.getElementById("rentalCondition").value;
+const terms = document.getElementById("rentalTerms").value.trim();
+const description = document.getElementById("rentalDescription").value.trim();
+const price = document.getElementById("rentalPrice").value.trim();
+
+const availability = document.querySelector(
+  'input[name="availability"]:checked'
+)?.value || "Available";
   const files = Array.from(rentalImages.files);
 
   if (!title || !description) {
