@@ -722,7 +722,20 @@ function filterProducts(){
 }
 
 search.addEventListener("input", filterProducts);
-category.addEventListener("change", filterProducts);
+category.addEventListener("change", function(){
+
+  const selectedCategory = category.value;
+
+  if(selectedCategory === "all"){
+    filterProducts();
+    return;
+  }
+
+  window.location.href =
+    "market-category.html?category=" +
+    encodeURIComponent(selectedCategory);
+
+});
 locationFilter.addEventListener("change", filterProducts);
 price.addEventListener("change", filterProducts);
 
