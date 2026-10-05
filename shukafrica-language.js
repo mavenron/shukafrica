@@ -176,7 +176,16 @@ function shukAfricaApplyLanguage(language) {
 
 }
 
+function shukAfricaChangeLanguage() {
 
+  const currentLanguage = shukAfricaGetLanguage();
+
+  const newLanguage =
+    currentLanguage === "fr" ? "en" : "fr";
+
+  shukAfricaSetLanguage(newLanguage);
+
+}
 function shukAfricaShowLanguageChoice() {
 
   if (document.getElementById("shukAfricaLanguageBox")) {
