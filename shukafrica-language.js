@@ -157,7 +157,12 @@ function shukAfricaApplyLanguage(language) {
   }
 
   document.documentElement.lang = language;
+document.title = translations.pageTitle;
 
+const description = document.querySelector('meta[name="description"]');
+if (description) {
+  description.setAttribute("content", translations.pageDescription);
+}
   document.querySelectorAll("[data-i18n]").forEach(element => {
 
     const key = element.dataset.i18n;
