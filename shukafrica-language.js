@@ -6,7 +6,7 @@ const shukAfricaTranslations = {
     language: "Language",
     english: "English",
     french: "Français",
-
+trustedMarketplace: "Your trusted marketplace",
     createAccount: "Create Your ShukAfrica Account",
     chooseAccount: "Choose Account Type",
     customer: "Customer",
@@ -66,7 +66,7 @@ const shukAfricaTranslations = {
     language: "Langue",
     english: "English",
     french: "Français",
-
+trustedMarketplace: "Votre marché de confiance",
     createAccount: "Créer votre compte ShukAfrica",
     chooseAccount: "Choisissez le type de compte",
     customer: "Client",
