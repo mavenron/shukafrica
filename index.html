@@ -1,4 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#071112" />
+  <meta name="description" content="ShukAfrica — West Africa, connected. Buy, sell, rent, deliver and find nearby emergency services." />
+  <title>ShukAfrica — West Africa, connected</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap nav">
+      <a class="brand" href="#home" aria-label="ShukAfrica home">
+        <div class="brand-mark">S</div>
+        <div>
+          <div class="brand-name">Shuk<span>Africa</span></div>
+          <div class="tagline" data-i18n="tagline">West Africa, connected.</div>
+        </div>
+      </a>
 
+      <!-- Search Input with Placeholder Translation -->
+      <form class="search" id="searchForm" role="search">
+        <input id="searchInput" aria-label="Search marketplace" data-i18n-placeholder="searchPlaceholder" placeholder="Search products, services, rentals…">
+        <button aria-label="Search" type="submit">⌕</button>
+      </form>
+
+      <!-- Language Button with Text Tag -->
+      <button type="button" id="languageBtn" class="country-select" style="cursor:pointer;">
+        🌐 <span data-i18n="language">Language</span>
+      </button>
+
+      <select class="country-select" id="topCountry" aria-label="Select country">
+        <option>🇬🇭 Ghana</option>
+        <option>🇨🇮 Côte d’Ivoire</option>
+        <option>🇧🇫 Burkina Faso</option>
+        <option>🇹🇬 Togo</option>
+      </select>
+
+      <div class="nav-actions">
+        <button class="btn btn-outline" data-notice="Sign-in will be connected when accounts are added." data-i18n="logIn">Log in</button>
+        <button class="btn btn-gold" data-notice="Account creation will be enabled in a later build." data-i18n="signUp">Sign up</button>
+      </div>
+      <button class="menu-btn" id="menuBtn" aria-label="Scroll to services">☰</button>
+    </div>
+  </header>
+
+  <main id="home">
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <div class="eyebrow" data-i18n="trustedMarketplace">Your trusted marketplace</div>
+          
+          <!-- Translated Hero Heading -->
+          <h1 data-i18n="heroTitle">
+            Buy. Sell. Rent.<br>Deliver. Express.<br><span class="gold">Get Help. Stay Safe.</span>
+          </h1>
+
+          <!-- Translated Description -->
+          <p data-i18n="heroDescription">
+            ShukAfrica connects people, products and services across Ghana, Côte d’Ivoire, Burkina Faso and Togo — faster, safer and easier.
+          </p>
+
+          <!-- Translated Buttons -->
+          <div class="hero-cta">
+            <a class="btn btn-gold btn-big" href="#market" data-i18n="exploreMarketplace">Explore marketplace&nbsp; →</a>
+            <a class="btn btn-outline btn-big" href="#services" data-i18n="exploreServices">Explore services</a>
+          </div>
+        </div>
+
+        <div class="hero-art">
+          <div class="map-art">
+            <div class="map-outline">SHUKAFRICA</div>
+            <div class="country-pills">
+              <span>🇬🇭 GHANA</span>
+              <span>🇨🇮 CÔTE D’IVOIRE</span>
+              <span>🇧🇫 BURKINA FASO</span>
+              <span>🇹🇬 TOGO</span>
+            </div>
+            <div class="hero-note" data-i18n="heroNote">One platform.<br>Four nations.<br>Endless possibilities.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services" id="services">
+      <div class="wrap service-grid">
+        <a class="service market" href="buy-and-sell.html">
+          <div class="service-icon">🛒</div>
+          <strong data-i18n="market">MARKET</strong>
+          <small data-i18n="buySell">Buy &amp; Sell</small>
+          <span class="arrow">→</span>
+        </a>
+        <a class="service rent" href="rentals.html">
+          <div class="service-icon">🚜</div>
+          <strong data-i18n="rentals">RENTALS</strong>
+          <small data-i18n="rentEquipment">Rent Products &amp; Equipment</small>
+          <span class="arrow">→</span>
       </a>
       <a class="service delivery" href="delivery.html"><div class="service-icon">🚚</div><strong>DELIVERY</strong><small>Standard Delivery</small><span class="arrow">→</span></a>
       <a class="service open-market" href="#express"><div class="service-icon">🛍️</div><strong>OPEN MARKET</strong><small>Sell Products &amp; Services</small><span class="arrow">→</span></a>
