@@ -283,7 +283,26 @@ function shukAfricaShowLanguageChoice() {
 
 
 document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function() {
 
+  const languageBtn = document.getElementById("languageBtn");
+
+  if (languageBtn) {
+
+    languageBtn.addEventListener("click", function() {
+
+      shukAfricaChangeLanguage();
+
+      languageBtn.textContent =
+        shukAfricaGetLanguage() === "fr"
+          ? "🌐 Français"
+          : "🌐 English";
+
+    });
+
+  }
+
+});
   const savedLanguage = shukAfricaGetLanguage();
 
   if (savedLanguage) {
