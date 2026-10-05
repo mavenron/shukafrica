@@ -4,6 +4,8 @@ const shukAfricaTranslations = {
 
   en: {
     language: "Language",
+      pageTitle: "ShukAfrica — West Africa, connected",
+  pageDescription: "ShukAfrica — West Africa, connected. Buy, sell, rent, deliver and find nearby emergency services.",
     english: "English",
     french: "Français",
 trustedMarketplace: "Your trusted marketplace",
@@ -64,6 +66,8 @@ trustedMarketplace: "Your trusted marketplace",
 
   fr: {
     language: "Langue",
+      pageTitle: "ShukAfrica — L'Afrique de l'Ouest, connectée",
+  pageDescription: "ShukAfrica — L'Afrique de l'Ouest, connectée. Achetez, vendez, louez, livrez et trouvez les services d'urgence à proximité.",
     english: "English",
     french: "Français",
 trustedMarketplace: "Votre marché de confiance",
