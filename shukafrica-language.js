@@ -1,14 +1,13 @@
 // ShukAfrica Global Language System
 
 const shukAfricaTranslations = {
-
   en: {
     language: "Language",
-      pageTitle: "ShukAfrica — West Africa, connected",
-  pageDescription: "ShukAfrica — West Africa, connected. Buy, sell, rent, deliver and find nearby emergency services.",
+    pageTitle: "ShukAfrica — West Africa, connected",
+    pageDescription: "ShukAfrica — West Africa, connected. Buy, sell, rent, deliver and find nearby emergency services.",
     english: "English",
     french: "Français",
-trustedMarketplace: "Your trusted marketplace",
+    trustedMarketplace: "Your trusted marketplace",
     createAccount: "Create Your ShukAfrica Account",
     chooseAccount: "Choose Account Type",
     customer: "Customer",
@@ -32,11 +31,9 @@ trustedMarketplace: "Your trusted marketplace",
     driversLicence: "Driver's Licence",
 
     businessVerification: "Business Verification Video",
-    businessVerificationText:
-      "Record a short video showing yourself at or inside your place of business.",
+    businessVerificationText: "Record a short video showing yourself at or inside your place of business.",
 
-    licenceText:
-      "Upload a clear picture of your driver's licence.",
+    licenceText: "Upload a clear picture of your driver's licence.",
 
     customerRegistration: "Customer Registration",
     businessRegistration: "Business Registration",
@@ -53,24 +50,20 @@ trustedMarketplace: "Your trusted marketplace",
     businessFee: "GHS 20",
     riderFee: "GHS 20",
 
-    chooseAccountIntro:
-      "Choose the account that best describes how you will use ShukAfrica.",
+    chooseAccountIntro: "Choose the account that best describes how you will use ShukAfrica.",
 
-    businessProtection:
-      "To help protect ShukAfrica users from fake businesses and scammers, Business accounts require a short verification video.",
+    businessProtection: "To help protect ShukAfrica users from fake businesses and scammers, Business accounts require a short verification video.",
 
-    riderProtection:
-      "Rider and Driver accounts require verification before they can accept delivery jobs."
+    riderProtection: "Rider and Driver accounts require verification before they can accept delivery jobs."
   },
-
 
   fr: {
     language: "Langue",
-      pageTitle: "ShukAfrica — L'Afrique de l'Ouest, connectée",
-  pageDescription: "ShukAfrica — L'Afrique de l'Ouest, connectée. Achetez, vendez, louez, livrez et trouvez les services d'urgence à proximité.",
+    pageTitle: "ShukAfrica — L'Afrique de l'Ouest, connectée",
+    pageDescription: "ShukAfrica — L'Afrique de l'Ouest, connectée. Achetez, vendez, louez, livrez et trouvez les services d'urgence à proximité.",
     english: "English",
     french: "Français",
-trustedMarketplace: "Votre marché de confiance",
+    trustedMarketplace: "Votre marché de confiance",
     createAccount: "Créer votre compte ShukAfrica",
     chooseAccount: "Choisissez le type de compte",
     customer: "Client",
@@ -94,11 +87,9 @@ trustedMarketplace: "Votre marché de confiance",
     driversLicence: "Permis de conduire",
 
     businessVerification: "Vidéo de vérification de l'entreprise",
-    businessVerificationText:
-      "Enregistrez une courte vidéo de vous-même dans ou devant votre lieu d'activité.",
+    businessVerificationText: "Enregistrez une courte vidéo de vous-même dans ou devant votre lieu d'activité.",
 
-    licenceText:
-      "Téléchargez une photo claire de votre permis de conduire.",
+    licenceText: "Téléchargez une photo claire de votre permis de conduire.",
 
     customerRegistration: "Inscription client",
     businessRegistration: "Inscription entreprise",
@@ -115,41 +106,28 @@ trustedMarketplace: "Votre marché de confiance",
     businessFee: "20 GHS",
     riderFee: "20 GHS",
 
-    chooseAccountIntro:
-      "Choisissez le type de compte qui correspond le mieux à votre utilisation de ShukAfrica.",
+    chooseAccountIntro: "Choisissez le type de compte qui correspond le mieux à votre utilisation de ShukAfrica.",
 
-    businessProtection:
-      "Pour aider à protéger les utilisateurs de ShukAfrica contre les fausses entreprises et les escrocs, les comptes professionnels nécessitent une courte vidéo de vérification.",
+    businessProtection: "Pour aider à protéger les utilisateurs de ShukAfrica contre les fausses entreprises et les escrocs, les comptes professionnels nécessitent une courte vidéo de vérification.",
 
-    riderProtection:
-      "Les comptes de livreur et de conducteur doivent être vérifiés avant de pouvoir accepter des livraisons."
+    riderProtection: "Les comptes de livreur et de conducteur doivent être vérifiés avant de pouvoir accepter des livraisons."
   }
-
 };
 
-
 function shukAfricaGetLanguage() {
-
-  return localStorage.getItem("shukafrica_language") || null;
-
+  return localStorage.getItem("shukafrica_language") || "en";
 }
 
-
 function shukAfricaSetLanguage(language) {
-
   if (!shukAfricaTranslations[language]) {
     return;
   }
 
   localStorage.setItem("shukafrica_language", language);
-
   shukAfricaApplyLanguage(language);
-
 }
 
-
 function shukAfricaApplyLanguage(language) {
-
   const translations = shukAfricaTranslations[language];
 
   if (!translations) {
@@ -157,52 +135,48 @@ function shukAfricaApplyLanguage(language) {
   }
 
   document.documentElement.lang = language;
-document.title = translations.pageTitle;
+  document.title = translations.pageTitle;
 
-const description = document.querySelector('meta[name="description"]');
-if (description) {
-  description.setAttribute("content", translations.pageDescription);
-}
+  const description = document.querySelector('meta[name="description"]');
+  if (description) {
+    description.setAttribute("content", translations.pageDescription);
+  }
+
+  // Translate standard inner text and input values
   document.querySelectorAll("[data-i18n]").forEach(element => {
-
     const key = element.dataset.i18n;
 
     if (translations[key]) {
-      element.textContent = translations[key];
+      if (element.tagName === "INPUT" && (element.type === "submit" || element.type === "button")) {
+        element.value = translations[key];
+      } else {
+        element.textContent = translations[key];
+      }
     }
-
   });
 
+  // Translate input placeholders
   document.querySelectorAll("[data-i18n-placeholder]").forEach(element => {
-
     const key = element.dataset.i18nPlaceholder;
 
     if (translations[key]) {
       element.placeholder = translations[key];
     }
-
   });
-
 }
 
 function shukAfricaChangeLanguage() {
-
   const currentLanguage = shukAfricaGetLanguage();
-
-  const newLanguage =
-    currentLanguage === "fr" ? "en" : "fr";
-
+  const newLanguage = currentLanguage === "fr" ? "en" : "fr";
   shukAfricaSetLanguage(newLanguage);
-
 }
-function shukAfricaShowLanguageChoice() {
 
+function shukAfricaShowLanguageChoice() {
   if (document.getElementById("shukAfricaLanguageBox")) {
     return;
   }
 
   const box = document.createElement("div");
-
   box.id = "shukAfricaLanguageBox";
 
   box.innerHTML = `
@@ -216,7 +190,6 @@ function shukAfricaShowLanguageChoice() {
       z-index:99999;
       padding:20px;
     ">
-
       <div style="
         width:min(420px,100%);
         background:#101d1e;
@@ -226,39 +199,17 @@ function shukAfricaShowLanguageChoice() {
         text-align:center;
         color:#fff;
       ">
-
         <div style="font-size:35px;margin-bottom:10px;">🌍</div>
-
-        <h2 style="margin:0 0 8px;">
-          Choose Your Language
-        </h2>
-
-        <p style="
-          color:#a8b6b3;
-          font-size:13px;
-          margin-bottom:20px;
-        ">
+        <h2 style="margin:0 0 8px;">Choose Your Language</h2>
+        <p style="color:#a8b6b3;font-size:13px;margin-bottom:20px;">
           Choisissez votre langue
         </p>
 
-        <div style="
-          display:grid;
-          grid-template-columns:1fr 1fr;
-          gap:10px;
-        ">
-
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
           <button
             type="button"
             onclick="shukAfricaSetLanguage('en'); document.getElementById('shukAfricaLanguageBox').remove();"
-            style="
-              padding:14px;
-              border-radius:12px;
-              border:1px solid #ffb52e;
-              background:#29200d;
-              color:#fff;
-              font-weight:bold;
-              cursor:pointer;
-            "
+            style="padding:14px;border-radius:12px;border:1px solid #ffb52e;background:#29200d;color:#fff;font-weight:bold;cursor:pointer;"
           >
             🇬🇧 English
           </button>
@@ -266,51 +217,35 @@ function shukAfricaShowLanguageChoice() {
           <button
             type="button"
             onclick="shukAfricaSetLanguage('fr'); document.getElementById('shukAfricaLanguageBox').remove();"
-            style="
-              padding:14px;
-              border-radius:12px;
-              border:1px solid #1688db;
-              background:#10222c;
-              color:#fff;
-              font-weight:bold;
-              cursor:pointer;
-            "
+            style="padding:14px;border-radius:12px;border:1px solid #1688db;background:#10222c;color:#fff;font-weight:bold;cursor:pointer;"
           >
             🇫🇷 Français
           </button>
-
         </div>
-
       </div>
-
     </div>
   `;
 
   document.body.appendChild(box);
-
 }
 
-
 document.addEventListener("DOMContentLoaded", function() {
+  const hasSavedLanguage = localStorage.getItem("shukafrica_language");
+  const currentLanguage = shukAfricaGetLanguage();
 
-  const savedLanguage = shukAfricaGetLanguage();
+  // Always apply current language to clear initial default HTML state
+  shukAfricaApplyLanguage(currentLanguage);
 
-  if (savedLanguage) {
-    shukAfricaApplyLanguage(savedLanguage);
-  } else {
+  // If user hasn't chosen before, prompt them
+  if (!hasSavedLanguage) {
     shukAfricaShowLanguageChoice();
   }
 
   const languageBtn = document.getElementById("languageBtn");
-
   if (languageBtn) {
-
     languageBtn.addEventListener("click", function() {
-
       shukAfricaShowLanguageChoice();
-
     });
-
   }
-
 });
+    
