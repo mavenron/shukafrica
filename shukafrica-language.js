@@ -283,7 +283,14 @@ function shukAfricaShowLanguageChoice() {
 
 
 document.addEventListener("DOMContentLoaded", function() {
-document.addEventListener("DOMContentLoaded", function() {
+
+  const savedLanguage = shukAfricaGetLanguage();
+
+  if (savedLanguage) {
+    shukAfricaApplyLanguage(savedLanguage);
+  } else {
+    shukAfricaShowLanguageChoice();
+  }
 
   const languageBtn = document.getElementById("languageBtn");
 
@@ -291,27 +298,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
     languageBtn.addEventListener("click", function() {
 
-      shukAfricaChangeLanguage();
-
-      languageBtn.textContent =
-        shukAfricaGetLanguage() === "fr"
-          ? "🌐 Français"
-          : "🌐 English";
+      shukAfricaShowLanguageChoice();
 
     });
-
-  }
-
-});
-  const savedLanguage = shukAfricaGetLanguage();
-
-  if (savedLanguage) {
-
-    shukAfricaApplyLanguage(savedLanguage);
-
-  } else {
-
-    shukAfricaShowLanguageChoice();
 
   }
 
