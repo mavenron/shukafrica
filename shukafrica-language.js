@@ -9,6 +9,7 @@ const shukAfricaTranslations = {
     french: "Français",
     trustedMarketplace: "Your trusted marketplace",
     heroBuySellRent: "Buy. Sell. Rent.",
+    heroDescription: "ShukAfrica connects people, products and services across Ghana, Côte d’Ivoire, Burkina Faso and Togo — faster, safer and easier.",
 heroDeliverExpress: "Deliver. Express.",
 heroGetHelp: "Get Help. Stay Safe.",
     createAccount: "Create Your ShukAfrica Account",
