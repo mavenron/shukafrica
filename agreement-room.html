@@ -944,7 +944,40 @@
 
 
   });
+const viewAgreementBtn = document.getElementById("viewAgreementBtn");
+const roomAccessInput = document.getElementById("roomAccessInput");
+const roomAccessMessage = document.getElementById("roomAccessMessage");
 
+viewAgreementBtn.addEventListener("click", function(){
+
+  const enteredRoom = roomAccessInput.value.trim().toUpperCase();
+
+  roomAccessMessage.style.display = "block";
+
+  if(!enteredRoom){
+    roomAccessMessage.style.background = "rgba(237,62,53,.08)";
+    roomAccessMessage.style.border = "1px solid rgba(237,62,53,.45)";
+    roomAccessMessage.style.color = "#f3c3c0";
+    roomAccessMessage.textContent =
+      "Please enter your Agreement Room number.";
+    return;
+  }
+
+  if(!/^SHUK-AR-\d{6}$/.test(enteredRoom)){
+    roomAccessMessage.style.background = "rgba(237,62,53,.08)";
+    roomAccessMessage.style.border = "1px solid rgba(237,62,53,.45)";
+    roomAccessMessage.style.color = "#f3c3c0";
+    roomAccessMessage.textContent =
+      "Invalid Agreement Room number. Please check the number provided by the seller.";
+    return;
+  }
+
+  roomAccessMessage.style.background = "rgba(0,168,107,.08)";
+  roomAccessMessage.style.border = "1px solid var(--green)";
+  roomAccessMessage.style.color = "#52e6a8";
+  roomAccessMessage.textContent =
+    "Agreement Room number accepted. Secure verification will be required before the agreement can be viewed.";
+});
 </script>
 
 </body>
