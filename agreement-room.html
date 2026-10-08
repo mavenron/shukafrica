@@ -1233,6 +1233,18 @@ viewAgreement.style.display = "block";
 viewAgreement.scrollIntoView({
   behavior:"smooth",
   block:"start"
+  const createRoomBtn = document.getElementById("createRoomBtn");
+const agreementForm = document.getElementById("agreementForm");
+
+createRoomBtn.addEventListener("click", function(){
+
+  agreementForm.style.display = "grid";
+
+  agreementForm.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+
 });
   
 </script>
