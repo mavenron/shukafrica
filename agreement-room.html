@@ -1208,7 +1208,17 @@ viewAgreementBtn.addEventListener("click", function(){
   roomAccessMessage.style.color = "#52e6a8";
   roomAccessMessage.textContent =
     "Agreement Room number accepted. Secure verification will be required before the agreement can be viewed.";
+  const viewAgreement = document.getElementById("viewAgreement");
+const viewRoomNumber = document.getElementById("viewRoomNumber");
+
+viewRoomNumber.textContent = enteredRoom;
+viewAgreement.style.display = "block";
+
+viewAgreement.scrollIntoView({
+  behavior:"smooth",
+  block:"start"
 });
+  
 </script>
 
 </body>
