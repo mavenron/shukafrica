@@ -1231,9 +1231,16 @@ viewRoomNumber.textContent = enteredRoom;
 viewAgreement.style.display = "block";
 
 viewAgreement.scrollIntoView({
-  behavior:"smooth",
-  block:"start"
-  const createRoomBtn = document.getElementById("createRoomBtn");
+  behavior: "smooth",
+  block: "start"
+});
+
+
+/* ==============================
+   SELLER: SHOW CREATE FORM
+   ============================== */
+
+const createRoomBtn = document.getElementById("createRoomBtn");
 const agreementForm = document.getElementById("agreementForm");
 
 createRoomBtn.addEventListener("click", function(){
