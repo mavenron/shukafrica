@@ -1211,7 +1211,12 @@
       roomNumber.textContent = room;
 
       statusBox.style.display = "block";
+const receiverNotification =
+  document.getElementById("receiverNotification");
 
+if(receiverNotification){
+  receiverNotification.style.display = "block";
+}
       window.scrollTo({
         top: 0,
         behavior: "smooth"
