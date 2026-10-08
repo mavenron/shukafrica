@@ -933,3 +933,364 @@
               <div>
                 <strong>Services</strong>
                 <span>Promote useful
+<footer>
+  <div class="wrap">
+
+    <div class="footer-grid">
+
+      <div>
+        <div class="brand" style="margin-bottom:12px;">
+          <div class="brand-mark">S</div>
+          <div>
+            <div class="brand-name">Shuk<span>Africa</span></div>
+            <div class="tagline">West Africa, connected.</div>
+          </div>
+        </div>
+
+        <p>
+          ShukAfrica connects people, products, businesses and services
+          across West Africa.
+        </p>
+
+        <p>
+          Buy. Sell. Rent. Move. Connect.
+        </p>
+      </div>
+
+
+      <div>
+        <h4>Services</h4>
+
+        <ul>
+          <li>
+            <a href="buy-and-sell.html">Market</a>
+          </li>
+
+          <li>
+            <a href="rentals.html">Rentals</a>
+          </li>
+
+          <li>
+            <a href="delivery.html">Shuk Ride</a>
+          </li>
+
+          <li>
+            <a href="#express">Open Market</a>
+          </li>
+
+          <li>
+            <a href="#witness">ShukAfrica Global</a>
+          </li>
+
+          <li>
+            <a href="#emergency">Emergency / Tracking</a>
+          </li>
+        </ul>
+      </div>
+
+
+      <div>
+        <h4>Trust &amp; Safety</h4>
+
+        <ul>
+          <li>
+            <a href="#witness">Witness Room</a>
+          </li>
+
+          <li>
+            <a href="#emergency">Emergency / Tracking</a>
+          </li>
+
+          <li>
+            <a
+              href="#"
+              data-notice="Account verification information will be available in a later build."
+            >
+              Account Verification
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="#"
+              data-notice="Safety information will be available as local services are verified."
+            >
+              Safety Information
+            </a>
+          </li>
+        </ul>
+      </div>
+
+
+      <div>
+        <h4>Contact Us</h4>
+
+        <p>
+          <strong style="color:#fff;">SHUKAFRICA HEAD OFFICE</strong>
+        </p>
+
+        <p>
+          Ghana, C/R, Cape Coast
+        </p>
+
+        <p>
+          <a href="mailto:support@shukafrica.com">
+            support@shukafrica.com
+          </a>
+        </p>
+
+        <p>
+          Official street address will be added when the ShukAfrica office
+          location is finalized.
+        </p>
+      </div>
+
+    </div>
+
+
+    <div class="footer-bottom">
+      <div>
+        © 2026 ShukAfrica. All rights reserved.
+      </div>
+
+      <div>
+        West Africa, connected.
+      </div>
+    </div>
+
+  </div>
+</footer>
+
+
+<script>
+  const notice = document.getElementById('notice');
+  let noticeTimer;
+
+  function showNotice(message){
+    notice.textContent = message;
+    notice.classList.add('show');
+
+    clearTimeout(noticeTimer);
+
+    noticeTimer = setTimeout(() => {
+      notice.classList.remove('show');
+    }, 4200);
+  }
+
+
+  document.querySelectorAll('[data-notice]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.preventDefault();
+      showNotice(el.dataset.notice);
+    });
+  });
+
+
+  document.querySelectorAll('.heart').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.textContent = btn.textContent === '♡' ? '♥' : '♡';
+
+      showNotice(
+        btn.textContent === '♥'
+          ? 'Saved to your demo favourites.'
+          : 'Removed from demo favourites.'
+      );
+    });
+  });
+
+
+  const chips = [
+    ...document.querySelectorAll('.country-chip')
+  ];
+
+  const topCountry = document.getElementById('topCountry');
+
+
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+
+      chips.forEach(c => c.classList.remove('active'));
+
+      chip.classList.add('active');
+
+      const idx = [
+        'Ghana',
+        'Côte d’Ivoire',
+        'Burkina Faso',
+        'Togo'
+      ].indexOf(chip.dataset.country);
+
+      topCountry.selectedIndex = idx;
+
+      showNotice(
+        'Country set to ' +
+        chip.dataset.country +
+        ' for this preview.'
+      );
+    });
+  });
+
+
+  topCountry.addEventListener('change', () => {
+
+    const country = topCountry.value.replace(/^\S+\s*/, '');
+
+    chips.forEach(c => {
+      c.classList.toggle(
+        'active',
+        c.dataset.country === country
+      );
+    });
+
+    showNotice(
+      'Country set to ' +
+      country +
+      ' for this preview.'
+    );
+  });
+
+
+  const searchInput =
+    document.getElementById('searchInput');
+
+  const products = [
+    ...document.querySelectorAll('.product')
+  ];
+
+  const empty =
+    document.getElementById('searchEmpty');
+
+
+  function filterProducts(){
+
+    const q =
+      searchInput.value.trim().toLowerCase();
+
+    let visible = 0;
+
+    products.forEach(p => {
+
+      const match =
+        (
+          p.dataset.name +
+          ' ' +
+          p.dataset.category
+        )
+        .toLowerCase()
+        .includes(q);
+
+      p.hidden = !match;
+
+      if(match){
+        visible++;
+      }
+    });
+
+    empty.hidden = visible !== 0;
+  }
+
+
+  document
+    .getElementById('searchForm')
+    .addEventListener('submit', e => {
+
+      e.preventDefault();
+
+      filterProducts();
+
+      document
+        .getElementById('market')
+        .scrollIntoView({
+          behavior:'smooth'
+        });
+
+      if(searchInput.value.trim()){
+        showNotice(
+          'Showing demo listings for “' +
+          searchInput.value.trim() +
+          '”.'
+        );
+      }
+    });
+
+
+  searchInput.addEventListener(
+    'input',
+    filterProducts
+  );
+
+
+  document
+    .querySelectorAll('[data-mode="Rentals"]')
+    .forEach(el => {
+
+      el.addEventListener('click', () => {
+
+        searchInput.value = 'Rentals';
+
+        filterProducts();
+      });
+    });
+
+
+  document
+    .getElementById('viewAll')
+    .addEventListener('click', e => {
+
+      e.preventDefault();
+
+      searchInput.value = '';
+
+      filterProducts();
+
+      showNotice(
+        'Showing all demo listings.'
+      );
+    });
+
+
+  document
+    .querySelectorAll('[data-emergency]')
+    .forEach(btn => {
+
+      btn.addEventListener('click', () => {
+
+        showNotice(
+          btn.dataset.emergency +
+          ' services: this preview does not contact responders. Emergency directory coming after local verification.'
+        );
+      });
+    });
+
+
+  document
+    .getElementById('newsletter')
+    .addEventListener('submit', e => {
+
+      e.preventDefault();
+
+      showNotice(
+        'Thanks! Newsletter signup will be connected in a later build.'
+      );
+
+      e.target.reset();
+    });
+
+
+  document
+    .getElementById('menuBtn')
+    .addEventListener('click', () => {
+
+      document
+        .getElementById('services')
+        .scrollIntoView({
+          behavior:'smooth'
+        });
+    });
+</script>
+
+
+<script src="shukafrica-language.js"></script>
+
+</body>
+  </html>
