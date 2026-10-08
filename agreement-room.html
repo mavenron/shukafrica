@@ -508,7 +508,116 @@
       <div class="room-number" id="roomNumber"></div>
 
     </div>
+<!-- VIEW AGREEMENT -->
+<section class="section" id="viewAgreement" style="display:none;">
 
+  <h2>🔒 Agreement Details</h2>
+
+  <div class="section-note">
+    This agreement is private and can only be viewed by the parties
+    authorized to access this Agreement Room.
+  </div>
+
+  <div class="agreement-room-display">
+    <span>AGREEMENT ROOM</span>
+    <strong id="viewRoomNumber">SHUK-AR-000000</strong>
+  </div>
+
+  <!-- SELLER -->
+  <div class="agreement-card">
+    <h3>👤 Seller</h3>
+
+    <div class="agreement-person">
+      <div class="profile-placeholder">👤</div>
+
+      <div>
+        <strong id="viewSellerName">Seller Name</strong>
+        <small id="viewSellerContact">Contact information</small>
+        <small id="viewSellerLocation">Seller location</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECEIVER -->
+  <div class="agreement-card">
+    <h3>👤 Receiver</h3>
+
+    <div class="agreement-person">
+      <div class="profile-placeholder">👤</div>
+
+      <div>
+        <strong id="viewReceiverName">Receiver Name</strong>
+        <small id="viewReceiverContact">Contact information</small>
+        <small id="viewReceiverLocation">Receiver location</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRANSACTION -->
+  <div class="agreement-card">
+
+    <h3>📦 Transaction</h3>
+
+    <div class="agreement-detail">
+      <span>Item / Service</span>
+      <strong id="viewItem">Item or service</strong>
+    </div>
+
+    <div class="agreement-detail">
+      <span>Agreed Amount</span>
+      <strong id="viewAmount">Amount</strong>
+    </div>
+
+    <div class="agreement-detail description">
+      <span>Agreed Description</span>
+      <p id="viewDescription">
+        Agreement description will appear here.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- TRANSPORTER -->
+  <div class="agreement-card">
+
+    <h3>🚍 Transporter / Intermediary</h3>
+
+    <div class="agreement-detail">
+      <span>Transporter / Company</span>
+      <strong id="viewTransporter">Transporter</strong>
+    </div>
+
+    <div class="agreement-detail">
+      <span>Vehicle Number</span>
+      <strong id="viewVehicle">Vehicle number</strong>
+    </div>
+
+    <div class="agreement-detail">
+      <span>Driver / Handler</span>
+      <strong id="viewDriver">Driver name</strong>
+    </div>
+
+    <div class="agreement-detail">
+      <span>Pickup</span>
+      <strong id="viewPickup">Pickup location</strong>
+    </div>
+
+    <div class="agreement-detail">
+      <span>Destination</span>
+      <strong id="viewDestination">Destination</strong>
+    </div>
+
+  </div>
+
+  <!-- LOCKED STATUS -->
+  <div class="locked-banner">
+    🔒 AGREEMENT LOCKED
+    <small>
+      This agreement is read-only. Changes require an authorized process.
+    </small>
+  </div>
+
+</section>
     <form id="agreementForm">
 
       <!-- SELLER -->
