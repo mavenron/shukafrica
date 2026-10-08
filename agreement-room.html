@@ -438,7 +438,46 @@
         Secure the deal. Protect the agreement.
       </p>
     </div>
+<!-- ENTER AGREEMENT ROOM -->
+<section class="section" id="enterRoom">
+  <h2>🔐 Enter Agreement Room</h2>
 
+  <div class="section-note">
+    If you are the receiver, enter the private Agreement Room number
+    provided by the seller.
+  </div>
+
+  <div class="field">
+    <label>Agreement Room Number *</label>
+
+    <input
+      type="text"
+      id="roomAccessInput"
+      placeholder="Example: SHUK-AR-583921"
+      maxlength="14"
+      autocomplete="off"
+    >
+  </div>
+
+  <button
+    type="button"
+    class="lock-btn"
+    id="viewAgreementBtn"
+    style="margin-top:12px;"
+  >
+    🔐 VIEW AGREEMENT
+  </button>
+
+  <div class="room-access-note">
+    🔒 This Agreement Room is private. Only people with the correct
+    room number can request access.
+  </div>
+
+  <div
+    id="roomAccessMessage"
+    style="display:none;margin-top:12px;"
+  ></div>
+</section>
     <!-- ROOM CREATED -->
     <div class="room-status" id="roomStatus">
 
