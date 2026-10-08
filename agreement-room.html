@@ -1,1 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agreement Room | ShukAfrica</title>
 
+  <style>
+    :root{
+      --bg:#071112;
+      --panel:#101d1e;
+      --panel2:#142425;
+      --line:#263738;
+      --text:#f5f7f5;
+      --muted:#a8b6b3;
+      --gold:#d4883a;
+      --gold2:#ffb52e;
+      --green:#00a86b;
+      --red:#ed3e35;
+      --radius:16px;
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    html{
+      scroll-behavior:smooth;
+    }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:Arial,Helvetica,sans-serif;
+    }
+
+    .wrap{
+      width:min(100% - 28px,900px);
+      margin:auto;
+    }
+
+    header{
+      border-bottom:1px solid var(--line);
+      background:#091516;
+    }
+
+    .nav{
+      min-height:70px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:15px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .brand-mark{
+      width:42px;
+      height:42px;
+      border-radius:12px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(135deg,var(--gold2),var(--gold));
+      color:#101414;
+      font-weight:900;
+      font-size:20px;
+    }
+
+    .brand-name{
+      font-size:20px;
+      font-weight:900;
+    }
+
+    .brand-tag{
+      color:var(--muted);
+      font-size:10px;
+      margin-top:2px;
+    }
+
+    .back{
+      color:var(--gold2);
+      text-decoration:none;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    main{
+      padding:28px 0 50px;
+    }
+
+    .hero{
+      text-align:center;
+      margin-bottom:25px;
+    }
+
+    .shield{
+      width:58px;
+      height:58px;
+      margin:0 auto 12px;
+      display:grid;
+      place-items:center;
+      border-radius:16px;
+      background:rgba(255,181,46,.10);
+      border:1px solid rgba(255,181,46,.35);
+      font-size:28px;
+    }
+
+    h1{
+      margin:0;
+      font-size:30px;
+    }
+
+    .hero p{
+      color:var(--muted);
+      margin:8px 0 0;
+      font-size:13px;
+    }
+
+    .room-status{
+      display:none;
+      margin:0 auto 22px;
+      max-width:650px;
+      padding:15px;
+      border:1px solid var(--green);
+      border-radius:12px;
+      background:rgba(0,168,107,.08);
+      text-align:center;
+    }
+
+    .room-status strong{
+      color:#52e6a8;
+      display:block;
+      font-size:14px;
+    }
+
+    .room-number{
+      margin-top:7px;
+      font-size:22px;
+      font-weight:900;
+      color:var(--gold2);
+      letter-spacing:1px;
+    }
+
+    form{
+      display:grid;
+      gap:16px;
+    }
+
+    .section{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:19px;
+    }
+
+    .section h2{
+      margin:0 0 5px;
+      font-size:18px;
+    }
+
+    .section-note{
+      color:var(--muted);
+      font-size:11px;
+      margin-bottom:16px;
+      line-height:1.5;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:12px;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .field.full{
+      grid-column:1/-1;
+    }
+
+    label{
+      font-size:11px;
+      font-weight:800;
+      color:#dce4e2;
+    }
+
+    input,
+    textarea,
+    select{
+      width:100%;
+      border:1px solid #344849;
+      border-radius:10px;
+      background:#0b1718;
+      color:var(--text);
+      padding:12px;
+      outline:none;
+      font:inherit;
+      font-size:13px;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus{
+      border-color:var(--gold2);
+    }
+
+    textarea{
+      min-height:120px;
+      resize:vertical;
+    }
+
+    input[type="file"]{
+      padding:9px;
+      font-size:11px;
+    }
+
+    .upload-note{
+      color:var(--muted);
+      font-size:9px;
+      line-height:1.4;
+    }
+
+    .money{
+      display:grid;
+      grid-template-columns:120px 1fr;
+      gap:10px;
+    }
+
+    .warning{
+      margin-top:15px;
+      padding:13px;
+      border-radius:10px;
+      border:1px solid rgba(237,62,53,.45);
+      background:rgba(237,62,53,.07);
+      color:#f3c3c0;
+      font-size:11px;
+      line-height:1.5;
+    }
+
+    .check{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      margin-top:14px;
+      cursor:pointer;
+    }
+
+    .check input{
+      width:18px;
+      height:18px;
+      margin:0;
+      flex-shrink:0;
+      accent-color:var(--gold2);
+    }
+
+    .check span{
+      font-size:11px;
+      line-height:1.5;
+      color:#d8e0de;
+    }
+
+    .payment-box{
+      padding:15px;
+      border-radius:12px;
+      border:1px dashed var(--gold);
+      background:rgba(212,136,58,.06);
+    }
+
+    .payment-box strong{
+      color:var(--gold2);
+      font-size:13px;
+    }
+
+    .payment-box p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:10px;
+      line-height:1.5;
+    }
+
+    .lock-area{
+      text-align:center;
+      padding:20px;
+    }
+
+    .lock-btn{
+      width:100%;
+      max-width:500px;
+      border:0;
+      border-radius:12px;
+      padding:15px 20px;
+      background:linear-gradient(135deg,var(--gold2),var(--gold));
+      color:#101414;
+      font-size:14px;
+      font-weight:900;
+      cursor:pointer;
+    }
+
+    .lock-btn:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+    }
+
+    .lock-note{
+      color:var(--muted);
+      font-size:10px;
+      margin-top:9px;
+    }
+
+    footer{
+      border-top:1px solid var(--line);
+      padding:25px 0;
+      color:var(--muted);
+      text-align:center;
+      font-size:10px;
+    }
+
+    @media(max-width:700px){
+      .nav{
+        min-height:62px;
+      }
+
+      .brand-name{
+        font-size:18px;
+      }
+
+      h1{
+        font-size:25px;
+      }
+
+      .grid{
+        grid-template-columns:1fr;
+      }
+
+      .field.full{
+        grid-column:auto;
+      }
+
+      .section{
+        padding:16px;
+      }
+
+      .money{
+        grid-template-columns:1fr;
+      }
+
+      .back{
+        font-size:11px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="brand">
+      <div class="brand-mark">S</div>
+      <div>
+        <div class="brand-name">ShukAfrica</div>
+        <div class="brand-tag">West Africa, connected.</div>
+      </div>
+    </div>
+
+    <a class="back" href="index.html">← Back to ShukAfrica</a>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <div class="hero">
+      <div class="shield">🛡️</div>
+      <h1>AGREEMENT ROOM</h1>
+      <p>Secure the deal. Protect the agreement.</p>
+    </div>
+
+    <div class="room-status" id="roomStatus">
+      <strong>🔒 AGREEMENT ROOM CREATED</strong>
+      <div class="room-number" id="roomNumber"></div>
+    </div>
+
+    <form id="agreementForm">
+
+      <!-- SELLER -->
+      <section class="section">
+        <h2>👤 Seller Information</h2>
+        <div class="section-note">
+          All seller information is required for the agreement record.
+        </div>
+
+        <div class="grid">
+
+          <div class="field full">
+            <label>Profile Picture *</label>
+            <input type="file" accept="image/*" required>
+          </div>
+
+          <div class="field">
+            <label>Full Name *</label>
+            <input type="text" required>
+          </div>
+
+          <div class="field">
+            <label>Contact *</label>
+            <input type="tel" required>
+          </div>
+
+          <div class="field full">
+            <label>Location *</label>
+            <input type="text" required>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ITEM -->
+      <section class="section">
+        <h2>📦 Item / Service</h2>
+        <div class="section-note">
+          Provide accurate evidence of the item or service being agreed.
+        </div>
+
+        <div class="grid">
+
+          <div class="field full">
+            <label>Item / Service *</label>
+            <input type="text" required>
+          </div>
+
+          <div class="field full">
+            <label>Item Picture *</label>
+            <input type="file" accept="image/*" required>
+            <div class="upload-note">Upload a clear picture of the item.</div>
+          </div>
+
+          <div class="field full">
+            <label>Item Video *</label>
+            <input type="file" accept="video/*" required>
+            <div class="upload-note">Upload a clear video showing the item or service.</div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- RECEIVER -->
+      <section class="section">
+        <h2>👤 Receiver Information</h2>
+        <div class="section-note">
+          Enter the person who is expected to receive the item or service.
+        </div>
+
+        <div class="grid">
+
+          <div class="field full">
+            <label>Profile Picture *</label>
+            <input type="file" accept="image/*" required>
+          </div>
+
+          <div class="field">
+            <label>Full Name *</label>
+            <input type="text" required>
+          </div>
+
+          <div class="field">
+            <label>Contact *</label>
+            <input type="tel" required>
+          </div>
+
+          <div class="field full">
+            <label>Location *</label>
+            <input type="text" required>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- AGREEMENT -->
+      <section class="section">
+        <h2>🤝 Agreement Details</h2>
+        <div class="section-note">
+          This description should clearly state what both parties have agreed to.
+        </div>
+
+        <div class="grid">
+
+          <div class="field full">
+            <label>Agreed Description *</label>
+            <textarea required placeholder="Describe exactly what has been agreed..."></textarea>
+          </div>
+
+          <div class="field full">
+            <label>Agreed Amount *</label>
+
+            <div class="money">
+              <select required>
+                <option value="">Currency</option>
+                <option value="GHS">GH₵ — Ghana Cedi</option>
+                <option value="XOF">CFA — West African CFA Franc</option>
+                <option value="USD">US$ — US Dollar</option>
+                <option value="EUR">€ — Euro</option>
+              </select>
+
+              <input type="number" min="0.01" step="0.01" placeholder="Amount" required>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- TRANSPORTER -->
+      <section class="section">
+        <h2>🚍 Transporter / Intermediary</h2>
+        <div class="section-note">
+          Enter the transporter or intermediary responsible for carrying or handing over the item.
+        </div>
+
+        <div class="grid">
+
+          <div class="field">
+            <label>Transporter / Company Name *</label>
+            <input type="text" placeholder="Example: VIP Jeoun Transport" required>
+          </div>
+
+          <div class="field">
+            <label>Bus / Vehicle Number *</label>
+            <input type="text" placeholder="Example: 3567" required>
+          </div>
+
+          <div class="field">
+            <label>Driver / Handler Name *</label>
+            <input type="text" placeholder="Example: Kwesi Mensah" required>
+          </div>
+
+          <div class="field">
+            <label>Driver / Handler Contact *</label>
+            <input type="tel" required>
+          </div>
+
+          <div class="field">
+            <label>Pickup Location *</label>
+            <input type="text" required>
+          </div>
+
+          <div class="field">
+            <label>Destination *</label>
+            <input type="text" required>
+          </div>
+
+          <div class="field full">
+            <label>Transport Reference</label>
+            <input type="text" placeholder="Ticket, receipt or other reference">
+          </div>
+
+        </div>
+
+        <div class="warning">
+          ⚠️ <strong>Transporter Responsibility:</strong>
+          Make sure you have confirmed the identity and reliability of the transporter or intermediary.
+          If you choose to hand your goods to an unknown or incorrect person, ShukAfrica cannot be responsible for that choice.
+        </div>
+
+        <label class="check">
+          <input type="checkbox" id="transporterAccept" required>
+          <span>
+            I understand and accept responsibility for the transporter/intermediary I have selected.
+          </span>
+        </label>
+      </section>
+
+      <!-- PAYMENT -->
+      <section class="section">
+        <h2>💳 Payment Protection</h2>
+
+        <div class="payment-box">
+          <strong>Payment integration pending</strong>
+          <p>
+            ShukAfrica will connect this Agreement Room to an approved banking/payment
+            protection system. The actual payment and release of funds will be handled
+            through the approved financial arrangement.
+          </p>
+        </div>
+      </section>
+
+      <!-- LOCK -->
+      <section class="section lock-area">
+
+        <label class="check" style="justify-content:center;text-align:left;">
+          <input type="checkbox" id="confirmAgreement" required>
+          <span>
+            I confirm that the information entered is accurate and represents the agreement
+            between the seller and receiver.
+          </span>
+        </label>
+
+        <br>
+
+        <button class="lock-btn" type="submit">
+          🔒 LOCK AGREEMENT
+        </button>
+
+        <div class="lock-note">
+          Once locked, the agreement should not be changed without an authorized process.
+        </div>
+
+      </section>
+
+    </form>
+
+  </div>
+</main>
+
+<footer>
+  © 2026 ShukAfrica — West Africa, connected.
+</footer>
+
+<script>
+  const form = document.getElementById("agreementForm");
+  const statusBox = document.getElementById("roomStatus");
+  const roomNumber = document.getElementById("roomNumber");
+
+  function createRoomNumber(){
+    const number = Math.floor(100000 + Math.random() * 900000);
+    return "SHUK-AR-" + number;
+  }
+
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+
+    if(!form.checkValidity()){
+      form.reportValidity();
+      return;
+    }
+
+    const room = createRoomNumber();
+
+    roomNumber.textContent = room;
+    statusBox.style.display = "block";
+
+    window.scrollTo({
+      top:0,
+      behavior:"smooth"
+    });
+  });
+</script>
+
+</body>
+  </html>
