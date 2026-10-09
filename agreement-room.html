@@ -849,57 +849,51 @@
 
 </section>
     
-<form id="agreementForm" style="display:none;">
+
       <!-- SELLER -->
-      <section class="section">
+<section class="section">
 
-        <h2>👤 Seller Information</h2>
+  <h2>👤 Seller Information</h2>
 
-        <div class="section-note">
-          All seller information is required for the agreement record.
-        </div>
+  <div class="section-note">
+    All seller information is required for the agreement record.
+  </div>
 
-        <div class="grid">
+  <div class="grid">
 
-          <div class="field full">
-            <label>Profile Picture *</label>
-            <input
-              type="file"
-              accept="image/*"
-              required
-            >
-          </div>
+    <div class="field">
+      <label>Full Name *</label>
+      <input
+        type="text"
+        id="sellerFullName"
+        placeholder="Seller full name"
+        required
+      >
+    </div>
 
-          <div class="field">
-            <label>Full Name *</label>
-            <input
-              type="text"
-              placeholder="Seller full name"
-              required
-            >
-          </div>
+    <div class="field">
+      <label>Contact *</label>
+      <input
+        type="tel"
+        id="sellerContact"
+        placeholder="Seller telephone"
+        required
+      >
+    </div>
 
-          <div class="field">
-            <label>Contact *</label>
-            <input
-              type="tel"
-              placeholder="Seller telephone"
-              required
-            >
-          </div>
+    <div class="field full">
+      <label>Location *</label>
+      <input
+        type="text"
+        id="sellerLocation"
+        placeholder="Seller location"
+        required
+      >
+    </div>
 
-          <div class="field full">
-            <label>Location *</label>
-            <input
-              type="text"
-              placeholder="Seller location"
-              required
-            >
-          </div>
+  </div>
 
-        </div>
-
-      </section>
+</section>
 
       <!-- ITEM / SERVICE -->
       <section class="section">
