@@ -406,9 +406,6 @@
         const packageDetails =
           document.getElementById("packageDetails").value.trim();
 
-        const offer =
-          Number(document.getElementById("offerPrice").value);
-
         if (!customerName || !customerPhone ||
             !pickup || !destination || !packageDetails ||
             !Number.isFinite(offer) || offer <= 0) {
