@@ -999,57 +999,57 @@
 
 </section>
 
-      <!-- AGREEMENT -->
-      <section class="section">
+      
+<!-- AGREEMENT -->
+<section class="section">
 
-        <h2>🤝 Agreement Details</h2>
+  <h2>🤝 Agreement Details</h2>
 
-        <div class="section-note">
-          Clearly state exactly what the seller and receiver have agreed to.
-        </div>
+  <div class="section-note">
+    Clearly state exactly what the seller and receiver have agreed to.
+  </div>
 
-        <div class="grid">
+  <div class="grid">
 
-          <div class="field full">
+    <div class="field full">
+      <label>Agreed Description *</label>
 
-            <label>Agreed Description *</label>
+      <textarea
+        id="agreedDescription"
+        placeholder="Describe exactly what has been agreed..."
+        required
+      ></textarea>
+    </div>
 
-            <textarea
-              placeholder="Describe exactly what has been agreed..."
-              required
-            ></textarea>
+    <div class="field full">
+      <label>Agreed Amount *</label>
 
-          </div>
+      <div class="money">
 
-          <div class="field full">
+        <select id="agreedCurrency" required>
+          <option value="">Currency</option>
+          <option value="GHS">GH₵ — Ghana Cedi</option>
+          <option value="XOF">CFA — West African CFA Franc</option>
+          <option value="USD">US$ — US Dollar</option>
+          <option value="EUR">€ — Euro</option>
+        </select>
 
-            <label>Agreed Amount *</label>
+        <input
+          type="number"
+          id="agreedAmount"
+          min="0.01"
+          step="0.01"
+          placeholder="Agreed amount"
+          required
+        >
 
-            <div class="money">
+      </div>
+    </div>
 
-              <select required>
-                <option value="">Currency</option>
-                <option value="GHS">GH₵ — Ghana Cedi</option>
-                <option value="XOF">CFA — West African CFA Franc</option>
-                <option value="USD">US$ — US Dollar</option>
-                <option value="EUR">€ — Euro</option>
-              </select>
+  </div>
 
-              <input
-                type="number"
-                min="0.01"
-                step="0.01"
-                placeholder="Agreed amount"
-                required
-              >
+</section>
 
-            </div>
-
-          </div>
-
-        </div>
-
-      </section>
 
       <!-- TRANSPORTER -->
       <section class="section">
