@@ -1,377 +1,168 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#103b2b">
-<title>ShukAfrica Global | Shop with Confidence</title>
-
+<title>ShukAfrica Global</title>
 <style>
 :root {
-  --green: #087443;
-  --dark: #103b2b;
-  --gold: #e9b84b;
-  --bg: #f4f7f4;
-  --white: #ffffff;
-  --muted: #68766e;
-  --border: #dce5de;
-  --red: #bd3945;
+  --green:#087443;
+  --dark:#103b2b;
+  --gold:#e9b84b;
+  --bg:#f4f7f4;
+  --border:#dce5de;
+  --muted:#68766e;
 }
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-  color: var(--dark);
-  background: var(--bg);
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:var(--bg);
+  color:var(--dark)
 }
-a { color: inherit; }
-button, input, select, textarea { font: inherit; }
-button { cursor: pointer; }
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 15px 4%;
-  background: var(--white);
-  border-bottom: 1px solid var(--border);
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.topbar{
+  display:flex;justify-content:space-between;
+  align-items:center;gap:12px;padding:16px 4%;
+  background:white;border-bottom:1px solid var(--border)
 }
-.logo {
-  text-decoration: none;
-  font-size: 21px;
-  font-weight: 900;
-  letter-spacing: -.6px;
+.logo{font-size:21px;font-weight:900;text-decoration:none;color:var(--dark)}
+.logo span{color:var(--gold)}
+.top-link{font-size:13px;font-weight:bold;text-decoration:none}
+.search-area{background:white;padding:12px 4% 16px}
+.search-box{
+  display:flex;align-items:center;gap:10px;
+  background:#f0f2f0;border-radius:30px;padding:0 15px
 }
-.logo span { color: var(--gold); }
-.top-link {
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 700;
+.search-box input{
+  width:100%;min-width:0;border:0;outline:0;
+  background:transparent;padding:14px 0
 }
-.search-area {
-  background: var(--white);
-  padding: 12px 4% 16px;
+.filters{display:flex;gap:9px;margin-top:11px}
+.filters select{
+  width:50%;min-width:0;padding:11px;
+  border:1px solid var(--border);border-radius:9px;background:white
 }
-.search-box {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #f0f2f0;
-  border-radius: 30px;
-  padding: 0 15px;
+main{max-width:1050px;margin:auto;padding:18px 4% 35px}
+.notice{
+  background:#fff8e5;border:1px solid #eed99a;
+  border-radius:10px;padding:13px;margin-bottom:18px;
+  font-size:12px;line-height:1.6
 }
-.search-box input {
-  min-width: 0;
-  width: 100%;
-  border: 0;
-  outline: 0;
-  background: transparent;
-  padding: 14px 0;
+.heading{
+  display:flex;justify-content:space-between;
+  align-items:center;gap:10px;margin:3px 0 15px
 }
-.filters {
-  display: flex;
-  gap: 9px;
-  margin-top: 11px;
+.heading h1{font-size:23px;margin:0}
+#resultCount{font-size:12px;color:var(--muted)}
+.product-grid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px
 }
-.filters select {
-  min-width: 0;
-  flex: 1;
-  border: 1px solid var(--border);
-  background: white;
-  border-radius: 9px;
-  padding: 11px;
+.product-card{
+  min-width:0;background:white;border:1px solid var(--border);
+  border-radius:13px;overflow:hidden;display:flex;flex-direction:column
 }
-main {
-  width: 100%;
-  max-width: 1050px;
-  margin: auto;
-  padding: 18px 4% 35px;
+.product-photo{
+  width:100%;aspect-ratio:1/1;background:#edf1ed;
+  display:flex;align-items:center;justify-content:center;overflow:hidden
 }
-.section-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  margin: 3px 0 15px;
+.product-photo img{width:100%;height:100%;object-fit:cover}
+.no-photo{color:var(--muted);font-size:12px;text-align:center;padding:12px}
+.product-info{display:flex;flex-direction:column;gap:7px;padding:11px;flex:1}
+.product-category{
+  color:var(--muted);font-size:11px;
+  text-transform:uppercase;letter-spacing:.4px
 }
-.section-heading h1 {
-  font-size: 23px;
-  margin: 0;
+.product-name{font-size:14px;line-height:1.4;margin:0;overflow-wrap:anywhere}
+.product-price{font-size:18px;font-weight:800;margin-top:auto}
+.price-pending{font-size:13px;color:var(--muted)}
+.actions{display:grid;gap:7px;margin-top:5px}
+.btn{
+  display:flex;justify-content:center;align-items:center;
+  text-align:center;min-height:39px;padding:9px 7px;
+  border:1px solid transparent;border-radius:7px;
+  font-size:12px;font-weight:800
 }
-#resultCount {
-  font-size: 12px;
-  color: var(--muted);
+.btn-order{background:var(--green);color:white}
+.btn-details{background:white;color:var(--green);border-color:var(--green)}
+.btn-cancel{background:white;color:var(--dark);border-color:var(--border)}
+.empty{
+  grid-column:1/-1;text-align:center;background:white;
+  border:1px dashed #cbd8ce;border-radius:13px;
+  padding:35px 18px;color:var(--muted);line-height:1.6
 }
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+footer{
+  background:var(--dark);color:white;
+  padding:24px 5%;line-height:1.8;font-size:14px
 }
-.product-card {
-  min-width: 0;
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: 13px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 2px 6px rgba(16,59,43,.04);
+footer a{color:var(--gold)}
+.muted{font-size:12px;color:#d0ddd4}
+.dialog{
+  display:none;position:fixed;inset:0;z-index:50;
+  background:rgba(0,0,0,.58);padding:12px;overflow-y:auto
 }
-.product-photo {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  background: #edf1ed;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+.dialog.open{display:flex;align-items:flex-start;justify-content:center}
+.dialog-box{
+  width:100%;max-width:520px;margin:auto;
+  background:white;border-radius:15px;overflow:hidden
 }
-.product-photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.dialog-header{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;padding:15px;border-bottom:1px solid var(--border)
 }
-.no-photo {
-  color: #78867d;
-  text-align: center;
-  font-size: 12px;
-  padding: 12px;
+.dialog-header h2{margin:0;font-size:18px}
+.close-btn{
+  width:36px;height:36px;border:0;border-radius:50%;
+  background:#eef2ee;color:var(--dark);font-size:22px
 }
-.product-info {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  padding: 11px;
-  flex: 1;
+.dialog-content{padding:15px}
+.gallery-main{
+  background:#f0f3f0;border-radius:10px;overflow:hidden
 }
-.product-category {
-  font-size: 11px;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: .4px;
+.gallery-main img{
+  display:block;width:100%;max-height:300px;object-fit:contain
 }
-.product-name {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.4;
-  overflow-wrap: anywhere;
+.thumbs{display:flex;gap:8px;margin-top:9px;overflow-x:auto}
+.thumbs button{
+  flex:0 0 65px;height:65px;padding:0;
+  border:2px solid var(--border);border-radius:7px;overflow:hidden
 }
-.product-price {
-  font-size: 18px;
-  font-weight: 800;
-  margin-top: auto;
+.thumbs img{width:100%;height:100%;object-fit:cover}
+.detail-name{font-size:22px;margin:16px 0 5px}
+.detail-price{font-size:22px;font-weight:900;margin:8px 0}
+.detail-meta{font-size:12px;color:var(--muted);line-height:1.8}
+.description{font-size:14px;line-height:1.6;white-space:pre-wrap}
+.detail-video{width:100%;max-height:260px;margin-top:12px;background:black}
+.detail-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:17px}
+form{display:grid;gap:13px}
+label{display:grid;gap:6px;font-size:13px;font-weight:bold}
+input,textarea{
+  width:100%;padding:12px;border:1px solid #cdd8cf;
+  border-radius:8px;background:white;color:var(--dark)
 }
-.price-pending {
-  font-size: 13px;
-  color: var(--muted);
+textarea{resize:vertical}
+.form-note{
+  background:#f1f6f1;padding:12px;border-radius:8px;
+  color:#40594a;font-size:12px;line-height:1.6
 }
-.card-actions {
-  display: grid;
-  gap: 7px;
-  margin-top: 5px;
+body.dialog-open{overflow:hidden}
+@media(min-width:650px){
+  .product-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}
+  .product-info{padding:14px}
+  .product-name{font-size:16px}
+  .btn{font-size:13px}
 }
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  border: 1px solid transparent;
-  border-radius: 7px;
-  min-height: 39px;
-  padding: 9px 8px;
-  font-size: 12px;
-  font-weight: 800;
-}
-.btn-order {
-  background: var(--green);
-  color: white;
-}
-.btn-details {
-  background: white;
-  border-color: var(--green);
-  color: var(--green);
-}
-.btn-close {
-  background: #fff;
-  border-color: var(--border);
-  color: var(--dark);
-}
-.empty-state {
-  text-align: center;
-  background: white;
-  border: 1px dashed #cbd8ce;
-  padding: 35px 18px;
-  border-radius: 13px;
-  color: var(--muted);
-  line-height: 1.6;
-  grid-column: 1 / -1;
-}
-.notice {
-  background: #fff8e5;
-  border: 1px solid #eed99a;
-  border-radius: 10px;
-  padding: 13px;
-  margin: 0 0 18px;
-  font-size: 12px;
-  line-height: 1.6;
-}
-footer {
-  background: var(--dark);
-  color: white;
-  padding: 24px 5%;
-  line-height: 1.8;
-  font-size: 14px;
-}
-footer a { color: var(--gold); }
-footer .muted { color: #d0ddd4; font-size: 12px; }
-
-/* Product details and order dialog */
-.dialog {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: none;
-  background: rgba(0,0,0,.58);
-  padding: 12px;
-  overflow-y: auto;
-}
-.dialog.open {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-}
-.dialog-box {
-  width: 100%;
-  max-width: 520px;
-  margin: auto;
-  background: white;
-  border-radius: 15px;
-  overflow: hidden;
-}
-.dialog-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 15px;
-  border-bottom: 1px solid var(--border);
-}
-.dialog-header h2 {
-  margin: 0;
-  font-size: 18px;
-}
-.x-button {
-  width: 36px;
-  height: 36px;
-  border: 0;
-  border-radius: 50%;
-  background: #eef2ee;
-  color: var(--dark);
-  font-size: 22px;
-}
-.dialog-content { padding: 15px; }
-.gallery-main {
-  background: #f0f3f0;
-  border-radius: 10px;
-  overflow: hidden;
-}
-.gallery-main img {
-  width: 100%;
-  max-height: 300px;
-  object-fit: contain;
-  display: block;
-}
-.gallery-thumbs {
-  display: flex;
-  gap: 8px;
-  margin-top: 9px;
-  overflow-x: auto;
-}
-.gallery-thumbs button {
-  padding: 0;
-  flex: 0 0 65px;
-  height: 65px;
-  border: 2px solid var(--border);
-  border-radius: 7px;
-  overflow: hidden;
-  background: white;
-}
-.gallery-thumbs img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.detail-name { margin: 16px 0 5px; font-size: 22px; }
-.detail-price { font-size: 22px; font-weight: 900; margin: 8px 0; }
-.detail-description {
-  line-height: 1.6;
-  font-size: 14px;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-.detail-meta {
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.8;
-}
-.detail-video {
-  width: 100%;
-  max-height: 260px;
-  margin-top: 12px;
-  background: black;
-  border-radius: 9px;
-}
-.detail-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 9px;
-  margin-top: 17px;
-}
-form { display: grid; gap: 13px; }
-label {
-  display: grid;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 700;
-}
-input, textarea {
-  width: 100%;
-  border: 1px solid #cdd8cf;
-  border-radius: 8px;
-  padding: 12px;
-  background: white;
-  color: var(--dark);
-}
-textarea { resize: vertical; }
-.form-note {
-  background: #f1f6f1;
-  padding: 12px;
-  border-radius: 8px;
-  color: #40594a;
-  font-size: 12px;
-  line-height: 1.6;
-}
-.hidden { display: none !important; }
-body.dialog-open { overflow: hidden; }
-
-@media (min-width: 650px) {
-  .product-grid { grid-template-columns: repeat(3, minmax(0,1fr)); gap: 17px; }
-  main { padding-top: 25px; }
-  .product-info { padding: 14px; }
-  .product-name { font-size: 16px; }
-  .btn { font-size: 13px; }
-}
-@media (min-width: 900px) {
-  .product-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
+@media(min-width:900px){
+  .product-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
 </style>
 </head>
-
 <body>
+
 <header class="topbar">
   <a class="logo" href="index.html">SHUK<span>AFRICA</span></a>
   <a class="top-link" href="index.html">← Main Website</a>
@@ -385,14 +176,13 @@ body.dialog-open { overflow: hidden; }
       aria-label="Search products">
   </div>
   <div class="filters">
-    <select id="categoryFilter" aria-label="Product category">
+    <select id="categoryFilter" aria-label="Category">
       <option value="">All categories</option>
     </select>
     <select id="sortFilter" aria-label="Sort products">
-      <option value="featured">Featured</option>
+      <option value="az">Name: A to Z</option>
       <option value="low">Price: low to high</option>
       <option value="high">Price: high to low</option>
-      <option value="az">Name: A to Z</option>
     </select>
   </div>
 </div>
@@ -401,13 +191,13 @@ body.dialog-open { overflow: hidden; }
   <div class="notice">
     <strong>Shop with confidence.</strong>
     Submit an order request and ShukAfrica will contact you privately
-    to confirm availability, the final product price and the delivery fee.
+    to confirm availability, the final product price and delivery fee.
     No online payment is collected on this page.
   </div>
 
-  <section aria-labelledby="catalogueTitle">
-    <div class="section-heading">
-      <h1 id="catalogueTitle">Explore Products</h1>
+  <section>
+    <div class="heading">
+      <h1>Explore Products</h1>
       <span id="resultCount"></span>
     </div>
     <div id="productGrid" class="product-grid"></div>
@@ -426,23 +216,22 @@ body.dialog-open { overflow: hidden; }
   <div class="dialog-box">
     <div class="dialog-header">
       <h2>Product Details</h2>
-      <button class="x-button" type="button" data-close="detailsDialog"
-        aria-label="Close details">×</button>
+      <button class="close-btn" type="button" data-close="detailsDialog">×</button>
     </div>
     <div class="dialog-content">
       <div class="gallery-main" id="galleryMain">
         <div class="no-photo">Product pictures</div>
       </div>
-      <div class="gallery-thumbs" id="galleryThumbs"></div>
+      <div class="thumbs" id="galleryThumbs"></div>
       <div id="detailCategory" class="product-category"></div>
       <h2 class="detail-name" id="detailName"></h2>
       <div class="detail-price" id="detailPrice"></div>
       <div class="detail-meta" id="detailMeta"></div>
-      <p class="detail-description" id="detailDescription"></p>
-      <video id="detailVideo" class="detail-video hidden" controls playsinline></video>
+      <p class="description" id="detailDescription"></p>
+      <video id="detailVideo" class="detail-video" controls playsinline hidden></video>
       <div class="detail-actions">
         <button class="btn btn-order" type="button" id="detailOrderButton">Order Me</button>
-        <button class="btn btn-close" type="button" data-close="detailsDialog">Continue Shopping</button>
+        <button class="btn btn-cancel" type="button" data-close="detailsDialog">Continue Shopping</button>
       </div>
     </div>
   </div>
@@ -454,22 +243,20 @@ body.dialog-open { overflow: hidden; }
   <div class="dialog-box">
     <div class="dialog-header">
       <h2 id="orderTitle">Order Me</h2>
-      <button class="x-button" type="button" data-close="orderDialog"
-        aria-label="Close order form">×</button>
+      <button class="close-btn" type="button" data-close="orderDialog">×</button>
     </div>
     <div class="dialog-content">
       <p id="orderProductSummary" class="detail-meta"></p>
       <div class="form-note">
-        After you submit, WhatsApp will open with your order request.
-        Please send the message. ShukAfrica will call you privately to
-        confirm the product, final price and delivery fee before proceeding.
-        This is an order request, not a confirmed purchase.
+        Your order request will open in WhatsApp. Send the message to
+        ShukAfrica. We will call you privately to confirm the item,
+        final price and delivery fee. This is not a confirmed order.
       </div>
       <form id="orderForm">
         <input type="hidden" id="orderProductId">
         <label>Full name
           <input id="buyerName" required maxlength="100"
-            autocomplete="name" placeholder="Enter your full name">
+            autocomplete="name" placeholder="Your full name">
         </label>
         <label>Phone number
           <input id="buyerPhone" required type="tel" maxlength="25"
@@ -486,271 +273,13 @@ body.dialog-open { overflow: hidden; }
         </label>
         <label>Additional instructions (optional)
           <textarea id="buyerInstructions" maxlength="500" rows="2"
-            placeholder="Any additional delivery information"></textarea>
+            placeholder="Any delivery information"></textarea>
         </label>
         <button class="btn btn-order" type="submit">Send Order Request on WhatsApp</button>
-        <button class="btn btn-close" type="button" data-close="orderDialog">Cancel</button>
+        <button class="btn btn-cancel" type="button" data-close="orderDialog">Cancel</button>
       </form>
     </div>
   </div>
 </div>
 
-<script>
-/*
-  SHUKAFRICA GLOBAL — FRONT-END STARTER
-
-  Add your real products to the PRODUCTS list below.
-  Use publicly accessible image/video URLs for the media fields.
-
-  This static version does not have a secure admin dashboard or database.
-  Order requests are prepared in WhatsApp and must be sent by the customer.
-  Do not enter supplier secrets or private supplier details here.
-*/
-
-const SHUKAFRICA_WHATSAPP = "233205909045";
-
-/*
-  PRODUCT TEMPLATE:
-  {
-    id: "phone-001",
-    category: "Mobile Phones",
-    name: "Product name",
-    price: 500,
-    condition: "Brand new",
-    availability: "Confirm with ShukAfrica",
-    warranty: "Warranty details",
-    description: "Full product description",
-    images: ["https://your-public-image-url.jpg"],
-    video: ""
-  }
-
-  Maximum 3 image URLs and 1 video URL per product.
-  The examples below are intentionally empty until you add real listings.
-*/
-const PRODUCTS = [
-  // Add your real product entries here.
-];
-
-const productGrid = document.getElementById("productGrid");
-const searchInput = document.getElementById("searchInput");
-const categoryFilter = document.getElementById("categoryFilter");
-const sortFilter = document.getElementById("sortFilter");
-
-let activeProduct = null;
-let lastFocusedElement = null;
-
-function escapeText(value) {
-  return String(value ?? "");
-}
-
-function formatPrice(value) {
-  if (value === null || value === undefined || value === "") {
-    return "Price on request";
-  }
-  const number = Number(value);
-  if (!Number.isFinite(number) || number < 0) return "Price on request";
-  return "GH₵ " + number.toLocaleString("en-GH", {
-    minimumFractionDigits: number % 1 ? 2 : 0,
-    maximumFractionDigits: 2
-  });
-}
-
-function safeMediaUrl(value) {
-  try {
-    const url = new URL(value, window.location.href);
-    if (url.protocol === "https:" || url.protocol === "http:") {
-      return url.href;
-    }
-  } catch (_) {}
-  return "";
-}
-
-function imageList(product) {
-  return Array.isArray(product.images)
-    ? product.images.slice(0, 3).map(safeMediaUrl).filter(Boolean)
-    : [];
-}
-
-function getProduct(id) {
-  return PRODUCTS.find(product => product.id === id);
-}
-
-function refreshCategories() {
-  const previous = categoryFilter.value;
-  const categories = [...new Set(
-    PRODUCTS.map(p => escapeText(p.category).trim()).filter(Boolean)
-  )].sort();
-
-  categoryFilter.innerHTML = '<option value="">All categories</option>';
-
-  categories.forEach(category => {
-    const option = document.createElement("option");
-    option.value = category;
-    option.textContent = category;
-    categoryFilter.appendChild(option);
-  });
-
-  if (categories.includes(previous)) categoryFilter.value = previous;
-}
-
-function makeButton(label, className, callback) {
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "btn " + className;
-  button.textContent = label;
-  button.addEventListener("click", callback);
-  return button;
-}
-
-function renderProducts() {
-  const query = searchInput.value.trim().toLowerCase();
-  const category = categoryFilter.value;
-  const sort = sortFilter.value;
-
-  let results = PRODUCTS.filter(p => {
-    const searchable = [
-      p.name, p.category, p.description, p.condition
-    ].map(escapeText).join(" ").toLowerCase();
-
-    return searchable.includes(query) &&
-      (!category || p.category === category);
-  });
-
-  if (sort === "low") {
-    results.sort((a, b) => Number(a.price ?? Infinity) - Number(b.price ?? Infinity));
-  } else if (sort === "high") {
-    results.sort((a, b) => Number(b.price ?? -Infinity) - Number(a.price ?? -Infinity));
-  } else if (sort === "az") {
-    results.sort((a, b) => escapeText(a.name).localeCompare(escapeText(b.name)));
-  }
-
-  productGrid.innerHTML = "";
-  document.getElementById("resultCount").textContent =
-    results.length + (results.length === 1 ? " item" : " items");
-
-  if (!results.length) {
-    const empty = document.createElement("div");
-    empty.className = "empty-state";
-    const heading = document.createElement("strong");
-    heading.textContent = PRODUCTS.length
-      ? "No matching products"
-      : "Products coming soon";
-    const message = document.createElement("p");
-    message.textContent = PRODUCTS.length
-      ? "Try another search or category."
-      : "ShukAfrica is preparing its first product listings. Please check back soon.";
-    empty.append(heading, message);
-    productGrid.appendChild(empty);
-    return;
-  }
-
-  results.forEach(product => {
-    const card = document.createElement("article");
-    card.className = "product-card";
-
-    const photo = document.createElement("div");
-    photo.className = "product-photo";
-    const images = imageList(product);
-
-    if (images.length) {
-      const img = document.createElement("img");
-      img.src = images[0];
-      img.alt = escapeText(product.name);
-      img.loading = "lazy";
-      photo.appendChild(img);
-    } else {
-      const noPhoto = document.createElement("div");
-      noPhoto.className = "no-photo";
-      noPhoto.textContent = "Picture coming soon";
-      photo.appendChild(noPhoto);
-    }
-
-    const info = document.createElement("div");
-    info.className = "product-info";
-
-    const cat = document.createElement("div");
-    cat.className = "product-category";
-    cat.textContent = escapeText(product.category);
-
-    const name = document.createElement("h2");
-    name.className = "product-name";
-    name.textContent = escapeText(product.name);
-
-    const price = document.createElement("div");
-    price.className = product.price === null ||
-      product.price === undefined || product.price === ""
-      ? "price-pending" : "product-price";
-    price.textContent = formatPrice(product.price);
-
-    const actions = document.createElement("div");
-    actions.className = "card-actions";
-    actions.append(
-      makeButton("Order Me", "btn-order", () => openOrder(product.id)),
-      makeButton("More Details ↗", "btn-details", () => openDetails(product.id))
-    );
-
-    info.append(cat, name, price, actions);
-    card.append(photo, info);
-    productGrid.appendChild(card);
-  });
-}
-
-function showDialog(id) {
-  lastFocusedElement = document.activeElement;
-  document.getElementById(id).classList.add("open");
-  document.body.classList.add("dialog-open");
-  const firstButton = document.querySelector("#" + id + " button");
-  if (firstButton) firstButton.focus();
-}
-
-function closeDialog(id) {
-  document.getElementById(id).classList.remove("open");
-  if (!document.querySelector(".dialog.open")) {
-    document.body.classList.remove("dialog-open");
-  }
-  if (lastFocusedElement && lastFocusedElement.focus) {
-    lastFocusedElement.focus();
-  }
-}
-
-document.querySelectorAll("[data-close]").forEach(button => {
-  button.addEventListener("click", () => closeDialog(button.dataset.close));
-});
-
-document.querySelectorAll(".dialog").forEach(dialog => {
-  dialog.addEventListener("click", event => {
-    if (event.target === dialog) closeDialog(dialog.id);
-  });
-});
-
-document.addEventListener("keydown", event => {
-  if (event.key === "Escape") {
-    document.querySelectorAll(".dialog.open").forEach(dialog => closeDialog(dialog.id));
-  }
-});
-
-function openDetails(id) {
-  const product = getProduct(id);
-  if (!product) return;
-  activeProduct = product;
-
-  document.getElementById("detailCategory").textContent =
-    escapeText(product.category);
-  document.getElementById("detailName").textContent =
-    escapeText(product.name);
-  document.getElementById("detailPrice").textContent =
-    formatPrice(product.price);
-  document.getElementById("detailDescription").textContent =
-    escapeText(product.description || "Description will be confirmed by ShukAfrica.");
-  document.getElementById("detailMeta").textContent =
-    "Condition: " + escapeText(product.condition || "Confirm with ShukAfrica") +
-    " • Availability: " + escapeText(product.availability || "Confirm with ShukAfrica") +
-    " • Warranty: " + escapeText(product.warranty || "Confirm before ordering");
-
-  const main = document.getElementById("galleryMain");
-  const thumbs = document.getElementById("galleryThumbs");
-  const video = document.getElementById("detailVideo");
-  main.innerHTML = "";
-  thumbs.innerHTML = "";
-
-  const images = imageList(produ
+<!-- PART 2 GOES DIRECTLY BELOW THIS LINE -->
