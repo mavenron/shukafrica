@@ -1626,6 +1626,87 @@ function updateTransactionDetails() {
   }
 
 });
+
+  
+/* TRANSPORTER DETAILS DISPLAY */
+
+const transporterInput =
+  document.getElementById("transporterName");
+
+const vehicleInput =
+  document.getElementById("vehicleNumber");
+
+const driverInput =
+  document.getElementById("driverName");
+
+const pickupInput =
+  document.getElementById("pickupLocation");
+
+const destinationInput =
+  document.getElementById("destinationLocation");
+
+
+function updateTransporterDetails() {
+
+  const viewTransporter =
+    document.getElementById("viewTransporter");
+
+  const viewVehicle =
+    document.getElementById("viewVehicle");
+
+  const viewDriver =
+    document.getElementById("viewDriver");
+
+  const viewPickup =
+    document.getElementById("viewPickup");
+
+  const viewDestination =
+    document.getElementById("viewDestination");
+
+
+  if (viewTransporter && transporterInput) {
+    viewTransporter.textContent =
+      transporterInput.value || "Transporter";
+  }
+
+  if (viewVehicle && vehicleInput) {
+    viewVehicle.textContent =
+      vehicleInput.value || "Vehicle number";
+  }
+
+  if (viewDriver && driverInput) {
+    viewDriver.textContent =
+      driverInput.value || "Driver name";
+  }
+
+  if (viewPickup && pickupInput) {
+    viewPickup.textContent =
+      pickupInput.value || "Pickup location";
+  }
+
+  if (viewDestination && destinationInput) {
+    viewDestination.textContent =
+      destinationInput.value || "Destination";
+  }
+
+}
+
+
+[
+  transporterInput,
+  vehicleInput,
+  driverInput,
+  pickupInput,
+  destinationInput
+].forEach(function(field) {
+
+  if (field) {
+    field.addEventListener("input", updateTransporterDetails);
+    field.addEventListener("change", updateTransporterDetails);
+  }
+
+});
+  
 </script>
 
 </body>
