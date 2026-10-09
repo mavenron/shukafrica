@@ -1550,6 +1550,82 @@ function updateAgreementPeople() {
   }
 
 });
+
+  /* TRANSACTION DETAILS DISPLAY */
+
+const itemServiceInput =
+  document.getElementById("itemService");
+
+const agreedDescriptionInput =
+  document.getElementById("agreedDescription");
+
+const agreedCurrencyInput =
+  document.getElementById("agreedCurrency");
+
+const agreedAmountInput =
+  document.getElementById("agreedAmount");
+
+
+function updateTransactionDetails() {
+
+  const viewItem =
+    document.getElementById("viewItem");
+
+  const viewAmount =
+    document.getElementById("viewAmount");
+
+  const viewDescription =
+    document.getElementById("viewDescription");
+
+
+  if (viewItem && itemServiceInput) {
+    viewItem.textContent =
+      itemServiceInput.value || "Item or service";
+  }
+
+  if (viewDescription && agreedDescriptionInput) {
+    viewDescription.textContent =
+      agreedDescriptionInput.value ||
+      "Agreement description will appear here.";
+  }
+
+  if (viewAmount && agreedCurrencyInput && agreedAmountInput) {
+
+    const currency =
+      agreedCurrencyInput.value;
+
+    const amount =
+      agreedAmountInput.value;
+
+    const currencyLabels = {
+      GHS: "GH₵",
+      XOF: "CFA",
+      USD: "US$",
+      EUR: "€"
+    };
+
+    viewAmount.textContent =
+      amount && currency
+        ? (currencyLabels[currency] || currency) + " " + amount
+        : "Amount";
+  }
+
+}
+
+
+[
+  itemServiceInput,
+  agreedDescriptionInput,
+  agreedCurrencyInput,
+  agreedAmountInput
+].forEach(function(field) {
+
+  if (field) {
+    field.addEventListener("input", updateTransactionDetails);
+    field.addEventListener("change", updateTransactionDetails);
+  }
+
+});
 </script>
 
 </body>
