@@ -406,13 +406,15 @@
         const packageDetails =
           document.getElementById("packageDetails").value.trim();
 
-        if (!customerName || !customerPhone ||
-            !pickup || !destination || !packageDetails ||
-            !Number.isFinite(offer) || offer <= 0) {
+        
+if (!customerName || !customerPhone ||
+    !pickup || !destination || !packageDetails ||
+    !Number.isFinite(offer) || offer <= 0) {
 
-          alert("Please complete all required fields.");
-          return;
-        }
+  alert("Please complete all required fields.");
+  return;
+}
+        
 
         formStatus.textContent =
           "Form validated. Backend connection is required to publish this request to all delivery partners.";
