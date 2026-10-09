@@ -283,3 +283,354 @@ body.dialog-open{overflow:hidden}
 </div>
 
 <!-- PART 2 GOES DIRECTLY BELOW THIS LINE -->
+
+  
+<script>
+/*
+  ShukAfrica Global product catalogue.
+  Add real products to PRODUCTS below.
+  No Featured or Sponsored section.
+  Product entries are currently stored in this code.
+  Orders are prepared in WhatsApp, not saved to a database.
+*/
+const SHUKAFRICA_WHATSAPP = "233205909045";
+
+const PRODUCTS = [
+  /*
+  Example format — replace with your own real products:
+
+  {
+    id: "phone-001",
+    category: "Mobile Phones",
+    name: "Phone model",
+    price: 500,
+    condition: "Brand new",
+    availability: "Confirm with ShukAfrica",
+    warranty: "Warranty details",
+    description: "Product specifications and details.",
+    images: [
+      "https://your-image-url-1.jpg",
+      "https://your-image-url-2.jpg"
+    ],
+    video: ""
+  }
+  */
+];
+
+const grid = document.getElementById("productGrid");
+const search = document.getElementById("searchInput");
+const categoryFilter = document.getElementById("categoryFilter");
+const sortFilter = document.getElementById("sortFilter");
+
+function priceText(value) {
+  if (value === null || value === undefined || value === "") {
+    return "Price on request";
+  }
+  const n = Number(value);
+  if (!Number.isFinite(n) || n < 0) return "Price on request";
+  return "GH₵ " + n.toLocaleString("en-GH", {
+    maximumFractionDigits: 2
+  });
+}
+
+function mediaUrl(value) {
+  try {
+    const u = new URL(value, location.href);
+    return ["https:", "http:"].includes(u.protocol) ? u.href : "";
+  } catch (_) {
+    return "";
+  }
+}
+
+function imagesOf(p) {
+  return Array.isArray(p.images)
+    ? p.images.slice(0, 3).map(mediaUrl).filter(Boolean)
+    : [];
+}
+
+function getProduct(id) {
+  return PRODUCTS.find(p => p.id === id);
+}
+
+function button(text, css, action) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "btn " + css;
+  b.textContent = text;
+  b.addEventListener("click", action);
+  return b;
+}
+
+function updateCategories() {
+  const previous = categoryFilter.value;
+  const categories = [...new Set(
+    PRODUCTS.map(p => String(p.category || "").trim()).filter(Boolean)
+  )].sort();
+
+  categoryFilter.innerHTML = '<option value="">All categories</option>';
+
+  categories.forEach(c => {
+    const o = document.createElement("option");
+    o.value = c;
+    o.textContent = c;
+    categoryFilter.appendChild(o);
+  });
+
+  if (categories.includes(previous)) categoryFilter.value = previous;
+}
+
+function renderProducts() {
+  const q = search.value.trim().toLowerCase();
+  const cat = categoryFilter.value;
+  let list = PRODUCTS.filter(p => {
+    const words = [p.name, p.category, p.description, p.condition]
+      .map(v => String(v || "")).join(" ").toLowerCase();
+    return words.includes(q) && (!cat || p.category === cat);
+  });
+
+  if (sortFilter.value === "low") {
+    list.sort((a,b) => Number(a.price ?? Infinity) - Number(b.price ?? Infinity));
+  } else if (sortFilter.value === "high") {
+    list.sort((a,b) => Number(b.price ?? -Infinity) - Number(a.price ?? -Infinity));
+  } else {
+    list.sort((a,b) => String(a.name).localeCompare(String(b.name)));
+  }
+
+  grid.replaceChildren();
+  document.getElementById("resultCount").textContent =
+    list.length + (list.length === 1 ? " item" : " items");
+
+  if (!list.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    const title = document.createElement("strong");
+    title.textContent = PRODUCTS.length ? "No matching products" : "Products coming soon";
+    const message = document.createElement("p");
+    message.textContent = PRODUCTS.length
+      ? "Try another search or category."
+      : "ShukAfrica is preparing its first product listings. Please check back soon.";
+    empty.append(title, message);
+    grid.appendChild(empty);
+    return;
+  }
+
+  list.forEach(p => {
+    const card = document.createElement("article");
+    card.className = "product-card";
+
+    const photo = document.createElement("div");
+    photo.className = "product-photo";
+    const imgs = imagesOf(p);
+
+    if (imgs.length) {
+      const img = document.createElement("img");
+      img.src = imgs[0];
+      img.alt = String(p.name || "Product");
+      img.loading = "lazy";
+      photo.appendChild(img);
+    } else {
+      const placeholder = document.createElement("div");
+      placeholder.className = "no-photo";
+      placeholder.textContent = "Product picture coming soon";
+      photo.appendChild(placeholder);
+    }
+
+    const info = document.createElement("div");
+    info.className = "product-info";
+
+    const cat = document.createElement("div");
+    cat.className = "product-category";
+    cat.textContent = String(p.category || "");
+
+    const name = document.createElement("h2");
+    name.className = "product-name";
+    name.textContent = String(p.name || "Product");
+
+    const price = document.createElement("div");
+    price.className = p.price === null || p.price === undefined || p.price === ""
+      ? "price-pending" : "product-price";
+    price.textContent = priceText(p.price);
+
+    const actions = document.createElement("div");
+    actions.className = "actions";
+    actions.append(
+      button("Order Me", "btn-order", () => openOrder(p.id)),
+      button("More Details ↗", "btn-details", () => openDetails(p.id))
+    );
+
+    info.append(cat, name, price, actions);
+    card.append(photo, info);
+    grid.appendChild(card);
+  });
+}
+
+let lastFocus = null;
+
+function showDialog(id) {
+  lastFocus = document.activeElement;
+  document.getElementById(id).classList.add("open");
+  document.body.classList.add("dialog-open");
+}
+
+function closeDialog(id) {
+  document.getElementById(id).classList.remove("open");
+  if (!document.querySelector(".dialog.open")) {
+    document.body.classList.remove("dialog-open");
+  }
+  if (lastFocus && lastFocus.focus) lastFocus.focus();
+}
+
+document.querySelectorAll("[data-close]").forEach(b => {
+  b.addEventListener("click", () => closeDialog(b.dataset.close));
+});
+
+document.querySelectorAll(".dialog").forEach(d => {
+  d.addEventListener("click", e => {
+    if (e.target === d) closeDialog(d.id);
+  });
+});
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    document.querySelectorAll(".dialog.open").forEach(d => closeDialog(d.id));
+  }
+});
+
+function openDetails(id) {
+  const p = getProduct(id);
+  if (!p) return;
+
+  document.getElementById("detailCategory").textContent = String(p.category || "");
+  document.getElementById("detailName").textContent = String(p.name || "");
+  document.getElementById("detailPrice").textContent = priceText(p.price);
+  document.getElementById("detailDescription").textContent =
+    String(p.description || "Please contact ShukAfrica for product details.");
+  document.getElementById("detailMeta").textContent =
+    "Condition: " + String(p.condition || "Confirm with ShukAfrica") +
+    " · Availability: " + String(p.availability || "Confirm before ordering") +
+    " · Warranty: " + String(p.warranty || "Confirm before ordering");
+
+  const main = document.getElementById("galleryMain");
+  const thumbs = document.getElementById("galleryThumbs");
+  const video = document.getElementById("detailVideo");
+  main.replaceChildren();
+  thumbs.replaceChildren();
+
+  const imgs = imagesOf(p);
+
+  function showImage(url, alt) {
+    main.replaceChildren();
+    const img = document.createElement("img");
+    img.src = url;
+    img.alt = alt;
+    img.onerror = () => {
+      main.textContent = "Picture unavailable.";
+    };
+    main.appendChild(img);
+  }
+
+  if (imgs.length) {
+    showImage(imgs[0], String(p.name || "Product"));
+    imgs.forEach((url, i) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.setAttribute("aria-label", "View picture " + (i + 1));
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = "Picture " + (i + 1);
+      b.appendChild(img);
+      b.addEventListener("click", () => showImage(url, img.alt));
+      thumbs.appendChild(b);
+    });
+  } else {
+    const placeholder = document.createElement("div");
+    placeholder.className = "no-photo";
+    placeholder.textContent = "No product pictures available yet.";
+    main.appendChild(placeholder);
+  }
+
+  video.pause();
+  video.removeAttribute("src");
+  video.hidden = true;
+  const v = mediaUrl(p.video || "");
+  if (v) {
+    video.src = v;
+    video.hidden = false;
+  }
+
+  document.getElementById("detailOrderButton").onclick = () => {
+    closeDialog("detailsDialog");
+    openOrder(p.id);
+  };
+
+  showDialog("detailsDialog");
+}
+
+function openOrder(id) {
+  const p = getProduct(id);
+  if (!p) return;
+
+  document.getElementById("orderForm").reset();
+  document.getElementById("orderProductId").value = p.id;
+  document.getElementById("buyerQuantity").value = "1";
+  document.getElementById("orderProductSummary").textContent =
+    String(p.name || "Product") + " — " + priceText(p.price);
+
+  showDialog("orderDialog");
+}
+
+document.getElementById("orderForm").addEventListener("submit", event => {
+  event.preventDefault();
+
+  const p = getProduct(document.getElementById("orderProductId").value);
+  if (!p) {
+    alert("Please select a valid product.");
+    return;
+  }
+
+  const name = document.getElementById("buyerName").value.trim();
+  const phone = document.getElementById("buyerPhone").value.trim();
+  const location = document.getElementById("buyerLocation").value.trim();
+  const quantity = Number(document.getElementById("buyerQuantity").value);
+  const instructions = document.getElementById("buyerInstructions").value.trim();
+
+  if (!name || !phone || !location ||
+      !Number.isInteger(quantity) || quantity < 1 || quantity > 20) {
+    alert("Please complete the required fields correctly.");
+    return;
+  }
+
+  const message = [
+    "SHUKAFRICA GLOBAL — ORDER REQUEST",
+    "",
+    "Product: " + p.name,
+    "Category: " + p.category,
+    "Displayed price: " + priceText(p.price),
+    "Quantity: " + quantity,
+    "",
+    "Buyer name: " + name,
+    "Buyer phone: " + phone,
+    "Delivery location: " + location,
+    "Instructions: " + (instructions || "None"),
+    "",
+    "Please call me privately to confirm availability, final price and delivery fee.",
+    "I understand this is a request, not a confirmed order or payment."
+  ].join("\n");
+
+  const url = "https://wa.me/" + SHUKAFRICA_WHATSAPP +
+    "?text=" + encodeURIComponent(message);
+
+  window.open(url, "_blank", "noopener,noreferrer");
+  closeDialog("orderDialog");
+});
+
+search.addEventListener("input", renderProducts);
+categoryFilter.addEventListener("change", renderProducts);
+sortFilter.addEventListener("change", renderProducts);
+
+updateCategories();
+renderProducts();
+</script>
+</body>
+</html>
+
