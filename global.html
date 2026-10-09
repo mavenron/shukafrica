@@ -1,1 +1,450 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShukAfrica Global | Shop with Confidence</title>
+<style>
+:root {
+  --green: #087443;
+  --dark: #10251c;
+  --gold: #e8b84b;
+  --light: #f5f8f5;
+  --muted: #68776f;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: var(--dark);
+  background: var(--light);
+}
+header {
+  background: var(--dark);
+  color: white;
+  padding: 18px 5%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.brand { font-size: 21px; font-weight: 800; }
+.brand span { color: var(--gold); }
+header a { color: white; text-decoration: none; }
+.hero {
+  padding: 42px 5%;
+  background: linear-gradient(135deg, #0d5436, #10251c);
+  color: white;
+}
+.hero h1 { margin: 0 0 12px; font-size: clamp(28px, 5vw, 44px); }
+.hero p { line-height: 1.6; max-width: 620px; }
+.wrap { max-width: 1100px; margin: auto; padding: 25px 5%; }
+h2 { margin-top: 0; }
+.notice {
+  background: #fff7df;
+  border: 1px solid #f0d78d;
+  border-radius: 12px;
+  padding: 14px;
+  line-height: 1.5;
+  margin-bottom: 22px;
+}
+.toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+input, select, textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccd6cf;
+  border-radius: 8px;
+  font: inherit;
+  background: white;
+}
+.toolbar input { flex: 1; min-width: 180px; }
+button, .button {
+  border: 0;
+  border-radius: 8px;
+  background: var(--green);
+  color: white;
+  padding: 12px 16px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+}
+button:disabled { opacity: .5; cursor: not-allowed; }
+.outline { background: white; color: var(--green); border: 1px solid var(--green); }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+}
+.card, .panel {
+  background: white;
+  border: 1px solid #e0e8e1;
+  border-radius: 14px;
+  overflow: hidden;
+}
+.card { padding-bottom: 16px; }
+.media {
+  background: #eaf0eb;
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.media img { width: 100%; height: 200px; object-fit: cover; }
+.card-content { padding: 15px; }
+.card h3 { margin: 0 0 8px; }
+.category { color: var(--muted); font-size: 13px; }
+.price { font-size: 20px; font-weight: 800; margin: 12px 0; }
+.small { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.card button { width: calc(100% - 30px); margin: 0 15px; }
+.panel { padding: 20px; margin-top: 28px; }
+form { display: grid; gap: 14px; }
+label { display: grid; gap: 7px; font-weight: 700; font-size: 14px; }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.media-preview { display: flex; flex-wrap: wrap; gap: 8px; }
+.media-preview img { width: 85px; height: 85px; object-fit: cover; border-radius: 8px; }
+video { width: 100%; max-height: 260px; margin-top: 10px; }
+footer {
+  background: var(--dark);
+  color: white;
+  padding: 25px 5%;
+  line-height: 1.8;
+  margin-top: 35px;
+}
+footer a { color: #f4d37c; }
+.hidden { display: none !important; }
+#formMessage { white-space: pre-wrap; line-height: 1.6; }
+@media (max-width: 520px) {
+  .two { grid-template-columns: 1fr; }
+  .hero { padding-top: 30px; padding-bottom: 30px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="index.html">SHUK<span>AFRICA</span></a>
+  <a href="index.html">← Main Website</a>
+</header>
+
+<section class="hero">
+  <h1>ShukAfrica Global</h1>
+  <p>Discover selected products in Ghana. Browse, request your item and let us confirm availability, price and delivery with you before proceeding.</p>
+  <a class="button" href="#catalogue" style="background:#e8b84b;color:#10251c">Browse Products ↓</a>
+</section>
+
+<main class="wrap">
+  <div class="notice">
+    <strong>Order with confidence.</strong>
+    When you submit an order request, ShukAfrica will contact you privately to confirm the product, price and delivery fee. Submitting a request does not mean your order is confirmed, and no online payment is collected on this page.
+  </div>
+
+  <section id="catalogue">
+    <h2>Explore Products</h2>
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="Search products...">
+      <select id="categoryFilter" aria-label="Filter by category">
+        <option value="">All categories</option>
+      </select>
+    </div>
+    <div id="productGrid" class="grid"></div>
+    <p id="emptyMessage" class="small">No products have been published yet. Please check back soon.</p>
+  </section>
+
+  <section id="orderSection" class="panel hidden">
+    <h2>Order Me</h2>
+    <p id="selectedProduct" class="small"></p>
+    <p class="small">Enter your details. We will call you privately to confirm the final product price and delivery fee.</p>
+
+    <form id="orderForm">
+      <input type="hidden" id="productId">
+      <label>Full name
+        <input id="buyerName" required maxlength="100" autocomplete="name" placeholder="Your full name">
+      </label>
+      <label>Contact phone number
+        <input id="buyerPhone" required type="tel" maxlength="25" autocomplete="tel" placeholder="Your phone number">
+      </label>
+      <label>Delivery location / address
+        <textarea id="buyerLocation" required maxlength="500" autocomplete="street-address" rows="3" placeholder="Town, area and delivery address"></textarea>
+      </label>
+      <label>Quantity
+        <input id="quantity" type="number" min="1" max="20" value="1" required>
+      </label>
+      <label>Additional instructions (optional)
+        <textarea id="instructions" maxlength="500" rows="2" placeholder="Any details we should know?"></textarea>
+      </label>
+      <button type="submit">Submit Order Request</button>
+      <button type="button" class="outline" id="closeOrder">Cancel</button>
+    </form>
+    <div id="formMessage" role="status"></div>
+  </section>
+
+  <!-- Admin interface preview only. Do not use for real listings until
+       server-side admin authentication and database storage are connected. -->
+  <section class="panel" id="adminPreview">
+    <h2>Product Listing Form — Preview</h2>
+    <p class="small">This form shows the planned fields. It does not securely publish products yet.</p>
+    <form id="productForm">
+      <label>Category
+        <input id="pCategory" required placeholder="e.g. Mobile Phones">
+      </label>
+      <label>Item
+        <input id="pItem" required placeholder="Product name and model">
+      </label>
+      <label>Price (GHS)
+        <input id="pPrice" type="number" min="0" step="0.01" placeholder="Selling price, if confirmed">
+      </label>
+      <label>Pictures — maximum 3
+        <input id="pPictures" type="file" accept="image/*" multiple>
+      </label>
+      <div id="picturePreview" class="media-preview"></div>
+      <label>Video — maximum 1
+        <input id="pVideo" type="file" accept="video/*">
+      </label>
+      <video id="videoPreview" controls class="hidden"></video>
+      <label>Description
+        <textarea id="pDescription" rows="4" required placeholder="Features, condition, specifications and warranty details"></textarea>
+      </label>
+      <button type="submit">Preview Product</button>
+    </form>
+    <p id="adminMessage" class="small"></p>
+  </section>
+</main>
+
+<footer>
+  <strong>ShukAfrica Global</strong><br>
+  Customer enquiries: <a href="tel:0205909045">020 590 9045</a><br>
+  Contact us to ask about product availability and delivery.
+</footer>
+
+<script>
+/*
+  STARTER PREVIEW ONLY:
+  - Product previews are held in this browser's memory.
+  - Orders are not transmitted or saved to an admin account.
+  - The admin form is NOT protected by authentication.
+  - Do not collect real customer orders until a secure backend is connected.
+*/
+let products = [];
+let currentImageUrls = [];
+let currentVideoUrl = null;
+
+const grid = document.getElementById("productGrid");
+const emptyMessage = document.getElementById("emptyMessage");
+const orderSection = document.getElementById("orderSection");
+
+function money(value) {
+  return value === "" || value === null || value === undefined
+    ? "Price confirmed on request"
+    : "GH₵ " + Number(value).toLocaleString("en-GH", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+}
+
+function renderProducts() {
+  const query = document.getElementById("search").value.toLowerCase().trim();
+  const category = document.getElementById("categoryFilter").value;
+  grid.innerHTML = "";
+
+  const filtered = products.filter(p =>
+    (p.item + " " + p.description).toLowerCase().includes(query) &&
+    (!category || p.category === category)
+  );
+
+  emptyMessage.classList.toggle("hidden", filtered.length > 0);
+
+  filtered.forEach(p => {
+    const card = document.createElement("article");
+    card.className = "card";
+
+    const media = document.createElement("div");
+    media.className = "media";
+
+    if (p.images && p.images.length) {
+      const img = document.createElement("img");
+      img.src = p.images[0];
+      img.alt = p.item;
+      media.appendChild(img);
+    } else {
+      media.textContent = "Product image";
+    }
+
+    const content = document.createElement("div");
+    content.className = "card-content";
+
+    const cat = document.createElement("div");
+    cat.className = "category";
+    cat.textContent = p.category;
+
+    const title = document.createElement("h3");
+    title.textContent = p.item;
+
+    const desc = document.createElement("p");
+    desc.className = "small";
+    desc.textContent = p.description;
+
+    const price = document.createElement("div");
+    price.className = "price";
+    price.textContent = money(p.price);
+
+    content.append(cat, title, desc, price);
+
+    if (p.video) {
+      const videoLabel = document.createElement("p");
+      videoLabel.className = "small";
+      videoLabel.textContent = "Product video available";
+      content.appendChild(videoLabel);
+    }
+
+    const button = document.createElement("button");
+    button.textContent = "Order Me";
+    button.addEventListener("click", () => openOrder(p.id));
+
+    card.append(media, content, button);
+    grid.appendChild(card);
+  });
+}
+
+function refreshCategories() {
+  const select = document.getElementById("categoryFilter");
+  const oldValue = select.value;
+  select.innerHTML = '<option value="">All categories</option>';
+
+  [...new Set(products.map(p => p.category))].forEach(cat => {
+    const option = document.createElement("option");
+    option.value = cat;
+    option.textContent = cat;
+    select.appendChild(option);
+  });
+
+  select.value = oldValue;
+}
+
+function openOrder(id) {
+  const p = products.find(item => item.id === id);
+  if (!p) return;
+
+  document.getElementById("productId").value = id;
+  document.getElementById("selectedProduct").textContent =
+    p.item + " — " + money(p.price);
+  document.getElementById("formMessage").textContent = "";
+  orderSection.classList.remove("hidden");
+  orderSection.scrollIntoView({ behavior: "smooth" });
+}
+
+document.getElementById("closeOrder").addEventListener("click", () => {
+  orderSection.classList.add("hidden");
+});
+
+document.getElementById("search").addEventListener("input", renderProducts);
+document.getElementById("categoryFilter").addEventListener("change", renderProducts);
+
+document.getElementById("pPictures").addEventListener("change", event => {
+  const files = [...event.target.files];
+  const preview = document.getElementById("picturePreview");
+  preview.innerHTML = "";
+  currentImageUrls.forEach(url => URL.revokeObjectURL(url));
+  currentImageUrls = [];
+
+  if (files.length > 3) {
+    event.target.value = "";
+    document.getElementById("adminMessage").textContent =
+      "Please select no more than 3 pictures.";
+    return;
+  }
+
+  for (const file of files) {
+    if (!file.type.startsWith("image/")) continue;
+    const url = URL.createObjectURL(file);
+    currentImageUrls.push(url);
+    const img = document.createElement("img");
+    img.src = url;
+    img.alt = "Product picture preview";
+    preview.appendChild(img);
+  }
+});
+
+document.getElementById("pVideo").addEventListener("change", event => {
+  const file = event.target.files[0];
+  const video = document.getElementById("videoPreview");
+
+  if (currentVideoUrl) URL.revokeObjectURL(currentVideoUrl);
+  currentVideoUrl = null;
+  video.classList.add("hidden");
+
+  if (!file) return;
+  if (!file.type.startsWith("video/")) {
+    event.target.value = "";
+    document.getElementById("adminMessage").textContent =
+      "Please select a video file.";
+    return;
+  }
+
+  currentVideoUrl = URL.createObjectURL(file);
+  video.src = currentVideoUrl;
+  video.classList.remove("hidden");
+});
+
+document.getElementById("productForm").addEventListener("submit", event => {
+  event.preventDefault();
+
+  const category = document.getElementById("pCategory").value.trim();
+  const item = document.getElementById("pItem").value.trim();
+  const priceText = document.getElementById("pPrice").value;
+  const description = document.getElementById("pDescription").value.trim();
+  const images = [...currentImageUrls];
+  const video = currentVideoUrl;
+
+  const product = {
+    id: "preview-" + Date.now(),
+    category,
+    item,
+    price: priceText === "" ? null : Number(priceText),
+    description,
+    images,
+    video
+  };
+
+  products.push(product);
+  refreshCategories();
+  renderProducts();
+
+  document.getElementById("adminMessage").textContent =
+    "Preview added in this browser only. It is not saved or published for other visitors. Secure admin access and shared storage must be connected before launch.";
+
+  document.getElementById("productForm").reset();
+  document.getElementById("picturePreview").innerHTML = "";
+  document.getElementById("videoPreview").classList.add("hidden");
+  currentImageUrls = [];
+  currentVideoUrl = null;
+
+  document.getElementById("catalogue").scrollIntoView({ behavior: "smooth" });
+});
+
+document.getElementById("orderForm").addEventListener("submit", event => {
+  event.preventDefault();
+
+  const p = products.find(item =>
+    item.id === document.getElementById("productId").value
+  );
+
+  if (!p) {
+    document.getElementById("formMessage").textContent =
+      "This is only a preview. Live order submission will be available after secure order storage is connected.";
+    return;
+  }
+
+  document.getElementById("formMessage").textContent =
+    "Preview only: your details have NOT been sent to ShukAfrica. Live orders will require secure backend storage and an order reference.";
+});
+
+renderProducts();
+</script>
+</body>
+  </html>
+
