@@ -1459,7 +1459,90 @@ function showVideoPreview(input, preview) {
 showImagePreview(itemPicture1, viewItemPicture1);
 showImagePreview(itemPicture2, viewItemPicture2);
 showVideoPreview(itemVideo, viewItemVideo);
-  
+  /* AGREEMENT DETAILS — SELLER & RECEIVER */
+
+const sellerFullName =
+  document.getElementById("sellerFullName");
+
+const sellerContact =
+  document.getElementById("sellerContact");
+
+const sellerLocation =
+  document.getElementById("sellerLocation");
+
+const receiverFullName =
+  document.getElementById("receiverFullName");
+
+const receiverContact =
+  document.getElementById("receiverContact");
+
+const receiverLocation =
+  document.getElementById("receiverLocation");
+
+
+function updateAgreementPeople() {
+
+  const sellerNameDisplay =
+    document.getElementById("viewSellerName");
+
+  const sellerContactDisplay =
+    document.getElementById("viewSellerContact");
+
+  const sellerLocationDisplay =
+    document.getElementById("viewSellerLocation");
+
+  const receiverNameDisplay =
+    document.getElementById("viewReceiverName");
+
+  const receiverContactDisplay =
+    document.getElementById("viewReceiverContact");
+
+  const receiverLocationDisplay =
+    document.getElementById("viewReceiverLocation");
+
+
+  if (sellerNameDisplay)
+    sellerNameDisplay.textContent =
+      sellerFullName.value || "Seller Name";
+
+  if (sellerContactDisplay)
+    sellerContactDisplay.textContent =
+      sellerContact.value || "Contact information";
+
+  if (sellerLocationDisplay)
+    sellerLocationDisplay.textContent =
+      sellerLocation.value || "Seller location";
+
+
+  if (receiverNameDisplay)
+    receiverNameDisplay.textContent =
+      receiverFullName.value || "Receiver Name";
+
+  if (receiverContactDisplay)
+    receiverContactDisplay.textContent =
+      receiverContact.value || "Contact information";
+
+  if (receiverLocationDisplay)
+    receiverLocationDisplay.textContent =
+      receiverLocation.value || "Receiver location";
+
+}
+
+
+[
+  sellerFullName,
+  sellerContact,
+  sellerLocation,
+  receiverFullName,
+  receiverContact,
+  receiverLocation
+].forEach(function(field) {
+
+  if (field) {
+    field.addEventListener("input", updateAgreementPeople);
+  }
+
+});
 </script>
 
 </body>
