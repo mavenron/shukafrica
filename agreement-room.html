@@ -1279,39 +1279,43 @@
   }
 
 
-  /* LOCK AGREEMENT */
+/* LOCK AGREEMENT */
 
-  if (form) {
+if (form) {
 
-    form.addEventListener("submit", function (e) {
+  form.addEventListener("submit", function (e) {
 
-      e.preventDefault();
+    e.preventDefault();
 
-      if (!form.checkValidity()) {
+    if (!form.checkValidity()) {
 
-        form.reportValidity();
+      form.reportValidity();
 
-        return;
+      return;
 
-      }
+    }
 
-      const room = createRoomNumber();
+    const room = createRoomNumber();
 
-      roomNumber.textContent = room;
+    roomNumber.textContent = room;
 
-      statusBox.style.display = "block";
-const receiverNotification =
-  document.getElementById("receiverNotification");
+    statusBox.style.display = "block";
 
-if(receiverNotification){
-  receiverNotification.style.display = "block";
-}
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
+    const receiverNotification =
+      document.getElementById("receiverNotification");
 
+    if (receiverNotification) {
+      receiverNotification.style.display = "block";
+    }
+
+    updateAgreementPeople();
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
     });
+
+  });
 
   }
 
