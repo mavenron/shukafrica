@@ -1,1 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#103b2b">
+<title>ShukAfrica Global Admin</title>
+<style>
+:root {
+  --green:#087443;
+  --dark:#103b2b;
+  --gold:#e9b84b;
+  --bg:#f4f7f4;
+  --border:#dce5de;
+  --muted:#68766e;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;font-family:Arial,Helvetica,sans-serif;
+  background:var(--bg);color:var(--dark)
+}
+header{
+  background:var(--dark);color:white;padding:18px 5%;
+  display:flex;justify-content:space-between;align-items:center;gap:12px
+}
+header strong{font-size:19px}
+header a{color:var(--gold);font-size:13px}
+main{max-width:760px;margin:24px auto;padding:0 15px 40px}
+.panel{
+  background:white;border:1px solid var(--border);
+  border-radius:14px;padding:18px;margin-bottom:16px
+}
+h1{font-size:23px;margin:0 0 8px}
+h2{font-size:17px;margin:0 0 14px}
+p{line-height:1.6}
+.muted{color:var(--muted);font-size:13px}
+form{display:grid;gap:14px}
+label{display:grid;gap:6px;font-size:13px;font-weight:bold}
+input,select,textarea{
+  width:100%;padding:12px;border:1px solid #cdd8cf;
+  border-radius:8px;background:white;color:var(--dark);font:inherit
+}
+textarea{resize:vertical}
+button{
+  border:0;border-radius:8px;padding:13px;
+  font:inherit;font-weight:bold;cursor:pointer
+}
+.primary{background:var(--green);color:white}
+.secondary{background:white;border:1px solid var(--border);color:var(--dark)}
+.danger{background:#fff0f0;color:#9a2525;border:1px solid #e5baba}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hidden{display:none!important}
+.status{padding:12px;border-radius:8px;background:#edf5ee;font-size:13px;white-space:pre-wrap}
+.status.error{background:#fff0f0;color:#9a2525}
+.product{
+  border:1px solid var(--border);border-radius:10px;
+  padding:12px;margin-top:10px;display:grid;gap:9px
+}
+.product-actions{display:flex;flex-wrap:wrap;gap:8px}
+.product-actions button{padding:9px 12px;font-size:12px}
+@media(max-width:520px){.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <strong>SHUKAFRICA GLOBAL · ADMIN</strong>
+  <a href="global.html">View catalogue ↗</a>
+</header>
+
+<main>
+  <section class="panel" id="loginPanel">
+    <h1>Administrator login</h1>
+    <p class="muted">Enter your saved Cloudflare admin key. It will be kept only in this page's current session.</p>
+    <form id="loginForm">
+      <label>Admin key
+        <input id="adminKey" type="password" required
+          autocomplete="current-password" placeholder="Enter your admin key">
+      </label>
+      <button class="primary" type="submit">Verify access</button>
+    </form>
+    <div id="loginStatus" class="status hidden"></div>
+  </section>
+
+  <section class="panel hidden" id="managerPanel">
+    <h1>Product management</h1>
+    <p class="muted">Products are saved as unpublished. Publish only after checking all details.</p>
+
+    <form id="productForm">
+      <input id="productId" type="hidden">
+
+      <label>Product name
+        <input id="itemName" maxlength="200" required>
+      </label>
+
+      <div class="row">
+        <label>Category
+          <input id="category" maxlength="100" required
+            placeholder="e.g. Mobile Phones">
+        </label>
+        <label>Price (GH₵)
+          <input id="price" type="number" min="0" step="0.01"
+            placeholder="Leave blank if unconfirmed">
+        </label>
+      </div>
+
+      <label>Description (include warranty information)
+        <textarea id="description" rows="5" maxlength="5000" required
+          placeholder="Product details, warranty, what's included..."></textarea>
+      </label>
+
+      <div class="row">
+        <label>Condition
+          <select id="condition">
+            <option>Brand new</option>
+            <option>Used</option>
+            <option>Refurbished</option>
+            <option>Not specified</option>
+          </select>
+        </label>
+        <label>Availability
+          <select id="availability">
+            <option>Confirm before ordering</option>
+            <option>In stock — confirm before ordering</option>
+            <option>Limited stock — confirm before ordering</option>
+            <option>Pre-order — confirm timing</option>
+          </select>
+        </label>
+      </div>
+
+      <label>Product picture 1 — HTTPS image URL
+        <input id="image1" type="url" placeholder="https://...">
+      </label>
+      <label>Product picture 2 — optional
+        <input id="image2" type="url" placeholder="https://...">
+      </label>
+      <label>Product picture 3 — optional
+        <input id="image3" type="url" placeholder="https://...">
+      </label>
+      <label>Product video — optional HTTPS URL
+        <input id="video" type="url" placeholder="https://...">
+      </label>
+
+      <label>Contact / WhatsApp
+        <input value="ShukAfrica central contact" disabled>
+        <span class="muted">The central ShukAfrica contact is used for now. Trusted listing contacts can be added later.</span>
+      </label>
+
+      <div class="row">
+        <button class="primary" type="submit" id="saveButton">Save as unpublished</button>
+        <button class="secondary" type="button" id="clearButton">Clear form</button>
+      </div>
+    </form>
+
+    <div id="formStatus" class="status hidden"></div>
+  </section>
+
+  <section class="panel hidden" id="listPanel">
+    <div class="row">
+      <h2>Your products</h2>
+      <button class="secondary" id="refreshButton" type="button">Refresh list</button>
+    </div>
+    <div id="productList" class="muted">No products loaded yet.</div>
+  </section>
+
+  <section class="panel hidden" id="logoutPanel">
+    <button class="danger" id="logoutButton" type="button">Log out</button>
+  </section>
+</main>
+
+<script>
+(() => {
+  let adminKey = "";
+  const $ = id => document.getElementById(id);
+
+  function showStatus(id, message, error = false) {
+    const el = $(id);
+    el.textContent = message;
+    el.classList.remove("hidden", "error");
+    if (error) el.classList.add("error");
+  }
+
+  async function api(method, body) {
+    const options = {
+      method,
+      headers: {
+        "Accept": "application/json",
+        "X-Shuk-Admin-Key": adminKey
+      }
+    };
+    if (body !== undefined) {
+      options.headers["Content-Type"] = "application/json";
+      options.body = JSON.stringify(body);
+    }
+    const response = await fetch("/api/admin/products", options);
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || "Request failed.");
+    }
+    return data;
+  }
+
+  $("loginForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    adminKey = $("adminKey").value;
+    try {
+      await api("GET");
+      $("loginPanel").classList.add("hidden");
+      ["managerPanel", "listPanel", "logoutPanel"].forEach(id =>
+        $(id).classList.remove("hidden")
+      );
+      $("adminKey").value = "";
+      await loadProducts();
+    } catch (error) {
+      adminKey = "";
+      showStatus("loginStatus", "Login failed: " + error.message, true);
+    }
+  });
+
+  function clearForm() {
+    $("productForm").reset();
+    $("productId").value = "";
+    $("saveButton").textContent = "Save as unpublished";
+  }
+
+  $("clearButton").addEventListener("click", clearForm);
+
+  $("productForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    const priceValue = $("price").value;
+    const body = {
+      category: $("category").value.trim(),
+      item_name: $("itemName").value.trim(),
+      price_ghs: priceValue === "" ? null : Number(priceValue),
+      description: $("description").value.trim(),
+      condition: $("condition").value,
+      availability: $("availability").value,
+      warranty: "See product description",
+      image_1: $("image1").value.trim(),
+      image_2: $("image2").value.trim(),
+      image_3: $("image3").value.trim(),
+      video_url: $("video").value.trim()
+    };
+
+    for (const key of ["image_1", "image_2", "image_3", "video_url"]) {
+      if (!body[key]) body[key] = null;
+    }
+
+    const id = $("productId").value;
+    if (id) body.id = id;
+
+    try {
+      const result = await api(id ? "PATCH" : "POST", body);
+      showStatus("formStatus", result.message || "Product saved.");
+      clearForm();
+      await loadProducts();
+    } catch (error) {
+      showStatus("formStatus", error.message, true);
+    }
+  });
+
+  async function loadProducts() {
+    $("productList").textContent = "Loading products...";
+    try {
+      const data = await api("GET");
+      $("productList").replaceChildren();
+
+      if (!data.products.length) {
+        $("productList").textContent = "No products yet.";
+        return;
+      }
+
+      data.products.forEach(product => {
+        const card = document.createElement("div");
+        card.className = "product";
+
+        const title = document.createElement("strong");
+        title.textContent = product.item_name + " — " +
+          (product.price_ghs == null ? "Price to be confirmed" :
+          "GH₵" + Number(product.price_ghs).toFixed(2));
+
+        const status = document.createElement("div");
+        status.className = "muted";
+        status.textContent = product.category + " · " +
+          (product.is_published ? "Published" : "Unpublished");
+
+        const actions = document.createElement("div");
+        actions.className = "product-actions";
+
+        function actionButton(label, callback, css = "secondary") {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = css;
+          button.textContent = label;
+          button.addEventListener("click", callback);
+          actions.appendChild(button);
+        }
+
+        actionButton("Edit", () => {
+          $("productId").value = product.id;
+          $("itemName").value = product.item_name || "";
+          $("category").value = product.category || "";
+          $("price").value = product.price_ghs ?? "";
+          $("description").value = product.description || "";
+          $("condition").value = product.condition || "Not specified";
+          $("availability").value = product.availability ||
+            "Confirm before ordering";
+          $("image1").value = product.image_1 || "";
+          $("image2").value = product.image_2 || "";
+          $("image3").value = product.image_3 || "";
+          $("video").value = product.video_url || "";
+          $("saveButton").textContent = "Update product";
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+
+        actionButton(product.is_published ? "Unpublish" : "Publish", async () => {
+          try {
+            await api("PATCH", {
+              id: product.id,
+              is_published: !product.is_published
+            });
+            await loadProducts();
+          } catch (error) {
+            alert(error.message);
+          }
+        });
+
+        actionButton("Delete", async () => {
+          if (!confirm("Permanently delete " + product.item_name + "?")) return;
+          try {
+            await api("DELETE", { id: product.id });
+            await loadProducts();
+          } catch (error) {
+            alert(error.message);
+          }
+        }, "danger");
+
+        card.append(title, status, actions);
+        $("productList").appendChild(card);
+      });
+    } catch (error) {
+      $("productList").textContent = "Could not load products: " + error.message;
+    }
+  }
+
+  $("refreshButton").addEventListener("click", loadProducts);
+
+  $("logoutButton").addEventListener("click", () => {
+    adminKey = "";
+    clearForm();
+    ["managerPanel", "listPanel", "logoutPanel"].forEach(id =>
+      $(id).classList.add("hidden")
+    );
+    $("loginPanel").classList.remove("hidden");
+    showStatus("loginStatus", "You have logged out.");
+  });
+})();
+</script>
+</body>
+                                                                        </html>
 
