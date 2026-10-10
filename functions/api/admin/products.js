@@ -36,4 +36,3 @@ export async function onRequestGet({ request, env }) {
     message: "ShukAfrica admin authentication is working."
   });
 }
-
