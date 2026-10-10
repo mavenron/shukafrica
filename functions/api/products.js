@@ -1,4 +1,3 @@
-
 export async function onRequestGet({ env, request }) {
   try {
     const url = new URL(request.url);
