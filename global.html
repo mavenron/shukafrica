@@ -301,7 +301,50 @@ const grid = document.getElementById("productGrid");
 const search = document.getElementById("searchInput");
 const categoryFilter = document.getElementById("categoryFilter");
 const sortFilter = document.getElementById("sortFilter");
+  
+function priceText(value) {
+  if (value === null || value === undefined || value === "") {
+    return "Price to be confirmed";
+  }
 
+  const amount = Number(value);
+
+  if (!Number.isFinite(amount)) {
+    return "Price to be confirmed";
+  }
+
+  return "GH₵" + amount.toLocaleString("en-GH", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+function mediaUrl(value) {
+  if (!value) return "";
+
+  try {
+    const url = new URL(value, window.location.href);
+
+    if (url.protocol === "https:" || url.protocol === "http:") {
+      return url.href;
+    }
+  } catch (error) {
+    return "";
+  }
+
+  return "";
+}
+
+function imagesOf(product) {
+  const images = Array.isArray(product.images)
+    ? product.images
+    : [];
+
+  return images
+    .map(mediaUrl)
+    .filter(Boolean)
+    .slice(0, 3);
+}
 function getProduct(id) {
   return PRODUCTS.find(p => String(p.id) === String(id));
 }
