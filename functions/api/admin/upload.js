@@ -127,4 +127,3 @@ console.log("Upload diagnostic:", {
   }
       }
 
-
