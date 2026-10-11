@@ -68,14 +68,13 @@ console.log("Upload diagnostic:", {
   contentType: request.headers.get("Content-Type"),
   formKeys: [...form.keys()]
 });
-  const file = form.get("file");
-  if (!file || typeof file === "string" ||
-      typeof file.stream !== "function") {
-    return json({
-      success: false,
-      error: "Choose an image file."
-    }, 400);
+  return json({
+  success: false,
+  error: "Choose an image file.",
+  diagnostic: {
+    formKeys: [...form.keys()]
   }
+}, 400);
 
   if (!ALLOWED_TYPES.has(file.type)) {
     return json({
