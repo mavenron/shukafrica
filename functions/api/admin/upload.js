@@ -66,7 +66,8 @@ export async function onRequestPost({ request, env }) {
   }
 
   const file = form.get("file");
-  if (!file || typeof file === "string" || typeof file.stream !== "function") {
+  if (!file || typeof file === "string" ||
+      typeof file.stream !== "function") {
     return json({
       success: false,
       error: "Choose an image file."
@@ -107,11 +108,14 @@ export async function onRequestPost({ request, env }) {
       }
     });
 
+    const imageUrl =
+      `https://media.shukafrica.com/${key}`;
+
     return json({
       success: true,
       key,
-      message: "Image uploaded to private storage.",
-      note: "A public image delivery URL has not been configured yet."
+      url: imageUrl,
+      message: "Image uploaded successfully."
     }, 201);
   } catch {
     return json({
@@ -120,4 +124,3 @@ export async function onRequestPost({ request, env }) {
     }, 500);
   }
       }
-      
