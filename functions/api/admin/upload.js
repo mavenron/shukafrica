@@ -11,7 +11,11 @@ function json(data, status = 200) {
 function authorised(request, env) {
   const supplied = request.headers.get("X-Shuk-Admin-Key");
   const expected = env.SHUK_ADMIN_KEY;
-  if (!supplied || !expected || supplied.length !== expected.length) return false;
+
+  if (!supplied || !expected || supplied.length !== expected.length) {
+    return false;
+  }
+
   let difference = 0;
   for (let i = 0; i < supplied.length; i++) {
     difference |= supplied.charCodeAt(i) ^ expected.charCodeAt(i);
@@ -20,10 +24,12 @@ function authorised(request, env) {
 }
 
 function requireAdmin(request, env) {
-  return authorised(request, env) ? null : json({ success: false, error: "Unauthorised" }, 401);
+  return authorised(request, env)
+    ? null
+    : json({ success: false, error: "Unauthorised" }, 401);
 }
 
-const MAX_SIZE = 50 * 1024 * 1024; // 50MB
+const MAX_SIZE = 50 * 1024 * 1024; // 50MB limit to support videos
 const ALLOWED_TYPES = new Set([
   "image/jpeg",
   "image/png",
@@ -38,30 +44,54 @@ export async function onRequestPost({ request, env }) {
   if (denied) return denied;
 
   if (!env.MEDIA) {
-    return json({ success: false, error: "R2 MEDIA binding is not available." }, 500);
+    return json({
+      success: false,
+      error: "R2 MEDIA binding is not available."
+    }, 500);
   }
 
   let form;
   try {
     form = await request.formData();
   } catch {
-    return json({ success: false, error: "Could not read form data." }, 400);
+    return json({
+      success: false,
+      error: "Could not read form data."
+    }, 400);
   }
 
+  // Look for "file" first, or fallback to scanning any valid stream in the form
   let file = form.get("file");
-
-  // If someone passed a string filename instead of a file object, reject clearly
   if (!file || typeof file === "string" || typeof file.stream !== "function") {
-    return json({ success: false, error: "Choose a valid image or video file." }, 400);
+    for (const value of form.values()) {
+      if (value && typeof value === "object" && typeof value.stream === "function") {
+        file = value;
+        break;
+      }
+    }
+  }
+
+  if (!file || typeof file.stream !== "function") {
+    return json({
+      success: false,
+      error: "Choose a valid image or video file."
+    }, 400);
   }
 
   const fileType = file.type || "image/jpeg";
+
   if (!ALLOWED_TYPES.has(fileType)) {
-    return json({ success: false, error: "Unsupported file format." }, 400);
+    return json({
+      success: false,
+      error: "Use JPG, PNG, WebP image or MP4, WebM, MOV video."
+    }, 400);
   }
 
   if (file.size > MAX_SIZE) {
-    return json({ success: false, error: "File must be smaller than 50 MB." }, 400);
+    return json({
+      success: false,
+      error: "File must be smaller than 50 MB."
+    }, 400);
   }
 
   const extension = {
@@ -82,15 +112,25 @@ export async function onRequestPost({ request, env }) {
       httpMetadata: {
         contentType: fileType,
         cacheControl: "public, max-age=31536000, immutable"
+      },
+      customMetadata: {
+        uploadedAt: new Date().toISOString()
       }
     });
 
+    const fileUrl = `https://media.shukafrica.com/${key}`;
+
     return json({
       success: true,
-      url: `https://media.shukafrica.com/${key}`,
+      key,
+      url: fileUrl,
       message: "File uploaded successfully."
     }, 201);
   } catch {
-    return json({ success: false, error: "Upload failed. Please try again." }, 500);
+    return json({
+      success: false,
+      error: "Upload failed. Please try again."
+    }, 500);
   }
 }
+  
