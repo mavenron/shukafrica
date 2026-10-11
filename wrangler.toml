@@ -1,1 +1,6 @@
+name = "shukafrica"
+pages_build_output_dir = "."
 
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "shukafrica-media"
