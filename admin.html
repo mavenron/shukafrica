@@ -191,20 +191,37 @@ async function api(method, body) {
   return readResponse(await fetch("/api/admin/products", options));
 }
 
-async function uploadFile(file) {
+async function uploadFile(fileInputOrFile) {
+  let file = fileInputOrFile;
+  if (fileInputOrFile instanceof HTMLInputElement) {
+    file = fileInputOrFile.files[0];
+  } else if (typeof fileInputOrFile === "string") {
+    const el = document.getElementById(fileInputOrFile);
+    if (el && el.files) file = el.files[0];
+  }
+
+  if (!file || (!(file instanceof File) && !(file instanceof Blob))) {
+    throw new Error("Please select a valid file to upload.");
+  }
+
   const form = new FormData();
   form.append("file", file);
+
   const response = await fetch("/api/admin/upload", {
     method: "POST",
-    headers: { "X-Shuk-Admin-Key": adminKey },
+    headers: {
+      "X-Shuk-Admin-Key": adminKey
+    },
     body: form
   });
+
   const data = await readResponse(response);
   if (!data.url || !data.url.startsWith("https://media.shukafrica.com/")) {
     throw new Error("Upload returned no valid file URL.");
   }
   return data.url;
 }
+  
 
 $("loginForm").addEventListener("submit", async event => {
   event.preventDefault();
