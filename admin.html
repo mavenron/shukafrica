@@ -301,7 +301,7 @@ $("productForm").addEventListener("submit", async event => {
         }
 
         showStatus("formStatus", "Uploading picture " + (i + 1) + " of 3...");
-        imageUrls[i] = await uploadFile(file);
+        imageUrls[i] = await uploadFile(file); // Passing the raw file object directly
         $(urlId).value = imageUrls[i];
       }
     }
