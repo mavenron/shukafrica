@@ -43,19 +43,22 @@ export async function onRequestPost({ request, env }) {
         isString: typeof file === "string",
         hasStream: typeof file.stream === "function"
       };
+    } else {
+      // Check if any other key exists
+      for (const [k, v] of form.entries()) {
+        if (v && typeof v === "object") {
+          fileInfo = `Found under key '${k}': size=${v.size}, type=${v.type}`;
+          break;
+        }
+      }
     }
   } catch (err) {
     fileInfo = "Error reading form: " + err.message;
   }
 
-  // This will return a 400 error displaying exactly what keys and file info reached the server!
+  // This will display the full JSON diagnostic right on your screen!
   return json({
     success: false,
-    error: "DIAGNOSTIC INFO",
-    diagnostic: {
-      contentType,
-      formKeys,
-      fileInfo
-    }
+    error: JSON.stringify({ contentType, formKeys, fileInfo }, null, 2)
   }, 400);
 }
