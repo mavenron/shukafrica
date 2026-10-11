@@ -65,26 +65,39 @@ export async function onRequestPost({ request, env }) {
     }, 400);
   }
 
-  // Look for "file" (which matches form.append("file", file) from your frontend)
+  const formKeys = [...form.keys()];
   const file = form.get("file");
-  if (!file || typeof file === "string" || typeof file.stream !== "function") {
+
+  if (!file || typeof file === "string" ||
+      typeof file.stream !== "function") {
     return json({
       success: false,
-      error: "Choose an image file."
+      error: "Choose an image file.",
+      diagnostic: {
+        formKeys,
+        contentType
+      }
     }, 400);
   }
 
   if (!ALLOWED_TYPES.has(file.type)) {
     return json({
       success: false,
-      error: "Use a JPG, PNG or WebP image."
+      error: "Use a JPG, PNG or WebP image.",
+      diagnostic: {
+        formKeys,
+        receivedType: file.type
+      }
     }, 400);
   }
 
   if (file.size < 1 || file.size > MAX_SIZE) {
     return json({
       success: false,
-      error: "Image must be smaller than 5 MB."
+      error: "Image must be smaller than 5 MB.",
+      diagnostic: {
+        size: file.size
+      }
     }, 400);
   }
 
@@ -94,8 +107,7 @@ export async function onRequestPost({ request, env }) {
     "image/webp": "webp"
   }[file.type];
 
-  const id = crypto.randomUUID();
-  const key = `products/${id}.${extension}`;
+  const key = `products/${crypto.randomUUID()}.${extension}`;
 
   try {
     await env.MEDIA.put(key, file.stream(), {
@@ -108,12 +120,12 @@ export async function onRequestPost({ request, env }) {
       }
     });
 
-    const imageUrl = `https://media.shukafrica.com/${key}`;
+    const url = `https://media.shukafrica.com/${key}`;
 
     return json({
       success: true,
       key,
-      url: imageUrl,
+      url,
       message: "Image uploaded successfully."
     }, 201);
   } catch {
@@ -122,4 +134,4 @@ export async function onRequestPost({ request, env }) {
       error: "Image upload failed. Please try again."
     }, 500);
   }
-      }
+    }
