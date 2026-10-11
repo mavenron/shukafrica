@@ -64,7 +64,10 @@ export async function onRequestPost({ request, env }) {
       error: "Could not read the upload."
     }, 400);
   }
-
+console.log("Upload diagnostic:", {
+  contentType: request.headers.get("Content-Type"),
+  formKeys: [...form.keys()]
+});
   const file = form.get("file");
   if (!file || typeof file === "string" ||
       typeof file.stream !== "function") {
