@@ -115,8 +115,9 @@ button:disabled{opacity:.55;cursor:wait}
 
 <div id="imagePreview" class="preview"></div>
 
-<label>Product video — optional HTTPS URL
-<input id="video" type="url" placeholder="https://...">
+<label>Product video — optional file (MP4, WebM, up to 50MB)
+<input id="videoFile" type="file" accept="video/mp4,video/webm,video/quicktime">
+<input id="videoUrl" type="hidden">
 </label>
 
 <label>Contact / WhatsApp
@@ -190,7 +191,7 @@ async function api(method, body) {
   return readResponse(await fetch("/api/admin/products", options));
 }
 
-async function uploadImage(file) {
+async function uploadFile(file) {
   const form = new FormData();
   form.append("file", file);
   const response = await fetch("/api/admin/upload", {
@@ -200,7 +201,7 @@ async function uploadImage(file) {
   });
   const data = await readResponse(response);
   if (!data.url || !data.url.startsWith("https://media.shukafrica.com/")) {
-    throw new Error("Upload returned no valid image URL.");
+    throw new Error("Upload returned no valid file URL.");
   }
   return data.url;
 }
@@ -249,6 +250,8 @@ function clearForm() {
   $("productForm").reset();
   $("productId").value = "";
   imageFields.forEach(([, urlId]) => $(urlId).value = "");
+  $("videoFile").value = "";
+  $("videoUrl").value = "";
   $("imagePreview").replaceChildren();
   $("saveButton").textContent = "Save as unpublished";
 }
@@ -261,7 +264,12 @@ $("productForm").addEventListener("submit", async event => {
   saveButton.disabled = true;
 
   try {
-    const imageUrls = imageFields.map(([, urlId]) => $(urlId).value);
+    const imageUrls = [
+      $("image1Url").value || null,
+      $("image2Url").value || null,
+      $("image3Url").value || null
+    ];
+    let videoUrl = $("videoUrl").value || null;
 
     for (let i = 0; i < imageFields.length; i++) {
       const [fileId, urlId] = imageFields[i];
@@ -276,9 +284,23 @@ $("productForm").addEventListener("submit", async event => {
         }
 
         showStatus("formStatus", "Uploading picture " + (i + 1) + " of 3...");
-        imageUrls[i] = await uploadImage(file);
+        imageUrls[i] = await uploadFile(file);
         $(urlId).value = imageUrls[i];
       }
+    }
+
+    const videoFile = $("videoFile").files[0];
+    if (videoFile) {
+      if (!["video/mp4", "video/webm", "video/quicktime"].includes(videoFile.type)) {
+        throw new Error("Use MP4, WebM or MOV video formats only.");
+      }
+      if (videoFile.size < 1 || videoFile.size > 50 * 1024 * 1024) {
+        throw new Error("Video must be smaller than 50 MB.");
+      }
+
+      showStatus("formStatus", "Uploading product video...");
+      videoUrl = await uploadFile(videoFile);
+      $("videoUrl").value = videoUrl;
     }
 
     const priceValue = $("price").value;
@@ -293,7 +315,7 @@ $("productForm").addEventListener("submit", async event => {
       image_1: imageUrls[0] || null,
       image_2: imageUrls[1] || null,
       image_3: imageUrls[2] || null,
-      video_url: $("video").value.trim() || null
+      video_url: videoUrl
     };
 
     const id = $("productId").value;
@@ -359,8 +381,9 @@ async function loadProducts() {
         $("image1Url").value = product.image_1 || "";
         $("image2Url").value = product.image_2 || "";
         $("image3Url").value = product.image_3 || "";
-        $("video").value = product.video_url || "";
+        $("videoUrl").value = product.video_url || "";
         imageFields.forEach(([fileId]) => $(fileId).value = "");
+        $("videoFile").value = "";
         $("saveButton").textContent = "Update product";
         renderPreview();
         window.scrollTo({top: 0, behavior: "smooth"});
