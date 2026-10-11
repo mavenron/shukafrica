@@ -64,17 +64,15 @@ export async function onRequestPost({ request, env }) {
       error: "Could not read the upload."
     }, 400);
   }
-console.log("Upload diagnostic:", {
-  contentType: request.headers.get("Content-Type"),
-  formKeys: [...form.keys()]
-});
-  return json({
-  success: false,
-  error: "Choose an image file.",
-  diagnostic: {
-    formKeys: [...form.keys()]
+
+  // Look for "file" (which matches form.append("file", file) from your frontend)
+  const file = form.get("file");
+  if (!file || typeof file === "string" || typeof file.stream !== "function") {
+    return json({
+      success: false,
+      error: "Choose an image file."
+    }, 400);
   }
-}, 400);
 
   if (!ALLOWED_TYPES.has(file.type)) {
     return json({
@@ -110,8 +108,7 @@ console.log("Upload diagnostic:", {
       }
     });
 
-    const imageUrl =
-      `https://media.shukafrica.com/${key}`;
+    const imageUrl = `https://media.shukafrica.com/${key}`;
 
     return json({
       success: true,
@@ -125,5 +122,4 @@ console.log("Upload diagnostic:", {
       error: "Image upload failed. Please try again."
     }, 500);
   }
-      }
-
+        }
