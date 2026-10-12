@@ -430,14 +430,42 @@ function appendProductMedia(card, product) {
   });
 
   if (product.video_url) {
-    const video = document.createElement("video");
-    video.src = product.video_url;
-    video.controls = true;
-    video.preload = "metadata";
-    video.playsInline = true;
-    media.appendChild(video);
+  const videoBox = document.createElement("div");
+  videoBox.style.display = "grid";
+  videoBox.style.gap = "6px";
+
+  const video = document.createElement("video");
+  video.controls = true;
+  video.preload = "metadata";
+  video.playsInline = true;
+  video.src = product.video_url;
+
+  const videoStatus = document.createElement("div");
+  videoStatus.className = "media-note";
+  videoStatus.textContent = "Loading saved video...";
+
+  video.addEventListener("loadedmetadata", () => {
+    videoStatus.textContent = "Video loaded successfully.";
+  });
+
+  video.addEventListener("error", () => {
+    videoStatus.textContent =
+      "Video playback error. Open the saved video URL to test it.";
+  });
+
+  const videoLink = document.createElement("a");
+  videoLink.href = product.video_url;
+  videoLink.target = "_blank";
+  videoLink.rel = "noopener";
+  videoLink.textContent = "Open this exact saved video";
+  videoLink.style.fontSize = "12px";
+  videoLink.style.overflowWrap = "anywhere";
+
+  videoBox.append(video, videoStatus, videoLink);
+  media.appendChild(videoBox);
   }
 
+  
   if (!urls.length && !product.video_url) {
     const note = document.createElement("div");
     note.className = "media-note";
