@@ -191,24 +191,31 @@ async function api(method, body) {
   return readResponse(await fetch("/api/admin/products", options));
 }
 
+
 async function uploadFile(file) {
-  if (!(file instanceof Blob)) {
-    throw new Error("The selected file is not valid.");
+  if (!(file instanceof File) || file.size === 0) {
+    throw new Error("Please choose a valid image or video file.");
   }
+
+  const formData = new FormData();
+  formData.append("file", file, file.name);
 
   const response = await fetch("/api/admin/upload", {
     method: "POST",
     headers: {
       "X-Shuk-Admin-Key": adminKey,
-      "Content-Type": file.type
+      "Accept": "application/json"
     },
-    body: file
+    body: formData
   });
 
   const data = await readResponse(response);
 
-  if (!data.url || !data.url.startsWith("https://media.shukafrica.com/")) {
-    throw new Error("Upload returned no valid file URL.");
+  if (
+    typeof data.url !== "string" ||
+    !data.url.startsWith("https://media.shukafrica.com/")
+  ) {
+    throw new Error("Upload returned no valid media URL.");
   }
   return data.url;
 }
