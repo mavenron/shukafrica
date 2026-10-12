@@ -78,17 +78,25 @@ export async function onRequestPost({ request, env }) {
 
   const file = form.get("file");
 
-  if (
-    !file ||
-    typeof file === "string" ||
-    typeof file.stream !== "function" ||
-    file.size < 1
-  ) {
-    return json({
-      success: false,
-      error: "Choose an image or video file."
-    }, 400);
-  }
+
+if (!file || typeof file === "string") {
+  return json({
+    success: false,
+    error: "File field missing. Received fields: " +
+      Array.from(form.keys()).join(", ")
+  }, 400);
+}
+
+if (
+  typeof file.stream !== "function" ||
+  file.size < 1
+) {
+  return json({
+    success: false,
+    error: "The uploaded file is empty or invalid."
+  }, 400);
+}
+  
 
   const type = (file.type || "").toLowerCase();
   const extension = IMAGE_TYPES[type] || VIDEO_TYPES[type];
