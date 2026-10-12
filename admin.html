@@ -115,8 +115,9 @@ button:disabled{opacity:.55;cursor:wait}
 
 <div id="imagePreview" class="preview"></div>
 
-<label>Product video — optional HTTPS URL
-<input id="video" type="url" placeholder="https://...">
+<label>Product video — optional file (MP4 or WebM, up to 50 MB)
+<input id="videoFile" type="file" accept="video/mp4,video/webm">
+<input id="video" type="hidden">
 </label>
 
 <label>Contact / WhatsApp
@@ -190,10 +191,9 @@ async function api(method, body) {
   return readResponse(await fetch("/api/admin/products", options));
 }
 
-
-async function uploadImage(file) {
+async function uploadFile(file) {
   if (!(file instanceof Blob)) {
-    throw new Error("The selected image is not a valid file.");
+    throw new Error("The selected file is not valid.");
   }
 
   const response = await fetch("/api/admin/upload", {
@@ -208,7 +208,7 @@ async function uploadImage(file) {
   const data = await readResponse(response);
 
   if (!data.url || !data.url.startsWith("https://media.shukafrica.com/")) {
-    throw new Error("Upload returned no valid image URL.");
+    throw new Error("Upload returned no valid file URL.");
   }
   return data.url;
 }
@@ -257,6 +257,8 @@ function clearForm() {
   $("productForm").reset();
   $("productId").value = "";
   imageFields.forEach(([, urlId]) => $(urlId).value = "");
+  $("video").value = "";
+  $("videoFile").value = "";
   $("imagePreview").replaceChildren();
   $("saveButton").textContent = "Save as unpublished";
 }
@@ -284,9 +286,21 @@ $("productForm").addEventListener("submit", async event => {
         }
 
         showStatus("formStatus", "Uploading picture " + (i + 1) + " of 3...");
-        imageUrls[i] = await uploadImage(file);
+        imageUrls[i] = await uploadFile(file);
         $(urlId).value = imageUrls[i];
       }
+    }
+
+    const videoFile = $("videoFile").files[0];
+    if (videoFile) {
+      if (!["video/mp4", "video/webm"].includes(videoFile.type)) {
+        throw new Error("Use an MP4 or WebM video.");
+      }
+      if (videoFile.size < 1 || videoFile.size > 50 * 1024 * 1024) {
+        throw new Error("Video must be smaller than 50 MB.");
+      }
+      showStatus("formStatus", "Uploading video...");
+      $("video").value = await uploadFile(videoFile);
     }
 
     const priceValue = $("price").value;
@@ -368,6 +382,7 @@ async function loadProducts() {
         $("image2Url").value = product.image_2 || "";
         $("image3Url").value = product.image_3 || "";
         $("video").value = product.video_url || "";
+        $("videoFile").value = "";
         imageFields.forEach(([fileId]) => $(fileId).value = "");
         $("saveButton").textContent = "Update product";
         renderPreview();
@@ -418,4 +433,4 @@ $("logoutButton").addEventListener("click", () => {
 })();
 </script>
 </body>
-  </html>
+</html>
