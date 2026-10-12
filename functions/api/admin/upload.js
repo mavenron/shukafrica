@@ -80,6 +80,20 @@ export async function onRequestPost({ request, env }) {
 
 const file = form.get("file");
 
+return json({
+  success: false,
+  debug: {
+    contentType: request.headers.get("Content-Type"),
+    fieldNames: Array.from(form.keys()),
+    valueType: typeof file,
+    isString: typeof file === "string",
+    constructorName: file?.constructor?.name,
+    fileSize: file?.size ?? null,
+    fileType: file?.type ?? null
+  }
+}, 400);
+  
+
 if (!file) {
   return json({
     success: false,
