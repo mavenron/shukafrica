@@ -28,7 +28,7 @@ function authorised(request, env) {
 function requireAdmin(request, env) {
   return authorised(request, env)
     ? null
-    : json({ success: false, error: "Unauthorised" }, 401);
+    : json({ success: false, error: "Unauthorized" }, 401);
 }
 
 const IMAGE_TYPES = {
@@ -76,83 +76,65 @@ export async function onRequestPost({ request, env }) {
     }, 400);
   }
 
-  
+  const file = form.get("file");
 
-const file = form.get("file");
-
-return json({
-  success: false,
-  debug: {
-    contentType: request.headers.get("Content-Type"),
-    fieldNames: Array.from(form.keys()),
-    valueType: typeof file,
-    isString: typeof file === "string",
-    constructorName: file?.constructor?.name,
-    fileSize: file?.size ?? null,
-    fileType: file?.type ?? null
+  if (!file) {
+    return json({
+      success: false,
+      error: "No file value received. Check that the form field is named 'file'."
+    }, 400);
   }
-}, 400);
-  
 
-if (!file) {
-  return json({
-    success: false,
-    error: "No file value received."
-  }, 400);
-}
+  if (typeof file === "string") {
+    return json({
+      success: false,
+      error: "The file arrived as text, not as a file. Check the admin upload form."
+    }, 400);
+  }
 
-if (typeof file === "string") {
-  return json({
-    success: false,
-    error: "The file arrived as text, not a file."
-  }, 400);
-}
+  if (typeof file.size !== "number" || typeof file.arrayBuffer !== "function") {
+    return json({
+      success: false,
+      error: "The uploaded file is invalid."
+    }, 400);
+  }
 
-if (typeof file.size !== "number") {
-  return json({
-    success: false,
-    error: "File size is missing. Type: " + typeof file
-  }, 400);
-}
+  if (file.size < 1) {
+    return json({
+      success: false,
+      error: "The server received an empty file."
+    }, 400);
+  }
 
-if (file.size < 1) {
-  return json({
-    success: false,
-    error: "The server received a zero-byte file."
-  }, 400);
-}
+  const type = (file.type || "").toLowerCase();
+  const extension = IMAGE_TYPES[type] || VIDEO_TYPES[type];
 
-const type = (file.type || "").toLowerCase();
-const extension = IMAGE_TYPES[type] || VIDEO_TYPES[type];
+  if (!extension) {
+    return json({
+      success: false,
+      error: "Unsupported file type: " + (type || "unknown") +
+        ". Use JPG, PNG, WebP, MP4, or WebM."
+    }, 400);
+  }
 
-if (!extension) {
-  return json({
-    success: false,
-    error: "Unsupported file type: " + (type || "unknown")
-  }, 400);
-}
+  const isVideo = type in VIDEO_TYPES;
+  const limit = isVideo ? MAX_VIDEO : MAX_IMAGE;
 
-const isVideo = type in VIDEO_TYPES;
-const limit = isVideo ? MAX_VIDEO : MAX_IMAGE;
+  if (file.size > limit) {
+    return json({
+      success: false,
+      error: isVideo
+        ? "Video must be no larger than 50 MB."
+        : "Image must be no larger than 5 MB."
+    }, 400);
+  }
 
-if (file.size > limit) {
-  return json({
-    success: false,
-    error: isVideo
-      ? "Video must be smaller than 50 MB."
-      : "Image must be smaller than 5 MB."
-  }, 400);
-}
-
-
-  const key = `${
-    isVideo ? "videos" : "products"
-  }/${crypto.randomUUID()}.${extension}`;
+  const key = `${isVideo ? "videos" : "products"}/${crypto.randomUUID()}.${extension}`;
 
   try {
     const fileData = await file.arrayBuffer();
 
-await env.MEDIA.put(key, fileData, {
+    await env.MEDIA.put(key, fileData, {
       httpMetadata: {
         contentType: type,
         cacheControl: "public, max-age=31536000, immutable"
@@ -171,7 +153,8 @@ await env.MEDIA.put(key, fileData, {
   } catch {
     return json({
       success: false,
-      error: "Upload failed. Please try again."
+      error: "Upload failed. Check the R2 MEDIA binding and media storage configuration."
     }, 500);
   }
 }
+
