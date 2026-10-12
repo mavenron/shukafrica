@@ -190,15 +190,23 @@ async function api(method, body) {
   return readResponse(await fetch("/api/admin/products", options));
 }
 
+
 async function uploadImage(file) {
+  if (!(file instanceof Blob)) {
+    throw new Error("The selected image is not a valid file.");
+  }
+
   const form = new FormData();
-  form.append("file", file);
+  form.append("file", file, file.name || "image.jpg");
+
   const response = await fetch("/api/admin/upload", {
     method: "POST",
     headers: { "X-Shuk-Admin-Key": adminKey },
     body: form
   });
+
   const data = await readResponse(response);
+
   if (!data.url || !data.url.startsWith("https://media.shukafrica.com/")) {
     throw new Error("Upload returned no valid image URL.");
   }
