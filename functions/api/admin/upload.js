@@ -72,8 +72,9 @@ if (!file || typeof file === "string" || typeof file.stream !== "function") {
   return json({
     success: false,
     error: "Choose an image file. [debug: " +
-      (file === null ? "null" : typeof file) + ", keys=" +
-      [...form.keys()].join(",") + "]"
+      (file === null ? "null" : typeof file) +
+      ", value=" + String(file).slice(0, 80) +
+      ", ct=" + contentType.slice(0, 60) + "]"
   }, 400);
 }
 
