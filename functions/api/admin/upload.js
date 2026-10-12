@@ -76,19 +76,13 @@ export async function onRequestPost({ request, env }) {
     }, 400);
   }
 
-  const file = form.get("file");
-
-
-if (!file || typeof file === "string") {
-  return json({
-    success: false,
-    error: "File field missing. Received fields: " +
-      Array.from(form.keys()).join(", ")
-  }, 400);
-}
+  
+const file = form.get("file");
 
 if (
-  typeof file.stream !== "function" ||
+  !file ||
+  typeof file === "string" ||
+  typeof file.size !== "number" ||
   file.size < 1
 ) {
   return json({
@@ -96,6 +90,7 @@ if (
     error: "The uploaded file is empty or invalid."
   }, 400);
 }
+  
   
 
   const type = (file.type || "").toLowerCase();
