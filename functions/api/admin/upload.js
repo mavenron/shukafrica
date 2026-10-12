@@ -77,43 +77,59 @@ export async function onRequestPost({ request, env }) {
   }
 
   
+
 const file = form.get("file");
 
-if (
-  !file ||
-  typeof file === "string" ||
-  typeof file.size !== "number" ||
-  file.size < 1
-) {
+if (!file) {
   return json({
     success: false,
-    error: "The uploaded file is empty or invalid."
+    error: "No file value received."
   }, 400);
 }
-  
-  
 
-  const type = (file.type || "").toLowerCase();
-  const extension = IMAGE_TYPES[type] || VIDEO_TYPES[type];
+if (typeof file === "string") {
+  return json({
+    success: false,
+    error: "The file arrived as text, not a file."
+  }, 400);
+}
 
-  if (!extension) {
-    return json({
-      success: false,
-      error: "Use a JPG, PNG or WebP image, or an MP4 or WebM video."
-    }, 400);
-  }
+if (typeof file.size !== "number") {
+  return json({
+    success: false,
+    error: "File size is missing. Type: " + typeof file
+  }, 400);
+}
 
-  const isVideo = type in VIDEO_TYPES;
-  const limit = isVideo ? MAX_VIDEO : MAX_IMAGE;
+if (file.size < 1) {
+  return json({
+    success: false,
+    error: "The server received a zero-byte file."
+  }, 400);
+}
 
-  if (file.size > limit) {
-    return json({
-      success: false,
-      error: isVideo
-        ? "Video must be smaller than 50 MB."
-        : "Image must be smaller than 5 MB."
-    }, 400);
-  }
+const type = (file.type || "").toLowerCase();
+const extension = IMAGE_TYPES[type] || VIDEO_TYPES[type];
+
+if (!extension) {
+  return json({
+    success: false,
+    error: "Unsupported file type: " + (type || "unknown")
+  }, 400);
+}
+
+const isVideo = type in VIDEO_TYPES;
+const limit = isVideo ? MAX_VIDEO : MAX_IMAGE;
+
+if (file.size > limit) {
+  return json({
+    success: false,
+    error: isVideo
+      ? "Video must be smaller than 50 MB."
+      : "Image must be smaller than 5 MB."
+  }, 400);
+}
+
 
   const key = `${
     isVideo ? "videos" : "products"
