@@ -66,13 +66,16 @@ export async function onRequestPost({ request, env }) {
   }
 
   // Look for "file" (which matches form.append("file", file) from your frontend)
+
   const file = form.get("file");
-  if (!file || typeof file === "string" || typeof file.stream !== "function") {
-    return json({
-      success: false,
-      error: "Choose an image file."
-    }, 400);
-  }
+if (!file || typeof file === "string" || typeof file.stream !== "function") {
+  return json({
+    success: false,
+    error: "Choose an image file. [debug: " +
+      (file === null ? "null" : typeof file) + ", keys=" +
+      [...form.keys()].join(",") + "]"
+  }, 400);
+}
 
   if (!ALLOWED_TYPES.has(file.type)) {
     return json({
