@@ -1,11 +1,1 @@
-name = "shukafrica"
-pages_build_output_dir = "."
 
-[[d1_databases]]
-binding = "DB"
-database_name = "shukafrica-db"
-database_id = "c40bcbf4-3006-4a2a-a106-85bea7182281"
-
-[[r2_buckets]]
-binding = "MEDIA"
-bucket_name = "shukafrica-media"
