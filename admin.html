@@ -192,13 +192,14 @@ async function api(method, body) {
 }
 
 
+
 async function uploadFile(file) {
-  if (!(file instanceof File) || file.size === 0) {
-    throw new Error("Please choose a valid image or video file.");
+  if (!(file instanceof Blob) || file.size === 0) {
+    throw new Error("Please select a valid, non-empty file.");
   }
 
   const formData = new FormData();
-  formData.append("file", file, file.name);
+  formData.append("file", file);
 
   const response = await fetch("/api/admin/upload", {
     method: "POST",
@@ -211,12 +212,14 @@ async function uploadFile(file) {
 
   const data = await readResponse(response);
 
-  if (
-    typeof data.url !== "string" ||
-    !data.url.startsWith("https://media.shukafrica.com/")
-  ) {
-    throw new Error("Upload returned no valid media URL.");
+  if (!response.ok || !data.url) {
+    throw new Error(data.error || "Upload failed.");
   }
+
+  if (!data.url.startsWith("https://media.shukafrica.com/")) {
+    throw new Error("Upload returned an invalid media URL.");
+  }
+  
   return data.url;
 }
 
