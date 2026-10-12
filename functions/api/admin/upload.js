@@ -17,9 +17,11 @@ function authorised(request, env) {
   }
 
   let difference = 0;
+
   for (let i = 0; i < supplied.length; i++) {
     difference |= supplied.charCodeAt(i) ^ expected.charCodeAt(i);
   }
+
   return difference === 0;
 }
 
@@ -34,10 +36,12 @@ const IMAGE_TYPES = {
   "image/png": "png",
   "image/webp": "webp"
 };
+
 const VIDEO_TYPES = {
   "video/mp4": "mp4",
   "video/webm": "webm"
 };
+
 const MAX_IMAGE = 5 * 1024 * 1024;
 const MAX_VIDEO = 50 * 1024 * 1024;
 
@@ -52,10 +56,43 @@ export async function onRequestPost({ request, env }) {
     }, 500);
   }
 
-  const type = (request.headers.get("Content-Type") || "")
-    .split(";")[0].trim().toLowerCase();
+  let form;
 
+  try {
+    const contentType = request.headers.get("Content-Type") || "";
+
+    if (!contentType.toLowerCase().startsWith("multipart/form-data")) {
+      return json({
+        success: false,
+        error: "Upload must use multipart/form-data."
+      }, 400);
+    }
+
+    form = await request.formData();
+  } catch {
+    return json({
+      success: false,
+      error: "Could not read the uploaded file. Please try again."
+    }, 400);
+  }
+
+  const file = form.get("file");
+
+  if (
+    !file ||
+    typeof file === "string" ||
+    typeof file.stream !== "function" ||
+    file.size < 1
+  ) {
+    return json({
+      success: false,
+      error: "Choose an image or video file."
+    }, 400);
+  }
+
+  const type = (file.type || "").toLowerCase();
   const extension = IMAGE_TYPES[type] || VIDEO_TYPES[type];
+
   if (!extension) {
     return json({
       success: false,
@@ -65,9 +102,8 @@ export async function onRequestPost({ request, env }) {
 
   const isVideo = type in VIDEO_TYPES;
   const limit = isVideo ? MAX_VIDEO : MAX_IMAGE;
-  const length = Number(request.headers.get("Content-Length"));
 
-  if (!length || length > limit) {
+  if (file.size > limit) {
     return json({
       success: false,
       error: isVideo
@@ -76,10 +112,12 @@ export async function onRequestPost({ request, env }) {
     }, 400);
   }
 
-  const key = `${isVideo ? "videos" : "products"}/${crypto.randomUUID()}.${extension}`;
+  const key = `${
+    isVideo ? "videos" : "products"
+  }/${crypto.randomUUID()}.${extension}`;
 
   try {
-    await env.MEDIA.put(key, request.body, {
+    await env.MEDIA.put(key, file.stream(), {
       httpMetadata: {
         contentType: type,
         cacheControl: "public, max-age=31536000, immutable"
