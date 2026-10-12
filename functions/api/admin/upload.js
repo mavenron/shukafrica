@@ -120,7 +120,9 @@ if (
   }/${crypto.randomUUID()}.${extension}`;
 
   try {
-    await env.MEDIA.put(key, file.stream(), {
+    const fileData = await file.arrayBuffer();
+
+await env.MEDIA.put(key, fileData, {
       httpMetadata: {
         contentType: type,
         cacheControl: "public, max-age=31536000, immutable"
