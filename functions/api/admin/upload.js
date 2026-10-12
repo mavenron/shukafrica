@@ -66,19 +66,22 @@ export async function onRequestPost({ request, env }) {
   }
 
   const formKeys = [...form.keys()];
-  const file = form.get("file");
+  
+const formKeys = [...form.keys()];
+const file = form.get("file");
 
-  if (!file || typeof file === "string" ||
-      typeof file.stream !== "function") {
-    return json({
-      success: false,
-      error: "Choose an image file.",
-      diagnostic: {
-        formKeys,
-        contentType
-      }
-    }, 400);
-  }
+if (!file || typeof file === "string" ||
+    typeof file.stream !== "function") {
+  return json({
+    success: false,
+    error: "Choose an image file.",
+    diagnostic: {
+      formKeys,
+      contentType
+    }
+  }, 400);
+}
+
 
   if (!ALLOWED_TYPES.has(file.type)) {
     return json({
