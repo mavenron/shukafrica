@@ -1,276 +1,88 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#103b2b">
-<title>ShukAfrica Global Admin</title>
-<style>
-:root{--green:#087443;--dark:#103b2b;--gold:#e9b84b;--bg:#f4f7f4;--border:#dce5de;--muted:#68766e}
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--dark)}
-header{background:var(--dark);color:white;padding:18px 5%;display:flex;justify-content:space-between;align-items:center;gap:12px}
-header strong{font-size:19px}header a{color:var(--gold);font-size:13px}
-main{max-width:760px;margin:24px auto;padding:0 15px 40px}
-.panel{background:white;border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px}
-h1{font-size:23px;margin:0 0 8px}h2{font-size:17px;margin:0 0 14px}
-p{line-height:1.6}.muted{color:var(--muted);font-size:13px}
-form{display:grid;gap:14px}
-label{display:grid;gap:6px;font-size:13px;font-weight:bold}
-input,select,textarea{width:100%;padding:12px;border:1px solid #cdd8cf;border-radius:8px;background:white;color:var(--dark);font:inherit}
-input[type=file]{padding:10px;font-size:14px}
-textarea{resize:vertical}
-button{border:0;border-radius:8px;padding:13px;font:inherit;font-weight:bold;cursor:pointer}
-button:disabled{opacity:.55;cursor:wait}
-.primary{background:var(--green);color:white}.secondary{background:white;border:1px solid var(--border);color:var(--dark)}
-.danger{background:#fff0f0;color:#9a2525;border:1px solid #e5baba}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.hidden{display:none!important}
-.status{padding:12px;border-radius:8px;background:#edf5ee;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere}
-.status.error{background:#fff0f0;color:#9a2525}
-.product{border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:10px;display:grid;gap:9px}
-.product-actions{display:flex;flex-wrap:wrap;gap:8px}
-.product-actions button{padding:9px 12px;font-size:12px}
-.preview{display:flex;flex-wrap:wrap;gap:8px}
-.preview img{width:90px;height:90px;object-fit:cover;border-radius:8px;border:1px solid var(--border)}
-@media(max-width:520px){.row{grid-template-columns:1fr}}
-</style>
-</head>
-<body>
-<header>
-<strong>SHUKAFRICA GLOBAL · ADMIN</strong>
-<a href="global.html">View catalogue ↗</a>
-</header>
-
-<main>
-<section class="panel" id="loginPanel">
-<h1>Administrator login</h1>
-<p class="muted">Enter your saved Cloudflare admin key. It remains in this page's memory while you are logged in.</p>
-<form id="loginForm">
-<label>Admin key
-<input id="adminKey" type="password" required autocomplete="current-password" placeholder="Enter your admin key">
-</label>
-<button class="primary" type="submit" id="loginButton">Verify access</button>
-</form>
-<div id="loginStatus" class="status hidden"></div>
-</section>
-
-<section class="panel hidden" id="managerPanel">
-<h1>Product management</h1>
-<p class="muted">Products are saved as unpublished. Check all details before publishing.</p>
-
-<form id="productForm">
-<input id="productId" type="hidden">
-
-<label>Product name
-<input id="itemName" maxlength="200" required>
-</label>
-
-<div class="row">
-<label>Category
-<input id="category" maxlength="100" required placeholder="e.g. Mobile Phones">
-</label>
-<label>Price (GH₵)
-<input id="price" type="number" min="0" step="0.01" placeholder="Leave blank if unconfirmed">
-</label>
-</div>
-
-<label>Description (include warranty information)
-<textarea id="description" rows="5" maxlength="5000" required placeholder="Product details, warranty, what's included..."></textarea>
-</label>
-
-<div class="row">
-<label>Condition
-<select id="condition">
-<option>Brand new</option>
-<option>Used</option>
-<option>Refurbished</option>
-<option>Not specified</option>
-</select>
-</label>
-<label>Availability
-<select id="availability">
-<option>Confirm before ordering</option>
-<option>In stock — confirm before ordering</option>
-<option>Limited stock — confirm before ordering</option>
-<option>Pre-order — confirm timing</option>
-</select>
-</label>
-</div>
-
-<p class="muted">Select JPG, PNG or WebP pictures up to 5 MB each. Pictures upload when you save the product. You can select replacement pictures when editing.</p>
-
-<label>Product picture 1
-<input id="image1File" type="file" accept="image/jpeg,image/png,image/webp">
-<input id="image1Url" type="hidden">
-</label>
-<label>Product picture 2 — optional
-<input id="image2File" type="file" accept="image/jpeg,image/png,image/webp">
-<input id="image2Url" type="hidden">
-</label>
-<label>Product picture 3 — optional
-<input id="image3File" type="file" accept="image/jpeg,image/png,image/webp">
-<input id="image3Url" type="hidden">
-</label>
-
-<div id="imagePreview" class="preview"></div>
-
-<label>Product video — optional file (MP4 or WebM, up to 50 MB)
-<input id="videoFile" type="file" accept="video/mp4,video/webm">
-<input id="video" type="hidden">
-</label>
-
-<label>Contact / WhatsApp
-<input value="ShukAfrica central contact" disabled>
-<span class="muted">The central ShukAfrica contact is used for now.</span>
-</label>
-
-<div class="row">
-<button class="primary" type="submit" id="saveButton">Save as unpublished</button>
-<button class="secondary" type="button" id="clearButton">Clear form</button>
-</div>
-</form>
-<div id="formStatus" class="status hidden"></div>
-</section>
-
-<section class="panel hidden" id="listPanel">
-<div class="row">
-<h2>Your products</h2>
-<button class="secondary" id="refreshButton" type="button">Refresh list</button>
-</div>
-<div id="productList" class="muted">No products loaded yet.</div>
-</section>
-
-<section class="panel hidden" id="logoutPanel">
-<button class="danger" id="logoutButton" type="button">Log out</button>
-</section>
-</main>
-
-<script>
-(() => {
-let adminKey = "";
-const $ = id => document.getElementById(id);
-const imageFields = [
-  ["image1File", "image1Url"],
-  ["image2File", "image2Url"],
-  ["image3File", "image3Url"]
-];
-
-function showStatus(id, message, error = false) {
-  const el = $(id);
-  el.textContent = message;
-  el.classList.remove("hidden", "error");
-  if (error) el.classList.add("error");
-}
-
-async function readResponse(response) {
-  let data;
-  try {
-    data = await response.json();
-  } catch {
-    throw new Error("The server returned an unreadable response.");
-  }
-  if (!response.ok || !data.success) {
-    throw new Error(data.error || "Request failed.");
-  }
-  return data;
-}
-
-async function api(method, body) {
-  const options = {
-    method,
-    headers: {
-      "Accept": "application/json",
-      "X-Shuk-Admin-Key": adminKey
-    }
+  video.src = url;
+  video.style.width = "min(100%, 320px)";
+  video.onerror = () => {
+    video.remove();
+    const note = document.createElement("div");
+    note.className = "media-note";
+    note.textContent = "Video preview could not load. The saved URL is retained unless you choose a replacement.";
+    item.appendChild(note);
   };
-  if (body !== undefined) {
-    options.headers["Content-Type"] = "application/json";
-    options.body = JSON.stringify(body);
-  }
-  return readResponse(await fetch("/api/admin/products", options));
+  item.appendChild(video);
+  addPreviewLabel(item, file ? "New video preview" : "Saved video preview");
+  area.appendChild(item);
 }
 
+function renderAllPreviews() {
+  // Keep object URLs alive while both preview areas use them.
+  revokePreviewUrls();
+  const imageArea = $("imagePreview");
+  imageArea.replaceChildren();
 
-
-async function uploadFile(file) {
-  if (!(file instanceof Blob) || file.size === 0) {
-    throw new Error("Please select a valid, non-empty file.");
-  }
-
-  const formData = new FormData();
-  formData.append("file", file);
-
-  const response = await fetch("/api/admin/upload", {
-    method: "POST",
-    headers: {
-      "X-Shuk-Admin-Key": adminKey,
-      "Accept": "application/json"
-    },
-    body: formData
-  });
-
-  const data = await readResponse(response);
-
-  if (!response.ok || !data.url) {
-    throw new Error(data.error || "Upload failed.");
-  }
-
-  if (!data.url.startsWith("https://media.shukafrica.com/")) {
-    throw new Error("Upload returned an invalid media URL.");
-  }
-  
-  return data.url;
-}
-
-$("loginForm").addEventListener("submit", async event => {
-  event.preventDefault();
-  adminKey = $("adminKey").value;
-  $("loginButton").disabled = true;
-  try {
-    await api("GET");
-    $("loginPanel").classList.add("hidden");
-    ["managerPanel", "listPanel", "logoutPanel"].forEach(id =>
-      $(id).classList.remove("hidden")
-    );
-    $("adminKey").value = "";
-    await loadProducts();
-  } catch (error) {
-    adminKey = "";
-    showStatus("loginStatus", "Login failed: " + error.message, true);
-  } finally {
-    $("loginButton").disabled = false;
-  }
-});
-
-function renderPreview() {
-  const area = $("imagePreview");
-  area.replaceChildren();
-
-  imageFields.forEach(([fileId, urlId]) => {
+  imageFields.forEach(([fileId, urlId], index) => {
     const file = $(fileId).files[0];
-    const url = file ? URL.createObjectURL(file) : $(urlId).value;
+    const url = file ? makeObjectUrl(file) : $(urlId).value;
     if (!url) return;
 
+    const item = document.createElement("div");
+    item.className = "preview-item";
     const img = document.createElement("img");
     img.src = url;
-    img.alt = "Product picture preview";
-    area.appendChild(img);
+    img.alt = "Product picture " + (index + 1) + " preview";
+    img.loading = "lazy";
+    img.onerror = () => {
+      img.remove();
+      const note = document.createElement("div");
+      note.className = "media-note";
+      note.textContent = "Picture " + (index + 1) + " preview unavailable";
+      item.appendChild(note);
+    };
+    item.appendChild(img);
+    addPreviewLabel(item, file ? "New picture " + (index + 1) : "Saved picture " + (index + 1));
+    imageArea.appendChild(item);
   });
+
+  const videoArea = $("videoPreview");
+  videoArea.replaceChildren();
+  const videoFile = $("videoFile").files[0];
+  const videoUrl = videoFile ? makeObjectUrl(videoFile) : $("video").value;
+
+  if (videoUrl) {
+    const item = document.createElement("div");
+    item.className = "preview-item";
+    const video = document.createElement("video");
+    video.controls = true;
+    video.preload = "metadata";
+    video.playsInline = true;
+    video.src = videoUrl;
+    video.onerror = () => {
+      video.remove();
+      const note = document.createElement("div");
+      note.className = "media-note";
+      note.textContent = "Video preview could not load. The saved video URL is kept unless you choose a replacement.";
+      item.appendChild(note);
+    };
+    item.appendChild(video);
+    addPreviewLabel(item, videoFile ? "New video preview" : "Saved video preview");
+    videoArea.appendChild(item);
+  }
 }
 
 imageFields.forEach(([fileId]) => {
-  $(fileId).addEventListener("change", renderPreview);
+  $(fileId).addEventListener("change", renderAllPreviews);
 });
+$("videoFile").addEventListener("change", renderAllPreviews);
 
 function clearForm() {
+  revokePreviewUrls();
   $("productForm").reset();
   $("productId").value = "";
   imageFields.forEach(([, urlId]) => $(urlId).value = "");
   $("video").value = "";
   $("videoFile").value = "";
   $("imagePreview").replaceChildren();
+  $("videoPreview").replaceChildren();
   $("saveButton").textContent = "Save as unpublished";
+  $("formStatus").classList.add("hidden");
 }
 
 $("clearButton").addEventListener("click", clearForm);
@@ -292,7 +104,7 @@ $("productForm").addEventListener("submit", async event => {
           throw new Error("Use JPG, PNG or WebP pictures only.");
         }
         if (file.size < 1 || file.size > 5 * 1024 * 1024) {
-          throw new Error("Each picture must be smaller than 5 MB.");
+          throw new Error("Each picture must be 5 MB or smaller.");
         }
 
         showStatus("formStatus", "Uploading picture " + (i + 1) + " of 3...");
@@ -307,7 +119,7 @@ $("productForm").addEventListener("submit", async event => {
         throw new Error("Use an MP4 or WebM video.");
       }
       if (videoFile.size < 1 || videoFile.size > 50 * 1024 * 1024) {
-        throw new Error("Video must be smaller than 50 MB.");
+        throw new Error("Video must be 50 MB or smaller.");
       }
       showStatus("formStatus", "Uploading video...");
       $("video").value = await uploadFile(videoFile);
@@ -342,14 +154,66 @@ $("productForm").addEventListener("submit", async event => {
     saveButton.disabled = false;
   }
 });
+        function appendProductMedia(card, product) {
+  const urls = [product.image_1, product.image_2, product.image_3].filter(Boolean);
+  const videoUrl = product.video_url;
+
+  if (!urls.length && !videoUrl) {
+    const note = document.createElement("div");
+    note.className = "media-note";
+    note.textContent = "No pictures or video saved for this product.";
+    card.appendChild(note);
+    return;
+  }
+
+  const media = document.createElement("div");
+  media.className = "product-media";
+
+  urls.forEach((url, index) => {
+    const img = document.createElement("img");
+    img.src = url;
+    img.alt = product.item_name + " picture " + (index + 1);
+    img.loading = "lazy";
+    img.onerror = () => {
+      img.remove();
+      const note = document.createElement("div");
+      note.className = "media-note";
+      note.textContent = "Picture " + (index + 1) + " could not load";
+      media.appendChild(note);
+    };
+    media.appendChild(img);
+  });
+
+  if (videoUrl) {
+    const video = document.createElement("video");
+    video.controls = true;
+    video.preload = "metadata";
+    video.playsInline = true;
+    video.src = videoUrl;
+    video.onerror = () => {
+      video.remove();
+      const link = document.createElement("a");
+      link.href = videoUrl;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = "Open saved video";
+      link.className = "media-note";
+      media.appendChild(link);
+    };
+    media.appendChild(video);
+  }
+
+  card.appendChild(media);
+}
 
 async function loadProducts() {
   $("productList").textContent = "Loading products...";
+
   try {
     const data = await api("GET");
     $("productList").replaceChildren();
 
-    if (!data.products.length) {
+    if (!Array.isArray(data.products) || !data.products.length) {
       $("productList").textContent = "No products yet.";
       return;
     }
@@ -360,13 +224,16 @@ async function loadProducts() {
 
       const title = document.createElement("strong");
       title.textContent = product.item_name + " — " +
-        (product.price_ghs == null ? "Price to be confirmed" :
-        "GH₵" + Number(product.price_ghs).toFixed(2));
+        (product.price_ghs == null
+          ? "Price to be confirmed"
+          : "GH₵" + Number(product.price_ghs).toFixed(2));
 
       const status = document.createElement("div");
       status.className = "muted";
-      status.textContent = product.category + " · " +
+      status.textContent = (product.category || "Uncategorised") + " · " +
         (product.is_published ? "Published" : "Unpublished");
+
+      appendProductMedia(card, product);
 
       const actions = document.createElement("div");
       actions.className = "product-actions";
@@ -381,40 +248,56 @@ async function loadProducts() {
       }
 
       actionButton("Edit", () => {
+        revokePreviewUrls();
+
         $("productId").value = product.id;
         $("itemName").value = product.item_name || "";
         $("category").value = product.category || "";
         $("price").value = product.price_ghs ?? "";
         $("description").value = product.description || "";
         $("condition").value = product.condition || "Not specified";
-        $("availability").value = product.availability || "Confirm before ordering";
+        $("availability").value =
+          product.availability || "Confirm before ordering";
+
         $("image1Url").value = product.image_1 || "";
         $("image2Url").value = product.image_2 || "";
         $("image3Url").value = product.image_3 || "";
         $("video").value = product.video_url || "";
+
+        imageFields.forEach(([fileId]) => {
+          $(fileId).value = "";
+        });
+
         $("videoFile").value = "";
-        imageFields.forEach(([fileId]) => $(fileId).value = "");
         $("saveButton").textContent = "Update product";
-        renderPreview();
-        window.scrollTo({top: 0, behavior: "smooth"});
+
+        renderAllPreviews();
+        $("formStatus").classList.add("hidden");
+        window.scrollTo({ top: 0, behavior: "smooth" });
       });
 
-      actionButton(product.is_published ? "Unpublish" : "Publish", async () => {
-        try {
-          await api("PATCH", {
-            id: product.id,
-            is_published: !product.is_published
-          });
-          await loadProducts();
-        } catch (error) {
-          alert(error.message);
+      actionButton(
+        product.is_published ? "Unpublish" : "Publish",
+        async () => {
+          try {
+            await api("PATCH", {
+              id: product.id,
+              is_published: !product.is_published
+            });
+            await loadProducts();
+          } catch (error) {
+            alert(error.message);
+          }
         }
-      });
+      );
 
       actionButton("Delete", async () => {
-        if (!confirm("Permanently delete " + product.item_name + "?")) return;
+        if (!confirm("Permanently delete " + product.item_name + "?")) {
+          return;
+        }
+
         try {
-          await api("DELETE", {id: product.id});
+          await api("DELETE", { id: product.id });
           await loadProducts();
         } catch (error) {
           alert(error.message);
@@ -425,7 +308,8 @@ async function loadProducts() {
       $("productList").appendChild(card);
     });
   } catch (error) {
-    $("productList").textContent = "Could not load products: " + error.message;
+    $("productList").textContent =
+      "Could not load products: " + error.message;
   }
 }
 
@@ -434,13 +318,15 @@ $("refreshButton").addEventListener("click", loadProducts);
 $("logoutButton").addEventListener("click", () => {
   adminKey = "";
   clearForm();
-  ["managerPanel", "listPanel", "logoutPanel"].forEach(id =>
-    $(id).classList.add("hidden")
-  );
+
+  ["managerPanel", "listPanel", "logoutPanel"].forEach(id => {
+    $(id).classList.add("hidden");
+  });
+
   $("loginPanel").classList.remove("hidden");
   showStatus("loginStatus", "You have logged out.");
 });
 })();
 </script>
 </body>
-</html>
+      </html>
