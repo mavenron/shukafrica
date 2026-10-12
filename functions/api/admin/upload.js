@@ -29,12 +29,17 @@ function requireAdmin(request, env) {
     : json({ success: false, error: "Unauthorised" }, 401);
 }
 
-const MAX_SIZE = 5 * 1024 * 1024;
-const ALLOWED_TYPES = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp"
-]);
+const IMAGE_TYPES = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp"
+};
+const VIDEO_TYPES = {
+  "video/mp4": "mp4",
+  "video/webm": "webm"
+};
+const MAX_IMAGE = 5 * 1024 * 1024;
+const MAX_VIDEO = 50 * 1024 * 1024;
 
 export async function onRequestPost({ request, env }) {
   const denied = requireAdmin(request, env);
@@ -47,64 +52,36 @@ export async function onRequestPost({ request, env }) {
     }, 500);
   }
 
-  const contentType = request.headers.get("Content-Type") || "";
-  if (!contentType.toLowerCase().startsWith("multipart/form-data;")) {
+  const type = (request.headers.get("Content-Type") || "")
+    .split(";")[0].trim().toLowerCase();
+
+  const extension = IMAGE_TYPES[type] || VIDEO_TYPES[type];
+  if (!extension) {
     return json({
       success: false,
-      error: "Send the picture as multipart form data."
+      error: "Use a JPG, PNG or WebP image, or an MP4 or WebM video."
     }, 400);
   }
 
-  let form;
-  try {
-    form = await request.formData();
-  } catch {
+  const isVideo = type in VIDEO_TYPES;
+  const limit = isVideo ? MAX_VIDEO : MAX_IMAGE;
+  const length = Number(request.headers.get("Content-Length"));
+
+  if (!length || length > limit) {
     return json({
       success: false,
-      error: "Could not read the upload."
+      error: isVideo
+        ? "Video must be smaller than 50 MB."
+        : "Image must be smaller than 5 MB."
     }, 400);
   }
 
-  // Look for "file" (which matches form.append("file", file) from your frontend)
-
-  const file = form.get("file");
-if (!file || typeof file === "string" || typeof file.stream !== "function") {
-  return json({
-    success: false,
-    error: "Choose an image file. [debug: " +
-      (file === null ? "null" : typeof file) +
-      ", value=" + String(file).slice(0, 80) +
-      ", ct=" + contentType.slice(0, 60) + "]"
-  }, 400);
-}
-
-  if (!ALLOWED_TYPES.has(file.type)) {
-    return json({
-      success: false,
-      error: "Use a JPG, PNG or WebP image."
-    }, 400);
-  }
-
-  if (file.size < 1 || file.size > MAX_SIZE) {
-    return json({
-      success: false,
-      error: "Image must be smaller than 5 MB."
-    }, 400);
-  }
-
-  const extension = {
-    "image/jpeg": "jpg",
-    "image/png": "png",
-    "image/webp": "webp"
-  }[file.type];
-
-  const id = crypto.randomUUID();
-  const key = `products/${id}.${extension}`;
+  const key = `${isVideo ? "videos" : "products"}/${crypto.randomUUID()}.${extension}`;
 
   try {
-    await env.MEDIA.put(key, file.stream(), {
+    await env.MEDIA.put(key, request.body, {
       httpMetadata: {
-        contentType: file.type,
+        contentType: type,
         cacheControl: "public, max-age=31536000, immutable"
       },
       customMetadata: {
@@ -112,18 +89,16 @@ if (!file || typeof file === "string" || typeof file.stream !== "function") {
       }
     });
 
-    const imageUrl = `https://media.shukafrica.com/${key}`;
-
     return json({
       success: true,
       key,
-      url: imageUrl,
-      message: "Image uploaded successfully."
+      url: `https://media.shukafrica.com/${key}`,
+      message: "Upload successful."
     }, 201);
   } catch {
     return json({
       success: false,
-      error: "Image upload failed. Please try again."
+      error: "Upload failed. Please try again."
     }, 500);
   }
-        }
+}
