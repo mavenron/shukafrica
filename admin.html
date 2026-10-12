@@ -196,13 +196,13 @@ async function uploadImage(file) {
     throw new Error("The selected image is not a valid file.");
   }
 
-  const form = new FormData();
-  form.append("file", file, file.name || "image.jpg");
-
   const response = await fetch("/api/admin/upload", {
     method: "POST",
-    headers: { "X-Shuk-Admin-Key": adminKey },
-    body: form
+    headers: {
+      "X-Shuk-Admin-Key": adminKey,
+      "Content-Type": file.type
+    },
+    body: file
   });
 
   const data = await readResponse(response);
