@@ -1,1 +1,284 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShukAfrica | Marketplace Admin</title>
+<style>
+:root{color-scheme:dark;--bg:#10151d;--panel:#192330;--line:#304052;--text:#f4f7fb;--muted:#a9b6c6;--accent:#ffbd45;--green:#35c98b;--red:#ff7777}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px Arial,sans-serif}
+header{padding:22px 16px;background:#172230;border-bottom:1px solid var(--line)}
+header h1{margin:0 0 7px;font-size:23px}
+header p{margin:0;color:var(--muted)}
+main{max-width:1100px;margin:auto;padding:18px 14px 40px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:16px;margin-bottom:16px}
+h2{font-size:18px;margin:0 0 14px}
+label{display:block;color:var(--muted);font-size:13px;margin:12px 0 6px}
+input,select,textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;background:#101923;color:var(--text);font:inherit}
+textarea{min-height:100px;resize:vertical}
+button{border:0;border-radius:8px;padding:11px 14px;font-weight:bold;cursor:pointer;background:var(--accent);color:#18202a}
+button:disabled{opacity:.55;cursor:wait}
+.secondary{background:#344458;color:white}
+.publish{background:var(--green);color:#082719}
+.remove{background:#8b333b;color:white}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.status{font-size:12px;padding:5px 8px;border-radius:20px;background:#354357;display:inline-block}
+.status-pending{color:#ffd67d}.status-published{color:#65e3ad}.status-removed{color:#ff9999}
+.muted{color:var(--muted);font-size:13px;line-height:1.5}
+#message{white-space:pre-wrap;line-height:1.5;margin:12px 0}
+.good{color:#65e3ad}.bad{color:#ff9999}
+.listing{border-top:1px solid var(--line);padding:16px 0}
+.listing:first-child{border-top:0}
+.listing h3{margin:8px 0;font-size:17px}
+.listing p{color:var(--muted);line-height:1.5;overflow-wrap:anywhere}
+.listing img{width:90px;height:75px;object-fit:cover;border-radius:8px;margin:5px 7px 0 0}
+.grid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:650px){.grid{grid-template-columns:1fr 1fr}}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <h1>ShukAfrica Buy &amp; Sell Admin</h1>
+  <p>Review, edit and manage marketplace listings.</p>
+</header>
+<main>
+  <section class="panel">
+    <h2>Admin access</h2>
+    <p class="muted">Enter your existing SHUK_ADMIN_KEY. It is kept only in this page's current memory and is not saved in the browser.</p>
+    <label for="adminKey">Admin key</label>
+    <input id="adminKey" type="password" autocomplete="off" placeholder="Enter your admin key">
+    <div class="actions">
+      <button id="connectBtn" type="button">Connect to marketplace</button>
+      <button id="disconnectBtn" class="secondary" type="button">Disconnect</button>
+    </div>
+    <div id="message" role="status" aria-live="polite"></div>
+  </section>
+
+  <section id="manager" class="hidden">
+    <section class="panel">
+      <h2>Listings</h2>
+      <label for="statusFilter">Filter by status</label>
+      <select id="statusFilter">
+        <option value="pending">Pending review</option>
+        <option value="published">Published</option>
+        <option value="removed">Removed</option>
+        <option value="all">All listings</option>
+      </select>
+      <div class="actions">
+        <button id="refreshBtn" type="button">Refresh listings</button>
+      </div>
+      <div id="listingCount" class="muted"></div>
+      <div id="listingList"></div>
+    </section>
+
+    <section id="editor" class="panel hidden">
+      <h2>Edit listing</h2>
+      <p class="muted">Changes are saved to the marketplace database.</p>
+      <input id="editId" type="hidden">
+      <div class="grid">
+        <div><label for="sellerName">Seller name</label><input id="sellerName" maxlength="100"></div>
+        <div><label for="sellerPhone">Seller phone</label><input id="sellerPhone" maxlength="30"></div>
+        <div><label for="itemName">Product name</label><input id="itemName" maxlength="200"></div>
+        <div><label for="category">Category</label><input id="category" maxlength="100"></div>
+        <div><label for="price">Price (GHS)</label><input id="price" type="number" min="0" step="0.01"></div>
+        <div><label for="location">Location</label><input id="location" maxlength="100"></div>
+      </div>
+      <label for="description">Description</label>
+      <textarea id="description" maxlength="5000"></textarea>
+      <label for="image1">Image 1 URL</label><input id="image1" type="url" placeholder="https://media.shukafrica.com/...">
+      <label for="image2">Image 2 URL</label><input id="image2" type="url" placeholder="Optional">
+      <label for="image3">Image 3 URL</label><input id="image3" type="url" placeholder="Optional">
+      <div class="actions">
+        <button id="saveBtn" type="button">Save changes</button>
+        <button id="cancelEditBtn" class="secondary" type="button">Cancel edit</button>
+      </div>
+    </section>
+  </section>
+</main>
+
+<script>
+"use strict";
+
+const API = "/api/admin/marketplace";
+let adminKey = "";
+let listings = [];
+
+const $ = id => document.getElementById(id);
+function showMessage(text, good=false) {
+  $("message").textContent = text;
+  $("message").className = good ? "good" : "bad";
+}
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[c]);
+}
+function safeImage(url) {
+  try {
+    const u = new URL(url);
+    return u.protocol === "https:" && u.hostname === "media.shukafrica.com" ? u.href : "";
+  } catch { return ""; }
+}
+async function api(path="", options={}) {
+  const headers = new Headers(options.headers || {});
+  headers.set("X-Shuk-Admin-Key", adminKey);
+  if (options.body) headers.set("Content-Type", "application/json");
+  const response = await fetch(API + path, {...options, headers, cache:"no-store"});
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || data.success === false) {
+    if (response.status === 401 || response.status === 403) {
+      adminKey = "";
+      $("manager").classList.add("hidden");
+    }
+    throw new Error(data.error || `Request failed (${response.status})`);
+  }
+  return data;
+}
+async function connect() {
+  const key = $("adminKey").value.trim();
+  if (!key) return showMessage("Enter your admin key first.");
+  adminKey = key;
+  $("connectBtn").disabled = true;
+  try {
+    await loadListings();
+    $("manager").classList.remove("hidden");
+    showMessage("Connected successfully.", true);
+  } catch (e) {
+    adminKey = "";
+    showMessage(e.message || "Could not connect.");
+  } finally {
+    $("connectBtn").disabled = false;
+  }
+}
+async function loadListings() {
+  const filter = $("statusFilter").value;
+  const data = await api(filter === "all" ? "" : "?status=" + encodeURIComponent(filter));
+  listings = Array.isArray(data.listings) ? data.listings : [];
+  renderListings();
+}
+function renderListings() {
+  $("listingCount").textContent = `${listings.length} listing(s)`;
+  const host = $("listingList");
+  host.replaceChildren();
+  if (!listings.length) {
+    host.textContent = "No listings found for this status.";
+    return;
+  }
+  listings.forEach(item => {
+    const card = document.createElement("article");
+    card.className = "listing";
+    const status = ["pending","published","removed"].includes(item.status) ? item.status : "pending";
+    const photos = [item.image_1,item.image_2,item.image_3].map(safeImage).filter(Boolean);
+    card.innerHTML = `
+      <span class="status status-${status}">${escapeHTML(status.toUpperCase())}</span>
+      <h3>${escapeHTML(item.item_name)}</h3>
+      <strong>GHS ${Number(item.price_ghs).toLocaleString()}</strong>
+      <p>Category: ${escapeHTML(item.category)}<br>
+      Location: ${escapeHTML(item.location)}<br>
+      Seller: ${escapeHTML(item.seller_name)}<br>
+      Phone: ${escapeHTML(item.seller_phone)}<br>
+      Submitted: ${escapeHTML(item.created_at || "")}</p>
+      <p>${escapeHTML(item.description)}</p>
+      <div class="photos">${photos.map(url => `<img src="${escapeHTML(url)}" alt="Product photo" loading="lazy">`).join("")}</div>
+      <div class="actions">
+        <button type="button" data-edit="${escapeHTML(item.id)}">Edit</button>
+        ${status !== "published" ? `<button type="button" class="publish" data-publish="${escapeHTML(item.id)}">Publish</button>` : ""}
+        ${status !== "removed" ? `<button type="button" class="remove" data-remove="${escapeHTML(item.id)}">Remove</button>` : ""}
+        <button type="button" class="secondary" data-delete="${escapeHTML(item.id)}">Delete permanently</button>
+      </div>`;
+    host.appendChild(card);
+  });
+}
+function editListing(id) {
+  const item = listings.find(x => x.id === id);
+  if (!item) return;
+  $("editId").value = item.id;
+  $("sellerName").value = item.seller_name || "";
+  $("sellerPhone").value = item.seller_phone || "";
+  $("itemName").value = item.item_name || "";
+  $("category").value = item.category || "";
+  $("price").value = item.price_ghs ?? "";
+  $("location").value = item.location || "";
+  $("description").value = item.description || "";
+  $("image1").value = item.image_1 || "";
+  $("image2").value = item.image_2 || "";
+  $("image3").value = item.image_3 || "";
+  $("editor").classList.remove("hidden");
+  $("editor").scrollIntoView({behavior:"smooth",block:"start"});
+}
+async function changeStatus(id, status) {
+  if (status === "removed" && !confirm("Remove this listing from the public marketplace?")) return;
+  await api("", {method:"PATCH", body:JSON.stringify({id,status})});
+  showMessage("Listing status updated.", true);
+  await loadListings();
+}
+async function deleteListing(id) {
+  if (!confirm("Permanently delete this listing? This cannot be undone.")) return;
+  await api("", {method:"DELETE", body:JSON.stringify({id})});
+  showMessage("Listing permanently deleted.", true);
+  await loadListings();
+}
+async function saveListing() {
+  const priceText = $("price").value.trim();
+  const body = {
+    id:$("editId").value,
+    seller_name:$("sellerName").value.trim(),
+    seller_phone:$("sellerPhone").value.trim(),
+    item_name:$("itemName").value.trim(),
+    category:$("category").value.trim(),
+    price_ghs:priceText === "" ? null : Number(priceText),
+    location:$("location").value.trim(),
+    description:$("description").value.trim(),
+    image_1:$("image1").value.trim(),
+    image_2:$("image2").value.trim(),
+    image_3:$("image3").value.trim()
+  };
+  $("saveBtn").disabled = true;
+  try {
+    await api("", {method:"PATCH",body:JSON.stringify(body)});
+    showMessage("Listing saved successfully.",true);
+    $("editor").classList.add("hidden");
+    await loadListings();
+  } catch(e) {
+    showMessage(e.message || "Could not save listing.");
+  } finally {
+    $("saveBtn").disabled = false;
+  }
+}
+$("connectBtn").addEventListener("click", connect);
+$("disconnectBtn").addEventListener("click", () => {
+  adminKey = "";
+  $("adminKey").value = "";
+  $("manager").classList.add("hidden");
+  $("editor").classList.add("hidden");
+  listings = [];
+  $("listingList").replaceChildren();
+  showMessage("Disconnected.", true);
+});
+$("refreshBtn").addEventListener("click", async () => {
+  try { await loadListings(); showMessage("Listings refreshed.", true); }
+  catch(e) { showMessage(e.message); }
+});
+$("statusFilter").addEventListener("change", async () => {
+  try { await loadListings(); showMessage("Listings loaded.", true); }
+  catch(e) { showMessage(e.message); }
+});
+$("listingList").addEventListener("click", async event => {
+  const btn = event.target.closest("button");
+  if (!btn) return;
+  try {
+    if (btn.dataset.edit) editListing(btn.dataset.edit);
+    if (btn.dataset.publish) await changeStatus(btn.dataset.publish,"published");
+    if (btn.dataset.remove) await changeStatus(btn.dataset.remove,"removed");
+    if (btn.dataset.delete) await deleteListing(btn.dataset.delete);
+  } catch(e) { showMessage(e.message || "Action failed."); }
+});
+$("saveBtn").addEventListener("click", saveListing);
+$("cancelEditBtn").addEventListener("click", () => $("editor").classList.add("hidden"));
+</script>
+</body>
+    </html>
+
