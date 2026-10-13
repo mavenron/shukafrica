@@ -805,18 +805,14 @@ productGrid.addEventListener("click", event => {
 
   const card = view.closest(".card");
 
-  const params = new URLSearchParams({
-    product: card.dataset.name || "",
-    price: card.dataset.price || "",
-    category: card.dataset.category || "",
-    location: card.dataset.location || "",
-    description: card.dataset.description || "",
-    seller: card.dataset.seller || "ShukAfrica Seller"
-  });
+  const listingId = card.dataset.listingId;
 
-  // This passes public product details to the existing product page.
-  window.location.href = "product.html?" + params.toString();
-});
+if (listingId) {
+  window.location.href =
+    "product.html?id=" + encodeURIComponent(listingId);
+} else {
+  alert("This is a sample product. Please test with a published marketplace listing.");
+}
 
 async function uploadPhoto(file) {
   const formData = new FormData();
