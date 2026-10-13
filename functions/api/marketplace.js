@@ -1,62 +1,132 @@
 function json(data, status = 200) {
-  return Response.json(data, {
+  return new Response(JSON.stringify(data), {
     status,
     headers: {
+      "Content-Type": "application/json; charset=utf-8",
       "Cache-Control": "no-store"
     }
   });
 }
 
-function clean(value, maxLength) {
-  if (typeof value !== "string") return "";
-  return value.trim().slice(0, maxLength);
+function authorised(request, env) {
+  const supplied = request.headers.get("X-Shuk-Admin-Key");
+  const expected = env.SHUK_ADMIN_KEY;
+
+  if (
+    !supplied ||
+    !expected ||
+    supplied.length !== expected.length
+  ) {
+    return false;
+  }
+
+  let difference = 0;
+
+  for (let i = 0; i < supplied.length; i++) {
+    difference |= supplied.charCodeAt(i) ^ expected.charCodeAt(i);
+  }
+
+  return difference === 0;
 }
 
-export async function onRequestGet({ env, request }) {
+function requireAdmin(request, env) {
+  return authorised(request, env)
+    ? null
+    : json({ success: false, error: "Unauthorised" }, 401);
+}
+
+function clean(value, max = 2000) {
+  if (typeof value !== "string") return "";
+  return value.trim().slice(0, max);
+}
+
+function validateListing(body) {
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return "A JSON object is required.";
+  }
+
+  for (const [key, max] of [
+    ["seller_name", 100],
+    ["seller_phone", 30],
+    ["item_name", 200],
+    ["category", 100],
+    ["location", 100],
+    ["description", 5000]
+  ]) {
+    if (!clean(body[key], max)) {
+      return key.replaceAll("_", " ") + " is required.";
+    }
+  }
+
+  if (!/^[0-9+()\-\s]{7,30}$/.test(body.seller_phone.trim())) {
+    return "Enter a valid seller phone number.";
+  }
+
+  if (
+    typeof body.price_ghs !== "number" ||
+    !Number.isFinite(body.price_ghs) ||
+    body.price_ghs < 0 ||
+    body.price_ghs > 1000000000
+  ) {
+    return "Price must be a valid non-negative number.";
+  }
+
+  for (const key of ["image_1", "image_2", "image_3"]) {
+    const value = body[key];
+
+    if (value === null || value === undefined || value === "") {
+      continue;
+    }
+
+    if (typeof value !== "string" || value.length > 2000) {
+      return key + " is invalid.";
+    }
+
+    try {
+      const url = new URL(value);
+
+      if (
+        url.protocol !== "https:" ||
+        url.hostname !== "media.shukafrica.com"
+      ) {
+        return key + " must be a ShukAfrica media URL.";
+      }
+    } catch {
+      return key + " must be a valid URL.";
+    }
+  }
+
+  return null;
+}
+
+const SELECT_FIELDS = `
+  id, seller_name, seller_phone, item_name, category,
+  price_ghs, location, description,
+  image_1, image_2, image_3,
+  status, created_at, updated_at
+`;
+
+export async function onRequestGet({ request, env }) {
+  const denied = requireAdmin(request, env);
+  if (denied) return denied;
+
   try {
     const url = new URL(request.url);
-    const category = clean(url.searchParams.get("category"), 100);
-    const search = clean(url.searchParams.get("search"), 100);
-    const location = clean(url.searchParams.get("location"), 100);
+    const status = url.searchParams.get("status");
 
     let sql = `
-      SELECT
-        id,
-        seller_name,
-        seller_phone,
-        item_name,
-        category,
-        price_ghs,
-        location,
-        description,
-        image_1,
-        image_2,
-        image_3,
-        status,
-        created_at,
-        updated_at
+      SELECT ${SELECT_FIELDS}
       FROM marketplace_listings
-      WHERE status = 'published'
     `;
 
     const params = [];
 
-    if (category) {
-      sql += " AND category = ?";
-      params.push(category);
+    if (status && ["pending", "published", "removed"].includes(status)) {
+      sql += " WHERE status = ?";
+      params.push(status);
     }
 
-    if (location) {
-      sql += " AND location LIKE ?";
-      params.push(`%${location}%`);
-    }
-
-    if (search) {
-      sql += " AND (item_name LIKE ? OR description LIKE ?)";
-      params.push(`%${search}%`, `%${search}%`);
-    }
-
-    sql += " ORDER BY created_at DESC LIMIT 100";
+    sql += " ORDER BY created_at DESC LIMIT 200";
 
     const result = await env.DB
       .prepare(sql)
@@ -67,7 +137,7 @@ export async function onRequestGet({ env, request }) {
       success: true,
       listings: result.results || []
     });
-  } catch (error) {
+  } catch {
     return json({
       success: false,
       error: "Unable to load marketplace listings."
@@ -75,115 +145,138 @@ export async function onRequestGet({ env, request }) {
   }
 }
 
-export async function onRequestPost({ env, request }) {
+export async function onRequestPatch({ request, env }) {
+  const denied = requireAdmin(request, env);
+  if (denied) return denied;
+
+  let body;
+
   try {
-    const contentType =
-      request.headers.get("Content-Type") || "";
-
-    if (!contentType.includes("application/json")) {
-      return json({
-        success: false,
-        error: "Please submit the listing as JSON."
-      }, 415);
-    }
-
     const raw = await request.text();
 
     if (raw.length > 30000) {
-      return json({
-        success: false,
-        error: "The listing submission is too large."
-      }, 413);
+      return json({ success: false, error: "Request is too large." }, 413);
     }
 
-    let body;
+    body = JSON.parse(raw);
+  } catch {
+    return json({ success: false, error: "Invalid JSON." }, 400);
+  }
 
-    try {
-      body = JSON.parse(raw);
-    } catch {
-      return json({
-        success: false,
-        error: "Invalid listing data."
-      }, 400);
-    }
+  if (!body || typeof body.id !== "string" || !body.id.trim()) {
+    return json({ success: false, error: "Listing ID is required." }, 400);
+  }
 
-    const sellerName = clean(body.seller_name, 100);
-    const sellerPhone = clean(body.seller_phone, 30);
-    const itemName = clean(body.item_name, 200);
-    const category = clean(body.category, 100);
-    const location = clean(body.location, 100);
-    const description = clean(body.description, 5000);
-    const price = body.price_ghs;
+  const id = body.id.trim();
 
+  try {
+    // Update only the listing status.
     if (
-      !sellerName ||
-      !sellerPhone ||
-      !itemName ||
-      !category ||
-      !location ||
-      !description
+      typeof body.status === "string" &&
+      ["pending", "published", "removed"].includes(body.status) &&
+      Object.keys(body).every(key => ["id", "status"].includes(key))
     ) {
+      const result = await env.DB.prepare(`
+        UPDATE marketplace_listings
+        SET status = ?, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `).bind(body.status, id).run();
+
+      if (!result.meta.changes) {
+        return json({ success: false, error: "Listing not found." }, 404);
+      }
+
       return json({
-        success: false,
-        error: "Please complete all required listing fields."
-      }, 400);
+        success: true,
+        message: "Listing status updated."
+      });
     }
 
-    if (!/^[0-9+()\-\s]{7,30}$/.test(sellerPhone)) {
-      return json({
-        success: false,
-        error: "Please provide a valid phone number."
-      }, 400);
+    // Edit listing details.
+    const problem = validateListing(body);
+
+    if (problem) {
+      return json({ success: false, error: problem }, 400);
     }
 
-    if (
-      typeof price !== "number" ||
-      !Number.isFinite(price) ||
-      price < 0 ||
-      price > 1000000000
-    ) {
-      return json({
-        success: false,
-        error: "Please provide a valid price."
-      }, 400);
-    }
-
-    const id = crypto.randomUUID();
-
-    await env.DB.prepare(`
-      INSERT INTO marketplace_listings (
-        id,
-        seller_name,
-        seller_phone,
-        item_name,
-        category,
-        price_ghs,
-        location,
-        description,
-        status
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+    const result = await env.DB.prepare(`
+      UPDATE marketplace_listings SET
+        seller_name = ?,
+        seller_phone = ?,
+        item_name = ?,
+        category = ?,
+        price_ghs = ?,
+        location = ?,
+        description = ?,
+        image_1 = ?,
+        image_2 = ?,
+        image_3 = ?,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
     `).bind(
-      id,
-      sellerName,
-      sellerPhone,
-      itemName,
-      category,
-      price,
-      location,
-      description
+      clean(body.seller_name, 100),
+      clean(body.seller_phone, 30),
+      clean(body.item_name, 200),
+      clean(body.category, 100),
+      body.price_ghs,
+      clean(body.location, 100),
+      clean(body.description, 5000),
+      clean(body.image_1, 2000) || null,
+      clean(body.image_2, 2000) || null,
+      clean(body.image_3, 2000) || null,
+      id
     ).run();
+
+    if (!result.meta.changes) {
+      return json({ success: false, error: "Listing not found." }, 404);
+    }
 
     return json({
       success: true,
-      message: "Listing submitted for review.",
-      id
-    }, 201);
-
-  } catch (error) {
+      message: "Listing updated."
+    });
+  } catch {
     return json({
       success: false,
-      error: "Unable to submit your listing."
+      error: "Unable to update the listing."
     }, 500);
   }
 }
+
+export async function onRequestDelete({ request, env }) {
+  const denied = requireAdmin(request, env);
+  if (denied) return denied;
+
+  let body;
+
+  try {
+    body = await request.json();
+  } catch {
+    return json({ success: false, error: "Invalid JSON." }, 400);
+  }
+
+  if (!body || typeof body.id !== "string" || !body.id.trim()) {
+    return json({ success: false, error: "Listing ID is required." }, 400);
+  }
+
+  try {
+    const result = await env.DB.prepare(
+      "DELETE FROM marketplace_listings WHERE id = ?"
+    ).bind(body.id.trim()).run();
+
+    if (!result.meta.changes) {
+      return json({ success: false, error: "Listing not found." }, 404);
+    }
+
+    return json({
+      success: true,
+      message: "Listing deleted."
+    });
+  } catch {
+    return json({
+      success: false,
+      error: "Unable to delete the listing."
+    }, 500);
+  }
+      }
+
