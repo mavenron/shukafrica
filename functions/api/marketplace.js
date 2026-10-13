@@ -1,1 +1,189 @@
+function json(data, status = 200) {
+  return Response.json(data, {
+    status,
+    headers: {
+      "Cache-Control": "no-store"
+    }
+  });
+}
 
+function clean(value, maxLength) {
+  if (typeof value !== "string") return "";
+  return value.trim().slice(0, maxLength);
+}
+
+export async function onRequestGet({ env, request }) {
+  try {
+    const url = new URL(request.url);
+    const category = clean(url.searchParams.get("category"), 100);
+    const search = clean(url.searchParams.get("search"), 100);
+    const location = clean(url.searchParams.get("location"), 100);
+
+    let sql = `
+      SELECT
+        id,
+        seller_name,
+        seller_phone,
+        item_name,
+        category,
+        price_ghs,
+        location,
+        description,
+        image_1,
+        image_2,
+        image_3,
+        status,
+        created_at,
+        updated_at
+      FROM marketplace_listings
+      WHERE status = 'published'
+    `;
+
+    const params = [];
+
+    if (category) {
+      sql += " AND category = ?";
+      params.push(category);
+    }
+
+    if (location) {
+      sql += " AND location LIKE ?";
+      params.push(`%${location}%`);
+    }
+
+    if (search) {
+      sql += " AND (item_name LIKE ? OR description LIKE ?)";
+      params.push(`%${search}%`, `%${search}%`);
+    }
+
+    sql += " ORDER BY created_at DESC LIMIT 100";
+
+    const result = await env.DB
+      .prepare(sql)
+      .bind(...params)
+      .all();
+
+    return json({
+      success: true,
+      listings: result.results || []
+    });
+  } catch (error) {
+    return json({
+      success: false,
+      error: "Unable to load marketplace listings."
+    }, 500);
+  }
+}
+
+export async function onRequestPost({ env, request }) {
+  try {
+    const contentType =
+      request.headers.get("Content-Type") || "";
+
+    if (!contentType.includes("application/json")) {
+      return json({
+        success: false,
+        error: "Please submit the listing as JSON."
+      }, 415);
+    }
+
+    const raw = await request.text();
+
+    if (raw.length > 30000) {
+      return json({
+        success: false,
+        error: "The listing submission is too large."
+      }, 413);
+    }
+
+    let body;
+
+    try {
+      body = JSON.parse(raw);
+    } catch {
+      return json({
+        success: false,
+        error: "Invalid listing data."
+      }, 400);
+    }
+
+    const sellerName = clean(body.seller_name, 100);
+    const sellerPhone = clean(body.seller_phone, 30);
+    const itemName = clean(body.item_name, 200);
+    const category = clean(body.category, 100);
+    const location = clean(body.location, 100);
+    const description = clean(body.description, 5000);
+    const price = body.price_ghs;
+
+    if (
+      !sellerName ||
+      !sellerPhone ||
+      !itemName ||
+      !category ||
+      !location ||
+      !description
+    ) {
+      return json({
+        success: false,
+        error: "Please complete all required listing fields."
+      }, 400);
+    }
+
+    if (!/^[0-9+()\-\s]{7,30}$/.test(sellerPhone)) {
+      return json({
+        success: false,
+        error: "Please provide a valid phone number."
+      }, 400);
+    }
+
+    if (
+      typeof price !== "number" ||
+      !Number.isFinite(price) ||
+      price < 0 ||
+      price > 1000000000
+    ) {
+      return json({
+        success: false,
+        error: "Please provide a valid price."
+      }, 400);
+    }
+
+    const id = crypto.randomUUID();
+
+    await env.DB.prepare(`
+      INSERT INTO marketplace_listings (
+        id,
+        seller_name,
+        seller_phone,
+        item_name,
+        category,
+        price_ghs,
+        location,
+        description,
+        status
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+    `).bind(
+      id,
+      sellerName,
+      sellerPhone,
+      itemName,
+      category,
+      price,
+      location,
+      description
+    ).run();
+
+    return json({
+      success: true,
+      message: "Listing submitted for review.",
+      id
+    }, 201);
+
+  } catch (error) {
+    return json({
+      success: false,
+      error: "Unable to submit your listing."
+    }, 500);
+  }
+}
