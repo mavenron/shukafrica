@@ -1,358 +1,388 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Details — ShukAfrica</title>
 
-  <title>Product Details — ShukAfrica</title>
-
-  <style>
-    :root{
-      --bg:#0b0d0c;
-      --panel:#151918;
-      --panel2:#1c211f;
-      --gold:#d7a85b;
-      --text:#f5f1e8;
-      --muted:#9da39f;
-      --border:#2c332f;
-      --green:#1f6b4f;
-    }
-
-    *{
-      box-sizing:border-box;
-      margin:0;
-      padding:0;
-    }
-
-    body{
-      font-family:Arial, sans-serif;
-      background:var(--bg);
-      color:var(--text);
-      line-height:1.6;
-    }
-
-    a{
-      color:inherit;
-      text-decoration:none;
-    }
-
-    .wrap{
-      width:min(1100px,92%);
-      margin:auto;
-    }
-
-    header{
-      padding:20px 0;
-      border-bottom:1px solid var(--border);
-    }
-
-    .header-inner{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:15px;
-    }
-
-    .logo{
-      font-size:22px;
-      font-weight:800;
-      letter-spacing:1px;
-      color:var(--gold);
-    }
-
-    .back{
-      color:var(--muted);
-      font-size:14px;
-    }
-
-    .back:hover{
-      color:var(--gold);
-    }
-
-    main{
-      padding:35px 0 60px;
-    }
-.product-layout{
-  max-width:800px;
-  margin:auto;
+<style>
+:root {
+  --bg: #0b0d0c;
+  --panel: #151918;
+  --panel2: #1c211f;
+  --gold: #d7a85b;
+  --text: #f5f1e8;
+  --muted: #9da39f;
+  --border: #2c332f;
 }
-    .gallery{
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:18px;
-      overflow:hidden;
-    }
 
-    .product-info{
-      padding-top:5px;
-    }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-    .badge{
-      display:inline-block;
-      background:rgba(215,168,91,.12);
-      color:var(--gold);
-      border:1px solid rgba(215,168,91,.3);
-      padding:6px 11px;
-      border-radius:20px;
-      font-size:12px;
-      margin-bottom:15px;
-    }
+body {
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
 
-    h1{
-      font-size:34px;
-      line-height:1.2;
-      margin-bottom:15px;
-    }
+a { color: inherit; text-decoration: none; }
 
-    .price{
-      color:var(--gold);
-      font-size:30px;
-      font-weight:800;
-      margin-bottom:12px;
-    }
+.wrap { width: min(1000px, 92%); margin: auto; }
 
-    .location{
-      color:var(--muted);
-      margin-bottom:25px;
-    }
+header {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border);
+}
 
-    .description-box,
-    .seller-box{
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:16px;
-      padding:20px;
-      margin-top:20px;
-    }
+.header-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
 
-    .section-title{
-      font-size:17px;
-      margin-bottom:10px;
-    }
+.logo { font-size: 22px; font-weight: 800; color: var(--gold); }
+.back { color: var(--muted); font-size: 14px; }
 
-    .description{
-      color:#d2d6d3;
-      white-space:pre-wrap;
-    }
+main { padding: 28px 0 60px; }
 
-    .seller-name{
-      font-size:18px;
-      font-weight:700;
-      margin-bottom:5px;
-    }
+.product-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  max-width: 800px;
+  margin: auto;
+}
 
-    .seller-location{
-      color:var(--muted);
-      margin-bottom:15px;
-    }
+.gallery {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+}
 
-    .actions{
-      display:flex;
-      gap:12px;
-      margin-top:25px;
-    }
+.main-image {
+  width: 100%;
+  height: min(75vw, 480px);
+  min-height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--panel2);
+}
 
-    .btn{
-      flex:1;
-      border:0;
-      border-radius:12px;
-      padding:14px 18px;
-      font-size:15px;
-      font-weight:700;
-      cursor:pointer;
-      text-align:center;
-    }
+.main-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
 
-    .contact{
-      background:var(--gold);
-      color:#111;
-    }
+.placeholder {
+  color: var(--muted);
+  font-size: 16px;
+}
 
-    .save{
-      background:var(--panel2);
-      color:var(--text);
-      border:1px solid var(--border);
-    }
+.thumbnails {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  overflow-x: auto;
+}
 
-    .notice{
-      margin-top:25px;
-      color:var(--muted);
-      font-size:13px;
-      text-align:center;
-    }
+.thumbnail {
+  width: 76px;
+  height: 76px;
+  flex: 0 0 76px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--panel2);
+  cursor: pointer;
+}
 
-      h1{
-        font-size:28px;
-      }
+.thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
 
-      .price{
-        font-size:26px;
-      }
-    }
-  </style>
+.product-info { padding-top: 4px; }
+
+.badge {
+  display: inline-block;
+  background: rgba(215,168,91,.12);
+  color: var(--gold);
+  border: 1px solid rgba(215,168,91,.3);
+  padding: 6px 11px;
+  border-radius: 20px;
+  font-size: 12px;
+  margin-bottom: 15px;
+}
+
+h1 { font-size: clamp(27px, 5vw, 36px); line-height: 1.2; margin-bottom: 15px; }
+
+.price { color: var(--gold); font-size: 30px; font-weight: 800; margin-bottom: 12px; }
+
+.location { color: var(--muted); margin-bottom: 22px; }
+
+.description-box, .seller-box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  margin-top: 18px;
+}
+
+.section-title { font-size: 17px; margin-bottom: 10px; }
+.description { color: #d2d6d3; white-space: pre-wrap; overflow-wrap: anywhere; }
+.seller-name { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+.seller-location { color: var(--muted); margin-bottom: 10px; }
+.seller-phone { color: var(--muted); overflow-wrap: anywhere; }
+
+.actions { display: flex; gap: 12px; margin-top: 24px; }
+
+.btn {
+  flex: 1;
+  border: 0;
+  border-radius: 12px;
+  padding: 14px 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+}
+
+.contact { background: var(--gold); color: #111; }
+.save { background: var(--panel2); color: var(--text); border: 1px solid var(--border); }
+.notice { margin-top: 20px; color: var(--muted); font-size: 13px; text-align: center; }
+.error { padding: 20px; color: #ffb8b3; text-align: center; }
+
+@media (max-width: 480px) {
+  .header-inner { align-items: flex-start; flex-direction: column; }
+  .actions { flex-direction: column; }
+}
+</style>
 </head>
 
 <body>
-
 <header>
   <div class="wrap header-inner">
-
-    <a href="index.html" class="logo">
-      SHUKAFRICA
-    </a>
-
-    <a href="buy-and-sell.html" class="back">
-      ← Back to Buy & Sell
-    </a>
-
+    <a href="index.html" class="logo">SHUKAFRICA</a>
+    <a href="buy-and-sell.html" class="back">← Back to Buy &amp; Sell</a>
   </div>
 </header>
 
-<main>
+<main class="wrap">
+  <div class="product-layout">
+    <section class="gallery" aria-label="Product photos">
+      <div class="main-image" id="mainImage">
+        <span class="placeholder">Loading product photos…</span>
+      </div>
+      <div class="thumbnails" id="thumbnails"></div>
+    </section>
 
-  <div class="wrap">
+    <section class="product-info">
+      <span class="badge" id="productCategory">Loading…</span>
+      <h1 id="productName">Loading product…</h1>
+      <div class="price" id="productPrice"></div>
+      <div class="location" id="productLocation"></div>
 
-    <div class="product-layout">
-
-      <!-- PRODUCT INFORMATION -->
-
-      <div class="product-info">
-
-        <span class="badge" id="productCategory">
-  Electronics
-        </span>
-          
-      
-
-        <h1 id="productName">
-  Samsung Galaxy A55
-</h1>
-          
-    
-
-        <div class="price" id="productPrice">
-  GH₵ 2,800
-</div>
-          
-        
-
-        
-       <div class="location" id="productLocation">
-  📍 Accra
-</div> 
-        
-
-
-        <!-- DESCRIPTION -->
-
-        <div class="description-box">
-
-          <h2 class="section-title">
-            Description
-          </h2>
-
-          <p class="description" id="productDescription">
-  Samsung Galaxy A55 in good condition.
-  Everything works properly.
-  Available for inspection in Accra.
-</p>
-            
-
-          
-          
-
-        </div>
-
-
-        <!-- SELLER -->
-
-        <div class="seller-box">
-
-          <h2 class="section-title">
-            Seller
-          </h2>
-
-          <div class="seller-name">
-            ShukAfrica Seller
-          </div>
-
-          <div class="seller-location">
-            📍 Accra
-          </div>
-
-        </div>
-
-
-        <!-- ACTIONS -->
-
-        <div class="actions">
-
-          <button class="btn save">
-            ♡ Save
-          </button>
-
-          <button class="btn contact">
-            Contact Seller
-          </button>
-
-        </div>
-
-        <p class="notice">
-          Seller contact and verification will be connected
-          when the ShukAfrica marketplace database is added.
-        </p>
-
+      <div class="description-box">
+        <h2 class="section-title">Description</h2>
+        <p class="description" id="productDescription"></p>
       </div>
 
-    </div>
+      <div class="seller-box">
+        <h2 class="section-title">Seller</h2>
+        <div class="seller-name" id="sellerName">Loading seller…</div>
+        <div class="seller-location" id="sellerLocation"></div>
+        <div class="seller-phone" id="sellerPhone"></div>
+      </div>
 
+      <div class="actions">
+        <button class="btn save" id="saveButton" type="button">♡ Save</button>
+        <button class="btn contact" id="contactButton" type="button">Contact Seller</button>
+      </div>
+
+      <p class="notice" id="notice">Loading published listing details…</p>
+    </section>
   </div>
-
 </main>
+
 <script>
-  
-  
+const params = new URLSearchParams(window.location.search);
+const listingId = params.get("id");
 
-  
-    const params = new URLSearchParams(window.location.search);
+const mainImage = document.getElementById("mainImage");
+const thumbnails = document.getElementById("thumbnails");
+const notice = document.getElementById("notice");
+const contactButton = document.getElementById("contactButton");
+const saveButton = document.getElementById("saveButton");
 
-const productName = params.get("product");
-const productPrice = params.get("price");
-const productCategory = params.get("category");
-const productLocation = params.get("location");
-  const productDescription = params.get("description");
-  const productSeller = params.get("seller");
+let sellerPhone = "";
+let currentListingId = "";
 
-if (productName) {
-  document.getElementById("productName").textContent = productName;
+function setText(id, value) {
+  document.getElementById(id).textContent = value || "";
 }
 
-if (productPrice) {
-  document.getElementById("productPrice").textContent =
-    "GH₵ " + Number(productPrice).toLocaleString();
+function formatPrice(value) {
+  return "GH₵ " + Number(value).toLocaleString("en-GH", {
+    maximumFractionDigits: 2
+  });
 }
 
-if (productCategory) {
-  document.getElementById("productCategory").textContent =
-    productCategory;
-}
+function showImages(listing) {
+  const urls = [listing.image_1, listing.image_2, listing.image_3]
+    .filter(url => {
+      if (typeof url !== "string") return false;
+      try {
+        const parsed = new URL(url);
+        return parsed.protocol === "https:" &&
+          parsed.hostname === "media.shukafrica.com";
+      } catch {
+        return false;
+      }
+    });
 
-if (productLocation) {
-  document.getElementById("productLocation").textContent =
-    "📍 " + productLocation;
-}
-  if (productDescription) {
-  document.getElementById("productDescription").textContent =
-    productDescription;
+  mainImage.replaceChildren();
+  thumbnails.replaceChildren();
+
+  if (!urls.length) {
+    mainImage.innerHTML = '<span class="placeholder">No product photos available</span>';
+    return;
   }
-  if (productSeller) {
-  document.querySelector(".seller-name").textContent =
-    productSeller;
+
+  function selectImage(url, alt) {
+    mainImage.replaceChildren();
+    const img = document.createElement("img");
+    img.src = url;
+    img.alt = alt;
+    img.onerror = () => {
+      mainImage.innerHTML = '<span class="placeholder">Photo could not be loaded</span>';
+    };
+    mainImage.appendChild(img);
   }
-  
+
+  selectImage(urls[0], listing.item_name || "Product photo");
+
+  urls.forEach((url, index) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "thumbnail";
+    button.setAttribute("aria-label", "View photo " + (index + 1));
+
+    const img = document.createElement("img");
+    img.src = url;
+    img.alt = "Product thumbnail " + (index + 1);
+
+    button.appendChild(img);
+    button.addEventListener("click", () => {
+      selectImage(url, (listing.item_name || "Product") + " photo " + (index + 1));
+    });
+    thumbnails.appendChild(button);
+  });
+}
+
+async function loadListing() {
+  if (!listingId) {
+    notice.textContent = "This link has no listing ID. Return to Buy & Sell and open the product again.";
+    mainImage.innerHTML = '<span class="placeholder">Product not selected</span>';
+    setText("productName", "Product not selected");
+    setText("sellerName", "");
+    contactButton.disabled = true;
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      "/api/marketplace-listing?id=" + encodeURIComponent(listingId),
+      { cache: "no-store" }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success || !data.listing) {
+      throw new Error(data.error || "Listing unavailable.");
+    }
+
+    const item = data.listing;
+    currentListingId = item.id;
+    sellerPhone = item.seller_phone || "";
+
+    setText("productCategory", item.category);
+    setText("productName", item.item_name);
+    setText("productPrice", formatPrice(item.price_ghs));
+    setText("productLocation", "📍 " + (item.location || ""));
+    setText("productDescription", item.description);
+    setText("sellerName", item.seller_name);
+    setText("sellerLocation", "📍 " + (item.location || ""));
+    setText("sellerPhone", sellerPhone ? "Phone: " + sellerPhone : "Seller contact unavailable");
+
+    showImages(item);
+    notice.textContent = "You're viewing a published ShukAfrica listing.";
+    contactButton.disabled = !sellerPhone;
+  } catch (error) {
+    console.error(error);
+    setText("productName", "Listing unavailable");
+    notice.textContent = error.message || "Unable to load this product.";
+    mainImage.innerHTML = '<span class="placeholder">Product photos unavailable</span>';
+    contactButton.disabled = true;
+  }
+}
+
+contactButton.addEventListener("click", () => {
+  const digits = sellerPhone.replace(/\D/g, "");
+  if (!digits) {
+    alert("The seller has not provided a contact number.");
+    return;
+  }
+
+  // Ghana numbers are converted to international format for WhatsApp.
+  let international = digits;
+  if (international.startsWith("0")) {
+    international = "233" + international.slice(1);
+  }
+
+  const message = "Hello, I'm interested in your ShukAfrica listing: " +
+    document.getElementById("productName").textContent +
+    (currentListingId ? " (Reference: " + currentListingId + ")" : "");
+
+  window.open(
+    "https://wa.me/" + international + "?text=" + encodeURIComponent(message),
+    "_blank",
+    "noopener,noreferrer"
+  );
+});
+
+saveButton.addEventListener("click", () => {
+  if (!currentListingId) return;
+
+  const key = "shukafricaSavedMarketplaceListings";
+  let saved = [];
+
+  try {
+    saved = JSON.parse(localStorage.getItem(key) || "[]");
+    if (!Array.isArray(saved)) saved = [];
+  } catch {
+    saved = [];
+  }
+
+  const index = saved.indexOf(currentListingId);
+
+  if (index >= 0) {
+    saved.splice(index, 1);
+    saveButton.textContent = "♡ Save";
+  } else {
+    saved.push(currentListingId);
+    saveButton.textContent = "♥ Saved";
+  }
+
+  localStorage.setItem(key, JSON.stringify(saved));
+});
+
+loadListing();
 </script>
-
 </body>
 </html>
-
-          
