@@ -637,214 +637,342 @@ data-seller="ShukAfrica Seller">
 <script>
 
 const search = document.getElementById("search");
-
 const locationFilter = document.getElementById("location");
-const price = document.getElementById("price");
-
-const savedListings = localStorage.getItem("shukAfricaMarketListings");
-
-if (savedListings) {
-  document.getElementById("productGrid").innerHTML = savedListings;
-}
-
-const cards = [...document.querySelectorAll(".card")];
+const priceFilter = document.getElementById("price");
+const productGrid = document.getElementById("productGrid");
 const count = document.getElementById("count");
 const empty = document.getElementById("empty");
+const sellerForm = document.getElementById("sellerForm");
 
-function filterProducts(){
+let cards = [];
+let publishedListings = [];
+let submitting = false;
 
-  const searchText = search.value.toLowerCase();
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
+}
+
+function money(value) {
+  return Number(value).toLocaleString("en-GH", {
+    maximumFractionDigits: 2
+  });
+}
+
+function refreshCards() {
+  cards = [...productGrid.querySelectorAll(".card")];
+}
+
+function renderPublishedListing(item) {
+  const card = document.createElement("article");
+  card.className = "card";
+  card.dataset.name = item.item_name || "";
+  card.dataset.category = item.category || "";
+  card.dataset.location = item.location || "";
+  card.dataset.price = String(item.price_ghs ?? 0);
+  card.dataset.description = item.description || "";
+  card.dataset.seller = "ShukAfrica Seller";
+  card.dataset.listingId = item.id || "";
+
+  const image = [item.image_1, item.image_2, item.image_3]
+    .find(url => typeof url === "string" &&
+      url.startsWith("https://media.shukafrica.com/"));
+
+  const photo = document.createElement("div");
+  photo.className = "photo";
+
+  if (image) {
+    const img = document.createElement("img");
+    img.src = image;
+    img.alt = item.item_name || "Product photo";
+    img.loading = "lazy";
+    img.style.width = "100%";
+    img.style.height = "180px";
+    img.style.objectFit = "cover";
+    photo.appendChild(img);
+  } else {
+    photo.textContent = "📦";
+  }
+
+  const info = document.createElement("div");
+  info.className = "info";
+  info.innerHTML = `
+    <div class="category">${escapeHTML(item.category)}</div>
+    <h3>${escapeHTML(item.item_name)}</h3>
+    <div class="price">GH₵ ${money(item.price_ghs)}</div>
+    <div class="location">📍 ${escapeHTML(item.location)}</div>
+    <div class="card-actions">
+      <button class="view" type="button">View Product</button>
+      <button class="heart" type="button" aria-label="Save listing">♡</button>
+    </div>
+  `;
+
+  card.append(photo, info);
+  productGrid.appendChild(card);
+}
+
+async function loadPublishedListings() {
+  try {
+    const response = await fetch("/api/marketplace", {
+      headers: { "Accept": "application/json" },
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error("Could not load published listings.");
+    }
+
+    const data = await response.json();
+
+    if (!data.success || !Array.isArray(data.listings)) {
+      throw new Error("Invalid marketplace response.");
+    }
+
+    publishedListings = data.listings;
+
+    // Remove only cards previously loaded from the database.
+    productGrid.querySelectorAll("[data-listing-id]").forEach(card => {
+      card.remove();
+    });
+
+    publishedListings.forEach(renderPublishedListing);
+    refreshCards();
+    filterProducts();
+  } catch (error) {
+    console.error("Marketplace loading failed:", error);
+    refreshCards();
+    filterProducts();
+  }
+}
+
+function filterProducts() {
+  const searchText = search.value.trim().toLowerCase();
   const selectedLocation = locationFilter.value;
-  const selectedPrice = price.value;
+  const selectedPrice = priceFilter.value;
 
   let visible = 0;
 
   cards.forEach(card => {
-
-    const name = card.dataset.name.toLowerCase();
-    const cardLocation = card.dataset.location;
-    const cardPrice = Number(card.dataset.price);
+    const name = (card.dataset.name || "").toLowerCase();
+    const description = (card.dataset.description || "").toLowerCase();
+    const cardLocation = card.dataset.location || "";
+    const cardPrice = Number(card.dataset.price || 0);
 
     const matchesSearch =
-      name.includes(searchText);
+      name.includes(searchText) ||
+      description.includes(searchText);
 
     const matchesLocation =
       selectedLocation === "all" ||
-      cardLocation === selectedLocation;
+      cardLocation.toLowerCase().includes(selectedLocation.toLowerCase());
 
     const matchesPrice =
       selectedPrice === "all" ||
       cardPrice <= Number(selectedPrice);
 
-    const show =
-  matchesSearch &&
-  matchesLocation &&
-  matchesPrice;
+    const show = matchesSearch && matchesLocation && matchesPrice;
+    card.style.display = show ? "" : "none";
 
-    card.style.display = show ? "" : "block";
-
-    if(show){
-      visible++;
-    }else{
-      card.style.display = "none";
-    }
-
+    if (show) visible++;
   });
 
   count.textContent =
     visible + (visible === 1 ? " product" : " products");
 
-  empty.style.display =
-    visible === 0 ? "block" : "none";
+  empty.style.display = visible === 0 ? "block" : "none";
 }
 
 search.addEventListener("input", filterProducts);
-
 locationFilter.addEventListener("change", filterProducts);
-price.addEventListener("change", filterProducts);
+priceFilter.addEventListener("change", filterProducts);
 
+productGrid.addEventListener("click", event => {
+  const heart = event.target.closest(".heart");
 
-document.querySelectorAll(".heart").forEach(button => {
-
-  button.addEventListener("click", () => {
-
-    button.classList.toggle("saved");
-
-    button.textContent =
-      button.classList.contains("saved") ? "♥" : "♡";
-
-  });
-
-});
-
-
-document.querySelectorAll(".view").forEach(button => {
-
-  button.addEventListener("click", () => {
-
-    const card = button.closest(".card");
-    const name = card.dataset.name;
-
-    const price = card.dataset.price;
-const category = card.dataset.category;
-const location = card.dataset.location;
-    const description = card.dataset.description;
-const seller = card.dataset.seller;
-
-const params = new URLSearchParams({
-  product: name,
-  price: price,
-  category: category,
-  location: location,
-  description: description,
-  seller: seller
-});
-
-window.location.href = "product.html?" + params.toString();
-  });
-
-});
-
-
-document.getElementById("sellerForm").addEventListener("submit", function(event) {
-  event.preventDefault();
-
-  const seller = document.getElementById("sellerName").value;
-const productName = document.getElementById("sellerProductName").value;
-  const price = document.getElementById("sellerPrice").value;
-  const category = document.getElementById("sellerCategory").value;
-  const location = document.getElementById("sellerLocation").value;
-  const phone = document.getElementById("sellerPhone").value;
-  const description = document.getElementById("sellerDescription").value;
-  
-const photos = document.getElementById("sellerPhotos").files;
-
-if (photos.length > 5) {
-  alert("You can upload a maximum of 5 photos.");
-  return;
-}
-
-for (const photo of photos) {
-  if (photo.size > 2 * 1024 * 1024) {
-    alert("Each photo must be 2 MB or smaller.");
+  if (heart) {
+    heart.classList.toggle("saved");
+    heart.textContent = heart.classList.contains("saved") ? "♥" : "♡";
     return;
   }
-}
-  const productGrid = document.getElementById("productGrid");
 
-  const newCard = document.createElement("article");
-  newCard.className = "card";
-if (photos.length > 0) {
-  const imageURL = URL.createObjectURL(photos[0]);
+  const view = event.target.closest(".view");
+  if (!view) return;
 
-  const image = document.createElement("img");
-  image.src = imageURL;
-  image.alt = productName;
-  image.style.width = "100%";
-  image.style.height = "220px";
-  image.style.objectFit = "cover";
-  image.style.borderRadius = "14px 14px 0 0";
-
-  newCard.appendChild(image);
-}
-  
-
-  newCard.setAttribute("data-category", category.toLowerCase());
-newCard.setAttribute("data-location", location);
-newCard.setAttribute("data-price", price);
-newCard.setAttribute("data-seller", seller);
-  
-  
-
-  newCard.innerHTML = `
-    <div class="card-body">
-      <span class="badge">${category}</span>
-
-      <h3>${productName}</h3>
-
-      <div class="price">GH₵ ${Number(price).toLocaleString()}</div>
-
-      <p>📍 ${location}</p>
-
-      <p>${description}</p>
-<button class="btn view" type="button" style="display:block;">
-  View Product
-</button> 
-  
-
-      <a
-        class="btn buy"
-        href="https://wa.me/${phone.replace(/[^0-9]/g, "")}"
-        target="_blank"
-      >
-        WhatsApp Seller
-      </a>
-    </div>
-  `;
-
-  productGrid.prepend(newCard);
-
-localStorage.setItem("shukAfricaMarketListings", productGrid.innerHTML);
-
-newCard.querySelector(".view").addEventListener("click", function() {
+  const card = view.closest(".card");
 
   const params = new URLSearchParams({
-    product: productName,
-    price: price,
-    category: category,
-    location: location,
-    description: description,
-    seller: seller
+    product: card.dataset.name || "",
+    price: card.dataset.price || "",
+    category: card.dataset.category || "",
+    location: card.dataset.location || "",
+    description: card.dataset.description || "",
+    seller: card.dataset.seller || "ShukAfrica Seller"
   });
 
+  // This passes public product details to the existing product page.
   window.location.href = "product.html?" + params.toString();
-
 });
 
-  alert("Your product has been listed successfully!");
+async function uploadPhoto(file) {
+  const formData = new FormData();
+  formData.append("file", file);
 
-  this.reset();
+  const response = await fetch("/api/marketplace-upload", {
+    method: "POST",
+    body: formData
+  });
+
+  let data;
+
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error("The image upload returned an invalid response.");
+  }
+
+  if (!response.ok || !data.success || !data.url) {
+    throw new Error(data.error || "Image upload failed.");
+  }
+
+  const imageURL = new URL(data.url);
+
+  if (
+    imageURL.protocol !== "https:" ||
+    imageURL.hostname !== "media.shukafrica.com"
+  ) {
+    throw new Error("The server returned an unexpected image URL.");
+  }
+
+  return data.url;
+}
+
+sellerForm.addEventListener("submit", async event => {
+  event.preventDefault();
+
+  if (submitting) return;
+
+  const sellerName = document.getElementById("sellerName").value.trim();
+  const itemName = document.getElementById("sellerProductName").value.trim();
+  const priceValue = document.getElementById("sellerPrice").value;
+  const category = document.getElementById("sellerCategory").value;
+  const location = document.getElementById("sellerLocation").value.trim();
+  const phone = document.getElementById("sellerPhone").value.trim();
+  const description = document.getElementById("sellerDescription").value.trim();
+  const photoInput = document.getElementById("sellerPhotos");
+  const photos = [...photoInput.files];
+
+  const price = Number(priceValue);
+
+  if (
+    !sellerName || !itemName || !category ||
+    !location || !phone || !description
+  ) {
+    alert("Please complete all required fields.");
+    return;
+  }
+
+  if (!Number.isFinite(price) || price < 0) {
+    alert("Please enter a valid price.");
+    return;
+  }
+
+  if (!/^[0-9+()\-\s]{7,30}$/.test(phone)) {
+    alert("Please enter a valid phone number.");
+    return;
+  }
+
+  if (photos.length > 3) {
+    alert("You can upload a maximum of 3 photos.");
+    return;
+  }
+
+  for (const photo of photos) {
+    if (photo.size < 1 || photo.size > 2 * 1024 * 1024) {
+      alert("Each photo must be no larger than 2 MB.");
+      return;
+    }
+
+    if (!["image/jpeg", "image/png", "image/webp"].includes(photo.type)) {
+      alert("Please use JPG, PNG or WebP photos.");
+      return;
+    }
+  }
+
+  const submitButton = sellerForm.querySelector('button[type="submit"]');
+  submitting = true;
+  submitButton.disabled = true;
+  submitButton.textContent = "Submitting...";
+
+  try {
+    const imageURLs = [];
+
+    for (const photo of photos) {
+      imageURLs.push(await uploadPhoto(photo));
+    }
+
+    const listing = {
+      seller_name: sellerName,
+      seller_phone: phone,
+      item_name: itemName,
+      category,
+      price_ghs: price,
+      location,
+      description,
+      image_1: imageURLs[0] || null,
+      image_2: imageURLs[1] || null,
+      image_3: imageURLs[2] || null
+    };
+
+    const response = await fetch("/api/marketplace", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify(listing)
+    });
+
+    let data;
+
+    try {
+      data = await response.json();
+    } catch {
+      throw new Error("The server returned an invalid response.");
+    }
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || "The listing could not be submitted.");
+    }
+
+    sellerForm.reset();
+
+    alert(
+      "Your listing has been submitted for review. " +
+      "It will appear publicly after the ShukAfrica team approves it."
+    );
+  } catch (error) {
+    console.error("Listing submission failed:", error);
+
+    alert(
+      error.message ||
+      "We couldn't submit your listing. Please try again."
+    );
+  } finally {
+    submitting = false;
+    submitButton.disabled = false;
+    submitButton.textContent = "＋ List Product";
+  }
 });
+
+refreshCards();
+filterProducts();
+loadPublishedListings();
+  
   
 
 </script>
