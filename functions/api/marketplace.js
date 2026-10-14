@@ -13,6 +13,42 @@ function clean(value, maxLength = 2000) {
   return value.trim().slice(0, maxLength);
 }
 
+async function getAuthenticatedSeller(request, env) {
+  const cookie = request.headers.get("Cookie") || "";
+  const match = cookie.match(
+    /(?:^|;\s*)shuk_seller_session=([^;]+)/
+  );
+  const token = match ? match[1] : "";
+
+  if (!token || token.length > 200 || !env.DB) {
+    return null;
+  }
+
+  const bytes = new TextEncoder().encode(token);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  const tokenHash = Array.from(new Uint8Array(digest))
+    .map(byte => byte.toString(16).padStart(2, "0"))
+    .join("");
+
+  const session = await env.DB.prepare(`
+    SELECT phone, expires_at
+    FROM seller_sessions
+    WHERE token_hash = ?
+    LIMIT 1
+  `).bind(tokenHash).first();
+
+  if (
+    !session ||
+    !session.phone ||
+    !session.expires_at ||
+    Date.parse(session.expires_at) <= Date.now()
+  ) {
+    return null;
+  }
+
+  return session;
+}
+
 function validImageUrl(value) {
   if (value == null || value === "") return true;
 
