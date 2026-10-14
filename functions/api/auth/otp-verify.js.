@@ -5,17 +5,20 @@ const ALLOWED_ORIGINS = new Set([
 ]);
 
 const WINDOW_SECONDS = 15 * 60;
+const SESSION_SECONDS = 7 * 24 * 60 * 60;
 
-function json(data, status, origin) {
+function json(data, status, origin, extraHeaders = {}) {
   const headers = {
     "Content-Type": "application/json; charset=utf-8",
     "Cache-Control": "no-store",
-    "X-Content-Type-Options": "nosniff"
+    "X-Content-Type-Options": "nosniff",
+    ...extraHeaders
   };
 
   if (origin && ALLOWED_ORIGINS.has(origin)) {
     headers["Access-Control-Allow-Origin"] = origin;
     headers["Vary"] = "Origin";
+    headers["Access-Control-Allow-Credentials"] = "true";
   }
 
   return new Response(JSON.stringify(data), { status, headers });
@@ -28,6 +31,15 @@ async function hashKey(value) {
   return Array.from(new Uint8Array(digest))
     .map(byte => byte.toString(16).padStart(2, "0"))
     .join("");
+}
+
+function randomToken() {
+  const bytes = crypto.getRandomValues(new Uint8Array(32));
+
+  return btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
 }
 
 async function consumeLimit(db, key, limit, now) {
@@ -107,16 +119,12 @@ export async function onRequestPost({ request, env }) {
 
     if (record.verified === 1) {
       return json({
-        success: true,
-        verified: true,
-        message: "This phone number has already been verified."
-      }, 200, origin);
+        error: "This code has already been used. Request a new code."
+      }, 409, origin);
     }
 
     if (Date.parse(record.expires_at) <= Date.now()) {
       return json({
-        success: false,
-        verified: false,
         error: "This code has expired. Request a new code."
       }, 400, origin);
     }
@@ -124,14 +132,7 @@ export async function onRequestPost({ request, env }) {
     const now = Math.floor(Date.now() / 1000);
     const attemptKey = await hashKey("verify:" + otpId);
 
-    const allowed = await consumeLimit(
-      env.DB,
-      attemptKey,
-      5,
-      now
-    );
-
-    if (!allowed) {
+    if (!await consumeLimit(env.DB, attemptKey, 5, now)) {
       return json({
         error: "Too many attempts. Request a new code."
       }, 429, origin);
@@ -146,10 +147,7 @@ export async function onRequestPost({ request, env }) {
           "Content-Type": "application/json",
           "Accept": "application/json"
         },
-        body: JSON.stringify({
-          otp_id: otpId,
-          code
-        })
+        body: JSON.stringify({ otp_id: otpId, code })
       }
     );
 
@@ -167,6 +165,7 @@ export async function onRequestPost({ request, env }) {
       }, 400, origin);
     }
 
+    // Consume this OTP before issuing a session.
     const updated = await env.DB.prepare(`
       UPDATE phone_verifications
       SET verified = 1
@@ -177,20 +176,40 @@ export async function onRequestPost({ request, env }) {
 
     if (updated.meta.changes !== 1) {
       return json({
-        success: false,
-        verified: false,
-        error: "The verification expired or was already processed. Request a new code."
+        error: "The code expired or was already used. Request a new code."
       }, 409, origin);
     }
 
+    const token = randomToken();
+    const tokenHash = await hashKey(token);
+    const sessionId = crypto.randomUUID();
+    const expiresAt = new Date(
+      Date.now() + SESSION_SECONDS * 1000
+    ).toISOString();
+
+    await env.DB.prepare(`
+      INSERT INTO seller_sessions
+        (id, phone, token_hash, expires_at)
+      VALUES (?, ?, ?, ?)
+    `).bind(
+      sessionId,
+      record.phone,
+      tokenHash,
+      expiresAt
+    ).run();
+
     return json({
       success: true,
-      verified: true
-    }, 200, origin);
+      verified: true,
+      session_expires_at: expiresAt
+    }, 200, origin, {
+      "Set-Cookie":
+        `shuk_seller_session=${token}; Path=/; Max-Age=${SESSION_SECONDS}; HttpOnly; Secure; SameSite=Lax`
+    });
 
   } catch {
     return json({
-      error: "Verification service is temporarily unavailable."
+      error: "Verification service is temporarily unavailable. If needed, request a new code."
     }, 503, origin);
   }
 }
@@ -208,9 +227,9 @@ export async function onRequestOptions({ request }) {
       "Access-Control-Allow-Origin": origin,
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Allow-Credentials": "true",
       "Access-Control-Max-Age": "86400",
       "Vary": "Origin"
     }
   });
 }
-
