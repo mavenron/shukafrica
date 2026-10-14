@@ -22,18 +22,9 @@ export async function onRequestGet({ request, env }) {
 
     const result = await env.DB.prepare(`
       SELECT
-        id,
-        seller_name,
-        seller_phone,
-        item_name,
-        category,
-        price_ghs,
-        location,
-        description,
-        image_1,
-        image_2,
-        image_3,
-        status,
+      id, seller_name, seller_phone, owner_phone, item_name,
+category, price_ghs, location, description,
+image_1, image_2, image_3, status
         created_at
       FROM marketplace_listings
       WHERE id = ? AND status = 'published'
