@@ -162,7 +162,7 @@ if (!sellerSession) {
     }
 
     const sellerName = clean(body.seller_name, 100);
-    const sellerPhone = clean(body.seller_phone, 30);
+    const sellerPhone = clean(sellerSession.phone, 30);
     const itemName = clean(body.item_name, 200);
     const category = clean(body.category, 100);
     const location = clean(body.location, 100);
