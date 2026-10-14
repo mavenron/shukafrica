@@ -114,6 +114,17 @@ export async function onRequestGet({ request, env }) {
 
 export async function onRequestPost({ request, env }) {
   try {
+
+    
+const sellerSession = await getAuthenticatedSeller(request, env);
+
+if (!sellerSession) {
+  return json({
+    success: false,
+    error: "Please verify your phone number before submitting a listing."
+  }, 401);
+}
+    
     const contentType = request.headers.get("Content-Type") || "";
 
     if (!contentType.toLowerCase().includes("application/json")) {
