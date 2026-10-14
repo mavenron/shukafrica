@@ -613,6 +613,38 @@ data-seller="ShukAfrica Seller">
         required
       >
 
+<div id="sellerOtpSection" style="margin:15px 0;padding:15px;border:1px solid var(--line);border-radius:12px;">
+  <h3 style="margin-bottom:8px;">Verify your phone</h3>
+  <p style="color:var(--muted);margin-bottom:12px;">
+    Verify your Ghana phone number before submitting a product.
+  </p>
+
+  <button type="button" class="btn buy" id="sendSellerOtp">
+    Send verification code
+  </button>
+
+  <div style="margin-top:12px;">
+    <input
+      type="text"
+      id="sellerOtpCode"
+      placeholder="Enter 6-digit SMS code"
+      inputmode="numeric"
+      autocomplete="one-time-code"
+      maxlength="6"
+      pattern="[0-9]{6}"
+      style="width:100%;padding:13px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text);"
+    >
+  </div>
+
+  <button type="button" class="btn buy" id="verifySellerOtp" style="margin-top:10px;">
+    Verify code
+  </button>
+
+  <p id="sellerOtpStatus" role="status" aria-live="polite" style="margin-top:10px;color:var(--muted);">
+    Phone verification required.
+  </p>
+</div>
+      
       <textarea
         id="sellerDescription"
         placeholder="Describe your product"
