@@ -648,6 +648,163 @@ let cards = [];
 let publishedListings = [];
 let submitting = false;
 
+let sellerOtpId = "";
+let sellerVerifiedPhone = "";
+
+function normalizeSellerPhone(value) {
+  let phone = value.trim().replace(/[\s()-]/g, "");
+
+  if (/^0\d{9}$/.test(phone)) {
+    phone = "+233" + phone.slice(1);
+  }
+
+  return /^\+233\d{9}$/.test(phone) ? phone : "";
+}
+
+function setSellerOtpStatus(message, success = false) {
+  const status = document.getElementById("sellerOtpStatus");
+  status.textContent = message;
+  status.style.color = success ? "#00c781" : "var(--muted)";
+}
+
+async function checkSellerSession() {
+  const phone = normalizeSellerPhone(
+    document.getElementById("sellerPhone").value
+  );
+
+  if (!phone) {
+    sellerVerifiedPhone = "";
+    return false;
+  }
+
+  try {
+    const response = await fetch("/api/auth/session", {
+      method: "GET",
+      headers: { "Accept": "application/json" },
+      credentials: "same-origin",
+      cache: "no-store"
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (
+      !response.ok ||
+      data.authenticated !== true ||
+      normalizeSellerPhone(data.phone || "") !== phone
+    ) {
+      sellerVerifiedPhone = "";
+      return false;
+    }
+
+    sellerVerifiedPhone = phone;
+    return true;
+  } catch {
+    sellerVerifiedPhone = "";
+    return false;
+  }
+}
+
+document.getElementById("sendSellerOtp").addEventListener("click", async () => {
+  const phone = normalizeSellerPhone(
+    document.getElementById("sellerPhone").value
+  );
+
+  if (!phone) {
+    setSellerOtpStatus("Enter a valid Ghana number, e.g. 0241234567.");
+    return;
+  }
+
+  const button = document.getElementById("sendSellerOtp");
+  button.disabled = true;
+  button.textContent = "Sending code...";
+
+  try {
+    const response = await fetch("/api/auth/otp-send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      credentials: "same-origin",
+      body: JSON.stringify({ phone })
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || data.success !== true || !data.otp_id) {
+      throw new Error(data.error || "Could not send the verification code.");
+    }
+
+    sellerOtpId = data.otp_id;
+    sellerVerifiedPhone = "";
+    setSellerOtpStatus("Code sent. Enter the six digits from your SMS.");
+  } catch (error) {
+    setSellerOtpStatus(error.message || "Could not send the code.");
+  } finally {
+    button.disabled = false;
+    button.textContent = "Send verification code";
+  }
+});
+
+document.getElementById("verifySellerOtp").addEventListener("click", async () => {
+  const phone = normalizeSellerPhone(
+    document.getElementById("sellerPhone").value
+  );
+
+  const code = document.getElementById("sellerOtpCode").value.trim();
+
+  if (!phone || !sellerOtpId || !/^\d{6}$/.test(code)) {
+    setSellerOtpStatus("Enter your phone number, request a code, and type all six digits.");
+    return;
+  }
+
+  const button = document.getElementById("verifySellerOtp");
+  button.disabled = true;
+  button.textContent = "Verifying...";
+
+  try {
+    const response = await fetch("/api/auth/otp-verify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      credentials: "same-origin",
+      body: JSON.stringify({
+        otp_id: sellerOtpId,
+        code
+      })
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || data.success !== true || data.verified !== true) {
+      throw new Error(data.error || "Phone verification failed.");
+    }
+
+    const authenticated = await checkSellerSession();
+
+    if (!authenticated) {
+      throw new Error("The session could not be confirmed. Please try again.");
+    }
+
+    sellerOtpId = "";
+    setSellerOtpStatus("Phone verified successfully.", true);
+  } catch (error) {
+    sellerVerifiedPhone = "";
+    setSellerOtpStatus(error.message || "Verification failed.");
+  } finally {
+    button.disabled = false;
+    button.textContent = "Verify code";
+  }
+});
+
+document.getElementById("sellerPhone").addEventListener("input", () => {
+  sellerVerifiedPhone = "";
+  sellerOtpId = "";
+  setSellerOtpStatus("Phone changed. Request and verify a new code.");
+});
+  
 function escapeHTML(value) {
   return String(value ?? "").replace(/[&<>"']/g, char => ({
     "&": "&amp;",
