@@ -853,6 +853,21 @@ sellerForm.addEventListener("submit", async event => {
 
   if (submitting) return;
   
+const authenticated = await checkSellerSession();
+
+if (!authenticated) {
+  alert("Please verify the phone number entered in the seller form first.");
+  return;
+}
+
+const verifiedPhone = normalizeSellerPhone(
+  document.getElementById("sellerPhone").value
+);
+
+if (!verifiedPhone || verifiedPhone !== sellerVerifiedPhone) {
+  alert("The verified phone number must match your seller phone number.");
+  return;
+  }
 
   const sellerName = document.getElementById("sellerName").value.trim();
   const itemName = document.getElementById("sellerProductName").value.trim();
