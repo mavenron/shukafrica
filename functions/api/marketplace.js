@@ -24,7 +24,15 @@ async function getAuthenticatedSeller(request, env) {
     return null;
   }
 
-  const bytes = new TextEncoder().encode(token);
+  let decodedToken;
+
+  try {
+    decodedToken = decodeURIComponent(token);
+  } catch {
+    return null;
+  }
+
+  const bytes = new TextEncoder().encode(decodedToken);
   const digest = await crypto.subtle.digest("SHA-256", bytes);
   const tokenHash = Array.from(new Uint8Array(digest))
     .map(byte => byte.toString(16).padStart(2, "0"))
@@ -46,7 +54,32 @@ async function getAuthenticatedSeller(request, env) {
     return null;
   }
 
-  return session;
+  if (session.phone.startsWith("email:")) {
+    const sellerId = session.phone.slice(6);
+
+    const seller = await env.DB.prepare(`
+      SELECT id, name, email, country
+      FROM sellers
+      WHERE id = ?
+      LIMIT 1
+    `).bind(sellerId).first();
+
+    if (!seller) return null;
+
+    return {
+      account_type: "email",
+      seller_id: seller.id,
+      name: seller.name,
+      phone: null
+    };
+  }
+
+  return {
+    account_type: "sms",
+    seller_id: null,
+    name: "",
+    phone: session.phone
+  };
 }
 
 function validImageUrl(value) {
@@ -104,7 +137,7 @@ export async function onRequestGet({ request, env }) {
       success: true,
       listings: result.results || []
     });
-  } catch (error) {
+  } catch {
     return json({
       success: false,
       error: "Unable to load marketplace listings."
@@ -114,17 +147,15 @@ export async function onRequestGet({ request, env }) {
 
 export async function onRequestPost({ request, env }) {
   try {
+    const seller = await getAuthenticatedSeller(request, env);
 
-    
-const sellerSession = await getAuthenticatedSeller(request, env);
+    if (!seller) {
+      return json({
+        success: false,
+        error: "Please log in before submitting a listing."
+      }, 401);
+    }
 
-if (!sellerSession) {
-  return json({
-    success: false,
-    error: "Please verify your phone number before submitting a listing."
-  }, 401);
-}
-    
     const contentType = request.headers.get("Content-Type") || "";
 
     if (!contentType.toLowerCase().includes("application/json")) {
@@ -161,8 +192,18 @@ if (!sellerSession) {
       }, 400);
     }
 
-    const sellerName = clean(body.seller_name, 100);
-    const sellerPhone = clean(sellerSession.phone, 30);
+    // Email accounts use their registered name.
+    // Legacy SMS accounts keep the name supplied in the listing form.
+    const sellerName = seller.account_type === "email"
+      ? seller.name
+      : clean(body.seller_name, 100);
+
+    // Email accounts must provide a buyer contact number.
+    // Existing SMS sessions continue to use their verified number.
+    const sellerPhone = seller.account_type === "email"
+      ? clean(body.seller_phone || body.phone, 30)
+      : clean(seller.phone, 30);
+
     const itemName = clean(body.item_name, 200);
     const category = clean(body.category, 100);
     const location = clean(body.location, 100);
@@ -175,14 +216,14 @@ if (!sellerSession) {
     ) {
       return json({
         success: false,
-        error: "Please complete all required listing fields."
+        error: "Please complete all required listing fields, including the contact phone."
       }, 400);
     }
 
     if (!/^[0-9+()\-\s]{7,30}$/.test(sellerPhone)) {
       return json({
         success: false,
-        error: "Please provide a valid phone number."
+        error: "Please provide a valid contact phone number."
       }, 400);
     }
 
@@ -217,36 +258,78 @@ if (!sellerSession) {
 
     const id = crypto.randomUUID();
 
-    await env.DB.prepare(`
-      INSERT INTO marketplace_listings (
-        id, seller_name, seller_phone, item_name,
-        category, price_ghs, location, description,
-        image_1, image_2, image_3, status
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
-    `).bind(
-      id,
-      sellerName,
-      sellerPhone,
-      itemName,
-      category,
-      price,
-      location,
-      description,
-      clean(body.image_1, 1000) || null,
-      clean(body.image_2, 1000) || null,
-      clean(body.image_3, 1000) || null
-    ).run();
+    if (seller.seller_id) {
+      // Count pending and published listings toward the seller's limit.
+      // The INSERT only succeeds while the seller has fewer than 10.
+      const result = await env.DB.prepare(`
+        INSERT INTO marketplace_listings (
+          id, seller_name, seller_phone, item_name,
+          category, price_ghs, location, description,
+          image_1, image_2, image_3, status,
+          seller_id, owner_phone
+        )
+        SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, NULL
+        WHERE (
+          SELECT COUNT(*)
+          FROM marketplace_listings
+          WHERE seller_id = ?
+            AND status IN ('pending', 'published')
+        ) < 10
+      `).bind(
+        id,
+        sellerName,
+        sellerPhone,
+        itemName,
+        category,
+        price,
+        location,
+        description,
+        clean(body.image_1, 1000) || null,
+        clean(body.image_2, 1000) || null,
+        clean(body.image_3, 1000) || null,
+        seller.seller_id,
+        seller.seller_id
+      ).run();
+
+      if (!result.meta || result.meta.changes !== 1) {
+        return json({
+          success: false,
+          error: "You have reached the limit of 10 active or pending listings."
+        }, 409);
+      }
+    } else {
+      // Preserve the existing SMS listing flow.
+      await env.DB.prepare(`
+        INSERT INTO marketplace_listings (
+          id, seller_name, seller_phone, item_name,
+          category, price_ghs, location, description,
+          image_1, image_2, image_3, status, owner_phone
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)
+      `).bind(
+        id,
+        sellerName,
+        sellerPhone,
+        itemName,
+        category,
+        price,
+        location,
+        description,
+        clean(body.image_1, 1000) || null,
+        clean(body.image_2, 1000) || null,
+        clean(body.image_3, 1000) || null,
+        seller.phone
+      ).run();
+    }
 
     return json({
       success: true,
       message: "Listing submitted for review.",
       id
     }, 201);
-  } catch (error) {
+  } catch {
     return json({
       success: false,
       error: "Unable to submit your listing."
     }, 500);
   }
-}
-
+      }
