@@ -4,7 +4,7 @@ const ALLOWED_ORIGINS = new Set([
   "https://shukafrica.pages.dev"
 ]);
 
-function json(data, status, origin) {
+function json(data, status = 200, origin = "") {
   const headers = {
     "Content-Type": "application/json; charset=utf-8",
     "Cache-Control": "no-store",
@@ -36,15 +36,20 @@ export async function onRequestGet({ request, env }) {
   const origin = request.headers.get("Origin") || "";
 
   if (origin && !ALLOWED_ORIGINS.has(origin)) {
-    return json({ error: "Origin not allowed." }, 403, origin);
+    return json({ authenticated: false }, 403, origin);
   }
 
   if (!env.DB) {
-    return json({ error: "Database is not configured." }, 503, origin);
+    return json({
+      authenticated: false,
+      error: "Database is not configured."
+    }, 503, origin);
   }
 
   const cookie = request.headers.get("Cookie") || "";
-  const match = cookie.match(/(?:^|;\s*)shuk_seller_session=([^;]+)/);
+  const match = cookie.match(
+    /(?:^|;\s*)shuk_seller_session=([^;]+)/
+  );
   const token = match ? match[1] : "";
 
   if (!token || token.length > 200) {
@@ -55,23 +60,65 @@ export async function onRequestGet({ request, env }) {
     const tokenHash = await hashKey(token);
 
     const session = await env.DB.prepare(`
-      SELECT phone, expires_at
+      SELECT id, phone, expires_at
       FROM seller_sessions
       WHERE token_hash = ?
       LIMIT 1
     `).bind(tokenHash).first();
 
-    if (!session || Date.parse(session.expires_at) <= Date.now()) {
+    if (
+      !session ||
+      !session.expires_at ||
+      !Number.isFinite(Date.parse(session.expires_at)) ||
+      Date.parse(session.expires_at) <= Date.now()
+    ) {
       return json({ authenticated: false }, 401, origin);
     }
 
+    // New email/password sessions use email:<seller ID>.
+    if (session.phone.startsWith("email:")) {
+      const sellerId = session.phone.slice(6);
+
+      const seller = await env.DB.prepare(`
+        SELECT id, name, email, country
+        FROM sellers
+        WHERE id = ?
+        LIMIT 1
+      `).bind(sellerId).first();
+
+      if (!seller) {
+        return json({ authenticated: false }, 401, origin);
+      }
+
+      return json({
+        authenticated: true,
+        account_type: "email",
+        seller: {
+          id: seller.id,
+          name: seller.name,
+          email: seller.email,
+          country: seller.country
+        },
+        expires_at: session.expires_at
+      }, 200, origin);
+    }
+
+    // Temporary compatibility for existing SMS sessions.
     return json({
       authenticated: true,
+      account_type: "sms",
       phone: session.phone,
+      seller_id: null,
       expires_at: session.expires_at
     }, 200, origin);
-  } catch {
-    return json({ error: "Could not check seller session." }, 503, origin);
+
+  } catch (error) {
+    console.error("Session check failed:", error);
+
+    return json({
+      authenticated: false,
+      error: "Could not check seller session."
+    }, 503, origin);
   }
 }
 
