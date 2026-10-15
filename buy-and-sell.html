@@ -699,16 +699,8 @@ function setSellerOtpStatus(message, success = false) {
   status.style.color = success ? "#00c781" : "var(--muted)";
 }
 
+
 async function checkSellerSession() {
-  const phone = normalizeSellerPhone(
-    document.getElementById("sellerPhone").value
-  );
-
-  if (!phone) {
-    sellerVerifiedPhone = "";
-    return false;
-  }
-
   try {
     const response = await fetch("/api/auth/session", {
       method: "GET",
@@ -719,17 +711,32 @@ async function checkSellerSession() {
 
     const data = await response.json().catch(() => ({}));
 
-    if (
-      !response.ok ||
-      data.authenticated !== true ||
-      normalizeSellerPhone(data.phone || "") !== phone
-    ) {
+    if (!response.ok || data.authenticated !== true) {
       sellerVerifiedPhone = "";
       return false;
     }
 
-    sellerVerifiedPhone = phone;
-    return true;
+    // Email-based seller account session.
+    if (data.account_type === "email" && data.seller?.id) {
+      return true;
+    }
+
+    // Legacy SMS session: retain the phone match check.
+    const phone = normalizeSellerPhone(
+      document.getElementById("sellerPhone").value
+    );
+
+    if (
+      data.account_type === "sms" &&
+      phone &&
+      normalizeSellerPhone(data.phone || "") === phone
+    ) {
+      sellerVerifiedPhone = phone;
+      return true;
+    }
+
+    sellerVerifiedPhone = "";
+    return false;
   } catch {
     sellerVerifiedPhone = "";
     return false;
