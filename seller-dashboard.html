@@ -1,1 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#10251c">
+  <title>Seller Dashboard | ShukAfrica</title>
+  <style>
+    :root {
+      --green: #176b45;
+      --dark: #10251c;
+      --gold: #e6b64c;
+      --bg: #f4f7f5;
+      --muted: #66736b;
+      --border: #dce5df;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: #1c2b22;
+    }
+
+    header {
+      background: var(--dark);
+      color: white;
+      padding: 18px 20px;
+    }
+
+    .header-inner, main {
+      width: min(100% - 32px, 1000px);
+      margin: auto;
+    }
+
+    .header-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand {
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .brand span { color: var(--gold); }
+
+    main { padding: 26px 0 50px; }
+
+    .welcome {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    h1 { margin: 0 0 8px; font-size: 28px; }
+    h2 { font-size: 19px; margin-top: 0; }
+    p { line-height: 1.5; }
+
+    .muted { color: var(--muted); }
+
+    .button {
+      display: inline-block;
+      border: 0;
+      border-radius: 9px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .primary { background: var(--green); color: white; }
+    .secondary { background: white; color: var(--dark); border: 1px solid var(--border); }
+    .danger { background: #fff0ef; color: #a52b25; }
+
+    .panel {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .stat {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 26px;
+      margin-bottom: 6px;
+    }
+
+    .stat span { color: var(--muted); font-size: 13px; }
+
+    .listing {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 15px;
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr);
+      gap: 15px;
+    }
+
+    .listing img {
+      width: 88px;
+      height: 88px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #edf2ee;
+    }
+
+    .listing h3 { margin: 0 0 7px; font-size: 17px; }
+    .listing p { margin: 5px 0; font-size: 14px; }
+
+    .status {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: capitalize;
+      background: #f0f1f2;
+      color: #40484b;
+    }
+
+    .status.published { background: #e4f7eb; color: #176b45; }
+    .status.pending { background: #fff4d8; color: #805900; }
+    .status.removed { background: #fce9e7; color: #a52b25; }
+
+    .listing-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    #message {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      display: none;
+      overflow-wrap: anywhere;
+    }
+
+    #message.error { display: block; background: #fff0ef; color: #a52b25; }
+    #message.info { display: block; background: #e9f4ee; color: #176b45; }
+
+    #loading { padding: 20px 0; color: var(--muted); }
+
+    .empty {
+      text-align: center;
+      padding: 28px 10px;
+      color: var(--muted);
+    }
+
+    footer {
+      text-align: center;
+      padding: 22px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 520px) {
+      h1 { font-size: 23px; }
+      .stats { gap: 8px; }
+      .stat { padding: 12px 9px; }
+      .stat strong { font-size: 22px; }
+      .stat span { font-size: 11px; }
+      .listing { grid-template-columns: 68px minmax(0, 1fr); gap: 10px; padding: 11px; }
+      .listing img { width: 68px; height: 68px; }
+      .panel { padding: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="brand">Shuk<span>Africa</span></div>
+      <a class="button secondary" href="buy-and-sell.html">Marketplace</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="welcome">
+      <div>
+        <h1>Seller Dashboard</h1>
+        <p class="muted" id="sellerGreeting">Manage your products and listings.</p>
+      </div>
+      <div>
+        <a class="button primary" href="buy-and-sell.html">Add a listing</a>
+        <button class="button secondary" id="logoutButton" type="button">Log out</button>
+      </div>
+    </div>
+
+    <div id="message" role="status" aria-live="polite"></div>
+
+    <section class="stats" aria-label="Listing summary">
+      <div class="stat">
+        <strong id="totalCount">—</strong>
+        <span>Total listings</span>
+      </div>
+      <div class="stat">
+        <strong id="pendingCount">—</strong>
+        <span>Awaiting approval</span>
+      </div>
+      <div class="stat">
+        <strong id="publishedCount">—</strong>
+        <span>Published</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>My listings</h2>
+      <p class="muted">New listings remain pending until the ShukAfrica admin approves them.</p>
+      <div id="loading">Loading your listings…</div>
+      <div id="listingContainer"></div>
+    </section>
+  </main>
+
+  <footer>© ShukAfrica Marketplace</footer>
+
+  <script>
+    const API = "/api/seller/listings";
+
+    const message = document.getElementById("message");
+    const loading = document.getElementById("loading");
+    const container = document.getElementById("listingContainer");
+
+    function showMessage(text, type = "info") {
+      message.textContent = text;
+      message.className = type;
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[character]);
+    }
+
+    function validImage(value) {
+      if (!value) return "";
+      try {
+        const url = new URL(value, location.origin);
+        if (
+          url.protocol !== "https:" ||
+          url.hostname !== "media.shukafrica.com"
+        ) return "";
+        return url.href;
+      } catch {
+        return "";
+      }
+    }
+
+    function imageMarkup(value) {
+      const url = validImage(value);
+      return url
+        ? `<img src="${escapeHTML(url)}" alt="Product image" loading="lazy">`
+        : `<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='88'%3E%3Crect width='100%25' height='100%25' fill='%23edf2ee'/%3E%3C/svg%3E" alt="No product image">`;
+    }
+
+    function formatPrice(value) {
+      const number = Number(value);
+      if (!Number.isFinite(number)) return "Price unavailable";
+      return "GH₵ " + number.toLocaleString("en-GH", {
+        maximumFractionDigits: 2
+      });
+    }
+
+    function renderListings(listings) {
+      document.getElementById("totalCount").textContent = listings.length;
+      document.getElementById("pendingCount").textContent =
+        listings.filter(item => item.status === "pending").length;
+      document.getElementById("publishedCount").textContent =
+        listings.filter(item => item.status === "published").length;
+
+      if (!listings.length) {
+        container.innerHTML =
+          '<div class="empty">You have no listings yet. When you add a product, it will appear here.</div>';
+        return;
+      }
+
+      container.innerHTML = listings.map(item => {
+        const status = ["pending", "published", "removed"].includes(item.status)
+          ? item.status
+          : "pending";
+
+        return `
+          <article class="listing">
+            ${imageMarkup(item.image_1)}
+            <div>
+              <h3>${escapeHTML(item.item_name)}</h3>
+              <p><strong>${escapeHTML(formatPrice(item.price_ghs))}</strong></p>
+              <p class="muted">${escapeHTML(item.category)} · ${escapeHTML(item.location)}</p>
+              <p><span class="status ${status}">${status}</span></p>
+              <div class="listing-actions">
+                <button class="button danger" type="button"
+                  data-delete-id="${escapeHTML(item.id)}">Delete listing</button>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    async function loadListings() {
+      loading.hidden = false;
+      container.innerHTML = "";
+
+      try {
+        const response = await fetch(API, {
+          method: "GET",
+          credentials: "same-origin",
+          headers: { "Accept": "application/json" },
+          cache: "no-store"
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (response.status === 401) {
+          showMessage("Please log in to access your seller dashboard.", "error");
+          loading.textContent = "Please log in before viewing your listings.";
+          return;
+        }
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || "Unable to load your listings.");
+        }
+
+        const sellerName = data.seller && data.seller.name
+          ? data.seller.name
+          : "Seller";
+
+        document.getElementById("sellerGreeting").textContent =
+          "Welcome, " + sellerName + ". Manage your products here.";
+
+        loading.hidden = true;
+        renderListings(Array.isArray(data.listings) ? data.listings : []);
+      } catch (error) {
+        loading.textContent = "We couldn't load your listings.";
+        showMessage(error.message || "Please try again later.", "error");
+      }
+    }
+
+    container.addEventListener("click", async event => {
+      const button = event.target.closest("[data-delete-id]");
+      if (!button) return;
+
+      const id = button.getAttribute("data-delete-id");
+
+      if (!confirm("Delete this listing permanently? This cannot be undone.")) {
+        return;
+      }
+
+      button.disabled = true;
+
+      try {
+        const response = await fetch(
+          API + "?id=" + encodeURIComponent(id),
+          {
+            method: "DELETE",
+            credentials: "same-origin",
+            headers: { "Accept": "application/json" }
+          }
+        );
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || "Unable to delete listing.");
+        }
+
+        showMessage("Listing deleted successfully.", "info");
+        await loadListings();
+      } catch (error) {
+        showMessage(error.message || "Unable to delete listing.", "error");
+        button.disabled = false;
+      }
+    });
+
+    document.getElementById("logoutButton").addEventListener("click", async () => {
+      const button = document.getElementById("logoutButton");
+      button.disabled = true;
+
+      try {
+        const response = await fetch("/api/auth/logout", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+          },
+          body: "{}"
+        });
+
+        if (!response.ok) {
+          throw new Error("Logout failed. Please try again.");
+        }
+
+        location.href = "signup.html";
+      } catch (error) {
+        showMessage(error.message || "Unable to log out.", "error");
+        button.disabled = false;
+      }
+    });
+
+    loadListings();
+  </script>
+</body>
+  </html>
 
