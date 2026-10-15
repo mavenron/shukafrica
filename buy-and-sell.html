@@ -1049,31 +1049,54 @@ sellerForm.addEventListener("submit", async event => {
 
   if (submitting) return;
   
+
 const authenticated = await checkSellerSession();
 
 if (!authenticated) {
-  alert("Please verify the phone number entered in the seller form first.");
+  alert("Please log in to your seller account before submitting a listing.");
+  window.location.href = "signup.html";
   return;
 }
 
-const verifiedPhone = normalizeSellerPhone(
-  document.getElementById("sellerPhone").value
-);
+const sessionResponse = await fetch("/api/auth/session", {
+  method: "GET",
+  headers: { "Accept": "application/json" },
+  credentials: "same-origin",
+  cache: "no-store"
+});
 
-if (!verifiedPhone || verifiedPhone !== sellerVerifiedPhone) {
-  alert("The verified phone number must match your seller phone number.");
+const sessionData = await sessionResponse.json().catch(() => ({}));
+
+if (!sessionResponse.ok || sessionData.authenticated !== true) {
+  alert("Your session has expired. Please log in again.");
+  window.location.href = "signup.html";
   return;
-  }
+}
 
-  const sellerName = document.getElementById("sellerName").value.trim();
-  const itemName = document.getElementById("sellerProductName").value.trim();
-  const priceValue = document.getElementById("sellerPrice").value;
-  const category = document.getElementById("sellerCategory").value;
-  const location = document.getElementById("sellerLocation").value.trim();
-  const phone = document.getElementById("sellerPhone").value.trim();
-  const description = document.getElementById("sellerDescription").value.trim();
-  const photoInput = document.getElementById("sellerPhotos");
-  const photos = [...photoInput.files];
+if (sessionData.account_type === "sms") {
+  const verifiedPhone = normalizeSellerPhone(
+    document.getElementById("sellerPhone").value
+  );
+
+  if (!verifiedPhone || verifiedPhone !== sellerVerifiedPhone) {
+    alert("Please verify the contact phone number before submitting.");
+    return;
+  }
+} else if (sessionData.account_type !== "email") {
+  alert("Please log in to your seller account again.");
+  window.location.href = "signup.html";
+  return;
+}
+
+const sellerName = document.getElementById("sellerName").value.trim();
+const itemName = document.getElementById("sellerProductName").value.trim();
+const priceValue = document.getElementById("sellerPrice").value;
+const category = document.getElementById("sellerCategory").value;
+const location = document.getElementById("sellerLocation").value.trim();
+const phone = document.getElementById("sellerPhone").value.trim();
+const description = document.getElementById("sellerDescription").value.trim();
+const photoInput = document.getElementById("sellerPhotos");
+const photos = [...photoInput.files];
 
   const price = Number(priceValue);
 
