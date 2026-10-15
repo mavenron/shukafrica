@@ -1,1 +1,315 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#10251c">
+  <title>Seller Account | ShukAfrica</title>
+
+  <style>
+    :root {
+      --green: #176b45;
+      --dark: #10251c;
+      --gold: #e6b64c;
+      --bg: #f3f7f4;
+      --muted: #66736b;
+      --border: #dce5df;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px 14px;
+      display: grid;
+      place-items: center;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #1c2b22;
+      background: var(--bg);
+    }
+
+    .card {
+      width: min(100%, 460px);
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 26px;
+      box-shadow: 0 12px 35px rgba(16, 37, 28, .07);
+    }
+
+    .brand {
+      color: var(--dark);
+      font-size: 27px;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .brand span { color: var(--green); }
+
+    .intro {
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.5;
+      margin: 0 0 24px;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 5px;
+      background: #edf2ee;
+      border-radius: 11px;
+      margin-bottom: 22px;
+    }
+
+    .tab {
+      border: 0;
+      border-radius: 8px;
+      padding: 12px 8px;
+      font-size: 15px;
+      font-weight: 700;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: white;
+      color: var(--green);
+      box-shadow: 0 2px 7px rgba(0, 0, 0, .06);
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      margin: 15px 0 7px;
+    }
+
+    input, select {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #cbd8cf;
+      border-radius: 9px;
+      font-size: 16px;
+      background: white;
+      color: #1c2b22;
+    }
+
+    input:focus, select:focus {
+      outline: 2px solid #b7dec8;
+      border-color: var(--green);
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin: 7px 0 0;
+    }
+
+    .submit {
+      width: 100%;
+      border: 0;
+      border-radius: 9px;
+      padding: 14px;
+      margin-top: 22px;
+      color: white;
+      background: var(--green);
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .submit:disabled { opacity: .6; cursor: wait; }
+
+    #message {
+      display: none;
+      padding: 12px;
+      margin: 0 0 15px;
+      border-radius: 9px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    #message.error { display: block; background: #fff0ef; color: #9b2822; }
+    #message.success { display: block; background: #e8f6ed; color: #176b45; }
+
+    .hidden { display: none !important; }
+
+    .bottom {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 22px;
+    }
+
+    .bottom a { color: var(--green); font-weight: 700; }
+
+    @media (max-width: 400px) {
+      .card { padding: 20px; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="card">
+    <div class="brand">Shuk<span>Africa</span></div>
+    <p class="intro">Create your seller account and reach customers across West Africa.</p>
+
+    <div class="tabs" role="tablist" aria-label="Account access">
+      <button class="tab active" id="registerTab" type="button"
+        role="tab" aria-selected="true">Create account</button>
+      <button class="tab" id="loginTab" type="button"
+        role="tab" aria-selected="false">Log in</button>
+    </div>
+
+    <div id="message" role="status" aria-live="polite"></div>
+
+    <form id="registerForm">
+      <label for="name">Full name</label>
+      <input id="name" name="name" type="text" autocomplete="name"
+        maxlength="100" required>
+
+      <label for="registerEmail">Email address</label>
+      <input id="registerEmail" name="email" type="email"
+        autocomplete="email" maxlength="254" required>
+
+      <label for="country">Country</label>
+      <select id="country" name="country" required>
+        <option value="">Choose your country</option>
+        <option value="GH">Ghana</option>
+        <option value="CI">Côte d’Ivoire</option>
+        <option value="BF">Burkina Faso</option>
+        <option value="TG">Togo</option>
+      </select>
+
+      <label for="registerPassword">Password</label>
+      <input id="registerPassword" name="password" type="password"
+        autocomplete="new-password" minlength="12" maxlength="128" required>
+      <p class="hint">Use at least 12 characters. Never share your password with anyone.</p>
+
+      <button class="submit" type="submit">Create seller account</button>
+    </form>
+
+    <form id="loginForm" class="hidden">
+      <label for="loginEmail">Email address</label>
+      <input id="loginEmail" name="email" type="email"
+        autocomplete="email" maxlength="254" required>
+
+      <label for="loginPassword">Password</label>
+      <input id="loginPassword" name="password" type="password"
+        autocomplete="current-password" maxlength="128" required>
+
+      <button class="submit" type="submit">Log in to your account</button>
+    </form>
+
+    <div class="bottom">
+      By continuing, you agree to use ShukAfrica responsibly.
+      <p><a href="index.html">Return to ShukAfrica</a></p>
+    </div>
+  </main>
+
+  <script>
+    const registerTab = document.getElementById("registerTab");
+    const loginTab = document.getElementById("loginTab");
+    const registerForm = document.getElementById("registerForm");
+    const loginForm = document.getElementById("loginForm");
+    const message = document.getElementById("message");
+
+    function showMessage(text, type) {
+      message.textContent = text;
+      message.className = type;
+    }
+
+    function switchMode(mode) {
+      const registering = mode === "register";
+
+      registerForm.classList.toggle("hidden", !registering);
+      loginForm.classList.toggle("hidden", registering);
+      registerTab.classList.toggle("active", registering);
+      loginTab.classList.toggle("active", !registering);
+
+      registerTab.setAttribute("aria-selected", String(registering));
+      loginTab.setAttribute("aria-selected", String(!registering));
+
+      message.className = "";
+      message.textContent = "";
+    }
+
+    registerTab.addEventListener("click", () => switchMode("register"));
+    loginTab.addEventListener("click", () => switchMode("login"));
+
+    async function submitAccountForm(form, endpoint, buttonText) {
+      const button = form.querySelector('button[type="submit"]');
+      const originalText = button.textContent;
+
+      button.disabled = true;
+      button.textContent = "Please wait…";
+      message.className = "";
+      message.textContent = "";
+
+      const formData = new FormData(form);
+      const payload = Object.fromEntries(formData.entries());
+
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify(payload),
+          cache: "no-store"
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok || !data.success) {
+          throw new Error(
+            data.error || "We couldn't complete your request. Please try again."
+          );
+        }
+
+        showMessage("Success! Opening your seller dashboard…", "success");
+        location.href = "seller-dashboard.html";
+      } catch (error) {
+        showMessage(
+          error.message || "Connection problem. Please try again.",
+          "error"
+        );
+        button.disabled = false;
+        button.textContent = originalText || buttonText;
+      }
+    }
+
+    registerForm.addEventListener("submit", event => {
+      event.preventDefault();
+      if (!registerForm.reportValidity()) return;
+
+      submitAccountForm(
+        registerForm,
+        "/api/auth/register",
+        "Create seller account"
+      );
+    });
+
+    loginForm.addEventListener("submit", event => {
+      event.preventDefault();
+      if (!loginForm.reportValidity()) return;
+
+      submitAccountForm(
+        loginForm,
+        "/api/auth/login",
+        "Log in to your account"
+      );
+    });
+  </script>
+</body>
+</html>
