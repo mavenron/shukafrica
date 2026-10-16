@@ -26,11 +26,22 @@ export async function onRequestPost({ request, env }) {
     }
 
     const form = await request.formData();
-    const file = form.get("file");
+const file = form.get("file");
 
-    if (!(file instanceof File)) {
-      return json({ success: false, error: "Please select an image." }, 400);
-    }
+if (!(file instanceof File)) {
+  const received = [...form.entries()].map(([key, value]) => ({
+    field: key,
+    type: typeof value === "string"
+      ? "text"
+      : value?.constructor?.name
+  }));
+
+  return json({
+    success: false,
+    error: "The upload did not arrive as a file.",
+    received
+  }, 400);
+}
 
     const extension = ALLOWED_TYPES[file.type];
     if (!extension) {
