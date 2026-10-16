@@ -27,7 +27,14 @@ export async function onRequestPost({ request, env }) {
 
     const form = await request.formData();
 const file = form.get("file");
-
+console.log("Upload diagnostic", {
+  keys: [...form.keys()],
+  valueType: typeof file,
+  isFile: file instanceof File,
+  name: file?.name || null,
+  size: file?.size ?? null,
+  type: file?.type || null
+});
 if (!(file instanceof File)) {
   const received = [...form.entries()].map(([key, value]) => ({
     field: key,
