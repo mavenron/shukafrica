@@ -1,6 +1,7 @@
+
+
 const SESSION_SECONDS = 7 * 24 * 60 * 60;
 const ITERATIONS = 100000;
-
 function json(data, status = 200, extra = {}) {
   return new Response(JSON.stringify(data), {
     status,
@@ -31,7 +32,8 @@ async function verifyPassword(password, stored) {
     parts.length !== 4 ||
     parts[0] !== "pbkdf2_sha256" ||
     Number(parts[1]) !== ITERATIONS ||
-    !/^[0-9a-f]{32}$/.test(parts[2]) \vert{}\vert{} !/^[0-9a-f]{64}$/.test(parts[3])
+    !/^[0-9a-f]{32}$/.test(parts[2]) ||
+    !/^[0-9a-f]{64}$/.test(parts[3])
   ) {
     return false;
   }
@@ -198,4 +200,4 @@ export async function onRequestPost({ request, env }) {
       error: "Unable to log in right now."
     }, 500);
   }
-}
+    }
