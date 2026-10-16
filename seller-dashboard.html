@@ -302,11 +302,46 @@ async function loadListings(){
     showMessage(error.message||"Please try again later.","error");
   }
 }
+
 async function uploadPhoto(file){
-  const fd=new FormData();fd.append("file",file);
-  const response=await fetch("/api/marketplace-upload",{
-    method:"POST",credentials:"same-origin",body:fd
+  console.log("Selected photo diagnostic", {
+    name: file?.name || null,
+    type: file?.type || null,
+    size: file?.size ?? null,
+    isFile: file instanceof File
   });
+
+  if (!(file instanceof File)) {
+    throw new Error("The selected photo is not a valid file.");
+  }
+
+  const fd = new FormData();
+  fd.append("file", file, file.name);
+
+  console.log("FormData diagnostic", {
+    hasFile: fd.get("file") instanceof File,
+    valueType: typeof fd.get("file"),
+    name: fd.get("file")?.name || null
+  });
+
+  const response = await fetch("/api/marketplace-upload", {
+    method: "POST",
+    credentials: "same-origin",
+    body: fd
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok || !data.success || !data.url) {
+    throw new Error(data.error || "Image upload failed.");
+  }
+
+  const url = validImage(data.url);
+  if (!url) throw new Error("The server returned an unexpected image URL.");
+
+  return url;
+}
+
   const data=await response.json().catch(()=>({}));
   if(!response.ok||!data.success||!data.url)throw new Error(data.error||"Image upload failed.");
   const url=validImage(data.url);
