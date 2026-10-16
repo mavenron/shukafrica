@@ -25,29 +25,29 @@ export async function onRequestPost({ request, env }) {
       return json({ success: false, error: "Upload must use a form." }, 415);
     }
 
-    const form = await request.formData();
+    
+const form = await request.formData();
 const file = form.get("file");
+
 console.log("Upload diagnostic", {
   keys: [...form.keys()],
   valueType: typeof file,
-  isFile: file instanceof File,
+  constructor: file?.constructor?.name || null,
+  isFile: typeof File !== "undefined" && file instanceof File,
+  isBlob: typeof Blob !== "undefined" && file instanceof Blob,
   name: file?.name || null,
   size: file?.size ?? null,
-  type: file?.type || null
+  type: file?.type || null,
+  value: typeof file === "string" ? file.slice(0, 100) : null
 });
-if (!(file instanceof File)) {
-  const received = [...form.entries()].map(([key, value]) => ({
-    field: key,
-    type: typeof value === "string"
-      ? "text"
-      : value?.constructor?.name
-  }));
 
-return json({
-  success: false,
-  error: JSON.stringify(received),
-  received
-}, 400);
+if (typeof file === "string" || !file) {
+  return json({
+    success: false,
+    error: "Upload field is not a file.",
+    receivedType: typeof file,
+    receivedValue: typeof file === "string" ? file.slice(0, 100) : null
+  }, 400);
 }
 
     const extension = ALLOWED_TYPES[file.type];
