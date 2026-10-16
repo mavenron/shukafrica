@@ -36,11 +36,11 @@ if (!(file instanceof File)) {
       : value?.constructor?.name
   }));
 
-  return json({
-    success: false,
-    error: "The upload did not arrive as a file.",
-    received
-  }, 400);
+return json({
+  success: false,
+  error: JSON.stringify(received),
+  received
+}, 400);
 }
 
     const extension = ALLOWED_TYPES[file.type];
