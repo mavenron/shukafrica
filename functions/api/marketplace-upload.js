@@ -1,4 +1,3 @@
-
 function json(data, status = 200) {
   return Response.json(data, {
     status,
@@ -41,12 +40,12 @@ export async function onRequestPost({ request, env }) {
       }, 415);
     }
 
-    if (file.size < 1 || file.size > 2 * 1024 * 1024) {
-      return json({
-        success: false,
-        error: "Each image must be no larger than 2 MB."
-      }, 413);
-    }
+  if (file.size < 1 || file.size > 2 * 1024 * 1024) {
+  return json({
+    success: false,
+    error: "Each image must be no larger than 2 MB."
+  }, 413);
+  }
 
     if (!env.MEDIA) {
       return json({
