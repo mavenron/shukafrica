@@ -126,7 +126,7 @@ h1{font-size:23px}.stats{gap:8px}.stat{padding:12px 9px}
         <div class="field full">
           <label for="sellerPhotos">Product photos</label>
           <input id="sellerPhotos" type="file" accept="image/jpeg,image/png,image/webp" multiple>
-          <p class="help">Maximum 3 photos, 3 MB per photo. JPG, PNG or WebP.</p>
+          <p class="help">Maximum 3 photos, 2 MB per photo. JPG, PNG or WebP.</p>
         </div>
         <div class="field full">
           <label for="sellerDescription">Product description</label>
@@ -404,8 +404,8 @@ form.addEventListener("submit",async event=>{
     showFormMessage("You can upload a maximum of 3 photos.","error");return;
   }
   for(const photo of photos){
-    if(photo.size<1||photo.size>3*1024*1024){
-      showFormMessage("Each photo must be no larger than 3 MB.","error");return;
+    if(photo.size<1||photo.size>2*1024*1024){
+      showFormMessage("Each photo must be no larger than 2 MB.","error");return;
     }
     if(!["image/jpeg","image/png","image/webp"].includes(photo.type)){
       showFormMessage("Please use JPG, PNG or WebP photos.","error");return;
