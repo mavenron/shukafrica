@@ -524,11 +524,33 @@ function renderListing(item) {
   return card;
 }
 
+
 function filterProducts() {
   const query = search.value.trim().toLowerCase();
-  const selectedLocation = locationFilter.value.toLowerCase();
-  const selectedCategory = categoryFilter.value.toLowerCase();
-  const selectedPrice = priceFilter.value;
+
+  const priceMatch = query.match(
+    /(?:under|below|less than|max(?:imum)?|budget of)\s*(?:gh₵|ghs?|₵)?\s*([\d,]+(?:\.\d+)?)/i
+  );
+
+  const maxPrice = priceMatch
+    ? Number(priceMatch[1].replace(/,/g, ""))
+    : null;
+
+  const locationMatch = query.match(
+    /\b(?:in|near|around|at)\s+(.+)$/i
+  );
+
+  const requestedLocation = locationMatch
+    ? locationMatch[1].trim().toLowerCase()
+    : "";
+
+  const productQuery = query
+    .replace(
+      /(?:under|below|less than|max(?:imum)?|budget of)\s*(?:gh₵|ghs?|₵)?\s*[\d,]+(?:\.\d+)?/ig,
+      ""
+    )
+    .replace(/\b(?:in|near|around|at)\s+.+$/i, "")
+    .trim();
 
   let visible = 0;
 
@@ -536,29 +558,21 @@ function filterProducts() {
     const name = (card.dataset.name || "").toLowerCase();
     const description = (card.dataset.description || "").toLowerCase();
     const location = (card.dataset.location || "").toLowerCase();
-    const category = (card.dataset.category || "").toLowerCase();
     const price = Number(card.dataset.price || 0);
 
-    const matchesQuery =
-      name.includes(query) || description.includes(query);
-
-    const matchesLocation =
-      selectedLocation === "all" ||
-      location.includes(selectedLocation);
-
-    const matchesCategory =
-      selectedCategory === "all" ||
-      category === selectedCategory;
+    const matchesProduct =
+      !productQuery ||
+      name.includes(productQuery) ||
+      description.includes(productQuery);
 
     const matchesPrice =
-      selectedPrice === "all" ||
-      price <= Number(selectedPrice);
+      maxPrice === null || price <= maxPrice;
+
+    const matchesLocation =
+      !requestedLocation || location.includes(requestedLocation);
 
     const show =
-      matchesQuery &&
-      matchesLocation &&
-      matchesCategory &&
-      matchesPrice;
+      matchesProduct && matchesPrice && matchesLocation;
 
     card.style.display = show ? "" : "none";
 
@@ -570,6 +584,7 @@ function filterProducts() {
 
   empty.style.display = visible === 0 ? "block" : "none";
 }
+  
 
 async function loadPublishedListings() {
   count.textContent = "Loading...";
