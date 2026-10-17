@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -303,31 +302,20 @@ async function loadListings(){
   }
 }
 
-async function uploadPhoto(file){
-  console.log("Selected photo diagnostic", {
-    name: file?.name || null,
-    type: file?.type || null,
-    size: file?.size ?? null,
-    isFile: file instanceof File
-  });
 
+async function uploadPhoto(file) {
   if (!(file instanceof File)) {
-    throw new Error("The selected photo is not a valid file.");
+    throw new Error("Please select a valid photo.");
   }
-
-  const fd = new FormData();
-  fd.append("file", file, file.name);
-
-  console.log("FormData diagnostic", {
-    hasFile: fd.get("file") instanceof File,
-    valueType: typeof fd.get("file"),
-    name: fd.get("file")?.name || null
-  });
 
   const response = await fetch("/api/marketplace-upload", {
     method: "POST",
     credentials: "same-origin",
-    body: fd
+    headers: {
+      "Content-Type": file.type,
+      "Accept": "application/json"
+    },
+    body: file
   });
 
   const data = await response.json().catch(() => ({}));
@@ -337,7 +325,9 @@ async function uploadPhoto(file){
   }
 
   const url = validImage(data.url);
-  if (!url) throw new Error("The server returned an unexpected image URL.");
+  if (!url) {
+    throw new Error("The server returned an unexpected image URL.");
+  }
 
   return url;
 }
