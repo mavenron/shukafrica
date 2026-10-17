@@ -113,10 +113,22 @@ h1{font-size:23px}.stats{gap:8px}.stat{padding:12px 9px}
             <option>Fashion</option><option>Property</option><option>Other</option>
           </select>
         </div>
-        <div class="field">
-          <label for="sellerLocation">Location</label>
-          <input id="sellerLocation" type="text" maxlength="150" placeholder="e.g. Accra, Ghana" required>
-        </div>
+        
+<div class="field">
+  <label for="sellerLocation">Town / City, Region, Country</label>
+  <input
+    id="sellerLocation"
+    type="text"
+    maxlength="150"
+    placeholder="e.g. Anomabo, Central Region, Ghana"
+    autocomplete="street-address"
+    required
+  >
+  <p class="help">
+    Enter your town or city, region (if applicable), and country.
+    Example: Accra, Greater Accra Region, Ghana.
+  </p>
+</div>
         <div class="field">
           <label for="sellerPhone">Phone / WhatsApp number</label>
           <input id="sellerPhone" type="tel" maxlength="30" autocomplete="tel" required>
