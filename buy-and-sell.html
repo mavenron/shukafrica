@@ -524,33 +524,31 @@ function renderListing(item) {
   return card;
 }
 
-
+  
 function filterProducts() {
   const query = search.value.trim().toLowerCase();
 
+  // Recognize prices such as 170, 1000, under 500 or GH₵1,000.
   const priceMatch = query.match(
-    /(?:under|below|less than|max(?:imum)?|budget of)\s*(?:gh₵|ghs?|₵)?\s*([\d,]+(?:\.\d+)?)/i
+    /(?:under|below|less than|max(?:imum)?|budget of)?\s*(?:gh₵|ghs?|₵)?\s*([\d,]+(?:\.\d+)?)/i
   );
 
-  const maxPrice = priceMatch
+  const hasPrice = Boolean(priceMatch);
+  const searchedPrice = hasPrice
     ? Number(priceMatch[1].replace(/,/g, ""))
     : null;
 
+  const isPriceOnly = hasPrice &&
+    query.replace(/under|below|less than|max(?:imum)?|budget of|gh₵|ghs?|₵|[\d,. ]/gi, "").trim() === "";
+
+  // Recognize locations typed alone or with "in", "near" or "around".
   const locationMatch = query.match(
-    /\b(?:in|near|around|at)\s+(.+)$/i
+    /^(?:in|near|around|at)\s+(.+)$/i
   );
 
   const requestedLocation = locationMatch
     ? locationMatch[1].trim().toLowerCase()
     : "";
-
-  const productQuery = query
-    .replace(
-      /(?:under|below|less than|max(?:imum)?|budget of)\s*(?:gh₵|ghs?|₵)?\s*[\d,]+(?:\.\d+)?/ig,
-      ""
-    )
-    .replace(/\b(?:in|near|around|at)\s+.+$/i, "")
-    .trim();
 
   let visible = 0;
 
@@ -561,18 +559,28 @@ function filterProducts() {
     const price = Number(card.dataset.price || 0);
 
     const matchesProduct =
-      !productQuery ||
-      name.includes(productQuery) ||
-      description.includes(productQuery);
+      !query ||
+      name.includes(query) ||
+      description.includes(query);
 
-    const matchesPrice =
-      maxPrice === null || price <= maxPrice;
+    const matchesExactPrice =
+      !isPriceOnly || price === searchedPrice;
+
+    const matchesMaximumPrice =
+      !hasPrice || !isPriceOnly || price <= searchedPrice;
 
     const matchesLocation =
       !requestedLocation || location.includes(requestedLocation);
 
-    const show =
-      matchesProduct && matchesPrice && matchesLocation;
+    let show;
+
+    if (isPriceOnly) {
+      show = price <= searchedPrice;
+    } else if (requestedLocation) {
+      show = matchesLocation;
+    } else {
+      show = matchesProduct;
+    }
 
     card.style.display = show ? "" : "none";
 
