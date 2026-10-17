@@ -20,37 +20,13 @@ export async function onRequestPost({ request, env }) {
       return json({ success: false, error: "Request not allowed." }, 403);
     }
 
-    const contentType = request.headers.get("Content-Type") || "";
-    if (!contentType.toLowerCase().startsWith("multipart/form-data;")) {
-      return json({ success: false, error: "Upload must use a form." }, 415);
-    }
+    const contentType = (request.headers.get("Content-Type") || "")
+      .split(";")[0]
+      .trim()
+      .toLowerCase();
 
-    
-const form = await request.formData();
-const file = form.get("file");
+    const extension = ALLOWED_TYPES[contentType];
 
-console.log("Upload diagnostic", {
-  keys: [...form.keys()],
-  valueType: typeof file,
-  constructor: file?.constructor?.name || null,
-  isFile: typeof File !== "undefined" && file instanceof File,
-  isBlob: typeof Blob !== "undefined" && file instanceof Blob,
-  name: file?.name || null,
-  size: file?.size ?? null,
-  type: file?.type || null,
-  value: typeof file === "string" ? file.slice(0, 100) : null
-});
-
-if (typeof file === "string" || !file) {
-  return json({
-    success: false,
-    error: "Upload field is not a file.",
-    receivedType: typeof file,
-    receivedValue: typeof file === "string" ? file.slice(0, 100) : null
-  }, 400);
-}
-
-    const extension = ALLOWED_TYPES[file.type];
     if (!extension) {
       return json({
         success: false,
@@ -58,12 +34,23 @@ if (typeof file === "string" || !file) {
       }, 415);
     }
 
-  if (file.size < 1 || file.size > 2 * 1024 * 1024) {
-  return json({
-    success: false,
-    error: "Each image must be no larger than 2 MB."
-  }, 413);
-  }
+    const contentLength = Number(request.headers.get("Content-Length") || 0);
+
+    if (contentLength > 2 * 1024 * 1024) {
+      return json({
+        success: false,
+        error: "Each image must be no larger than 2 MB."
+      }, 413);
+    }
+
+    const bytes = await request.arrayBuffer();
+
+    if (bytes.byteLength < 1 || bytes.byteLength > 2 * 1024 * 1024) {
+      return json({
+        success: false,
+        error: "Each image must be no larger than 2 MB and cannot be empty."
+      }, 413);
+    }
 
     if (!env.MEDIA) {
       return json({
@@ -75,21 +62,20 @@ if (typeof file === "string" || !file) {
     const id = crypto.randomUUID();
     const key = `marketplace/${id}.${extension}`;
 
-    await env.MEDIA.put(key, file.stream(), {
+    await env.MEDIA.put(key, bytes, {
       httpMetadata: {
-        contentType: file.type,
+        contentType,
         cacheControl: "public, max-age=31536000, immutable"
       }
     });
 
-    const imageUrl = `https://media.shukafrica.com/${key}`;
-
     return json({
       success: true,
-      url: imageUrl
+      url: `https://media.shukafrica.com/${key}`
     }, 201);
 
   } catch (error) {
+    console.error("Image upload failed:", error);
     return json({
       success: false,
       error: "Image upload failed. Please try again."
