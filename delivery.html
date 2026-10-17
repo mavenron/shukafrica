@@ -423,6 +423,52 @@
   <script>
     document.addEventListener("DOMContentLoaded", function () {
 
+      // RIDER REGISTRATION
+      const riderForm =
+        document.getElementById("riderRegistrationForm");
+
+      const riderStatus =
+        document.getElementById("riderRegistrationStatus");
+
+      if (riderForm && riderStatus) {
+        riderForm.addEventListener("submit", async function (event) {
+          event.preventDefault();
+
+          const submitButton =
+            riderForm.querySelector('button[type="submit"]');
+
+          submitButton.disabled = true;
+          riderStatus.textContent = "Submitting application securely...";
+
+          try {
+            const response = await fetch("/api/delivery/partners", {
+              method: "POST",
+              credentials: "include",
+              body: new FormData(riderForm)
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+              throw new Error(
+                result.error || "Unable to submit your application."
+              );
+            }
+
+            riderStatus.textContent =
+              "Application submitted. Status: Pending Verification.";
+
+            riderForm.reset();
+          } catch (error) {
+            riderStatus.textContent =
+              error.message ||
+              "Submission failed. Please try again.";
+          } finally {
+            submitButton.disabled = false;
+          }
+        });
+      }
+
       // CUSTOMER FORM
       const requestForm =
         document.getElementById("deliveryRequestForm");
