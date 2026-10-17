@@ -342,13 +342,6 @@ async function uploadPhoto(file){
   return url;
 }
 
-  const data=await response.json().catch(()=>({}));
-  if(!response.ok||!data.success||!data.url)throw new Error(data.error||"Image upload failed.");
-  const url=validImage(data.url);
-  if(!url)throw new Error("The server returned an unexpected image URL.");
-  return url;
-}
-
 addButton.addEventListener("click",()=>addPanel.hidden?openAddForm():closeAddForm());
 $("cancelListingButton").addEventListener("click",closeAddForm);
 
