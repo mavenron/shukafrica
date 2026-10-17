@@ -206,6 +206,67 @@
   </div>
 
 
+<section class="delivery-section" id="riderRegistration">
+  <h2>Register as a Delivery Partner</h2>
+  <p>
+    Submit your details for verification. You cannot accept delivery jobs
+    until ShukAfrica approves your application.
+  </p>
+
+  <form id="riderRegistrationForm">
+    <div class="field">
+      <label for="riderFullName">Full Name</label>
+      <input id="riderFullName" name="fullName"
+        type="text" maxlength="120" required>
+    </div>
+
+    <div class="field">
+      <label for="riderPhone">Contact Phone Number</label>
+      <input id="riderPhone" name="phone"
+        type="tel" maxlength="30" required>
+    </div>
+
+    <div class="field">
+      <label for="vehicleRegistration">Vehicle Registration Number</label>
+      <input id="vehicleRegistration" name="vehicleRegistration"
+        type="text" maxlength="30"
+        placeholder="Enter the number plate" required>
+    </div>
+
+    <div class="field">
+      <label for="insuranceDocument">Insurance Document Photo</label>
+      <input id="insuranceDocument" name="insuranceDocument"
+        type="file" accept="image/jpeg,image/png,image/webp"
+        required>
+      <p class="help">
+        This document is for private verification by ShukAfrica
+        administrators only.
+      </p>
+    </div>
+
+    <div class="field">
+      <label for="alternativeContactName">Alternative Contact Full Name</label>
+      <input id="alternativeContactName" name="alternativeContactName"
+        type="text" maxlength="120" required>
+    </div>
+
+    <div class="field">
+      <label for="alternativeRelationship">Relationship to Rider</label>
+      <input id="alternativeRelationship" name="alternativeRelationship"
+        type="text" maxlength="60" required>
+    </div>
+
+    <div class="field">
+      <label for="alternativeContactPhone">Alternative Contact Phone</label>
+      <input id="alternativeContactPhone" name="alternativeContactPhone"
+        type="tel" maxlength="30" required>
+    </div>
+
+    <button type="submit">Submit for Verification</button>
+    <p id="riderRegistrationStatus" role="status"></p>
+  </form>
+</section>
+  
   <!-- LIVE DELIVERY REQUESTS -->
   <section class="live-deliveries">
 
