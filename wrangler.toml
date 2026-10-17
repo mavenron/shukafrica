@@ -10,3 +10,7 @@ database_id = "c40bcbf4-3006-4a2a-a106-85bea7182281"
 [[r2_buckets]]
 binding = "MEDIA"
 bucket_name = "shukafrica-media"
+
+[[r2_buckets]]
+binding = "PRIVATE_MEDIA"
+bucket_name = "shukafrica-delivery-private"
