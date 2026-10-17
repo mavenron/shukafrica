@@ -120,9 +120,18 @@ main { padding: 28px 0 60px; }
   margin-bottom: 15px;
 }
 
-h1 { font-size: clamp(27px, 5vw, 36px); line-height: 1.2; margin-bottom: 15px; }
+h1 {
+  font-size: clamp(27px, 5vw, 36px);
+  line-height: 1.2;
+  margin-bottom: 15px;
+}
 
-.price { color: var(--gold); font-size: 30px; font-weight: 800; margin-bottom: 12px; }
+.price {
+  color: var(--gold);
+  font-size: 30px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
 
 .location { color: var(--muted); margin-bottom: 22px; }
 
@@ -140,10 +149,15 @@ h1 { font-size: clamp(27px, 5vw, 36px); line-height: 1.2; margin-bottom: 15px; }
 .seller-location { color: var(--muted); margin-bottom: 10px; }
 .seller-phone { color: var(--muted); overflow-wrap: anywhere; }
 
-.actions { display: flex; gap: 12px; margin-top: 24px; }
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
 
 .btn {
-  flex: 1;
+  flex: 1 1 140px;
   border: 0;
   border-radius: 12px;
   padding: 14px 12px;
@@ -151,16 +165,26 @@ h1 { font-size: clamp(27px, 5vw, 36px); line-height: 1.2; margin-bottom: 15px; }
   font-weight: 700;
   cursor: pointer;
   text-align: center;
+  font-family: inherit;
+  line-height: 1.5;
 }
 
 .contact { background: var(--gold); color: #111; }
+.call { background: #16845b; color: #fff; display: block; }
 .save { background: var(--panel2); color: var(--text); border: 1px solid var(--border); }
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .notice { margin-top: 20px; color: var(--muted); font-size: 13px; text-align: center; }
 .error { padding: 20px; color: #ffb8b3; text-align: center; }
 
 @media (max-width: 480px) {
   .header-inner { align-items: flex-start; flex-direction: column; }
   .actions { flex-direction: column; }
+  .btn { width: 100%; }
 }
 </style>
 </head>
@@ -202,7 +226,12 @@ h1 { font-size: clamp(27px, 5vw, 36px); line-height: 1.2; margin-bottom: 15px; }
 
       <div class="actions">
         <button class="btn save" id="saveButton" type="button">♡ Save</button>
-        <button class="btn contact" id="contactButton" type="button">Contact Seller</button>
+        <button class="btn contact" id="contactButton" type="button" disabled>
+          WhatsApp Seller
+        </button>
+        <a class="btn call" id="callButton" href="tel:" aria-disabled="true">
+          📞 Call Seller
+        </a>
       </div>
 
       <p class="notice" id="notice">Loading published listing details…</p>
@@ -218,6 +247,7 @@ const mainImage = document.getElementById("mainImage");
 const thumbnails = document.getElementById("thumbnails");
 const notice = document.getElementById("notice");
 const contactButton = document.getElementById("contactButton");
+const callButton = document.getElementById("callButton");
 const saveButton = document.getElementById("saveButton");
 
 let sellerPhone = "";
@@ -233,10 +263,26 @@ function formatPrice(value) {
   });
 }
 
+function getInternationalNumber(phone) {
+  const digits = String(phone || "").replace(/\D/g, "");
+
+  if (!digits) return "";
+
+  // Convert Ghana local numbers to international format.
+  if (digits.startsWith("0")) {
+    return "233" + digits.slice(1);
+  }
+
+  // If the number is already in Ghana international format,
+  // keep it. Other country codes are also preserved.
+  return digits;
+}
+
 function showImages(listing) {
   const urls = [listing.image_1, listing.image_2, listing.image_3]
     .filter(url => {
       if (typeof url !== "string") return false;
+
       try {
         const parsed = new URL(url);
         return parsed.protocol === "https:" &&
@@ -250,18 +296,23 @@ function showImages(listing) {
   thumbnails.replaceChildren();
 
   if (!urls.length) {
-    mainImage.innerHTML = '<span class="placeholder">No product photos available</span>';
+    mainImage.innerHTML =
+      '<span class="placeholder">No product photos available</span>';
     return;
   }
 
   function selectImage(url, alt) {
     mainImage.replaceChildren();
+
     const img = document.createElement("img");
     img.src = url;
     img.alt = alt;
+
     img.onerror = () => {
-      mainImage.innerHTML = '<span class="placeholder">Photo could not be loaded</span>';
+      mainImage.innerHTML =
+        '<span class="placeholder">Photo could not be loaded</span>';
     };
+
     mainImage.appendChild(img);
   }
 
@@ -278,20 +329,49 @@ function showImages(listing) {
     img.alt = "Product thumbnail " + (index + 1);
 
     button.appendChild(img);
+
     button.addEventListener("click", () => {
-      selectImage(url, (listing.item_name || "Product") + " photo " + (index + 1));
+      selectImage(
+        url,
+        (listing.item_name || "Product") + " photo " + (index + 1)
+      );
     });
+
     thumbnails.appendChild(button);
   });
 }
 
+function updateContactButtons() {
+  const international = getInternationalNumber(sellerPhone);
+
+  contactButton.disabled = !international;
+
+  if (international) {
+    callButton.href = "tel:+" + international;
+    callButton.removeAttribute("aria-disabled");
+    callButton.style.pointerEvents = "auto";
+    callButton.style.opacity = "1";
+  } else {
+    callButton.href = "tel:";
+    callButton.setAttribute("aria-disabled", "true");
+    callButton.style.pointerEvents = "none";
+    callButton.style.opacity = "0.5";
+  }
+}
+
 async function loadListing() {
   if (!listingId) {
-    notice.textContent = "This link has no listing ID. Return to Buy & Sell and open the product again.";
-    mainImage.innerHTML = '<span class="placeholder">Product not selected</span>';
+    notice.textContent =
+      "This link has no listing ID. Return to Buy & Sell and open the product again.";
+
+    mainImage.innerHTML =
+      '<span class="placeholder">Product not selected</span>';
+
     setText("productName", "Product not selected");
     setText("sellerName", "");
+
     contactButton.disabled = true;
+    updateContactButtons();
     return;
   }
 
@@ -308,6 +388,7 @@ async function loadListing() {
     }
 
     const item = data.listing;
+
     currentListingId = item.id;
     sellerPhone = item.seller_phone || "";
 
@@ -318,42 +399,61 @@ async function loadListing() {
     setText("productDescription", item.description);
     setText("sellerName", item.seller_name);
     setText("sellerLocation", "📍 " + (item.location || ""));
-    setText("sellerPhone", sellerPhone ? "Phone: " + sellerPhone : "Seller contact unavailable");
+    setText(
+      "sellerPhone",
+      sellerPhone ? "Phone: " + sellerPhone : "Seller contact unavailable"
+    );
 
     showImages(item);
+
     notice.textContent = "You're viewing a published ShukAfrica listing.";
-    contactButton.disabled = !sellerPhone;
+
+    updateContactButtons();
+
+    // Restore the saved state for this listing.
+    const key = "shukafricaSavedMarketplaceListings";
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(key) || "[]");
+      if (Array.isArray(saved) && saved.includes(currentListingId)) {
+        saveButton.textContent = "♥ Saved";
+      }
+    } catch {
+      // Keep the default Save button if saved data cannot be read.
+    }
   } catch (error) {
     console.error(error);
+
     setText("productName", "Listing unavailable");
     notice.textContent = error.message || "Unable to load this product.";
-    mainImage.innerHTML = '<span class="placeholder">Product photos unavailable</span>';
+
+    mainImage.innerHTML =
+      '<span class="placeholder">Product photos unavailable</span>';
+
     contactButton.disabled = true;
+    sellerPhone = "";
+    updateContactButtons();
   }
 }
 
 contactButton.addEventListener("click", () => {
-  const digits = sellerPhone.replace(/\D/g, "");
-  if (!digits) {
+  const international = getInternationalNumber(sellerPhone);
+
+  if (!international) {
     alert("The seller has not provided a contact number.");
     return;
   }
 
-  // Ghana numbers are converted to international format for WhatsApp.
-  let international = digits;
-  if (international.startsWith("0")) {
-    international = "233" + international.slice(1);
-  }
-
-  const message = "Hello, I'm interested in your ShukAfrica listing: " +
+  const message =
+    "Hello, I'm interested in your ShukAfrica listing: " +
     document.getElementById("productName").textContent +
     (currentListingId ? " (Reference: " + currentListingId + ")" : "");
 
-  window.open(
-    "https://wa.me/" + international + "?text=" + encodeURIComponent(message),
-    "_blank",
-    "noopener,noreferrer"
-  );
+  const whatsappUrl =
+    "https://wa.me/" + international +
+    "?text=" + encodeURIComponent(message);
+
+  window.open(whatsappUrl, "_blank", "noopener,noreferrer");
 });
 
 saveButton.addEventListener("click", () => {
@@ -386,4 +486,3 @@ loadListing();
 </script>
 </body>
 </html>
-
