@@ -1,304 +1,353 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#071112">
 <title>Buy & Sell | ShukAfrica</title>
 
 <style>
-:root{
+:root {
   --bg:#071112;
   --panel:#101d1e;
   --panel2:#142425;
   --line:#263738;
   --text:#f5f7f5;
   --muted:#a8b6b3;
-  --gold:#d4883a;
-  --gold2:#ffb52e;
+  --gold:#ffb52e;
   --green:#00a86b;
   --blue:#1688db;
-  --red:#ed3e35;
-  --radius:18px;
+  --radius:16px;
 }
 
-*{
+* {
   box-sizing:border-box;
   margin:0;
   padding:0;
 }
 
-body{
+body {
   font-family:Arial,Helvetica,sans-serif;
   background:var(--bg);
   color:var(--text);
   line-height:1.5;
 }
 
-header{
-  background:rgba(7,17,18,.96);
-  border-bottom:1px solid var(--line);
-  padding:16px 5%;
+header {
   position:sticky;
   top:0;
   z-index:10;
+  background:#071112;
+  border-bottom:1px solid var(--line);
+  padding:12px 4%;
 }
 
-.nav{
+.nav {
   max-width:1200px;
   margin:auto;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:20px;
+  gap:12px;
 }
 
-.logo{
-  color:var(--gold2);
-  font-size:24px;
+.logo {
+  color:var(--gold);
+  font-size:21px;
   font-weight:900;
-  letter-spacing:1px;
+  letter-spacing:.5px;
+  text-decoration:none;
 }
 
-.back{
+.nav-right {
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.back {
   color:var(--text);
   text-decoration:none;
+  font-size:13px;
+  padding:8px 10px;
   border:1px solid var(--line);
-  padding:9px 15px;
-  border-radius:12px;
+  border-radius:10px;
 }
 
-.back:hover{
-  border-color:var(--gold);
-}
-
-main{
-  max-width:1200px;
-  margin:auto;
-  padding:35px 5% 70px;
-}
-
-.hero{
-  text-align:center;
-  margin-bottom:30px;
-}
-
-.hero h1{
-  font-size:clamp(30px,5vw,52px);
-  margin-bottom:10px;
-}
-
-.hero h1 span{
-  color:var(--gold2);
-}
-
-.hero p{
-  color:var(--muted);
-  max-width:650px;
-  margin:auto;
-}
-
-.actions{
-  display:flex;
-  justify-content:center;
-  gap:12px;
-  margin:25px 0;
-  flex-wrap:wrap;
-}
-
-.btn{
+.add-button {
+  width:43px;
+  height:43px;
   border:0;
-  border-radius:12px;
-  padding:13px 20px;
-  font-weight:800;
-  cursor:pointer;
-  text-decoration:none;
-  display:inline-block;
-}
-
-.buy{
-  background:var(--gold2);
-  color:#111;
-}
-
-.sell{
+  border-radius:13px;
   background:var(--green);
   color:white;
+  font-size:30px;
+  line-height:1;
+  font-weight:700;
+  cursor:pointer;
 }
 
-.filters{
+.add-button:disabled {
+  opacity:.6;
+}
+
+main {
+  max-width:1200px;
+  margin:auto;
+  padding:28px 4% 60px;
+}
+
+.hero {
+  margin-bottom:25px;
+}
+
+.hero h1 {
+  font-size:clamp(29px,5vw,43px);
+  margin-bottom:5px;
+}
+
+.hero h1 span {
+  color:var(--gold);
+}
+
+.hero p {
+  color:var(--muted);
+}
+
+.filters {
   background:var(--panel);
   border:1px solid var(--line);
   border-radius:var(--radius);
-  padding:20px;
-  margin-bottom:28px;
+  padding:15px;
+  margin-bottom:25px;
 }
 
-.search{
+.search {
   width:100%;
-  padding:14px;
-  border-radius:12px;
+  margin-bottom:12px;
+}
+
+.filter-row {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+}
+
+input,select {
+  width:100%;
+  min-width:0;
+  padding:12px;
   border:1px solid var(--line);
+  border-radius:10px;
   background:var(--panel2);
   color:var(--text);
-  font-size:16px;
+  font-size:15px;
+}
+
+input::placeholder {
+  color:var(--muted);
+}
+
+.section-title {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
   margin-bottom:15px;
 }
 
-.filter-row{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
+.section-title h2 {
+  font-size:22px;
 }
 
-select{
-  width:100%;
-  padding:13px;
-  border-radius:12px;
-  border:1px solid var(--line);
-  background:var(--panel2);
-  color:var(--text);
-}
-
-.section-title{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:18px;
-}
-
-.section-title h2{
-  font-size:24px;
-}
-
-.section-title span{
+#count {
   color:var(--muted);
-  font-size:14px;
+  font-size:13px;
 }
 
-.products{
+.products {
   display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:18px;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:17px;
 }
 
-.card{
-  background:var(--panel);
+.card {
+  min-width:0;
+  overflow:hidden;
   border:1px solid var(--line);
   border-radius:var(--radius);
-  overflow:hidden;
-  transition:.2s;
+  background:var(--panel);
+  display:flex;
+  flex-direction:column;
 }
 
-.card:hover{
-  transform:translateY(-3px);
-  border-color:var(--gold);
-}
-
-.photo{
-  height:180px;
-  background:var(--panel2);
+.photo {
+  height:225px;
+  width:100%;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:60px;
+  padding:10px;
+  background:#f4f4f0;
+  overflow:hidden;
 }
 
-.info{
-  padding:18px;
+.photo img {
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
 }
 
-.category{
-  color:var(--gold2);
-  font-size:12px;
-  font-weight:800;
+.no-photo {
+  color:#43504d;
+  font-size:42px;
+}
+
+.info {
+  padding:14px;
+  display:flex;
+  flex-direction:column;
+  flex:1;
+}
+
+.category {
+  color:var(--gold);
   text-transform:uppercase;
+  font-weight:800;
+  font-size:11px;
+  letter-spacing:.5px;
 }
 
-.info h3{
-  margin:7px 0;
-  font-size:19px;
+.info h3 {
+  font-size:17px;
+  line-height:1.35;
+  margin:5px 0 8px;
+  overflow-wrap:anywhere;
 }
 
-.price{
+.price {
+  color:var(--gold);
   font-size:20px;
   font-weight:900;
-  margin:10px 0;
+  margin-bottom:5px;
 }
 
-.location{
+.location {
   color:var(--muted);
-  font-size:14px;
-  margin-bottom:15px;
+  font-size:13px;
+  margin-bottom:14px;
+  overflow-wrap:anywhere;
 }
 
-.card-actions{
+.card-actions {
   display:flex;
   gap:8px;
+  margin-top:auto;
 }
 
-.view{
+.view {
+  display:block;
   flex:1;
+  text-align:center;
+  text-decoration:none;
   background:var(--blue);
   color:white;
-  border:0;
-  padding:11px;
   border-radius:10px;
-  cursor:pointer;
-  font-weight:700;
+  padding:11px 8px;
+  font-weight:800;
+  font-size:14px;
 }
 
-.heart{
-  width:45px;
-  border:1px solid var(--line);
-  background:var(--panel2);
-  color:white;
-  border-radius:10px;
-  cursor:pointer;
-  font-size:18px;
+.view:hover {
+  filter:brightness(1.1);
 }
 
-.heart.saved{
-  color:var(--red);
-}
-
-.empty{
+.empty,.message {
   display:none;
+  padding:30px 15px;
   text-align:center;
   color:var(--muted);
-  padding:50px 20px;
   background:var(--panel);
   border:1px solid var(--line);
   border-radius:var(--radius);
 }
 
-footer{
+footer {
   border-top:1px solid var(--line);
-  padding:25px 5%;
+  padding:22px 4%;
   text-align:center;
   color:var(--muted);
+  font-size:13px;
 }
 
-@media(max-width:800px){
-  .products{
-    grid-template-columns:repeat(2,1fr);
+@media(max-width:850px) {
+  .products {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
   }
 
-  .filter-row{
-    grid-template-columns:1fr;
-  }
-}
-
-@media(max-width:520px){
-  .products{
+  .filter-row {
     grid-template-columns:1fr;
   }
 
-  .nav{
-    flex-direction:column;
+  .photo {
+    height:200px;
+  }
+}
+
+@media(max-width:480px) {
+  header {
+    padding:10px 3%;
   }
 
-  .hero h1{
-    font-size:34px;
+  .logo {
+    font-size:17px;
+  }
+
+  .back {
+    font-size:12px;
+    padding:8px;
+  }
+
+  .add-button {
+    width:40px;
+    height:40px;
+  }
+
+  main {
+    padding:22px 3% 45px;
+  }
+
+  .products {
+    gap:10px;
+  }
+
+  .photo {
+    height:155px;
+    padding:7px;
+  }
+
+  .info {
+    padding:10px;
+  }
+
+  .info h3 {
+    font-size:15px;
+  }
+
+  .price {
+    font-size:17px;
+  }
+
+  .location {
+    font-size:12px;
+  }
+
+  .view {
+    font-size:12px;
+    padding:10px 5px;
   }
 }
 </style>
@@ -307,359 +356,87 @@ footer{
 <body>
 
 <header>
-  <div class="nav">
-    <div class="logo">SHUKAFRICA</div>
-    <a class="back" href="index.html">← Back to ShukAfrica</a>
-  </div>
+  <nav class="nav">
+    <a class="logo" href="index.html">SHUKAFRICA</a>
+
+    <div class="nav-right">
+      <a class="back" href="index.html">← Home</a>
+      <button
+        class="add-button"
+        id="addListing"
+        type="button"
+        aria-label="Add a product or open seller dashboard"
+        title="Sell an item"
+      >+</button>
+    </div>
+  </nav>
 </header>
 
 <main>
+  <section class="hero">
+    <h1>Buy &amp; <span>Sell</span></h1>
+    <p>Discover products, compare prices and connect with sellers.</p>
+  </section>
 
-<section class="hero">
-  <h1>Buy & <span>Sell</span></h1>
-  <p>
-    Discover products and connect with sellers across Africa.
-    Search, compare and find what you need on ShukAfrica.
-  </p>
+  <section class="filters" aria-label="Search and filter products">
+    <input
+      id="search"
+      class="search"
+      type="search"
+      placeholder="Search products..."
+      aria-label="Search products"
+    >
 
-  <div class="actions">
-    <a class="btn buy" href="#products">🛒 Browse Products</a>
-    <a class="btn sell" href="#sell">＋ Sell an Item</a>
-  </div>
-</section>
-
-<section class="filters">
-
-  <input
-    id="search"
-    class="search"
-    type="text"
-    placeholder="🔎 Search products..."
-  >
-
-  <div class="filter-row">
-    
-    <select id="location">
-      <option value="all">All Locations</option>
-      <option value="Accra">Accra</option>
-      <option value="Kumasi">Kumasi</option>
-      <option value="Cape Coast">Cape Coast</option>
-      <option value="Takoradi">Takoradi</option>
-      <option value="Tema">Tema</option>
-      <option value="Sunyani">Sunyani</option>
-    </select>
-
-    <select id="price">
-      <option value="all">Any Price</option>
-      <option value="1000">Under GH₵1,000</option>
-      <option value="5000">Under GH₵5,000</option>
-      <option value="10000">Under GH₵10,000</option>
-      <option value="50000">Under GH₵50,000</option>
-    </select>
-
-  </div>
-</section>
-
-<section id="products">
-
-  <div class="section-title">
-    <h2>Latest Listings</h2>
-    <span id="count">6 products</span>
-  </div>
-
-  <div class="products" id="productGrid">
-
-    
-      <article class="card"
-  data-name="Samsung Galaxy A55"
-  data-category="electronics"
-  data-location="Accra"
-  data-price="2800"
-  data-description="Samsung Galaxy A55 in good condition. Everything works properly. Available for inspection in Accra."
-  data-seller="ShukAfrica Seller">
-  
-  
-  
-  
-  
-      
-
-      <div class="photo">📱</div>
-
-      <div class="info">
-        <div class="category">Electronics</div>
-        <h3>Samsung Galaxy A55</h3>
-        <div class="price">GH₵ 2,800</div>
-        <div class="location">📍 Accra, Ghana</div>
-
-        <div class="card-actions">
-          <button class="view">View Product</button>
-          <button class="heart">♡</button>
-        </div>
-      </div>
-    </article>
-
-
-    <article class="card"
-  data-name="Generator 5.5kVA"
-  data-category="equipment"
-  data-location="Kumasi"
-  data-price="4500"
-  data-description="Generator 5.5kVA in good working condition. Available for inspection in Kumasi."
-  data-seller="ShukAfrica Seller">
-      
-      
-      
-
-      <div class="photo">⚡</div>
-
-      <div class="info">
-        <div class="category">Equipment</div>
-        <h3>Generator 5.5kVA</h3>
-        <div class="price">GH₵ 4,500</div>
-        <div class="location">📍 Kumasi, Ghana</div>
-
-        <div class="card-actions">
-          <button class="view">View Product</button>
-          <button class="heart">♡</button>
-        </div>
-      </div>
-    </article>
-
-
-    <article class="card"
-  data-name="Tractor (Used)"
-  data-category="agriculture"
-  data-location="Takoradi"
-  data-price="95000"
-  data-description="Used tractor in good working condition. Available for inspection in Takoradi."
-  data-seller="ShukAfrica Seller">
-      
-      
-      
-
-
-      <div class="photo">🚜</div>
-
-      <div class="info">
-        <div class="category">Agriculture</div>
-        <h3>Tractor (Used)</h3>
-        <div class="price">GH₵ 95,000</div>
-        <div class="location">📍 Takoradi, Ghana</div>
-
-        <div class="card-actions">
-          <button class="view">View Product</button>
-          <button class="heart">♡</button>
-        </div>
-      </div>
-    </article>
-
-
-    <article class="card"
-  data-name="African Print Dresses"
-  data-category="fashion"
-  data-location="Cape Coast"
-  data-price="250"
-  data-description="Beautiful African print dresses available in different styles. Available in Cape Coast."
-  data-seller="ShukAfrica Seller"> 
-    
-      
-      
-
-      <div class="photo">👗</div>
-
-      <div class="info">
-        <div class="category">Fashion</div>
-        <h3>African Print Dresses</h3>
-        <div class="price">GH₵ 250</div>
-        <div class="location">📍 Cape Coast, Ghana</div>
-
-        <div class="card-actions">
-          <button class="view">View Product</button>
-          <button class="heart">♡</button>
-        </div>
-      </div>
-    </article>
-
-
-    <article class="card"
-      data-name="3 Bedroom House"
-      data-category="property"
-      data-location="Tema"
-      data-price="3000"
-      data-description="Spacious 3 bedroom house available for rent in Tema. Suitable for families and available for inspection."
-data-seller="ShukAfrica Seller"> 
-      
-      
-      
-      
-
-      <div class="photo">🏠</div>
-
-      <div class="info">
-        <div class="category">Property</div>
-        <h3>3 Bedroom House</h3>
-        <div class="price">GH₵ 3,000 / month</div>
-        <div class="location">📍 Tema, Ghana</div>
-
-        <div class="card-actions">
-          <button class="view">View Product</button>
-          <button class="heart">♡</button>
-        </div>
-      </div>
-    </article>
-
-
-    <article class="card"
-      data-name="Bajaj Motorcycle"
-      data-category="vehicles"
-      data-location="Sunyani"
-      data-price="12500"
-      data-description="Bajaj motorcycle in good working condition. Available for inspection in Sunyani."
-data-seller="ShukAfrica Seller">
-      
-      
-      
-      
-
-      <div class="photo">🏍️</div>
-
-      <div class="info">
-        <div class="category">Vehicles</div>
-        <h3>Motorcycle (Bajaj)</h3>
-        <div class="price">GH₵ 12,500</div>
-        <div class="location">📍 Sunyani, Ghana</div>
-
-        <div class="card-actions">
-          <button class="view">View Product</button>
-          <button class="heart">♡</button>
-        </div>
-      </div>
-    </article>
-
-  </div>
-
-  <div class="empty" id="empty">
-    No products found. Try another search or filter.
-  </div>
-
-</section>
-
-<section id="sell" style="margin-top:50px;">
-  <div class="filters">
-    <h2>Sell an Item</h2>
-
-    <p style="color:var(--muted);margin:8px 0 18px;">
-      List your product on ShukAfrica and connect with buyers.
-    </p>
-
-    <form id="sellerForm">
-<input
-  type="file"
-  id="sellerPhotos"
-  accept="image/jpeg,image/png,image/webp"
-  multiple
->
-
-<small style="color:var(--muted);display:block;margin-bottom:15px;">
-  Add up to 3 photos. Maximum 2 MB per photo.
-  Your listing will be reviewed before publication.
-</small>
-      
-      <input
-  type="text"
-  id="sellerName"
-  placeholder="Seller name"
-  required
->
-
-<input
-  type="text"
-  id="sellerProductName"
-  placeholder="Product name"
-  required
->
-
-      <input
-        type="number"
-        id="sellerPrice"
-        placeholder="Price"
-        min="0"
-        required
-      >
-
-      <select id="sellerCategory" required>
-        <option value="">Select category</option>
-        <option>Electronics</option>
-        <option>Vehicles</option>
-        <option>Equipment</option>
-        <option>Agriculture</option>
-        <option>Fashion</option>
-        <option>Property</option>
-        <option>Other</option>
+    <div class="filter-row">
+      <select id="location" aria-label="Filter by location">
+        <option value="all">All locations</option>
+        <option value="Accra">Accra</option>
+        <option value="Kumasi">Kumasi</option>
+        <option value="Cape Coast">Cape Coast</option>
+        <option value="Takoradi">Takoradi</option>
+        <option value="Tema">Tema</option>
+        <option value="Sunyani">Sunyani</option>
       </select>
 
-      <input
-        type="text"
-        id="sellerLocation"
-        placeholder="Location (e.g. Accra)"
-        required
-      >
+      <select id="category" aria-label="Filter by category">
+        <option value="all">All categories</option>
+        <option value="electronics">Electronics</option>
+        <option value="vehicles">Vehicles</option>
+        <option value="equipment">Equipment</option>
+        <option value="agriculture">Agriculture</option>
+        <option value="fashion">Fashion</option>
+        <option value="property">Property</option>
+        <option value="other">Other</option>
+      </select>
 
-      <input
-        type="tel"
-        id="sellerPhone"
-        placeholder="Phone / WhatsApp number"
-        required
-      >
+      <select id="price" aria-label="Filter by maximum price">
+        <option value="all">Any price</option>
+        <option value="1000">Under GH₵1,000</option>
+        <option value="5000">Under GH₵5,000</option>
+        <option value="10000">Under GH₵10,000</option>
+        <option value="50000">Under GH₵50,000</option>
+      </select>
+    </div>
+  </section>
 
-<div id="sellerOtpSection" style="margin:15px 0;padding:15px;border:1px solid var(--line);border-radius:12px;">
-  <h3 style="margin-bottom:8px;">Verify your phone</h3>
-  <p style="color:var(--muted);margin-bottom:12px;">
-    Verify your Ghana phone number before submitting a product.
-  </p>
+  <section id="products">
+    <div class="section-title">
+      <h2>Latest Listings</h2>
+      <span id="count">Loading...</span>
+    </div>
 
-  <button type="button" class="btn buy" id="sendSellerOtp">
-    Send verification code
-  </button>
+    <div class="products" id="productGrid"></div>
 
-  <div style="margin-top:12px;">
-    <input
-      type="text"
-      id="sellerOtpCode"
-      placeholder="Enter 6-digit SMS code"
-      inputmode="numeric"
-      autocomplete="one-time-code"
-      maxlength="6"
-      pattern="[0-9]{6}"
-      style="width:100%;padding:13px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text);"
-    >
-  </div>
+    <div class="empty" id="empty">
+      No published products found. Try another search or check again later.
+    </div>
 
-  <button type="button" class="btn buy" id="verifySellerOtp" style="margin-top:10px;">
-    Verify code
-  </button>
-
-  <p id="sellerOtpStatus" role="status" aria-live="polite" style="margin-top:10px;color:var(--muted);">
-    Phone verification required.
-  </p>
-</div>
-      
-      <textarea
-        id="sellerDescription"
-        placeholder="Describe your product"
-        rows="5"
-        required
-      ></textarea>
-
-      <button type="submit" class="btn sell">
-        ＋ List Product
-      </button>
-
-    </form>
-  </div>
-</section>
-
+    <div class="message" id="loadError">
+      We couldn't load the listings. Please try again.
+      <br><br>
+      <button id="retry" type="button">Try again</button>
+    </div>
+  </section>
 </main>
 
 <footer>
@@ -670,180 +447,14 @@ data-seller="ShukAfrica Seller">
 
 const search = document.getElementById("search");
 const locationFilter = document.getElementById("location");
+const categoryFilter = document.getElementById("category");
 const priceFilter = document.getElementById("price");
 const productGrid = document.getElementById("productGrid");
 const count = document.getElementById("count");
 const empty = document.getElementById("empty");
-const sellerForm = document.getElementById("sellerForm");
+const loadError = document.getElementById("loadError");
+const addButton = document.getElementById("addListing");
 
-let cards = [];
-let publishedListings = [];
-let submitting = false;
-
-let sellerOtpId = "";
-let sellerVerifiedPhone = "";
-
-function normalizeSellerPhone(value) {
-  let phone = value.trim().replace(/[\s()-]/g, "");
-
-  if (/^0\d{9}$/.test(phone)) {
-    phone = "+233" + phone.slice(1);
-  }
-
-  return /^\+233\d{9}$/.test(phone) ? phone : "";
-}
-
-function setSellerOtpStatus(message, success = false) {
-  const status = document.getElementById("sellerOtpStatus");
-  status.textContent = message;
-  status.style.color = success ? "#00c781" : "var(--muted)";
-}
-
-
-async function checkSellerSession() {
-  try {
-    const response = await fetch("/api/auth/session", {
-      method: "GET",
-      headers: { "Accept": "application/json" },
-      credentials: "same-origin",
-      cache: "no-store"
-    });
-
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok || data.authenticated !== true) {
-      sellerVerifiedPhone = "";
-      return false;
-    }
-
-    // Email-based seller account session.
-    if (data.account_type === "email" && data.seller?.id) {
-      return true;
-    }
-
-    // Legacy SMS session: retain the phone match check.
-    const phone = normalizeSellerPhone(
-      document.getElementById("sellerPhone").value
-    );
-
-    if (
-      data.account_type === "sms" &&
-      phone &&
-      normalizeSellerPhone(data.phone || "") === phone
-    ) {
-      sellerVerifiedPhone = phone;
-      return true;
-    }
-
-    sellerVerifiedPhone = "";
-    return false;
-  } catch {
-    sellerVerifiedPhone = "";
-    return false;
-  }
-}
-
-document.getElementById("sendSellerOtp").addEventListener("click", async () => {
-  const phone = normalizeSellerPhone(
-    document.getElementById("sellerPhone").value
-  );
-
-  if (!phone) {
-    setSellerOtpStatus("Enter a valid Ghana number, e.g. 0241234567.");
-    return;
-  }
-
-  const button = document.getElementById("sendSellerOtp");
-  button.disabled = true;
-  button.textContent = "Sending code...";
-
-  try {
-    const response = await fetch("/api/auth/otp-send", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-      credentials: "same-origin",
-      body: JSON.stringify({ phone })
-    });
-
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok || data.success !== true || !data.otp_id) {
-      throw new Error(data.error || "Could not send the verification code.");
-    }
-
-    sellerOtpId = data.otp_id;
-    sellerVerifiedPhone = "";
-    setSellerOtpStatus("Code sent. Enter the six digits from your SMS.");
-  } catch (error) {
-    setSellerOtpStatus(error.message || "Could not send the code.");
-  } finally {
-    button.disabled = false;
-    button.textContent = "Send verification code";
-  }
-});
-
-document.getElementById("verifySellerOtp").addEventListener("click", async () => {
-  const phone = normalizeSellerPhone(
-    document.getElementById("sellerPhone").value
-  );
-
-  const code = document.getElementById("sellerOtpCode").value.trim();
-
-  if (!phone || !sellerOtpId || !/^\d{6}$/.test(code)) {
-    setSellerOtpStatus("Enter your phone number, request a code, and type all six digits.");
-    return;
-  }
-
-  const button = document.getElementById("verifySellerOtp");
-  button.disabled = true;
-  button.textContent = "Verifying...";
-
-  try {
-    const response = await fetch("/api/auth/otp-verify", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-      credentials: "same-origin",
-      body: JSON.stringify({
-        otp_id: sellerOtpId,
-        code
-      })
-    });
-
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok || data.success !== true || data.verified !== true) {
-      throw new Error(data.error || "Phone verification failed.");
-    }
-
-    const authenticated = await checkSellerSession();
-
-    if (!authenticated) {
-      throw new Error("The session could not be confirmed. Please try again.");
-    }
-
-    sellerOtpId = "";
-    setSellerOtpStatus("Phone verified successfully.", true);
-  } catch (error) {
-    sellerVerifiedPhone = "";
-    setSellerOtpStatus(error.message || "Verification failed.");
-  } finally {
-    button.disabled = false;
-    button.textContent = "Verify code";
-  }
-});
-
-document.getElementById("sellerPhone").addEventListener("input", () => {
-  sellerVerifiedPhone = "";
-  sellerOtpId = "";
-  setSellerOtpStatus("Phone changed. Request and verify a new code.");
-});
-  
 function escapeHTML(value) {
   return String(value ?? "").replace(/[&<>"']/g, char => ({
     "&": "&amp;",
@@ -860,122 +471,121 @@ function money(value) {
   });
 }
 
-function refreshCards() {
-  cards = [...productGrid.querySelectorAll(".card")];
+function validImage(value) {
+  if (typeof value !== "string" || !value) return "";
+
+  try {
+    const url = new URL(value);
+
+    if (
+      url.protocol === "https:" &&
+      url.hostname === "media.shukafrica.com"
+    ) {
+      return url.href;
+    }
+  } catch {}
+
+  return "";
 }
 
-function renderPublishedListing(item) {
+function renderListing(item) {
+  const id = String(item.id ?? "");
+  if (!id) return null;
+
   const card = document.createElement("article");
   card.className = "card";
-  card.dataset.name = item.item_name || "";
-  card.dataset.category = item.category || "";
-  card.dataset.location = item.location || "";
-  card.dataset.price = String(item.price_ghs ?? 0);
-  card.dataset.description = item.description || "";
-  card.dataset.seller = "ShukAfrica Seller";
-  card.dataset.listingId = item.id || "";
-
-  const image = [item.image_1, item.image_2, item.image_3]
-    .find(url => typeof url === "string" &&
-      url.startsWith("https://media.shukafrica.com/"));
 
   const photo = document.createElement("div");
   photo.className = "photo";
 
-  if (image) {
+  const imageURLs = [
+    item.image_1,
+    item.image_2,
+    item.image_3
+  ].map(validImage).filter(Boolean);
+
+  if (imageURLs.length) {
     const img = document.createElement("img");
-    img.src = image;
+    img.src = imageURLs[0];
     img.alt = item.item_name || "Product photo";
     img.loading = "lazy";
-    img.style.width = "100%";
-    img.style.height = "180px";
-    img.style.objectFit = "cover";
+    img.decoding = "async";
+
+    img.addEventListener("error", () => {
+      photo.innerHTML = '<span class="no-photo">📦</span>';
+    }, { once: true });
+
     photo.appendChild(img);
   } else {
-    photo.textContent = "📦";
+    photo.innerHTML = '<span class="no-photo">📦</span>';
   }
 
   const info = document.createElement("div");
   info.className = "info";
+
+  const detailURL = "product.html?id=" + encodeURIComponent(id);
+
   info.innerHTML = `
-    <div class="category">${escapeHTML(item.category)}</div>
-    <h3>${escapeHTML(item.item_name)}</h3>
-    <div class="price">GH₵ ${money(item.price_ghs)}</div>
-    <div class="location">📍 ${escapeHTML(item.location)}</div>
+    <div class="category">${escapeHTML(item.category || "Other")}</div>
+    <h3>${escapeHTML(item.item_name || "Untitled product")}</h3>
+    <div class="price">GH₵ ${money(item.price_ghs ?? 0)}</div>
+    <div class="location">📍 ${escapeHTML(item.location || "Location not specified")}</div>
     <div class="card-actions">
-      <button class="view" type="button">View Product</button>
-      <button class="heart" type="button" aria-label="Save listing">♡</button>
+      <a class="view" href="${detailURL}">View Details</a>
     </div>
   `;
 
   card.append(photo, info);
-  productGrid.appendChild(card);
-}
 
-async function loadPublishedListings() {
-  try {
-    const response = await fetch("/api/marketplace", {
-      headers: { "Accept": "application/json" },
-      cache: "no-store"
-    });
+  card.dataset.name = item.item_name || "";
+  card.dataset.description = item.description || "";
+  card.dataset.location = item.location || "";
+  card.dataset.category = String(item.category || "").toLowerCase();
+  card.dataset.price = String(item.price_ghs ?? 0);
 
-    if (!response.ok) {
-      throw new Error("Could not load published listings.");
-    }
-
-    const data = await response.json();
-
-    if (!data.success || !Array.isArray(data.listings)) {
-      throw new Error("Invalid marketplace response.");
-    }
-
-    publishedListings = data.listings;
-
-    // Remove only cards previously loaded from the database.
-    productGrid.querySelectorAll("[data-listing-id]").forEach(card => {
-      card.remove();
-    });
-
-    publishedListings.forEach(renderPublishedListing);
-    refreshCards();
-    filterProducts();
-  } catch (error) {
-    console.error("Marketplace loading failed:", error);
-    refreshCards();
-    filterProducts();
-  }
+  return card;
 }
 
 function filterProducts() {
-  const searchText = search.value.trim().toLowerCase();
-  const selectedLocation = locationFilter.value;
+  const query = search.value.trim().toLowerCase();
+  const selectedLocation = locationFilter.value.toLowerCase();
+  const selectedCategory = categoryFilter.value.toLowerCase();
   const selectedPrice = priceFilter.value;
 
   let visible = 0;
 
-  cards.forEach(card => {
+  for (const card of productGrid.querySelectorAll(".card")) {
     const name = (card.dataset.name || "").toLowerCase();
     const description = (card.dataset.description || "").toLowerCase();
-    const cardLocation = card.dataset.location || "";
-    const cardPrice = Number(card.dataset.price || 0);
+    const location = (card.dataset.location || "").toLowerCase();
+    const category = (card.dataset.category || "").toLowerCase();
+    const price = Number(card.dataset.price || 0);
 
-    const matchesSearch =
-      name.includes(searchText) ||
-      description.includes(searchText);
+    const matchesQuery =
+      name.includes(query) || description.includes(query);
 
     const matchesLocation =
       selectedLocation === "all" ||
-      cardLocation.toLowerCase().includes(selectedLocation.toLowerCase());
+      location.includes(selectedLocation);
+
+    const matchesCategory =
+      selectedCategory === "all" ||
+      category === selectedCategory;
 
     const matchesPrice =
       selectedPrice === "all" ||
-      cardPrice <= Number(selectedPrice);
+      price <= Number(selectedPrice);
 
-    const show = matchesSearch && matchesLocation && matchesPrice;
+    const show =
+      matchesQuery &&
+      matchesLocation &&
+      matchesCategory &&
+      matchesPrice;
+
     card.style.display = show ? "" : "none";
 
     if (show) visible++;
-  });
+  }
 
   count.textContent =
     visible + (visible === 1 ? " product" : " products");
@@ -983,232 +593,89 @@ function filterProducts() {
   empty.style.display = visible === 0 ? "block" : "none";
 }
 
-search.addEventListener("input", filterProducts);
-locationFilter.addEventListener("change", filterProducts);
-priceFilter.addEventListener("change", filterProducts);
-
-productGrid.addEventListener("click", event => {
-  const heart = event.target.closest(".heart");
-
-  if (heart) {
-    heart.classList.toggle("saved");
-    heart.textContent = heart.classList.contains("saved") ? "♥" : "♡";
-    return;
-  }
-
-  const view = event.target.closest(".view");
-  if (!view) return;
-
-  const card = view.closest(".card");
-
-  const listingId = card.dataset.listingId;
-
-if (listingId) {
-  window.location.href =
-    "product.html?id=" + encodeURIComponent(listingId);
-} else {
-  alert("This is a sample product. Please test with a published marketplace listing.");
-}
-});
-async function uploadPhoto(file) {
-  
-  const formData = new FormData();
-  formData.append("file", file);
-
-  const response = await fetch("/api/marketplace-upload", {
-    method: "POST",
-    body: formData
-  });
-
-  let data;
+async function loadPublishedListings() {
+  count.textContent = "Loading...";
+  empty.style.display = "none";
+  loadError.style.display = "none";
+  productGrid.innerHTML = "";
 
   try {
-    data = await response.json();
-  } catch {
-    throw new Error("The image upload returned an invalid response.");
-  }
-
-  if (!response.ok || !data.success || !data.url) {
-    throw new Error(data.error || "Image upload failed.");
-  }
-
-  const imageURL = new URL(data.url);
-
-  if (
-    imageURL.protocol !== "https:" ||
-    imageURL.hostname !== "media.shukafrica.com"
-  ) {
-    throw new Error("The server returned an unexpected image URL.");
-  }
-
-  return data.url;
-}
-
-sellerForm.addEventListener("submit", async event => {
-  event.preventDefault();
-
-  if (submitting) return;
-  
-
-const authenticated = await checkSellerSession();
-
-if (!authenticated) {
-  alert("Please log in to your seller account before submitting a listing.");
-  window.location.href = "signup.html";
-  return;
-}
-
-const sessionResponse = await fetch("/api/auth/session", {
-  method: "GET",
-  headers: { "Accept": "application/json" },
-  credentials: "same-origin",
-  cache: "no-store"
-});
-
-const sessionData = await sessionResponse.json().catch(() => ({}));
-
-if (!sessionResponse.ok || sessionData.authenticated !== true) {
-  alert("Your session has expired. Please log in again.");
-  window.location.href = "signup.html";
-  return;
-}
-
-if (sessionData.account_type === "sms") {
-  const verifiedPhone = normalizeSellerPhone(
-    document.getElementById("sellerPhone").value
-  );
-
-  if (!verifiedPhone || verifiedPhone !== sellerVerifiedPhone) {
-    alert("Please verify the contact phone number before submitting.");
-    return;
-  }
-} else if (sessionData.account_type !== "email") {
-  alert("Please log in to your seller account again.");
-  window.location.href = "signup.html";
-  return;
-}
-
-const sellerName = document.getElementById("sellerName").value.trim();
-const itemName = document.getElementById("sellerProductName").value.trim();
-const priceValue = document.getElementById("sellerPrice").value;
-const category = document.getElementById("sellerCategory").value;
-const location = document.getElementById("sellerLocation").value.trim();
-const phone = document.getElementById("sellerPhone").value.trim();
-const description = document.getElementById("sellerDescription").value.trim();
-const photoInput = document.getElementById("sellerPhotos");
-const photos = [...photoInput.files];
-
-  const price = Number(priceValue);
-
-  if (
-    !sellerName || !itemName || !category ||
-    !location || !phone || !description
-  ) {
-    alert("Please complete all required fields.");
-    return;
-  }
-
-  if (!Number.isFinite(price) || price < 0) {
-    alert("Please enter a valid price.");
-    return;
-  }
-
-  if (!/^[0-9+()\-\s]{7,30}$/.test(phone)) {
-    alert("Please enter a valid phone number.");
-    return;
-  }
-
-  if (photos.length > 3) {
-    alert("You can upload a maximum of 3 photos.");
-    return;
-  }
-
-  for (const photo of photos) {
-    if (photo.size < 1 || photo.size > 2 * 1024 * 1024) {
-      alert("Each photo must be no larger than 2 MB.");
-      return;
-    }
-
-    if (!["image/jpeg", "image/png", "image/webp"].includes(photo.type)) {
-      alert("Please use JPG, PNG or WebP photos.");
-      return;
-    }
-  }
-
-  const submitButton = sellerForm.querySelector('button[type="submit"]');
-  submitting = true;
-  submitButton.disabled = true;
-  submitButton.textContent = "Submitting...";
-
-  try {
-    const imageURLs = [];
-
-    for (const photo of photos) {
-      imageURLs.push(await uploadPhoto(photo));
-    }
-
-    const listing = {
-      seller_name: sellerName,
-      seller_phone: phone,
-      item_name: itemName,
-      category,
-      price_ghs: price,
-      location,
-      description,
-      image_1: imageURLs[0] || null,
-      image_2: imageURLs[1] || null,
-      image_3: imageURLs[2] || null
-    };
-
     const response = await fetch("/api/marketplace", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-      body: JSON.stringify(listing)
+      method: "GET",
+      headers: { "Accept": "application/json" },
+      cache: "no-store"
     });
 
-    let data;
+    const data = await response.json().catch(() => ({}));
 
-    try {
-      data = await response.json();
-    } catch {
-      throw new Error("The server returned an invalid response.");
+    if (
+      !response.ok ||
+      data.success !== true ||
+      !Array.isArray(data.listings)
+    ) {
+      throw new Error("Marketplace response was invalid.");
     }
 
-    if (!response.ok || !data.success) {
-      throw new Error(data.error || "The listing could not be submitted.");
+    // Display listings returned by the marketplace API.
+    // The API must return only approved, published products.
+    for (const item of data.listings) {
+      const card = renderListing(item);
+
+      if (card) {
+        productGrid.appendChild(card);
+      }
     }
 
-    sellerForm.reset();
-
-    alert(
-      "Your listing has been submitted for review. " +
-      "It will appear publicly after the ShukAfrica team approves it."
-    );
+    filterProducts();
   } catch (error) {
-    console.error("Listing submission failed:", error);
+    console.error("Marketplace loading failed:", error);
+    productGrid.innerHTML = "";
+    count.textContent = "Unavailable";
+    empty.style.display = "none";
+    loadError.style.display = "block";
+  }
+}
 
-    alert(
-      error.message ||
-      "We couldn't submit your listing. Please try again."
-    );
-  } finally {
-    submitting = false;
-    submitButton.disabled = false;
-    submitButton.textContent = "＋ List Product";
+search.addEventListener("input", filterProducts);
+locationFilter.addEventListener("change", filterProducts);
+categoryFilter.addEventListener("change", filterProducts);
+priceFilter.addEventListener("change", filterProducts);
+
+document.getElementById("retry").addEventListener(
+  "click",
+  loadPublishedListings
+);
+
+addButton.addEventListener("click", async () => {
+  addButton.disabled = true;
+
+  try {
+    const response = await fetch("/api/auth/session", {
+      method: "GET",
+      headers: { "Accept": "application/json" },
+      credentials: "same-origin",
+      cache: "no-store"
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (
+      response.ok &&
+      data.authenticated === true &&
+      (data.account_type === "email" || data.account_type === "sms")
+    ) {
+      window.location.href = "seller-dashboard.html";
+    } else {
+      window.location.href = "signup.html";
+    }
+  } catch (error) {
+    console.error("Session check failed:", error);
+    window.location.href = "signup.html";
   }
 });
 
-refreshCards();
-filterProducts();
 loadPublishedListings();
-  
-  
-
 </script>
 
 </body>
-  </html>
-
+</html>
