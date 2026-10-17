@@ -541,10 +541,11 @@ function renderListing(item) {
 }
 
   
+
 function filterProducts() {
   const query = search.value.trim().toLowerCase();
+  const requestedLocation = locationSearch.value.trim().toLowerCase();
 
-  // Recognize prices such as 170, 1000, under 500 or GH₵1,000.
   const priceMatch = query.match(
     /(?:under|below|less than|max(?:imum)?|budget of)?\s*(?:gh₵|ghs?|₵)?\s*([\d,]+(?:\.\d+)?)/i
   );
@@ -555,16 +556,10 @@ function filterProducts() {
     : null;
 
   const isPriceOnly = hasPrice &&
-    query.replace(/under|below|less than|max(?:imum)?|budget of|gh₵|ghs?|₵|[\d,. ]/gi, "").trim() === "";
-
-  // Recognize locations typed alone or with "in", "near" or "around".
-  const locationMatch = query.match(
-    /^(?:in|near|around|at)\s+(.+)$/i
-  );
-
-  const requestedLocation = locationMatch
-    ? locationMatch[1].trim().toLowerCase()
-    : "";
+    query.replace(
+      /under|below|less than|max(?:imum)?|budget of|gh₵|ghs?|₵|[\d,. ]/gi,
+      ""
+    ).trim() === "";
 
   let visible = 0;
 
@@ -574,29 +569,20 @@ function filterProducts() {
     const location = (card.dataset.location || "").toLowerCase();
     const price = Number(card.dataset.price || 0);
 
-    const matchesProduct =
-      !query ||
-      name.includes(query) ||
-      description.includes(query);
+    const matchesProduct = isPriceOnly
+      ? true
+      : !query ||
+        name.includes(query) ||
+        description.includes(query);
 
-    const matchesExactPrice =
-      !isPriceOnly || price === searchedPrice;
-
-    const matchesMaximumPrice =
-      !hasPrice || !isPriceOnly || price <= searchedPrice;
+    const matchesPrice =
+      !isPriceOnly || price <= searchedPrice;
 
     const matchesLocation =
       !requestedLocation || location.includes(requestedLocation);
 
-    let show;
-
-    if (isPriceOnly) {
-      show = price <= searchedPrice;
-    } else if (requestedLocation) {
-      show = matchesLocation;
-    } else {
-      show = matchesProduct;
-    }
+    const show =
+      matchesProduct && matchesPrice && matchesLocation;
 
     card.style.display = show ? "" : "none";
 
@@ -608,7 +594,6 @@ function filterProducts() {
 
   empty.style.display = visible === 0 ? "block" : "none";
 }
-  
 
 async function loadPublishedListings() {
   count.textContent = "Loading...";
