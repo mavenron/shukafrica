@@ -630,10 +630,7 @@ async function loadPublishedListings() {
 }
 
 search.addEventListener("input", filterProducts);
-locationFilter.addEventListener("change", filterProducts);
-categoryFilter.addEventListener("change", filterProducts);
-priceFilter.addEventListener("change", filterProducts);
-
+  
 document.getElementById("retry").addEventListener(
   "click",
   loadPublishedListings
