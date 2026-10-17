@@ -66,6 +66,7 @@ async function getAuthenticatedSeller(request, env) {
   return session;
 }
 
+
 export async function onRequestGet({ request, env }) {
   try {
     if (!env.DB) {
@@ -76,6 +77,35 @@ export async function onRequestGet({ request, env }) {
     }
 
     const url = new URL(request.url);
+
+    // Load one specific published listing for product.html.
+    const id = clean(url.searchParams.get("id"), 100);
+
+    if (id) {
+      const listing = await env.DB.prepare(`
+        SELECT
+          id, item_name, category, price_ghs, location,
+          description, image_1, image_2, image_3,
+          seller_name, seller_phone, created_at, updated_at
+        FROM marketplace_listings
+        WHERE id = ? AND status = 'published'
+        LIMIT 1
+      `).bind(id).first();
+
+      if (!listing) {
+        return json({
+          success: false,
+          error: "This listing was not found or is not published."
+        }, 404);
+      }
+
+      return json({
+        success: true,
+        listing
+      });
+    }
+
+    // Preserve the existing public marketplace listing response.
     const category = clean(url.searchParams.get("category"), 100);
     const search = clean(url.searchParams.get("search"), 100);
     const location = clean(url.searchParams.get("location"), 100);
@@ -102,8 +132,8 @@ export async function onRequestGet({ request, env }) {
     }
 
     if (search) {
-      sql += " AND (item_name LIKE ? OR description LIKE ?)";
-      params.push(`%${search}%`, `%${search}%`);
+      sql += " AND (item_name LIKE ? OR description LIKE ? OR location LIKE ?)";
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`);
     }
 
     sql += " ORDER BY created_at DESC LIMIT 100";
@@ -116,7 +146,9 @@ export async function onRequestGet({ request, env }) {
       success: true,
       listings: result.results || []
     });
-  } catch {
+  } catch (error) {
+    console.error("Marketplace GET failed:", error);
+
     return json({
       success: false,
       error: "Unable to load marketplace listings."
