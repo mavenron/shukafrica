@@ -7,109 +7,306 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ShukAfrica - Delivery Portal</title>
 
-  <style>
+<style>
+  :root {
+    --page: #0b141a;
+    --panel: #111b21;
+    --field: #182229;
+    --border: #1f2c33;
+    --text: #ffffff;
+    --muted: #aab7b8;
+    --green: #25d366;
+    --teal: #17a2b8;
+    --yellow: #f7a600;
+    --red: #dc3545;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    padding: 16px;
+    background: var(--page);
+    color: var(--text);
+    font-family: Arial, sans-serif;
+  }
+
+  .page-shell {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .page-title {
+    margin: 0 0 5px;
+    font-size: 22px;
+  }
+
+  .page-subtitle,
+  .muted,
+  .help {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .page-subtitle {
+    margin: 0;
+  }
+
+  .header-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 115px;
+  }
+
+  .small-action {
+    padding: 9px 8px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .request-action {
+    background: var(--green);
+    color: #07140d;
+  }
+
+  .agent-action {
+    background: transparent;
+    border-color: var(--teal);
+    color: #fff;
+  }
+
+  .category-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+    margin-bottom: 22px;
+  }
+
+  .category-tab {
+    min-width: 0;
+    padding: 10px 3px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: var(--field);
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .category-tab[aria-pressed="true"] {
+    background: #174c43;
+    border-color: #287d6e;
+  }
+
+  .category-icon {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 19px;
+  }
+
+  .live-deliveries,
+  .live-jobs,
+  .form-container,
+  .delivery-section {
+    width: 100%;
+    padding: 16px;
+    margin-bottom: 18px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+
+  .section-heading,
+  .job-type-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 19px;
+  }
+
+  h3 {
+    margin: 0 0 10px;
+    font-size: 17px;
+  }
+
+  h4 {
+    margin: 0 0 8px;
+    font-size: 15px;
+  }
+
+  .delivery-job {
+    padding: 14px;
+    margin-top: 12px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+  }
+
+  .job-route {
+    font-size: 19px;
+    overflow-wrap: anywhere;
+  }
+
+  .job-type,
+  .available-label {
+    color: var(--green);
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .info-box {
+    padding: 12px;
+    margin-top: 12px;
+    background: var(--field);
+    border-radius: 8px;
+  }
+
+  label {
+    display: block;
+    margin-top: 13px;
+    margin-bottom: 5px;
+    font-size: 13px;
+    font-weight: bold;
+  }
+
+  input[type="text"],
+  input[type="tel"],
+  input[type="number"],
+  input[type="file"],
+  select,
+  textarea {
+    width: 100%;
+    min-height: 42px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--field);
+    color: #fff;
+    font: inherit;
+  }
+
+  textarea {
+    min-height: 90px;
+  }
+
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin-top: 12px;
+    border: none;
+    border-radius: 7px;
+    background: var(--yellow);
+    color: #111;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .btn-secondary {
+    background: var(--teal);
+    color: #fff;
+  }
+
+  .btn-success {
+    background: var(--green);
+    color: #07140d;
+  }
+
+  .btn-danger {
+    background: var(--red);
+    color: #fff;
+  }
+
+  .btn-warning {
+    background: #ffc107;
+    color: #111;
+  }
+
+  .btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .contact-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .form-panel[hidden],
+  .hidden {
+    display: none !important;
+  }
+
+  .empty-state {
+    padding: 18px 12px;
+    border: 1px dashed #35434a;
+    border-radius: 9px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  @media (min-width: 600px) {
     body {
-      background-color: #0b141a;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      padding: 20px;
+      padding: 24px;
     }
 
-    .form-container, .live-deliveries {
-      background-color: #111b21;
-      border: 1px solid #1f2c33;
-      padding: 20px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      max-width: 500px;
+    .header-actions {
+      flex-direction: row;
+      min-width: auto;
     }
 
-    label {
-      display: block;
-      margin-top: 12px;
-      margin-bottom: 4px;
-      font-weight: bold;
+    .small-action {
+      padding: 10px 12px;
+      font-size: 12px;
     }
+  }
 
-    input[type="text"],
-    input[type="tel"],
-    input[type="number"],
-    select {
-      width: 100%;
+  @media (max-width: 360px) {
+    body {
       padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #1f2c33;
-      background-color: #182229;
-      color: #fff;
-      box-sizing: border-box;
     }
 
-    .btn {
-      background-color: #f7a600;
-      color: #000;
-      border: none;
-      padding: 12px;
-      font-weight: bold;
-      border-radius: 6px;
-      cursor: pointer;
-      width: 100%;
-      margin-top: 12px;
-      text-align: center;
-      box-sizing: border-box;
-      display: block;
-      text-decoration: none;
+    .page-title {
+      font-size: 19px;
     }
 
-    .btn-secondary {
-      background-color: #17a2b8;
-      color: #fff;
-    }
-
-    .btn-success {
-      background-color: #25d366;
-      color: #fff;
-    }
-
-    .btn-danger {
-      background-color: #dc3545;
-      color: #fff;
-    }
-
-    .btn-warning {
-      background-color: #ffc107;
-      color: #000;
-    }
-
-    .btn:disabled {
-      background-color: #333;
-      color: #888;
-      cursor: not-allowed;
-    }
-
-    .delivery-job {
-      border-top: 1px solid #1f2c33;
-      padding-top: 10px;
-      margin-top: 10px;
-    }
-
-    .info-box {
-      background-color: #182229;
-      padding: 12px;
-      border-radius: 6px;
-      margin-top: 10px;
-    }
-
-    .muted {
-      color: #aab7b8;
-      font-size: 14px;
+    .header-actions {
+      min-width: 105px;
     }
 
     .contact-actions {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
+      grid-template-columns: 1fr;
     }
-  </style>
+  }
+</style>
 </head>
 
 <body>
