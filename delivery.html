@@ -668,7 +668,31 @@
         requestPanel.hidden = true;
         agentPanel.hidden = !agentPanel.hidden;
       });
+      // DELIVERY, RIDE AND HAULAGE CATEGORY BUTTONS
+      const categoryButtons = document.querySelectorAll(".category-tab");
 
+      categoryButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          categoryButtons.forEach(function (item) {
+            item.setAttribute("aria-pressed", "false");
+          });
+
+          button.setAttribute("aria-pressed", "true");
+
+          const category = button.dataset.category;
+          const heading = document.querySelector(".live-deliveries h2");
+
+          if (heading) {
+            if (category === "ride") {
+              heading.textContent = "Live Ride Requests";
+            } else if (category === "haulage") {
+              heading.textContent = "Live Haulage Jobs";
+            } else {
+              heading.textContent = "Live Delivery Requests";
+            }
+          }
+        });
+      });
       // RIDER REGISTRATION
       const riderForm =
         document.getElementById("riderRegistrationForm");
