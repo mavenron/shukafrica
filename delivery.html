@@ -310,6 +310,41 @@
 </head>
 
 <body>
+  <main class="page-shell">
+
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">Ride &amp; Delivery</h1>
+        <p class="page-subtitle">Find deliveries. Connect. Earn.</p>
+      </div>
+
+      <div class="header-actions">
+        <button type="button"
+          class="small-action request-action"
+          id="openRequestBtn">+ Request</button>
+
+        <button type="button"
+          class="small-action agent-action"
+          id="openAgentBtn">Register Agent</button>
+      </div>
+    </header>
+
+    <nav class="category-tabs" aria-label="Transport category">
+      <button type="button" class="category-tab"
+        data-category="delivery" aria-pressed="true">
+        <span class="category-icon">📦</span> Delivery
+      </button>
+
+      <button type="button" class="category-tab"
+        data-category="ride" aria-pressed="false">
+        <span class="category-icon">🚗 🛵</span> Ride
+      </button>
+
+      <button type="button" class="category-tab"
+        data-category="haulage" aria-pressed="false">
+        <span class="category-icon">🛻 🚛</span> Haulage
+      </button>
+    </nav>
 
   <!-- CUSTOMER DELIVERY REQUEST -->
   <div class="form-container">
