@@ -184,7 +184,21 @@ console.log(
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      return json({ success: false, error: "Insurance image must be 2 MB or smaller." }, 400, origin);
+      return json({
+  success: false,
+  error: "Required field check failed.",
+  diagnostic: {
+    fullNamePresent: Boolean(fullName),
+    phonePresent: Boolean(phone),
+    vehicleRegistrationPresent: Boolean(vehicleRegistration),
+    alternativeContactNamePresent: Boolean(alternativeContactName),
+    alternativeRelationshipPresent: Boolean(alternativeRelationship),
+    alternativeContactPhonePresent: Boolean(alternativeContactPhone),
+    fileExists: Boolean(file),
+    fileIsFile: typeof File !== "undefined" && file instanceof File,
+    fileSize: file && typeof file.size === "number" ? file.size : null
+  }
+}, 400, origin);
     }
 
     const extensions = {
