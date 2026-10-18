@@ -988,7 +988,32 @@
             {
               method: "POST",
               credentials: "include",
-              body: new FormData(riderForm)
+              
+body: (() => {
+  const formData = new FormData(riderForm);
+
+  const documentInput =
+    document.getElementById("insuranceDocument");
+  const selfieInput =
+    document.getElementById("riderSelfie");
+
+  if (documentInput.files.length > 0) {
+    formData.set(
+      "insuranceDocument",
+      documentInput.files[0]
+    );
+  }
+
+  if (selfieInput.files.length > 0) {
+    formData.set(
+      "riderSelfie",
+      selfieInput.files[0]
+    );
+  }
+
+  return formData;
+})()
+
             }
           );
 
