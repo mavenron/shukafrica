@@ -449,10 +449,11 @@
 
             const result = await response.json();
 
+
+const result = await response.json();
+
 if (!response.ok || !result.success) {
-  riderStatus.textContent =
-    "Error " + response.status + ": " +
-    (result.error || "Unable to submit your application.");
+  riderStatus.textContent = JSON.stringify(result);
   return;
 }
 
