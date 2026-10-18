@@ -655,6 +655,19 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
+            // OPEN AND CLOSE THE REQUEST AND AGENT FORMS
+      const requestPanel = document.getElementById("requestPanel");
+      const agentPanel = document.getElementById("riderRegistrationPanel");
+
+      document.getElementById("openRequestBtn").addEventListener("click", function () {
+        agentPanel.hidden = true;
+        requestPanel.hidden = !requestPanel.hidden;
+      });
+
+      document.getElementById("openAgentBtn").addEventListener("click", function () {
+        requestPanel.hidden = true;
+        agentPanel.hidden = !agentPanel.hidden;
+      });
 
       // RIDER REGISTRATION
       const riderForm =
