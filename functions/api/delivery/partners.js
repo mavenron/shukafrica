@@ -1,9 +1,16 @@
-
 const ALLOWED_ORIGINS = new Set([
   "https://shukafrica.com",
   "https://www.shukafrica.com",
   "https://shukafrica.pages.dev"
 ]);
+
+const MAX_FILE_SIZE = 2 * 1024 * 1024;
+
+const ALLOWED_TYPES = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp"
+};
 
 function json(data, status = 200, origin = "") {
   const headers = {
@@ -19,6 +26,11 @@ function json(data, status = 200, origin = "") {
   }
 
   return new Response(JSON.stringify(data), { status, headers });
+}
+
+function checkOrigin(request) {
+  const origin = request.headers.get("Origin") || "";
+  return ALLOWED_ORIGINS.has(origin) ? origin : null;
 }
 
 function getToken(request) {
@@ -40,7 +52,6 @@ async function sha256(value) {
 
 async function getSeller(request, env) {
   const token = getToken(request);
-
   if (!token || token.length > 200) return null;
 
   const session = await env.DB.prepare(`
@@ -57,28 +68,19 @@ async function getSeller(request, env) {
     Date.parse(session.expires_at) <= Date.now()
   ) return null;
 
-  if (!session.phone.startsWith("email:")) {
-    // SMS sessions do not expose a stable seller ID in the current
-    // session implementation, so do not allow rider registration yet.
+  // The current SMS session does not provide a stable seller ID.
+  if (!session.phone || !session.phone.startsWith("email:")) {
     return null;
   }
 
   const sellerId = session.phone.slice(6);
 
-  const seller = await env.DB.prepare(`
+  return await env.DB.prepare(`
     SELECT id, name
     FROM sellers
     WHERE id = ?
     LIMIT 1
   `).bind(sellerId).first();
-
-  return seller || null;
-}
-
-function checkOrigin(request) {
-  const origin = request.headers.get("Origin") || "";
-  if (!origin || !ALLOWED_ORIGINS.has(origin)) return null;
-  return origin;
 }
 
 export async function onRequestOptions({ request }) {
@@ -100,12 +102,17 @@ export async function onRequestOptions({ request }) {
 
 export async function onRequestGet({ request, env }) {
   const origin = checkOrigin(request);
-  if (!origin) return json({ success: false, error: "Origin not allowed." }, 403);
+  if (!origin) {
+    return json({ success: false, error: "Origin not allowed." }, 403);
+  }
 
   try {
     const seller = await getSeller(request, env);
     if (!seller) {
-      return json({ success: false, error: "Please log in with your email account." }, 401, origin);
+      return json({
+        success: false,
+        error: "Please log in with your email account."
+      }, 401, origin);
     }
 
     const application = await env.DB.prepare(`
@@ -122,146 +129,155 @@ export async function onRequestGet({ request, env }) {
     }, 200, origin);
   } catch (error) {
     console.error("Rider application lookup failed:", error);
-    return json({ success: false, error: "Unable to check application." }, 500, origin);
+    return json({
+      success: false,
+      error: "Unable to check application."
+    }, 500, origin);
   }
 }
 
 export async function onRequestPost({ request, env }) {
   const origin = checkOrigin(request);
-  if (!origin) return json({ success: false, error: "Origin not allowed." }, 403);
+  if (!origin) {
+    return json({ success: false, error: "Origin not allowed." }, 403);
+  }
+
+  let uploadedKey = null;
 
   try {
     const seller = await getSeller(request, env);
     if (!seller) {
-      return json({ success: false, error: "Please log in with your email account." }, 401, origin);
+      return json({
+        success: false,
+        error: "Please log in with your email account."
+      }, 401, origin);
     }
 
-    if (!env.PRIVATE_MEDIA) {
-      return json({ success: false, error: "Private storage is not configured." }, 503, origin);
+    if (!env.DB || !env.PRIVATE_MEDIA) {
+      return json({
+        success: false,
+        error: "Private storage or database is not configured."
+      }, 503, origin);
     }
 
     const contentType = request.headers.get("Content-Type") || "";
-    if (!contentType.toLowerCase().startsWith("multipart/form-data")) {
-      return json({ success: false, error: "Submit the form with a file upload." }, 400, origin);
+    if (!contentType.toLowerCase().startsWith("multipart/form-data;")) {
+      return json({
+        success: false,
+        error: "Please submit the form with an insurance image."
+      }, 400, origin);
     }
 
     const form = await request.formData();
-console.log("Rider form fields:", [...form.keys()]);
-console.log(
-  "Insurance file details:",
-  form.get("insuranceDocument") instanceof File
-    ? {
-        name: form.get("insuranceDocument").name,
-        size: form.get("insuranceDocument").size,
-        type: form.get("insuranceDocument").type
-      }
-    : String(form.get("insuranceDocument"))
-);
+
     const fullName = String(form.get("fullName") || "").trim();
     const phone = String(form.get("phone") || "").trim();
-    const vehicleRegistration = String(form.get("vehicleRegistration") || "").trim();
-    const alternativeContactName = String(form.get("alternativeContactName") || "").trim();
-    const alternativeRelationship = String(form.get("alternativeRelationship") || "").trim();
-    const alternativeContactPhone = String(form.get("alternativeContactPhone") || "").trim();
+    const vehicleRegistration =
+      String(form.get("vehicleRegistration") || "").trim();
+    const alternativeContactName =
+      String(form.get("alternativeContactName") || "").trim();
+    const alternativeRelationship =
+      String(form.get("alternativeRelationship") || "").trim();
+    const alternativeContactPhone =
+      String(form.get("alternativeContactPhone") || "").trim();
+
     const file = form.get("insuranceDocument");
 
-    
     if (
       !fullName || !phone || !vehicleRegistration ||
       !alternativeContactName || !alternativeRelationship ||
-      !alternativeContactPhone || !(file instanceof File) || file.size === 0
+      !alternativeContactPhone
     ) {
       return json({
         success: false,
-        error: "Required field check failed.",
-        diagnostic: {
-          fullNamePresent: Boolean(fullName),
-          phonePresent: Boolean(phone),
-          vehicleRegistrationPresent: Boolean(vehicleRegistration),
-          alternativeContactNamePresent: Boolean(alternativeContactName),
-          alternativeRelationshipPresent: Boolean(alternativeRelationship),
-          alternativeContactPhonePresent: Boolean(alternativeContactPhone),
-          fileExists: Boolean(file),
-          fileIsFile: typeof File !== "undefined" && file instanceof File,
-          fileSize: file && typeof file.size === "number" ? file.size : null
-        }
+        error: "Please complete all required text fields."
       }, 400, origin);
     }
 
     if (
-      fullName.length > 120 || phone.length > 30 ||
+      fullName.length > 120 ||
+      phone.length > 30 ||
       vehicleRegistration.length > 30 ||
       alternativeContactName.length > 120 ||
       alternativeRelationship.length > 60 ||
       alternativeContactPhone.length > 30
     ) {
-      return json({ success: false, error: "One or more fields are too long." }, 400, origin);
-    }
-
-    if (file.size > 2 * 1024 * 1024) {
       return json({
-  success: false,
-  error: "Required field check failed.",
-  diagnostic: {
-    fullNamePresent: Boolean(fullName),
-    phonePresent: Boolean(phone),
-    vehicleRegistrationPresent: Boolean(vehicleRegistration),
-    alternativeContactNamePresent: Boolean(alternativeContactName),
-    alternativeRelationshipPresent: Boolean(alternativeRelationship),
-    alternativeContactPhonePresent: Boolean(alternativeContactPhone),
-    fileExists: Boolean(file),
-    fileIsFile: typeof File !== "undefined" && file instanceof File,
-    fileSize: file && typeof file.size === "number" ? file.size : null
-  }
-}, 400, origin);
+        success: false,
+        error: "One or more fields are too long."
+      }, 400, origin);
     }
 
-    const extensions = {
-      "image/jpeg": "jpg",
-      "image/png": "png",
-      "image/webp": "webp"
-    };
+    if (
+      !file ||
+      typeof file === "string" ||
+      typeof file.arrayBuffer !== "function" ||
+      typeof file.size !== "number" ||
+      file.size < 1
+    ) {
+      return json({
+        success: false,
+        error: "Please select an insurance document image."
+      }, 400, origin);
+    }
 
-    const extension = extensions[file.type];
+    if (file.size > MAX_FILE_SIZE) {
+      return json({
+        success: false,
+        error: "Insurance image must be 2 MB or smaller."
+      }, 413, origin);
+    }
+
+    const extension = ALLOWED_TYPES[file.type];
     if (!extension) {
-      return json({ success: false, error: "Use a JPG, PNG, or WebP insurance image." }, 400, origin);
+      return json({
+        success: false,
+        error: "Use a JPG, PNG, or WebP insurance image."
+      }, 415, origin);
     }
 
     const existing = await env.DB.prepare(`
       SELECT id
       FROM delivery_partners
-      WHERE seller_id = ? AND status IN ('pending', 'approved', 'suspended')
+      WHERE seller_id = ?
+        AND status IN ('pending', 'approved', 'suspended')
       LIMIT 1
     `).bind(seller.id).first();
 
     if (existing) {
-      return json({ success: false, error: "You already have a pending or active rider application." }, 409, origin);
+      return json({
+        success: false,
+        error: "You already have a pending or active rider application."
+      }, 409, origin);
     }
 
     const id = crypto.randomUUID();
-    const key = `rider-insurance/${seller.id}/${id}.${extension}`;
+    uploadedKey = `rider-insurance/${seller.id}/${id}.${extension}`;
 
-    // Store the document in the private bucket. Never return its URL.
-    await env.PRIVATE_MEDIA.put(key, await file.arrayBuffer(), {
+    // Store bytes only in the private R2 bucket.
+    const bytes = await file.arrayBuffer();
+
+    await env.PRIVATE_MEDIA.put(uploadedKey, bytes, {
       httpMetadata: { contentType: file.type }
     });
 
-    try {
-      await env.DB.prepare(`
-        INSERT INTO delivery_partners (
-          id, seller_id, full_name, phone, vehicle_registration,
-          insurance_document_key, alternative_contact_name,
-          alternative_relationship, alternative_contact_phone, status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
-      `).bind(
-        id, seller.id, fullName, phone, vehicleRegistration,
-        key, alternativeContactName, alternativeRelationship,
-        alternativeContactPhone
-      ).run();
-    } catch (dbError) {
-      await env.PRIVATE_MEDIA.delete(key);
-      throw dbError;
-    }
+    await env.DB.prepare(`
+      INSERT INTO delivery_partners (
+        id, seller_id, full_name, phone, vehicle_registration,
+        insurance_document_key, alternative_contact_name,
+        alternative_relationship, alternative_contact_phone, status
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+    `).bind(
+      id,
+      seller.id,
+      fullName,
+      phone,
+      vehicleRegistration,
+      uploadedKey,
+      alternativeContactName,
+      alternativeRelationship,
+      alternativeContactPhone
+    ).run();
 
     return json({
       success: true,
@@ -270,7 +286,19 @@ console.log(
     }, 201, origin);
   } catch (error) {
     console.error("Rider application submission failed:", error);
-    return json({ success: false, error: "Unable to submit rider application." }, 500, origin);
+
+    if (uploadedKey && env.PRIVATE_MEDIA) {
+      try {
+        await env.PRIVATE_MEDIA.delete(uploadedKey);
+      } catch (cleanupError) {
+        console.error("Private upload cleanup failed.");
+      }
+    }
+
+    return json({
+      success: false,
+      error: "Unable to submit rider application. Please try again."
+    }, 500, origin);
   }
     }
-                
+                  
