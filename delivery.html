@@ -441,14 +441,12 @@
           riderStatus.textContent = "Submitting application securely...";
 
           try {
-            const response = await fetch("/api/delivery/partners", {
-              method: "POST",
-              credentials: "include",
-              body: new FormData(riderForm)
-            });
-
-            const result = await response.json();
-
+            
+const response = await fetch("/api/delivery/partners", {
+  method: "POST",
+  credentials: "include",
+  body: new FormData(riderForm)
+});
 
 const result = await response.json();
 
@@ -457,18 +455,17 @@ if (!response.ok || !result.success) {
   return;
 }
 
-            riderStatus.textContent =
-              "Application submitted. Status: Pending Verification.";
-            
-          } catch (error) {
-            riderStatus.textContent =
-              error.message ||
-              "Submission failed. Please try again.";
-          } finally {
-            submitButton.disabled = false;
-          }
-        });
-      }
+riderStatus.textContent =
+  "Application submitted. Status: Pending Verification.";
+
+} catch (error) {
+  riderStatus.textContent =
+    error.message || "Submission failed. Please try again.";
+} finally {
+  submitButton.disabled = false;
+}
+});
+}
 
       // CUSTOMER FORM
       const requestForm =
