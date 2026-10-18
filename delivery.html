@@ -1,312 +1,279 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ShukAfrica - Delivery Portal</title>
+  <meta name="theme-color" content="#101820">
+  <title>Ride & Delivery | ShukAfrica</title>
 
-<style>
-  :root {
-    --page: #0b141a;
-    --panel: #111b21;
-    --field: #182229;
-    --border: #1f2c33;
-    --text: #ffffff;
-    --muted: #aab7b8;
-    --green: #25d366;
-    --teal: #17a2b8;
-    --yellow: #f7a600;
-    --red: #dc3545;
-  }
+  <style>
+    :root {
+      --bg: #101820;
+      --panel: #192630;
+      --panel2: #22333f;
+      --text: #f4f7f9;
+      --muted: #b6c4ce;
+      --green: #16a765;
+      --green-dark: #087b49;
+      --border: #344957;
+      --red: #dc3545;
+      --orange: #f0a329;
+    }
 
-  * {
-    box-sizing: border-box;
-  }
+    * {
+      box-sizing: border-box;
+    }
 
-  body {
-    margin: 0;
-    padding: 16px;
-    background: var(--page);
-    color: var(--text);
-    font-family: Arial, sans-serif;
-  }
-
-  .page-shell {
-    width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
-  }
-
-  .page-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 18px;
-  }
-
-  .page-title {
-    margin: 0 0 5px;
-    font-size: 22px;
-  }
-
-  .page-subtitle,
-  .muted,
-  .help {
-    color: var(--muted);
-    font-size: 13px;
-    line-height: 1.5;
-  }
-
-  .page-subtitle {
-    margin: 0;
-  }
-
-  .header-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-    min-width: 115px;
-  }
-
-  .small-action {
-    padding: 9px 8px;
-    border: 1px solid transparent;
-    border-radius: 7px;
-    font-size: 11px;
-    font-weight: bold;
-    text-align: center;
-    white-space: nowrap;
-    cursor: pointer;
-  }
-
-  .request-action {
-    background: var(--green);
-    color: #07140d;
-  }
-
-  .agent-action {
-    background: transparent;
-    border-color: var(--teal);
-    color: #fff;
-  }
-
-  .category-tabs {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 7px;
-    margin-bottom: 22px;
-  }
-
-  .category-tab {
-    min-width: 0;
-    padding: 10px 3px;
-    border: 1px solid var(--border);
-    border-radius: 9px;
-    background: var(--field);
-    color: #fff;
-    font-size: 12px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-
-  .category-tab[aria-pressed="true"] {
-    background: #174c43;
-    border-color: #287d6e;
-  }
-
-  .category-icon {
-    display: block;
-    margin-bottom: 4px;
-    font-size: 19px;
-  }
-
-  .live-deliveries,
-  .live-jobs,
-  .form-container,
-  .delivery-section {
-    width: 100%;
-    padding: 16px;
-    margin-bottom: 18px;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-  }
-
-  .section-heading,
-  .job-type-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-  }
-
-  h2 {
-    margin: 0;
-    font-size: 19px;
-  }
-
-  h3 {
-    margin: 0 0 10px;
-    font-size: 17px;
-  }
-
-  h4 {
-    margin: 0 0 8px;
-    font-size: 15px;
-  }
-
-  .delivery-job {
-    padding: 14px;
-    margin-top: 12px;
-    border: 1px solid var(--border);
-    border-radius: 9px;
-  }
-
-  .job-route {
-    font-size: 19px;
-    overflow-wrap: anywhere;
-  }
-
-  .job-type,
-  .available-label {
-    color: var(--green);
-    font-size: 12px;
-    font-weight: bold;
-  }
-
-  .info-box {
-    padding: 12px;
-    margin-top: 12px;
-    background: var(--field);
-    border-radius: 8px;
-  }
-
-  label {
-    display: block;
-    margin-top: 13px;
-    margin-bottom: 5px;
-    font-size: 13px;
-    font-weight: bold;
-  }
-
-  input[type="text"],
-  input[type="tel"],
-  input[type="number"],
-  input[type="file"],
-  select,
-  textarea {
-    width: 100%;
-    min-height: 42px;
-    padding: 10px;
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    background: var(--field);
-    color: #fff;
-    font: inherit;
-  }
-
-  textarea {
-    min-height: 90px;
-  }
-
-  .btn {
-    display: block;
-    width: 100%;
-    padding: 12px;
-    margin-top: 12px;
-    border: none;
-    border-radius: 7px;
-    background: var(--yellow);
-    color: #111;
-    font-weight: bold;
-    text-align: center;
-    text-decoration: none;
-    cursor: pointer;
-  }
-
-  .btn-secondary {
-    background: var(--teal);
-    color: #fff;
-  }
-
-  .btn-success {
-    background: var(--green);
-    color: #07140d;
-  }
-
-  .btn-danger {
-    background: var(--red);
-    color: #fff;
-  }
-
-  .btn-warning {
-    background: #ffc107;
-    color: #111;
-  }
-
-  .btn:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-  }
-
-  .contact-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .form-panel[hidden],
-  .hidden {
-    display: none !important;
-  }
-
-  .empty-state {
-    padding: 18px 12px;
-    border: 1px dashed #35434a;
-    border-radius: 9px;
-    color: var(--muted);
-    font-size: 13px;
-    line-height: 1.5;
-    text-align: center;
-  }
-
-  @media (min-width: 600px) {
     body {
-      padding: 24px;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
     }
 
-    .header-actions {
-      flex-direction: row;
-      min-width: auto;
+    button, input, select, textarea {
+      font: inherit;
     }
 
-    .small-action {
-      padding: 10px 12px;
-      font-size: 12px;
+    button, .btn {
+      cursor: pointer;
     }
-  }
 
-  @media (max-width: 360px) {
-    body {
-      padding: 10px;
+    button:disabled {
+      cursor: not-allowed;
+      opacity: .6;
+    }
+
+    .page-shell {
+      width: min(100% - 24px, 960px);
+      margin: 0 auto;
+      padding: 20px 0 40px;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 20px;
     }
 
     .page-title {
-      font-size: 19px;
+      margin: 0;
+      font-size: clamp(24px, 5vw, 34px);
+      line-height: 1.2;
+    }
+
+    .page-subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
     }
 
     .header-actions {
-      min-width: 105px;
+      flex-shrink: 0;
+    }
+
+    .category-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 22px;
+    }
+
+    .category-tab {
+      min-height: 58px;
+      padding: 10px 5px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel);
+      color: var(--text);
+      font-weight: bold;
+    }
+
+    .category-tab[aria-pressed="true"] {
+      background: var(--green-dark);
+      border-color: #35d58b;
+    }
+
+    .category-icon {
+      display: block;
+      margin-bottom: 2px;
+      font-size: 21px;
+    }
+
+    .panel, .live-deliveries {
+      margin: 18px 0;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--panel);
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 22px;
+    }
+
+    h3 {
+      margin-top: 0;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field {
+      min-width: 0;
+      margin-bottom: 14px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      min-height: 46px;
+      padding: 11px 12px;
+      color: var(--text);
+      background: #101820;
+      border: 1px solid #526675;
+      border-radius: 8px;
+    }
+
+    input[type="file"] {
+      min-height: auto;
+      padding: 10px;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: 2px solid #35d58b;
+      outline-offset: 1px;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .btn, .small-action {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      min-height: 43px;
+      padding: 10px 14px;
+      border: 0;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .small-action {
+      min-height: 40px;
+      padding: 9px 12px;
+      background: var(--green);
+      color: white;
+    }
+
+    .btn-success {
+      background: var(--green);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #344957;
+      color: white;
+    }
+
+    .btn-warning {
+      background: var(--orange);
+      color: #171717;
+    }
+
+    .btn-danger {
+      background: var(--red);
+      color: white;
+    }
+
+    .btn-block {
+      width: 100%;
+    }
+
+    .info-box {
+      margin: 14px 0;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #14212a;
     }
 
     .contact-actions {
-      grid-template-columns: 1fr;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
     }
-  }
-</style>
+
+    .form-status {
+      margin-top: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .hidden, [hidden] {
+      display: none !important;
+    }
+
+    .delivery-job {
+      margin-top: 18px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel2);
+    }
+
+    .page-note {
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      .page-header {
+        align-items: flex-start;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field.full {
+        grid-column: auto;
+      }
+
+      .panel, .live-deliveries {
+        padding: 14px;
+      }
+
+      .category-tab {
+        font-size: 13px;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -319,426 +286,529 @@
       </div>
 
       <div class="header-actions">
-        
-        <button type="button"
-          class="small-action agent-action"
-          id="openAgentBtn">Register Agent</button>
+        <button type="button" class="small-action"
+          id="openAgentBtn">
+          Register Agent
+        </button>
       </div>
     </header>
 
     <nav class="category-tabs" aria-label="Transport category">
       <button type="button" class="category-tab"
         data-category="delivery" aria-pressed="true">
-        <span class="category-icon">📦</span> Delivery
+        <span class="category-icon">📦</span>
+        Delivery
       </button>
 
       <button type="button" class="category-tab"
         data-category="ride" aria-pressed="false">
-        <span class="category-icon">🚗 🛵</span> Ride
+        <span class="category-icon">🚗 🛵</span>
+        Ride
       </button>
 
       <button type="button" class="category-tab"
         data-category="haulage" aria-pressed="false">
-        <span class="category-icon">🛻 🚛</span> Haulage
+        <span class="category-icon">🛻 🚛</span>
+        Haulage
       </button>
     </nav>
 
-  <!-- CUSTOMER DELIVERY REQUEST -->
-  <section class="form-container form-panel" id="requestPanel" hidden>
-    
-    <h2>Request a Delivery</h2>
-
-    <form id="deliveryRequestForm">
-
-      <label>Customer Full Name</label>
-      <input
-        type="text"
-        id="customerName"
-        placeholder="Enter your full name"
-        required
-      >
-
-      <label>Customer Phone Number</label>
-      <input
-        type="tel"
-        id="customerPhone"
-        placeholder="e.g. 0241234567"
-        required
-      >
-
-      <label for="customerSelfie">Customer Selfie / Photo</label>
-      <input
-        type="file"
-        id="customerSelfie"
-        accept="image/jpeg,image/png,image/webp"
-        capture="user"
-        required
-      >
+    <!-- CUSTOMER REQUEST FORM -->
+    <section class="panel" id="requestPanel">
+      <h2 id="requestFormTitle">Request a Delivery</h2>
       <p class="muted">
-        Upload a clear, recent photo of yourself so the delivery
-        partner can recognise you. JPEG, PNG or WebP; maximum 2 MB.
-      </p>
-      
-      <label>Pickup Location</label>
-      <input
-        type="text"
-        id="pickupLocation"
-        placeholder="e.g. Kotokuraba Market"
-        required
-      >
-
-      <label>Destination Location</label>
-      <input
-        type="text"
-        id="destinationLocation"
-        placeholder="e.g. Abura"
-        required
-      >
-
-      <label>Package Details</label>
-      <input
-        type="text"
-        id="packageDetails"
-        placeholder="e.g. Documents, Electronics, Food"
-        required
-      >
-
-      <label>Who is this delivery for?</label>
-      <select id="deliveryFor" required>
-        <option value="myself">Myself</option>
-        <option value="other">Someone Else</option>
-      </select>
-
-      <div id="recipientFields" style="display:none;">
-
-        <label>Recipient Name</label>
-        <input
-          type="text"
-          id="recipientName"
-          placeholder="Recipient's full name"
-        >
-
-        <label>Recipient Phone Number</label>
-        <input
-          type="tel"
-          id="recipientPhone"
-          placeholder="Recipient's phone number"
-        >
-
-      </div>
-
-      <button type="submit" class="btn">
-        Post Delivery Request
-      </button>
-
-    <p id="formStatus" class="muted" aria-live="polite"></p>
-
-    </form>
-  </section>
-
-<section class="delivery-section form-panel" id="riderRegistrationPanel" hidden>
-  <h2>Register as a Delivery Partner</h2>
-  <p>
-    Submit your details for verification. You cannot accept delivery jobs
-    until ShukAfrica approves your application.
-  </p>
-
-  <form id="riderRegistrationForm">
-    <div class="field">
-      <label for="riderFullName">Full Name</label>
-      <input id="riderFullName" name="fullName"
-        type="text" maxlength="120" required>
-    </div>
-
-    <div class="field">
-      <label for="riderPhone">Contact Phone Number</label>
-      <input id="riderPhone" name="phone"
-        type="tel" maxlength="30" required>
-    </div>
-
-    <div class="field">
-      <label for="vehicleRegistration">Vehicle Registration Number</label>
-      <input id="vehicleRegistration" name="vehicleRegistration"
-        type="text" maxlength="30"
-        placeholder="Enter the number plate" required>
-    </div>
-
-    <div class="field">
-      <label for="insuranceDocument">Insurance Document Photo</label>
-      <input id="insuranceDocument" name="insuranceDocument"
-        type="file" accept="image/jpeg,image/png,image/webp"
-        required>
-      <p class="help">
-        This document is for private verification by ShukAfrica
-        administrators only.
-      </p>
-    </div>
-
-    <div class="field">
-      <label for="alternativeContactName">Alternative Contact Full Name</label>
-      <input id="alternativeContactName" name="alternativeContactName"
-        type="text" maxlength="120" required>
-    </div>
-
-    <div class="field">
-      <label for="alternativeRelationship">Relationship to Rider</label>
-      <input id="alternativeRelationship" name="alternativeRelationship"
-        type="text" maxlength="60" required>
-    </div>
-
-    <div class="field">
-      <label for="alternativeContactPhone">Alternative Contact Phone</label>
-      <input id="alternativeContactPhone" name="alternativeContactPhone"
-        type="tel" maxlength="30" required>
-    </div>
-
-    <button type="submit">Submit for Verification</button>
-    <p id="riderRegistrationStatus" role="status"></p>
-  </form>
-</section>
-  
-  <!-- LIVE DELIVERY REQUESTS -->
-  <section class="live-deliveries">
-
-    <h2>Live Delivery Requests</h2>
-<p class="muted" id="liveJobsMessage">
-  Browse available jobs below. Contact the customer to agree on the fare before accepting.
-</p>
-    <p class="muted">
-      Contact the customer to negotiate the fare by phone or WhatsApp.
-      Accept the delivery after both parties agree.
-    </p>
-
-    <!-- NOTIFICATIONS AND GPS -->
-    <div class="info-box">
-
-      <p style="font-weight:bold;">
-        🔔 ShukAfrica Job Alerts
+        Provide accurate details. Contact your transport provider
+        to agree on the fare before the job is accepted.
       </p>
 
-      <p class="muted">
-        Enable notifications to receive delivery alerts.
-      </p>
+      <form id="deliveryRequestForm">
+        <div class="form-grid">
 
-      <button
-        type="button"
-        id="enablePushBtn"
-        class="btn btn-success">
-        🔔 Enable Job Notifications
-      </button>
+          <div class="field">
+            <label for="customerName">Your Full Name *</label>
+            <input id="customerName" name="customerName"
+              type="text" autocomplete="name" required>
+          </div>
 
-      <p id="notificationStatus" class="muted">
-        Notifications are not enabled.
-      </p>
+          <div class="field">
+            <label for="customerPhone">Your Phone Number *</label>
+            <input id="customerPhone" name="customerPhone"
+              type="tel" autocomplete="tel"
+              placeholder="e.g. 0241234567" required>
+          </div>
 
-      <button
-        type="button"
-        id="enableGpsBtn"
-        class="btn btn-secondary">
-        📍 Enable Location
-      </button>
+          <div class="field full">
+            <label for="customerSelfie">Your Photo / Selfie *</label>
+            <input id="customerSelfie" name="customerSelfie"
+              type="file" accept="image/jpeg,image/png,image/webp"
+              capture="user" required>
+            <p class="muted">
+              Select a clear photo. It should be handled privately
+              and must not be displayed publicly without permission.
+            </p>
+          </div>
 
-      <p id="gpsStatus" class="muted">
-        GPS location is not enabled.
-      </p>
+          <div class="field">
+            <label for="pickupLocation">Pickup Location *</label>
+            <input id="pickupLocation" name="pickupLocation"
+              type="text" placeholder="Town, area or landmark" required>
+          </div>
 
-    </div>
+          <div class="field">
+            <label for="destinationLocation">Destination *</label>
+            <input id="destinationLocation"
+              name="destinationLocation" type="text"
+              placeholder="Town, area or landmark" required>
+          </div>
 
+          <div class="field full" id="packageField">
+            <label for="packageDetails" id="packageLabel">
+              Package Details *
+            </label>
+            <textarea id="packageDetails" name="packageDetails"
+              placeholder="Describe what needs to be delivered"
+              required></textarea>
+          </div>
 
-    <!-- SAMPLE DELIVERY CARD -->
-    <div class="delivery-job" id="deliveryJobCard" hidden>
+          <div class="field hidden" id="passengerField">
+            <label for="passengerCount">Number of Passengers *</label>
+            <select id="passengerCount" name="passengerCount">
+              <option value="1">1 passenger</option>
+              <option value="2">2 passengers</option>
+              <option value="3">3 passengers</option>
+              <option value="4">4 passengers</option>
+              <option value="5">5 passengers</option>
+              <option value="6">6 passengers</option>
+              <option value="7">7 passengers</option>
+              <option value="8">8 passengers</option>
+            </select>
+          </div>
 
-      <h3>Express Delivery</h3>
+          <div class="field hidden" id="vehicleNeededField">
+            <label for="vehicleNeeded">Vehicle Needed</label>
+            <select id="vehicleNeeded" name="vehicleNeeded">
+              <option value="">Not sure</option>
+              <option value="motorcycle">Motorcycle</option>
+              <option value="car">Car</option>
+              <option value="pickup">Pickup</option>
+              <option value="van">Van</option>
+              <option value="truck">Truck</option>
+              <option value="container-truck">Container truck</option>
+              <option value="other">Other suitable vehicle</option>
+            </select>
+          </div>
 
-      <p>
-        <strong>Customer:</strong>
-        <span id="jobCustomerName">Demo Customer</span>
-      </p>
+          <div class="field hidden" id="loadWeightField">
+            <label for="loadWeight">Estimated Load Weight</label>
+            <input id="loadWeight" name="loadWeight"
+              type="text" placeholder="e.g. 500 kg or unknown">
+          </div>
 
-      <p>
-        <strong>Pickup:</strong>
-        <span id="jobPickup">Kotokuraba</span>
-      </p>
+          <div class="field hidden" id="loadDimensionsField">
+            <label for="loadDimensions">Load Dimensions</label>
+            <input id="loadDimensions" name="loadDimensions"
+              type="text" placeholder="Approximate length, width and height">
+          </div>
 
-      <p>
-        <strong>Destination:</strong>
-        <span id="jobDestination">Abura</span>
-      </p>
+          <div class="field full hidden" id="loadMediaField">
+            <label for="loadPhotos">Load Photos (optional)</label>
+            <input id="loadPhotos" name="loadPhotos"
+              type="file" accept="image/jpeg,image/png,image/webp"
+              multiple>
+            <label for="loadVideo" style="margin-top:12px;">
+              Load Video (optional, maximum 30 seconds)
+            </label>
+            <input id="loadVideo" name="loadVideo"
+              type="file" accept="video/mp4,video/webm">
+            <p class="muted">
+              Show the load clearly. A video alone cannot verify
+              its actual weight or dimensions.
+            </p>
+          </div>
 
-      <p>
-        <strong>Package:</strong>
-        <span id="jobPackage">Documents</span>
-      </p>
+          <div class="field full">
+            <label for="deliveryFor">Who is this request for? *</label>
+            <select id="deliveryFor" name="deliveryFor" required>
+              <option value="myself">Myself</option>
+              <option value="other">Someone else</option>
+            </select>
+          </div>
 
-      <p>
-        <strong>Status:</strong>
-        <span id="deliveryStatus">Waiting for Partner</span>
-      </p>
+          <div class="field full hidden" id="recipientFields">
+            <label for="recipientName">Recipient's Full Name *</label>
+            <input id="recipientName" name="recipientName"
+              type="text" autocomplete="off">
 
-
-      <!-- CUSTOMER CONTACT -->
-      <div class="info-box" id="customerContactBox">
-
-        <h4>📞 Contact Customer</h4>
-
-        <p class="muted">
-          Call or message the customer to agree on the final fare.
-          ShukAfrica does not set the negotiated fare.
-        </p>
-
-        <p>
-          <strong>Phone:</strong>
-          <span id="jobCustomerPhone">0241234567</span>
-        </p>
-
-        <div class="contact-actions">
-
-          <a
-            href="tel:0241234567"
-            id="callCustomerBtn"
-            class="btn btn-secondary">
-            📞 Call Customer
-          </a>
-
-          <a
-            href="https://wa.me/233241234567"
-            id="whatsappCustomerBtn"
-            class="btn btn-success"
-            target="_blank"
-            rel="noopener noreferrer">
-            💬 WhatsApp Customer
-          </a>
+            <label for="recipientPhone" style="margin-top:12px;">
+              Recipient's Phone Number *
+            </label>
+            <input id="recipientPhone" name="recipientPhone"
+              type="tel" autocomplete="off">
+          </div>
 
         </div>
 
-      </div>
+        <div class="info-box">
+          <strong>Agree on the fare directly.</strong>
+          <p class="muted">
+            No fare is set by this form. Contact the provider and
+            agree on the amount before accepting a job.
+          </p>
+        </div>
 
+        <button type="submit" class="btn btn-success btn-block"
+          id="submitRequestBtn">
+          Submit Request
+        </button>
 
-      <!-- ACCEPT AND LOCK -->
+        <p id="formStatus" class="form-status muted"
+          role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <!-- AGENT REGISTRATION -->
+    <section class="panel" id="riderRegistrationPanel" hidden>
+      <h2>Register as a Transport Agent</h2>
+      <p class="muted">
+        Apply once for transport services. Your application must
+        be reviewed before you can access approved jobs.
+      </p>
+
+      <form id="riderRegistrationForm"
+        enctype="multipart/form-data">
+
+        <div class="form-grid">
+
+          <div class="field">
+            <label for="riderFullName">Full Name *</label>
+            <input id="riderFullName" name="fullName"
+              type="text" autocomplete="name" required>
+          </div>
+
+          <div class="field">
+            <label for="riderPhone">Phone Number *</label>
+            <input id="riderPhone" name="phone" type="tel"
+              autocomplete="tel" required>
+          </div>
+
+          <div class="field full">
+            <label for="vehicleRegistration">
+              Vehicle Registration Number *
+            </label>
+            <input id="vehicleRegistration"
+              name="vehicleRegistration" type="text"
+              placeholder="Enter your vehicle registration" required>
+          </div>
+
+          <div class="field full">
+            <label for="insuranceDocument">
+              Vehicle Identity Document Photo *
+            </label>
+            <input id="insuranceDocument" name="insuranceDocument"
+              type="file"
+              accept="image/jpeg,image/png,image/webp,application/pdf"
+              required>
+            <p class="muted">
+              Upload an accepted vehicle document or sticker,
+              such as insurance, roadworthiness or another
+              approved vehicle identity document.
+            </p>
+          </div>
+
+          <div class="field full">
+            <label for="riderSelfie">Your Current Selfie *</label>
+            <input id="riderSelfie" name="riderSelfie"
+              type="file" accept="image/jpeg,image/png,image/webp"
+              capture="user" required>
+            <p class="muted">
+              This photo is for private verification, not a public
+              profile image.
+            </p>
+          </div>
+
+          <div class="field">
+            <label for="alternativeContactName">
+              Alternative Contact Name *
+            </label>
+            <input id="alternativeContactName"
+              name="alternativeContactName" type="text" required>
+          </div>
+
+          <div class="field">
+            <label for="alternativeRelationship">
+              Relationship *
+            </label>
+            <input id="alternativeRelationship"
+              name="alternativeRelationship" type="text"
+              placeholder="e.g. spouse, sibling or friend" required>
+          </div>
+
+          <div class="field full">
+            <label for="alternativeContactPhone">
+              Alternative Contact Phone *
+            </label>
+            <input id="alternativeContactPhone"
+              name="alternativeContactPhone" type="tel" required>
+          </div>
+
+        </div>
+
+        <div class="info-box">
+          <strong>Privacy and approval</strong>
+          <p class="muted">
+            Verification documents and selfies must be stored
+            privately. Do not upload real customer or agent
+            documents until secure server-side upload validation
+            and access controls are working.
+          </p>
+        </div>
+
+        <button type="submit" class="btn btn-success btn-block">
+          Submit Agent Application
+        </button>
+
+        <p id="riderRegistrationStatus" class="form-status muted"
+          role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    
+    <!-- LIVE TRANSPORT REQUESTS -->
+    <section class="live-deliveries">
+      <h2 id="liveJobsHeading">Live Delivery Requests</h2>
+
+      <p class="muted" id="liveJobsMessage">
+        Browse available delivery jobs. Contact the customer
+        to agree on the fare before accepting.
+      </p>
+
       <div class="info-box">
-
-        <p>
-          <strong>Important:</strong>
-          Confirm the agreed fare with the customer by phone or
-          WhatsApp before accepting this delivery.
+        <strong>🔔 ShukAfrica Job Alerts</strong>
+        <p class="muted">
+          Enable browser notification permission where supported.
+          This alone does not connect you to live job alerts.
         </p>
 
-        <button
-          type="button"
-          id="acceptInitialBtn"
+        <button type="button" id="enablePushBtn"
           class="btn btn-success">
-          Accept & Lock Delivery
+          Enable Notifications
         </button>
+        <p id="notificationStatus" class="muted" role="status">
+          Notifications are not enabled.
+        </p>
 
-        <button
-          type="button"
-          id="releaseDeliveryBtn"
-          class="btn btn-warning"
-          style="display:none;">
-          🔄 Release Delivery
+        <button type="button" id="enableGpsBtn"
+          class="btn btn-secondary">
+          📍 Enable Location
         </button>
-
-        <button
-          type="button"
-          id="cancelDeliveryBtn"
-          class="btn btn-danger">
-          ❌ Cancel Request (Customer)
-        </button>
-
+        <p id="gpsStatus" class="muted" role="status">
+          Location is not enabled.
+        </p>
       </div>
 
-    </div>
+      <div class="info-box" id="liveJobsEmpty">
+        <strong>No live jobs are connected yet.</strong>
+        <p class="muted">
+          Real customer requests will appear here after the
+          secure job-posting and job-listing backend is connected.
+          No demo jobs are shown as real requests.
+        </p>
+      </div>
 
-  </section>
+      <!-- Reserved for a real job returned by the backend.
+           Keep hidden until populated with genuine job data. -->
+      <article class="delivery-job" id="deliveryJobCard" hidden>
+        <h3 id="jobTitle">Transport Request</h3>
 
+        <p><strong>Pickup:</strong>
+          <span id="jobPickup"></span>
+        </p>
+        <p><strong>Destination:</strong>
+          <span id="jobDestination"></span>
+        </p>
+        <p><strong>Details:</strong>
+          <span id="jobPackage"></span>
+        </p>
+        <p><strong>Status:</strong>
+          <span id="deliveryStatus">Available</span>
+        </p>
+
+        <div class="info-box" id="customerContactBox">
+          <h3>Customer Contact</h3>
+          <p><strong>Phone:</strong>
+            <span id="jobCustomerPhone"></span>
+          </p>
+          <div class="contact-actions">
+            <a href="#" id="callCustomerBtn"
+              class="btn btn-secondary">Call Customer</a>
+            <a href="#" id="whatsappCustomerBtn"
+              class="btn btn-success"
+              target="_blank" rel="noopener noreferrer">
+              WhatsApp Customer
+            </a>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <p class="muted">
+            Contact the customer and agree on the fare before
+            accepting the job.
+          </p>
+          <button type="button" id="acceptInitialBtn"
+            class="btn btn-success">
+            Accept &amp; Lock Job
+          </button>
+          <button type="button" id="releaseDeliveryBtn"
+            class="btn btn-warning" hidden>
+            Release Job
+          </button>
+        </div>
+      </article>
+    </section>
+
+    <p class="page-note">
+      ShukAfrica — Connecting people, services and opportunities
+      across Africa.
+    </p>
+  </main>
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-            // OPEN AND CLOSE THE REQUEST AND AGENT FORMS
-      const requestPanel = document.getElementById("requestPanel");
-      const agentPanel = document.getElementById("riderRegistrationPanel");
+      "use strict";
 
-      document.getElementById("openRequestBtn").addEventListener("click", function () {
-        agentPanel.hidden = true;
-        requestPanel.hidden = !requestPanel.hidden;
-      });
-
-      document.getElementById("openAgentBtn").addEventListener("click", function () {
-        requestPanel.hidden = true;
-        agentPanel.hidden = !agentPanel.hidden;
-      });
-      
-      // DELIVERY, RIDE AND HAULAGE CATEGORY BUTTONS
-      const categoryButtons = document.querySelectorAll(".category-tab");
+      // PAGE ELEMENTS
       const requestPanel = document.getElementById("requestPanel");
-      const agentPanel = document.getElementById("riderRegistrationPanel");
-      const requestFormTitle = document.querySelector("#requestPanel h2");
-      const packageLabel = document.querySelector('label[for="packageDetails"]');
+      const agentPanel =
+        document.getElementById("riderRegistrationPanel");
+      const openAgentBtn = document.getElementById("openAgentBtn");
+      const requestForm =
+        document.getElementById("deliveryRequestForm");
+      const riderForm =
+        document.getElementById("riderRegistrationForm");
+
+      const categoryButtons =
+        document.querySelectorAll(".category-tab");
+
+      const requestFormTitle =
+        document.getElementById("requestFormTitle");
+      const packageLabel = document.getElementById("packageLabel");
       const packageDetails = document.getElementById("packageDetails");
-      const liveHeading = document.querySelector(".live-deliveries h2");
-      const liveMessage = document.getElementById("liveJobsMessage");
+      const packageField = document.getElementById("packageField");
+
+      const passengerField =
+        document.getElementById("passengerField");
+      const passengerCount =
+        document.getElementById("passengerCount");
+
+      const vehicleNeededField =
+        document.getElementById("vehicleNeededField");
+      const loadWeightField =
+        document.getElementById("loadWeightField");
+      const loadDimensionsField =
+        document.getElementById("loadDimensionsField");
+      const loadMediaField =
+        document.getElementById("loadMediaField");
+
+      const loadWeight = document.getElementById("loadWeight");
+      const loadDimensions =
+        document.getElementById("loadDimensions");
+      const loadPhotos = document.getElementById("loadPhotos");
+      const loadVideo = document.getElementById("loadVideo");
+
+      const deliveryFor = document.getElementById("deliveryFor");
+      const recipientFields =
+        document.getElementById("recipientFields");
+      const recipientName =
+        document.getElementById("recipientName");
+      const recipientPhone =
+        document.getElementById("recipientPhone");
+
+      const formStatus = document.getElementById("formStatus");
+      const riderStatus =
+        document.getElementById("riderRegistrationStatus");
+
+      const liveHeading =
+        document.getElementById("liveJobsHeading");
+      const liveMessage =
+        document.getElementById("liveJobsMessage");
+
+      let currentCategory = "delivery";
+
+      // SHOW THE SELECTED CUSTOMER REQUEST FORM
+      function selectCategory(category) {
+        currentCategory = category;
+
+        categoryButtons.forEach(function (button) {
+          const selected = button.dataset.category === category;
+          button.setAttribute("aria-pressed", String(selected));
+        });
+
+        agentPanel.hidden = true;
+        requestPanel.hidden = false;
+
+        passengerField.classList.toggle(
+          "hidden", category !== "ride"
+        );
+        vehicleNeededField.classList.toggle(
+          "hidden", category !== "haulage"
+        );
+        loadWeightField.classList.toggle(
+          "hidden", category !== "haulage"
+        );
+        loadDimensionsField.classList.toggle(
+          "hidden", category !== "haulage"
+        );
+        loadMediaField.classList.toggle(
+          "hidden", category !== "haulage"
+        );
+
+        if (category === "ride") {
+          requestFormTitle.textContent = "Request a Ride";
+          packageLabel.textContent = "Trip Notes (optional)";
+          packageDetails.placeholder =
+            "Optional trip instructions";
+          packageDetails.required = false;
+          packageField.classList.remove("hidden");
+
+          passengerCount.required = true;
+
+          liveHeading.textContent = "Live Ride Requests";
+          liveMessage.textContent =
+            "Passenger transport requests will appear here when the live jobs backend is connected.";
+        } else if (category === "haulage") {
+          requestFormTitle.textContent = "Request Haulage";
+          packageLabel.textContent = "Load Details *";
+          packageDetails.placeholder =
+            "Describe the load, such as cement, timber, machinery or containers";
+          packageDetails.required = true;
+          packageField.classList.remove("hidden");
+
+          passengerCount.required = false;
+
+          liveHeading.textContent = "Live Haulage Jobs";
+          liveMessage.textContent =
+            "Haulage requests will appear here when the live jobs backend is connected.";
+        } else {
+          requestFormTitle.textContent = "Request a Delivery";
+          packageLabel.textContent = "Package Details *";
+          packageDetails.placeholder =
+            "Describe what needs to be delivered";
+          packageDetails.required = true;
+          packageField.classList.remove("hidden");
+
+          passengerCount.required = false;
+
+          liveHeading.textContent = "Live Delivery Requests";
+          liveMessage.textContent =
+            "Delivery requests will appear here when the live jobs backend is connected.";
+        }
+
+        formStatus.textContent = "";
+      }
 
       categoryButtons.forEach(function (button) {
         button.addEventListener("click", function () {
-          categoryButtons.forEach(function (item) {
-            item.setAttribute("aria-pressed", "false");
-          });
-
-          button.setAttribute("aria-pressed", "true");
-
-          const category = button.dataset.category;
-
-          // Close agent registration when a customer chooses a service.
-          agentPanel.hidden = true;
-
-          // Open the request form for the selected service.
-          requestPanel.hidden = false;
-
-          if (requestFormTitle) {
-            if (category === "ride") {
-              requestFormTitle.textContent = "Request a Ride";
-            } else if (category === "haulage") {
-              requestFormTitle.textContent = "Request Haulage";
-            } else {
-              requestFormTitle.textContent = "Request a Delivery";
-            }
-          }
-
-          // Update the existing package field label and placeholder.
-          if (packageLabel && packageDetails) {
-            if (category === "ride") {
-              packageLabel.textContent = "Trip Notes (optional)";
-              packageDetails.placeholder = "Any useful details about your trip";
-              packageDetails.required = false;
-            } else if (category === "haulage") {
-              packageLabel.textContent = "Load Details";
-              packageDetails.placeholder =
-                "e.g. cement bags, timber, container or machinery";
-              packageDetails.required = true;
-            } else {
-              packageLabel.textContent = "Package Details";
-              packageDetails.placeholder =
-                "e.g. documents, electronics or food";
-              packageDetails.required = true;
-            }
-          }
-
-          if (liveHeading) {
-            liveHeading.textContent =
-              category === "ride" ? "Live Ride Requests" :
-              category === "haulage" ? "Live Haulage Jobs" :
-              "Live Delivery Requests";
-          }
-
-          if (liveMessage) {
-            liveMessage.textContent =
-              category === "ride"
-                ? "Find passenger trips and contact the driver or passenger as appropriate."
-                : category === "haulage"
-                  ? "Review the load and agree on the vehicle and fare before accepting."
-                  : "Browse delivery jobs and agree on the fare before accepting.";
-          }
-
+          selectCategory(button.dataset.category);
           requestPanel.scrollIntoView({
             behavior: "smooth",
             block: "start"
@@ -746,76 +816,26 @@
         });
       });
 
-      // RIDER REGISTRATION
-      const riderForm =
-        document.getElementById("riderRegistrationForm");
+      // AGENT REGISTRATION BUTTON
+      openAgentBtn.addEventListener("click", function () {
+        const shouldOpen = agentPanel.hidden;
 
-      const riderStatus =
-        document.getElementById("riderRegistrationStatus");
+        requestPanel.hidden = true;
+        agentPanel.hidden = !shouldOpen;
 
-      if (riderForm && riderStatus) {
-        riderForm.addEventListener("submit", async function (event) {
-          event.preventDefault();
+        if (shouldOpen) {
+          agentPanel.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
+        }
+      });
 
-          const submitButton =
-            riderForm.querySelector('button[type="submit"]');
-
-          submitButton.disabled = true;
-          riderStatus.textContent = "Submitting application securely...";
-
-          try {
-            
-const response = await fetch("/api/delivery/partners", {
-  method: "POST",
-  credentials: "include",
-  body: new FormData(riderForm)
-});
-
-const result = await response.json();
-
-if (!response.ok || !result.success) {
-  riderStatus.textContent = JSON.stringify(result);
-  return;
-}
-
-riderStatus.textContent =
-  "Application submitted. Status: Pending Verification.";
-
-} catch (error) {
-  riderStatus.textContent =
-    error.message || "Submission failed. Please try again.";
-} finally {
-  submitButton.disabled = false;
-}
-});
-}
-
-      // CUSTOMER FORM
-      const requestForm =
-        document.getElementById("deliveryRequestForm");
-
-      const deliveryFor =
-        document.getElementById("deliveryFor");
-
-      const recipientFields =
-        document.getElementById("recipientFields");
-
-      const recipientName =
-        document.getElementById("recipientName");
-
-      const recipientPhone =
-        document.getElementById("recipientPhone");
-
-      const formStatus =
-        document.getElementById("formStatus");
-
+      // RECIPIENT DETAILS
       deliveryFor.addEventListener("change", function () {
+        const isOther = deliveryFor.value === "other";
 
-        const isOther = this.value === "other";
-
-        recipientFields.style.display =
-          isOther ? "block" : "none";
-
+        recipientFields.classList.toggle("hidden", !isOther);
         recipientName.required = isOther;
         recipientPhone.required = isOther;
 
@@ -823,265 +843,250 @@ riderStatus.textContent =
           recipientName.value = "";
           recipientPhone.value = "";
         }
-
       });
 
+      // OPTIONAL LOAD MEDIA VALIDATION
+      loadPhotos.addEventListener("change", function () {
+        const files = Array.from(loadPhotos.files || []);
+        const maxFileSize = 8 * 1024 * 1024;
 
-      // SIMPLE FRONTEND REQUEST DEMO
-      requestForm.addEventListener("submit", function (event) {
+        const invalid = files.some(function (file) {
+          return ![
+            "image/jpeg", "image/png", "image/webp"
+          ].includes(file.type) || file.size > maxFileSize;
+        });
 
-        event.preventDefault();
+        if (invalid) {
+          alert(
+            "Each load photo must be JPG, PNG or WebP and no larger than 8 MB."
+          );
+          loadPhotos.value = "";
+        }
+      });
 
-        const customerName =
-          document.getElementById("customerName").value.trim();
+      loadVideo.addEventListener("change", function () {
+        const file = loadVideo.files && loadVideo.files[0];
 
-        const customerPhone =
-          document.getElementById("customerPhone").value.trim();
+        if (!file) return;
 
-        const pickup =
-          document.getElementById("pickupLocation").value.trim();
+        if (!["video/mp4", "video/webm"].includes(file.type)) {
+          alert("Choose an MP4 or WebM video.");
+          loadVideo.value = "";
+          return;
+        }
 
-        const destination =
-          document.getElementById("destinationLocation").value.trim();
-
-        const packageDetails =
-          document.getElementById("packageDetails").value.trim();
-
-        
-if (!customerName || !customerPhone ||
-    !pickup || !destination || !packageDetails ||
-    !Number.isFinite(offer) || offer <= 0) {
-
-  alert("Please complete all required fields.");
-  return;
-}
-        
-
-        formStatus.textContent =
-          "Form validated. Backend connection is required to publish this request to all delivery partners.";
+        if (file.size > 20 * 1024 * 1024) {
+          alert("The video must be no larger than 20 MB.");
+          loadVideo.value = "";
+          return;
+        }
 
         alert(
-          "Your delivery form is valid. To publish it to the live delivery network, ShukAfrica's backend must be connected."
+          "Please note: the browser cannot reliably verify the video's duration here. The server must enforce the 30-second limit."
         );
-
       });
 
+      // CUSTOMER REQUEST FORM
+      requestForm.addEventListener("submit", function (event) {
+        event.preventDefault();
 
-      // NOTIFICATIONS
+        formStatus.textContent = "";
+
+        if (!requestForm.reportValidity()) return;
+
+        const selfie = document.getElementById("customerSelfie")
+          .files[0];
+
+        if (!selfie) {
+          formStatus.textContent =
+            "Please select your photo before continuing.";
+          return;
+        }
+
+        if (![
+          "image/jpeg", "image/png", "image/webp"
+        ].includes(selfie.type) || selfie.size > 8 * 1024 * 1024) {
+          formStatus.textContent =
+            "Choose a JPG, PNG or WebP photo no larger than 8 MB.";
+          return;
+        }
+
+        if (currentCategory === "haulage") {
+          const weight = loadWeight.value.trim();
+          const dimensions = loadDimensions.value.trim();
+
+          if (!weight && !dimensions) {
+            formStatus.textContent =
+              "For haulage, provide an estimated weight or load dimensions.";
+            return;
+          }
+        }
+
+        formStatus.textContent =
+          "Your form passed the basic browser checks, but this request has NOT been published. The secure customer-request backend still needs to be connected.";
+
+        alert(
+          "The form is ready for backend integration. No live job has been created yet."
+        );
+      });
+
+      // AGENT REGISTRATION
+      riderForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        riderStatus.textContent = "";
+
+        if (!riderForm.reportValidity()) return;
+
+        const submitButton =
+          riderForm.querySelector('button[type="submit"]');
+
+        const documentFile =
+          document.getElementById("insuranceDocument").files[0];
+        const riderSelfie =
+          document.getElementById("riderSelfie").files[0];
+
+        const allowedImages = [
+          "image/jpeg", "image/png", "image/webp"
+        ];
+
+        if (!documentFile || !riderSelfie) {
+          riderStatus.textContent =
+            "Select both the vehicle document and your selfie.";
+          return;
+        }
+
+        if (documentFile.size > 8 * 1024 * 1024 ||
+            riderSelfie.size > 8 * 1024 * 1024) {
+          riderStatus.textContent =
+            "Each uploaded file must be no larger than 8 MB.";
+          return;
+        }
+
+        if (
+          !allowedImages.includes(documentFile.type) &&
+          documentFile.type !== "application/pdf"
+        ) {
+          riderStatus.textContent =
+            "The vehicle document must be an image or PDF.";
+          return;
+        }
+
+        if (!allowedImages.includes(riderSelfie.type)) {
+          riderStatus.textContent =
+            "The selfie must be JPG, PNG or WebP.";
+          return;
+        }
+
+        submitButton.disabled = true;
+        riderStatus.textContent =
+          "Submitting application. Please wait...";
+
+        try {
+          const response = await fetch(
+            "/api/delivery/partners",
+            {
+              method: "POST",
+              credentials: "include",
+              body: new FormData(riderForm)
+            }
+          );
+
+          const result = await response.json().catch(function () {
+            return {};
+          });
+
+          if (!response.ok || !result.success) {
+            riderStatus.textContent =
+              result.error ||
+              "The server rejected the application. Check the upload endpoint and its logs.";
+            return;
+          }
+
+          riderStatus.textContent =
+            "Application received. Wait for verification before using approved transport jobs.";
+          riderForm.reset();
+        } catch (error) {
+          riderStatus.textContent =
+            "Could not contact the server. Check your connection and try again.";
+        } finally {
+          submitButton.disabled = false;
+        }
+      });
+
+      // BROWSER NOTIFICATION PERMISSION ONLY.
+      // Actual push delivery requires a push service and backend.
       const enablePushBtn =
         document.getElementById("enablePushBtn");
-
       const notificationStatus =
         document.getElementById("notificationStatus");
 
       enablePushBtn.addEventListener("click", async function () {
-
         if (!("Notification" in window)) {
           notificationStatus.textContent =
-            "Notifications are not supported by this browser.";
+            "This browser does not support notifications.";
           return;
         }
 
         try {
-
           const permission =
             await Notification.requestPermission();
 
           if (permission === "granted") {
-
             notificationStatus.textContent =
-              "✓ Notification permission granted.";
-
-            enablePushBtn.textContent =
-              "✓ Notifications Enabled";
-
-            enablePushBtn.disabled = true;
-
+              "Notification permission granted. Live alerts still require backend push integration.";
           } else {
-
             notificationStatus.textContent =
               "Notification permission was not granted.";
-
           }
-
         } catch (error) {
-
           notificationStatus.textContent =
             "Unable to request notification permission.";
-
         }
-
       });
 
-
-      // GPS LOCATION
+      // GPS: SESSION ONLY. NO COORDINATES ARE SENT TO THE SERVER.
       const enableGpsBtn =
         document.getElementById("enableGpsBtn");
-
-      const gpsStatus =
-        document.getElementById("gpsStatus");
+      const gpsStatus = document.getElementById("gpsStatus");
 
       enableGpsBtn.addEventListener("click", function () {
-
         if (!navigator.geolocation) {
-
           gpsStatus.textContent =
-            "GPS is not supported on this device.";
-
+            "Location is not supported by this browser.";
           return;
-
         }
 
-        gpsStatus.textContent =
-          "Requesting GPS location...";
+        gpsStatus.textContent = "Requesting location permission...";
 
         navigator.geolocation.getCurrentPosition(
-
           function (position) {
-
-            // Keep the coordinates in memory for this page session.
-            // A backend is needed for shared partner-location matching.
             window.shukAfricaPartnerLocation = {
               latitude: position.coords.latitude,
               longitude: position.coords.longitude
             };
 
             gpsStatus.textContent =
-              "✓ GPS location detected for this session.";
-
-            enableGpsBtn.textContent =
-              "✓ Location Enabled";
-
+              "Location detected for this page session only.";
           },
-
           function () {
-
             gpsStatus.textContent =
-              "Location permission was denied or unavailable.";
-
+              "Location permission denied or location unavailable.";
           },
-
           {
             enableHighAccuracy: true,
             timeout: 15000,
             maximumAge: 30000
           }
-
         );
-
       });
 
-
-      // DELIVERY ACTIONS
-      const acceptBtn =
-        document.getElementById("acceptInitialBtn");
-
-      const releaseBtn =
-        document.getElementById("releaseDeliveryBtn");
-
-      const cancelBtn =
-        document.getElementById("cancelDeliveryBtn");
-
-      const deliveryStatus =
-        document.getElementById("deliveryStatus");
-
-      const acceptedPartner =
-        document.getElementById("customerContactBox");
-
-      const deliveryCard =
-        document.getElementById("deliveryJobCard");
-
-      let deliveryLocked = false;
-      let deliveryCancelled = false;
-
-
-      // PARTNER ACCEPTS AND LOCKS AFTER PHONE NEGOTIATION
-      acceptBtn.addEventListener("click", function () {
-
-        if (deliveryCancelled || deliveryLocked) return;
-
-        const confirmed = confirm(
-          "Have you contacted the customer and agreed on the final fare? Confirm to accept and lock this delivery."
-        );
-
-        if (!confirmed) return;
-
-        deliveryLocked = true;
-
-        deliveryStatus.textContent =
-          "Accepted & Locked — Fare Agreed by Phone";
-
-        deliveryStatus.style.color = "#25d366";
-
-        acceptBtn.style.display = "none";
-        releaseBtn.style.display = "block";
-
-        alert(
-          "Delivery accepted in this demo. The final fare was agreed outside ShukAfrica."
-        );
-
-      });
-
-
-      // PARTNER RELEASES DELIVERY
-      releaseBtn.addEventListener("click", function () {
-
-        if (!deliveryLocked || deliveryCancelled) return;
-
-        const confirmed = confirm(
-          "Release this delivery back to the available jobs?"
-        );
-
-        if (!confirmed) return;
-
-        deliveryLocked = false;
-
-        deliveryStatus.textContent =
-          "Waiting for Partner";
-
-        deliveryStatus.style.color = "#fff";
-
-        acceptBtn.style.display = "block";
-        releaseBtn.style.display = "none";
-
-        alert("Delivery released in this demo.");
-
-      });
-
-
-      // CUSTOMER CANCELS REQUEST
-      cancelBtn.addEventListener("click", function () {
-
-        if (deliveryCancelled) return;
-
-        const confirmed = confirm(
-          "Are you sure you want to cancel this delivery request?"
-        );
-
-        if (!confirmed) return;
-
-        deliveryCancelled = true;
-        deliveryLocked = false;
-
-        deliveryStatus.textContent =
-          "Cancelled by Customer";
-
-        deliveryStatus.style.color = "#dc3545";
-
-        deliveryCard.style.opacity = "0.55";
-
-        acceptBtn.style.display = "none";
-        releaseBtn.style.display = "none";
-
-        cancelBtn.disabled = true;
-        cancelBtn.textContent = "Request Cancelled";
-
-        alert("Request marked as cancelled in this demo.");
-
-      });
-
+      // NO DEMO ACCEPT / CANCEL ACTIONS.
+      // Real job locking must be enforced by the server.
+      selectCategory("delivery");
     });
   </script>
-
 </body>
 </html>
+
+                
