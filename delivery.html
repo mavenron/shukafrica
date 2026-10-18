@@ -449,11 +449,12 @@
 
             const result = await response.json();
 
-            if (!response.ok || !result.success) {
-              throw new Error(
-                result.error || "Unable to submit your application."
-              );
-            }
+if (!response.ok || !result.success) {
+  riderStatus.textContent =
+    "Error " + response.status + ": " +
+    (result.error || "Unable to submit your application.");
+  return;
+}
 
             riderStatus.textContent =
               "Application submitted. Status: Pending Verification.";
