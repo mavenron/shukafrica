@@ -459,8 +459,7 @@ if (!response.ok || !result.success) {
 
             riderStatus.textContent =
               "Application submitted. Status: Pending Verification.";
-
-            riderForm.reset();
+            
           } catch (error) {
             riderStatus.textContent =
               error.message ||
