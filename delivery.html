@@ -670,8 +670,16 @@
         requestPanel.hidden = true;
         agentPanel.hidden = !agentPanel.hidden;
       });
+      
       // DELIVERY, RIDE AND HAULAGE CATEGORY BUTTONS
       const categoryButtons = document.querySelectorAll(".category-tab");
+      const requestPanel = document.getElementById("requestPanel");
+      const agentPanel = document.getElementById("riderRegistrationPanel");
+      const requestFormTitle = document.querySelector("#requestPanel h2");
+      const packageLabel = document.querySelector('label[for="packageDetails"]');
+      const packageDetails = document.getElementById("packageDetails");
+      const liveHeading = document.querySelector(".live-deliveries h2");
+      const liveMessage = document.getElementById("liveJobsMessage");
 
       categoryButtons.forEach(function (button) {
         button.addEventListener("click", function () {
@@ -682,32 +690,65 @@
           button.setAttribute("aria-pressed", "true");
 
           const category = button.dataset.category;
-          const heading = document.querySelector(".live-deliveries h2");
-          const message = document.getElementById("liveJobsMessage");
 
-          if (message) {
+          // Close agent registration when a customer chooses a service.
+          agentPanel.hidden = true;
+
+          // Open the request form for the selected service.
+          requestPanel.hidden = false;
+
+          if (requestFormTitle) {
             if (category === "ride") {
-              message.textContent =
-                "Find passenger trips and contact the customer to agree on the fare.";
+              requestFormTitle.textContent = "Request a Ride";
             } else if (category === "haulage") {
-              message.textContent =
-                "Explore loads, review available job details, and agree on the fare and vehicle before accepting.";
+              requestFormTitle.textContent = "Request Haulage";
             } else {
-              message.textContent =
-                "Browse available delivery jobs and contact the customer to agree on the fare before accepting.";
+              requestFormTitle.textContent = "Request a Delivery";
             }
           }
-          if (heading) {
+
+          // Update the existing package field label and placeholder.
+          if (packageLabel && packageDetails) {
             if (category === "ride") {
-              heading.textContent = "Live Ride Requests";
+              packageLabel.textContent = "Trip Notes (optional)";
+              packageDetails.placeholder = "Any useful details about your trip";
+              packageDetails.required = false;
             } else if (category === "haulage") {
-              heading.textContent = "Live Haulage Jobs";
+              packageLabel.textContent = "Load Details";
+              packageDetails.placeholder =
+                "e.g. cement bags, timber, container or machinery";
+              packageDetails.required = true;
             } else {
-              heading.textContent = "Live Delivery Requests";
+              packageLabel.textContent = "Package Details";
+              packageDetails.placeholder =
+                "e.g. documents, electronics or food";
+              packageDetails.required = true;
             }
           }
+
+          if (liveHeading) {
+            liveHeading.textContent =
+              category === "ride" ? "Live Ride Requests" :
+              category === "haulage" ? "Live Haulage Jobs" :
+              "Live Delivery Requests";
+          }
+
+          if (liveMessage) {
+            liveMessage.textContent =
+              category === "ride"
+                ? "Find passenger trips and contact the driver or passenger as appropriate."
+                : category === "haulage"
+                  ? "Review the load and agree on the vehicle and fare before accepting."
+                  : "Browse delivery jobs and agree on the fare before accepting.";
+          }
+
+          requestPanel.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
         });
       });
+
       // RIDER REGISTRATION
       const riderForm =
         document.getElementById("riderRegistrationForm");
