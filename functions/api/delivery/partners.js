@@ -208,6 +208,7 @@ export async function onRequestPost({ request, env }) {
       }, 400, origin);
     }
 
+  
     if (
       !file ||
       typeof file === "string" ||
@@ -217,7 +218,15 @@ export async function onRequestPost({ request, env }) {
     ) {
       return json({
         success: false,
-        error: "Please select an insurance document image."
+        error: "Insurance file diagnostic.",
+        diagnostic: {
+          present: Boolean(file),
+          valueType: typeof file,
+          hasArrayBuffer: Boolean(file && typeof file.arrayBuffer === "function"),
+          sizeType: file ? typeof file.size : "missing",
+          size: file && typeof file.size === "number" ? file.size : null,
+          fileConstructor: file && file.constructor ? file.constructor.name : null
+        }
       }, 400, origin);
     }
 
