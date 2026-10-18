@@ -146,7 +146,17 @@ export async function onRequestPost({ request, env }) {
     }
 
     const form = await request.formData();
-
+console.log("Rider form fields:", [...form.keys()]);
+console.log(
+  "Insurance file details:",
+  form.get("insuranceDocument") instanceof File
+    ? {
+        name: form.get("insuranceDocument").name,
+        size: form.get("insuranceDocument").size,
+        type: form.get("insuranceDocument").type
+      }
+    : String(form.get("insuranceDocument"))
+);
     const fullName = String(form.get("fullName") || "").trim();
     const phone = String(form.get("phone") || "").trim();
     const vehicleRegistration = String(form.get("vehicleRegistration") || "").trim();
