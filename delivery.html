@@ -683,7 +683,20 @@
 
           const category = button.dataset.category;
           const heading = document.querySelector(".live-deliveries h2");
+          const message = document.getElementById("liveJobsMessage");
 
+          if (message) {
+            if (category === "ride") {
+              message.textContent =
+                "Find passenger trips and contact the customer to agree on the fare.";
+            } else if (category === "haulage") {
+              message.textContent =
+                "Explore loads, review available job details, and agree on the fare and vehicle before accepting.";
+            } else {
+              message.textContent =
+                "Browse available delivery jobs and contact the customer to agree on the fare before accepting.";
+            }
+          }
           if (heading) {
             if (category === "ride") {
               heading.textContent = "Live Ride Requests";
