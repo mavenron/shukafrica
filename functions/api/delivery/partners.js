@@ -165,12 +165,27 @@ console.log(
     const alternativeContactPhone = String(form.get("alternativeContactPhone") || "").trim();
     const file = form.get("insuranceDocument");
 
+    
     if (
       !fullName || !phone || !vehicleRegistration ||
       !alternativeContactName || !alternativeRelationship ||
       !alternativeContactPhone || !(file instanceof File) || file.size === 0
     ) {
-      return json({ success: false, error: "Complete all fields and attach the insurance document." }, 400, origin);
+      return json({
+        success: false,
+        error: "Required field check failed.",
+        diagnostic: {
+          fullNamePresent: Boolean(fullName),
+          phonePresent: Boolean(phone),
+          vehicleRegistrationPresent: Boolean(vehicleRegistration),
+          alternativeContactNamePresent: Boolean(alternativeContactName),
+          alternativeRelationshipPresent: Boolean(alternativeRelationship),
+          alternativeContactPhonePresent: Boolean(alternativeContactPhone),
+          fileExists: Boolean(file),
+          fileIsFile: typeof File !== "undefined" && file instanceof File,
+          fileSize: file && typeof file.size === "number" ? file.size : null
+        }
+      }, 400, origin);
     }
 
     if (
