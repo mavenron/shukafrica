@@ -1022,10 +1022,10 @@ body: (() => {
           });
 
           if (!response.ok || !result.success) {
-            riderStatus.textContent =
-              result.error ||
-              "The server rejected the application. Check the upload endpoint and its logs.";
-            return;
+  riderStatus.textContent =
+    "HTTP " + response.status + ": " +
+    JSON.stringify(result);
+  return;
           }
 
           riderStatus.textContent =
