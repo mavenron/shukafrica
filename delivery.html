@@ -988,7 +988,13 @@
           const data = new FormData(requestForm);
           data.set("category", currentCategory);
           data.set("customerSelfie", selfie);
-
+alert(
+  "Photo is a File: " +
+  (data.get("customerSelfie") instanceof File) +
+  "\nType: " + (data.get("customerSelfie")?.type || "none") +
+  "\nSize: " + (data.get("customerSelfie")?.size ?? "none") +
+  " bytes"
+);
           const response = await fetch("/api/delivery", {
             method: "POST",
             credentials: "include",
