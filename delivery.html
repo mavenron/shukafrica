@@ -716,13 +716,24 @@
           const image = new Image();
 
           await new Promise(function (resolve, reject) {
-            image.onload = resolve;
-            image.onerror = function () {
-              reject(new Error("Could not read this photo."));
-            };
-            image.src = imageURL;
-          });
+  image.onload = function () {
+    if (image.naturalWidth > 0 && image.naturalHeight > 0) {
+      resolve();
+    } else {
+      reject(new Error("The selected photo has invalid dimensions."));
+    }
+  };
 
+  image.onerror = function () {
+    reject(
+      new Error(
+        "Your browser could not open this photo. Try selecting a JPG or PNG image from your Gallery."
+      )
+    );
+  };
+
+  image.src = imageURL;
+});
           const maxDimension = 1600;
           const scale = Math.min(
             1,
