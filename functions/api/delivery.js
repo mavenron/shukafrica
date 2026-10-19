@@ -1,192 +1,367 @@
+const ALLOWED_ORIGINS = new Set([
+  "https://shukafrica.com",
+  "https://www.shukafrica.com",
+  "https://shukafrica.pages.dev"
+]);
 
-function json(data, status = 200) {
-  return Response.json(data, {
-    status,
+const MAX_FILE_SIZE = 2 * 1024 * 1024;
+
+const ALLOWED_TYPES = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp"
+};
+
+function json(data, status = 200, origin = "") {
+  const headers = {
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "no-store",
+    "X-Content-Type-Options": "nosniff"
+  };
+
+  if (origin && ALLOWED_ORIGINS.has(origin)) {
+    headers["Access-Control-Allow-Origin"] = origin;
+    headers["Access-Control-Allow-Credentials"] = "true";
+    headers["Vary"] = "Origin";
+  }
+
+  return new Response(JSON.stringify(data), { status, headers });
+}
+
+function getOrigin(request) {
+  const origin = request.headers.get("Origin") || "";
+  return ALLOWED_ORIGINS.has(origin) ? origin : null;
+}
+
+function getToken(request) {
+  const cookie = request.headers.get("Cookie") || "";
+  const match = cookie.match(/(?:^|;\s*)shuk_seller_session=([^;]+)/);
+  return match ? match[1] : "";
+}
+
+async function sha256(value) {
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(value)
+  );
+
+  return Array.from(new Uint8Array(digest))
+    .map(byte => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function getSeller(request, env) {
+  const token = getToken(request);
+  if (!token || token.length > 200) return null;
+
+  const session = await env.DB.prepare(`
+    SELECT phone, expires_at
+    FROM seller_sessions
+    WHERE token_hash = ?
+    LIMIT 1
+  `).bind(await sha256(token)).first();
+
+  if (
+    !session ||
+    !session.expires_at ||
+    !Number.isFinite(Date.parse(session.expires_at)) ||
+    Date.parse(session.expires_at) <= Date.now()
+  ) {
+    return null;
+  }
+
+  // Match the existing email-session format used by ShukAfrica.
+  if (!session.phone || !session.phone.startsWith("email:")) {
+    return null;
+  }
+
+  const sellerId = session.phone.slice(6);
+
+  return env.DB.prepare(`
+    SELECT id, name
+    FROM sellers
+    WHERE id = ?
+    LIMIT 1
+  `).bind(sellerId).first();
+}
+
+function validText(value, maxLength) {
+  return typeof value === "string" &&
+    value.trim().length > 0 &&
+    value.trim().length <= maxLength;
+}
+
+function getImage(form, fieldName) {
+  const entry = form.get(fieldName);
+
+  if (
+    !entry ||
+    typeof entry === "string" ||
+    typeof entry.arrayBuffer !== "function" ||
+    typeof entry.size !== "number" ||
+    entry.size < 1
+  ) {
+    return { error: `${fieldName} must be an uploaded image.` };
+  }
+
+  if (entry.size > MAX_FILE_SIZE) {
+    return { error: `${fieldName} must be 2 MB or smaller.` };
+  }
+
+  const extension = ALLOWED_TYPES[entry.type];
+
+  if (!extension) {
+    return { error: `${fieldName} must be JPG, PNG or WebP.` };
+  }
+
+  return { file: entry, extension };
+}
+
+async function savePrivateImage(env, key, file) {
+  const bytes = await file.arrayBuffer();
+
+  await env.PRIVATE_MEDIA.put(key, bytes, {
+    httpMetadata: {
+      contentType: file.type,
+      cacheControl: "private, no-store"
+    }
+  });
+}
+
+export async function onRequestOptions({ request }) {
+  const origin = getOrigin(request);
+
+  if (!origin) {
+    return new Response(null, { status: 403 });
+  }
+
+  return new Response(null, {
+    status: 204,
     headers: {
-      "Cache-Control": "no-store",
-      "Access-Control-Allow-Origin": "https://shukafrica.com",
+      "Access-Control-Allow-Origin": origin,
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Allow-Credentials": "true",
+      "Access-Control-Max-Age": "86400",
       "Vary": "Origin"
     }
   });
 }
 
-function makeId() {
-  return crypto.randomUUID();
-}
+export async function onRequestGet({ request, env }) {
+  const origin = getOrigin(request);
 
-export async function onRequestOptions() {
-  return new Response(null, {
-    status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": "https://shukafrica.com",
-      "Access-Control-Allow-Methods": "GET, POST, PATCH, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-      "Access-Control-Max-Age": "86400"
-    }
-  });
-}
+  if (!origin) {
+    return json({ success: false, error: "Origin not allowed." }, 403);
+  }
 
-export async function onRequestGet({ env }) {
+  if (!env.DB) {
+    return json({ success: false, error: "Database unavailable." }, 503, origin);
+  }
+
   try {
-    const result = await env.DB.prepare(`
-      SELECT id, pickup_location, destination_location,
-             package_details, status, created_at
-      FROM delivery_requests
-      WHERE status = 'pending'
-      ORDER BY created_at DESC
-      LIMIT 100
-    `).all();
+    const seller = await getSeller(request, env);
 
-    return json({ success: true, requests: result.results || [] });
+    if (!seller) {
+      return json({
+        success: false,
+        error: "Please log in with your email account."
+      }, 401, origin);
+    }
+
+    const application = await env.DB.prepare(`
+      SELECT id, status, created_at, updated_at
+      FROM delivery_partners
+      WHERE seller_id = ?
+      ORDER BY created_at DESC
+      LIMIT 1
+    `).bind(seller.id).first();
+
+    return json({
+      success: true,
+      application: application || null
+    }, 200, origin);
   } catch (error) {
-    return json({ success: false, error: "Unable to load delivery requests." }, 500);
+    console.error("Agent application lookup failed:", error);
+
+    return json({
+      success: false,
+      error: "Unable to check your application."
+    }, 500, origin);
   }
 }
 
 export async function onRequestPost({ request, env }) {
+  const origin = getOrigin(request);
+
+  if (!origin) {
+    return json({ success: false, error: "Origin not allowed." }, 403);
+  }
+
+  if (!env.DB || !env.PRIVATE_MEDIA) {
+    return json({
+      success: false,
+      error: "Database or private storage is not configured."
+    }, 503, origin);
+  }
+
+  const contentType = request.headers.get("Content-Type") || "";
+
+  if (!contentType.toLowerCase().startsWith("multipart/form-data;")) {
+    return json({
+      success: false,
+      error: "Please submit the form with both required images."
+    }, 400, origin);
+  }
+
+  let insuranceKey = null;
+  let selfieKey = null;
+
   try {
-    const body = await request.json();
+    const seller = await getSeller(request, env);
 
-    const customerName = String(body.customerName || "").trim();
-    const customerPhone = String(body.customerPhone || "").trim();
-    const pickup = String(body.pickupLocation || "").trim();
-    const destination = String(body.destinationLocation || "").trim();
-    const packageDetails = String(body.packageDetails || "").trim();
-    const deliveryFor = body.deliveryFor === "other" ? "other" : "myself";
-    const recipientName = String(body.recipientName || "").trim();
-    const recipientPhone = String(body.recipientPhone || "").trim();
-
-    if (
-      !customerName || !customerPhone || !pickup ||
-      !destination || !packageDetails ||
-      (deliveryFor === "other" && (!recipientName || !recipientPhone))
-    ) {
-      return json({ success: false, error: "Please complete all required fields." }, 400);
+    if (!seller) {
+      return json({
+        success: false,
+        error: "Please log in with your email account."
+      }, 401, origin);
     }
 
+    const form = await request.formData();
+
+    const fullName = String(form.get("fullName") || "").trim();
+    const phone = String(form.get("phone") || "").trim();
+    const vehicleRegistration =
+      String(form.get("vehicleRegistration") || "").trim();
+    const alternativeContactName =
+      String(form.get("alternativeContactName") || "").trim();
+    const alternativeRelationship =
+      String(form.get("alternativeRelationship") || "").trim();
+    const alternativeContactPhone =
+      String(form.get("alternativeContactPhone") || "").trim();
+
     if (
-      customerName.length > 120 ||
-      customerPhone.length > 30 ||
-      pickup.length > 200 ||
-      destination.length > 200 ||
-      packageDetails.length > 500 ||
-      recipientName.length > 120 ||
-      recipientPhone.length > 30
+      !validText(fullName, 120) ||
+      !validText(phone, 30) ||
+      !validText(vehicleRegistration, 30) ||
+      !validText(alternativeContactName, 120) ||
+      !validText(alternativeRelationship, 60) ||
+      !validText(alternativeContactPhone, 30)
     ) {
-      return json({ success: false, error: "One or more fields are too long." }, 400);
+      return json({
+        success: false,
+        error: "Complete all required text fields within the allowed lengths."
+      }, 400, origin);
     }
 
-    const id = makeId();
+    const insuranceResult = getImage(form, "insuranceDocument");
+
+    if (insuranceResult.error) {
+      return json({
+        success: false,
+        error: insuranceResult.error
+      }, 400, origin);
+    }
+
+    const selfieResult = getImage(form, "riderSelfie");
+
+    if (selfieResult.error) {
+      return json({
+        success: false,
+        error: selfieResult.error
+      }, 400, origin);
+    }
+
+    const existing = await env.DB.prepare(`
+      SELECT id
+      FROM delivery_partners
+      WHERE seller_id = ?
+        AND status IN ('pending', 'approved', 'suspended')
+      LIMIT 1
+    `).bind(seller.id).first();
+
+    if (existing) {
+      return json({
+        success: false,
+        error: "You already have a pending or active agent application."
+      }, 409, origin);
+    }
+
+    const id = crypto.randomUUID();
+
+    insuranceKey =
+      `rider-insurance/${seller.id}/${id}.${insuranceResult.extension}`;
+
+    selfieKey =
+      `rider-selfies/${seller.id}/${id}.${selfieResult.extension}`;
+
+    await savePrivateImage(
+      env,
+      insuranceKey,
+      insuranceResult.file
+    );
+
+    await savePrivateImage(
+      env,
+      selfieKey,
+      selfieResult.file
+    );
 
     await env.DB.prepare(`
-      INSERT INTO delivery_requests (
-        id, customer_name, customer_phone, pickup_location,
-        destination_location, package_details, delivery_for,
-        recipient_name, recipient_phone, status
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+      INSERT INTO delivery_partners (
+        id,
+        seller_id,
+        full_name,
+        phone,
+        vehicle_registration,
+        insurance_document_key,
+        rider_selfie_key,
+        alternative_contact_name,
+        alternative_relationship,
+        alternative_contact_phone,
+        status
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
     `).bind(
-      id, customerName, customerPhone, pickup, destination,
-      packageDetails, deliveryFor,
-      deliveryFor === "other" ? recipientName : null,
-      deliveryFor === "other" ? recipientPhone : null
+      id,
+      seller.id,
+      fullName,
+      phone,
+      vehicleRegistration,
+      insuranceKey,
+      selfieKey,
+      alternativeContactName,
+      alternativeRelationship,
+      alternativeContactPhone
     ).run();
 
     return json({
       success: true,
-      message: "Delivery request created.",
-      requestId: id
-    }, 201);
+      message: "Your agent application has been submitted for admin review.",
+      status: "pending"
+    }, 201, origin);
   } catch (error) {
-    return json({ success: false, error: "Unable to create delivery request." }, 500);
+    console.error("Agent application submission failed:", error);
+
+    if (insuranceKey) {
+      try {
+        await env.PRIVATE_MEDIA.delete(insuranceKey);
+      } catch (cleanupError) {
+        console.error("Insurance image cleanup failed.");
+      }
+    }
+
+    if (selfieKey) {
+      try {
+        await env.PRIVATE_MEDIA.delete(selfieKey);
+      } catch (cleanupError) {
+        console.error("Selfie cleanup failed.");
+      }
+    }
+
+    return json({
+      success: false,
+      error: "Unable to submit your application. Please try again."
+    }, 500, origin);
   }
-}
-
-export async function onRequestPatch({ request, env }) {
-  try {
-    const body = await request.json();
-    const id = String(body.id || "").trim();
-    const action = String(body.action || "").trim();
-
-    if (!id || !["accept", "release", "cancel"].includes(action)) {
-      return json({ success: false, error: "Invalid request ID or action." }, 400);
     }
-
-    if (action === "accept") {
-      const partnerId = String(body.partnerId || "").trim();
-      const partnerName = String(body.partnerName || "").trim();
-      const partnerPhone = String(body.partnerPhone || "").trim();
-
-      if (!partnerId || !partnerName || !partnerPhone) {
-        return json({
-          success: false,
-          error: "Partner details are required."
-        }, 400);
-      }
-
-      const result = await env.DB.prepare(`
-        UPDATE delivery_requests
-        SET status = 'accepted',
-            partner_id = ?,
-            partner_name = ?,
-            partner_phone = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ? AND status = 'pending'
-      `).bind(partnerId, partnerName, partnerPhone, id).run();
-
-      if (!result.meta.changes) {
-        return json({
-          success: false,
-          error: "This request is no longer available."
-        }, 409);
-      }
-
-      return json({ success: true, message: "Delivery accepted." });
-    }
-
-    if (action === "release") {
-      const partnerId = String(body.partnerId || "").trim();
-
-      if (!partnerId) {
-        return json({ success: false, error: "Partner ID is required." }, 400);
-      }
-
-      const result = await env.DB.prepare(`
-        UPDATE delivery_requests
-        SET status = 'pending',
-            partner_id = NULL,
-            partner_name = NULL,
-            partner_phone = NULL,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ? AND status = 'accepted' AND partner_id = ?
-      `).bind(id, partnerId).run();
-
-      if (!result.meta.changes) {
-        return json({
-          success: false,
-          error: "You cannot release this delivery."
-        }, 403);
-      }
-
-      return json({ success: true, message: "Delivery released." });
-    }
-
-    const result = await env.DB.prepare(`
-      UPDATE delivery_requests
-      SET status = 'cancelled',
-          updated_at = CURRENT_TIMESTAMP
-      WHERE id = ? AND status = 'pending'
-    `).bind(id).run();
-
-    if (!result.meta.changes) {
-      return json({
-        success: false,
-        error: "This request cannot be cancelled in its current state."
-      }, 409);
-    }
-
-    return json({ success: true, message: "Delivery cancelled." });
-  } catch (error) {
-    return json({ success: false, error: "Unable to update delivery request." }, 500);
-  }
-      }
-    
+  
