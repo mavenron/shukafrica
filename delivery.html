@@ -963,18 +963,10 @@
           return;
         }
 
-        if (
-          !allowedImages.includes(documentFile.type) &&
-          documentFile.type !== "application/pdf"
-        ) {
+        
+        if (!allowedImages.includes(documentFile.type)) {
           riderStatus.textContent =
-            "The vehicle document must be an image or PDF.";
-          return;
-        }
-
-        if (!allowedImages.includes(riderSelfie.type)) {
-          riderStatus.textContent =
-            "The selfie must be JPG, PNG or WebP.";
+            "The vehicle document must be a JPG, PNG or WebP image.";
           return;
         }
 
