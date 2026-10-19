@@ -1025,10 +1025,12 @@
         if (!riderForm.reportValidity()) return;
 
         const button = riderForm.querySelector('button[type="submit"]');
-        const documentFile =
+        
+        let documentFile =
           document.getElementById("insuranceDocument").files[0];
-        const selfie =
+        let selfie =
           document.getElementById("riderSelfie").files[0];
+
         const allowedImages = ["image/jpeg", "image/png", "image/webp"];
 
         if (!documentFile || !selfie) {
