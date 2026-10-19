@@ -4,20 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#101820">
-  <title>Ride & Delivery | ShukAfrica</title>
+  <title>Ride &amp; Delivery | ShukAfrica</title>
 
   <style>
     :root {
       --bg: #101820;
       --panel: #192630;
-      --panel2: #22333f;
-      --text: #f4f7f9;
-      --muted: #b6c4ce;
-      --green: #16a765;
-      --green-dark: #087b49;
-      --border: #344957;
-      --red: #dc3545;
-      --orange: #f0a329;
+      --panel2: #223441;
+      --text: #f5f7fa;
+      --muted: #b5c2cc;
+      --accent: #f5a623;
+      --border: #354956;
+      --danger: #ff8b8b;
+      --success: #91e6b3;
     }
 
     * {
@@ -28,7 +27,7 @@
       margin: 0;
       background: var(--bg);
       color: var(--text);
-      font-family: Arial, sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
       line-height: 1.55;
     }
 
@@ -36,92 +35,94 @@
       font: inherit;
     }
 
-    button, .btn {
+    button {
       cursor: pointer;
     }
 
     button:disabled {
       cursor: not-allowed;
-      opacity: .6;
+      opacity: 0.6;
     }
 
-    .page-shell {
-      width: min(100% - 24px, 960px);
-      margin: 0 auto;
-      padding: 20px 0 40px;
+    header {
+      padding: 18px 16px;
+      background: #0b1218;
+      border-bottom: 1px solid var(--border);
     }
 
-    .page-header {
+    .header-inner {
+      max-width: 1000px;
+      margin: auto;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 14px;
+      gap: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(23px, 5vw, 32px);
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    main {
+      max-width: 1000px;
+      margin: auto;
+      padding: 20px 14px 50px;
+    }
+
+    section.panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
       margin-bottom: 20px;
     }
 
-    .page-title {
-      margin: 0;
-      font-size: clamp(24px, 5vw, 34px);
-      line-height: 1.2;
+    h2 {
+      font-size: 21px;
+      margin: 0 0 8px;
     }
 
-    .page-subtitle {
-      margin: 6px 0 0;
+    h3 {
+      margin: 0 0 8px;
+      font-size: 17px;
+    }
+
+    .muted, .help {
       color: var(--muted);
+      font-size: 13px;
     }
 
-    .header-actions {
-      flex-shrink: 0;
+    .help {
+      margin: 5px 0 0;
     }
 
     .category-tabs {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-      margin-bottom: 22px;
+      gap: 9px;
+      margin: 18px 0;
     }
 
     .category-tab {
-      min-height: 58px;
-      padding: 10px 5px;
+      padding: 12px 6px;
       border: 1px solid var(--border);
-      border-radius: 12px;
-      background: var(--panel);
+      border-radius: 9px;
+      background: var(--panel2);
       color: var(--text);
-      font-weight: bold;
+      font-weight: 700;
     }
 
     .category-tab[aria-pressed="true"] {
-      background: var(--green-dark);
-      border-color: #35d58b;
-    }
-
-    .category-icon {
-      display: block;
-      margin-bottom: 2px;
-      font-size: 21px;
-    }
-
-    .panel, .live-deliveries {
-      margin: 18px 0;
-      padding: 18px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: var(--panel);
-    }
-
-    h2 {
-      margin-top: 0;
-      font-size: 22px;
-    }
-
-    h3 {
-      margin-top: 0;
-    }
-
-    .muted {
-      color: var(--muted);
-      font-size: 14px;
+      background: var(--accent);
+      color: #151b20;
+      border-color: var(--accent);
     }
 
     .form-grid {
@@ -142,130 +143,185 @@
     label {
       display: block;
       margin-bottom: 6px;
-      font-weight: bold;
+      font-size: 14px;
+      font-weight: 700;
     }
 
     input, select, textarea {
+      display: block;
       width: 100%;
-      min-height: 46px;
-      padding: 11px 12px;
+      min-height: 44px;
+      padding: 10px 11px;
       color: var(--text);
-      background: #101820;
-      border: 1px solid #526675;
+      background: #0e171e;
+      border: 1px solid var(--border);
       border-radius: 8px;
     }
 
     input[type="file"] {
-      min-height: auto;
-      padding: 10px;
+      padding: 9px;
+      font-size: 13px;
     }
 
     input:focus, select:focus, textarea:focus {
-      outline: 2px solid #35d58b;
+      outline: 2px solid var(--accent);
       outline-offset: 1px;
     }
 
     textarea {
-      min-height: 100px;
+      min-height: 95px;
       resize: vertical;
     }
 
-    .btn, .small-action {
+    .btn {
       display: inline-flex;
       justify-content: center;
       align-items: center;
-      gap: 6px;
-      min-height: 43px;
-      padding: 10px 14px;
+      gap: 8px;
+      min-height: 44px;
+      padding: 10px 16px;
       border: 0;
-      border-radius: 8px;
+      border-radius: 9px;
+      background: var(--accent);
+      color: #151b20;
+      font-weight: 700;
       text-decoration: none;
-      font-weight: bold;
     }
 
-    .small-action {
-      min-height: 40px;
-      padding: 9px 12px;
-      background: var(--green);
-      color: white;
-    }
-
-    .btn-success {
-      background: var(--green);
-      color: white;
-    }
-
-    .btn-secondary {
-      background: #344957;
-      color: white;
-    }
-
-    .btn-warning {
-      background: var(--orange);
-      color: #171717;
-    }
-
-    .btn-danger {
-      background: var(--red);
-      color: white;
-    }
-
-    .btn-block {
-      width: 100%;
-    }
-
-    .info-box {
-      margin: 14px 0;
-      padding: 14px;
+    .btn.secondary {
+      background: var(--panel2);
+      color: var(--text);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      background: #14212a;
     }
 
-    .contact-actions {
+    .btn.danger {
+      background: #743b3b;
+      color: white;
+    }
+
+    .top-button {
+      flex-shrink: 0;
+      font-size: 13px;
+      padding: 9px 11px;
+    }
+
+    .form-actions {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 10px;
+      margin-top: 8px;
     }
 
-    .form-status {
-      margin-top: 12px;
+    .status {
+      min-height: 22px;
+      margin: 12px 0 0;
+      color: var(--success);
       overflow-wrap: anywhere;
+      font-size: 14px;
+    }
+
+    .notice {
+      padding: 12px;
+      border-radius: 9px;
+      background: #101b23;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 13px;
+      margin: 12px 0;
     }
 
     .hidden, [hidden] {
       display: none !important;
     }
 
-    .delivery-job {
-      margin-top: 18px;
-      padding: 16px;
+    .jobs-heading {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .job-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .job-card {
+      min-width: 0;
+      padding: 15px;
+      background: #101b23;
       border: 1px solid var(--border);
-      border-radius: 12px;
-      background: var(--panel2);
+      border-radius: 11px;
+      overflow-wrap: anywhere;
     }
 
-    .page-note {
-      margin-top: 24px;
+    .job-card p {
+      margin: 7px 0;
+      font-size: 14px;
+    }
+
+    .job-card .job-label {
       color: var(--muted);
-      font-size: 13px;
-      text-align: center;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
-    @media (max-width: 600px) {
-      .page-header {
+    .job-status {
+      display: inline-block;
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--success);
+      font-size: 12px;
+    }
+
+    .job-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .job-actions .btn {
+      font-size: 13px;
+      min-height: 40px;
+    }
+
+    .empty-state {
+      padding: 20px 12px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+    }
+
+    .tool-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .tool-status {
+      color: var(--muted);
+      font-size: 12px;
+      align-self: center;
+    }
+
+    @media (max-width: 650px) {
+      .header-inner {
         align-items: flex-start;
       }
 
-      .form-grid {
+      .form-grid, .job-list {
         grid-template-columns: 1fr;
       }
 
-      .field.full {
-        grid-column: auto;
-      }
-
-      .panel, .live-deliveries {
+      section.panel {
         padding: 14px;
       }
 
@@ -277,102 +333,83 @@
 </head>
 
 <body>
-  <main class="page-shell">
-
-    <header class="page-header">
+  <header>
+    <div class="header-inner">
       <div>
-        <h1 class="page-title">Ride &amp; Delivery</h1>
-        <p class="page-subtitle">Find deliveries. Connect. Earn.</p>
+        <h1>Ride &amp; Delivery</h1>
+        <p class="subtitle">Find deliveries. Connect. Earn.</p>
       </div>
+      <button
+        type="button"
+        class="btn top-button"
+        id="openAgentBtn"
+      >Register Agent</button>
+    </div>
+  </header>
 
-      <div class="header-actions">
-        <button type="button" class="small-action"
-          id="openAgentBtn">
-          Register Agent
-        </button>
-      </div>
-    </header>
-
-    <nav class="category-tabs" aria-label="Transport category">
-      <button type="button" class="category-tab"
-        data-category="delivery" aria-pressed="true">
-        <span class="category-icon">📦</span>
-        Delivery
-      </button>
-
-      <button type="button" class="category-tab"
-        data-category="ride" aria-pressed="false">
-        <span class="category-icon">🚗 🛵</span>
-        Ride
-      </button>
-
-      <button type="button" class="category-tab"
-        data-category="haulage" aria-pressed="false">
-        <span class="category-icon">🛻 🚛</span>
-        Haulage
-      </button>
-    </nav>
-
-    <!-- CUSTOMER REQUEST FORM -->
+  <main>
     <section class="panel" id="requestPanel">
+      <h2>What do you need?</h2>
+      <p class="muted">Choose a service and submit your request.</p>
+
+      <div class="category-tabs" aria-label="Choose transport service">
+        <button type="button" class="category-tab"
+          data-category="delivery" aria-pressed="true">Delivery</button>
+        <button type="button" class="category-tab"
+          data-category="ride" aria-pressed="false">Ride</button>
+        <button type="button" class="category-tab"
+          data-category="haulage" aria-pressed="false">Haulage</button>
+      </div>
+
       <h2 id="requestFormTitle">Request a Delivery</h2>
-      <p class="muted">
-        Provide accurate details. Contact your transport provider
-        to agree on the fare before the job is accepted.
-      </p>
 
-      <form id="deliveryRequestForm">
+      <form id="deliveryRequestForm" enctype="multipart/form-data">
         <div class="form-grid">
-
           <div class="field">
             <label for="customerName">Your Full Name *</label>
             <input id="customerName" name="customerName"
-              type="text" autocomplete="name" required>
+              type="text" autocomplete="name" required maxlength="120">
           </div>
 
           <div class="field">
             <label for="customerPhone">Your Phone Number *</label>
             <input id="customerPhone" name="customerPhone"
-              type="tel" autocomplete="tel"
-              placeholder="e.g. 0241234567" required>
+              type="tel" autocomplete="tel" required maxlength="30">
           </div>
 
           <div class="field full">
-            <label for="customerSelfie">Your Photo / Selfie *</label>
+            <label for="customerSelfie">Your Photo *</label>
             <input id="customerSelfie" name="customerSelfie"
               type="file" accept="image/jpeg,image/png,image/webp"
               capture="user" required>
-            <p class="muted">
-              Select a clear photo. It should be handled privately
-              and must not be displayed publicly without permission.
-            </p>
+            <p class="help">JPG, PNG or WebP. Maximum 2 MB.</p>
           </div>
 
           <div class="field">
             <label for="pickupLocation">Pickup Location *</label>
             <input id="pickupLocation" name="pickupLocation"
-              type="text" placeholder="Town, area or landmark" required>
+              type="text" required maxlength="250"
+              placeholder="Where should the agent go?">
           </div>
 
           <div class="field">
             <label for="destinationLocation">Destination *</label>
-            <input id="destinationLocation"
-              name="destinationLocation" type="text"
-              placeholder="Town, area or landmark" required>
+            <input id="destinationLocation" name="destinationLocation"
+              type="text" required maxlength="250"
+              placeholder="Where should it go?">
           </div>
 
           <div class="field full" id="packageField">
-            <label for="packageDetails" id="packageLabel">
-              Package Details *
-            </label>
+            <label for="packageDetails" id="packageLabel">Package Details *</label>
             <textarea id="packageDetails" name="packageDetails"
-              placeholder="Describe what needs to be delivered"
-              required></textarea>
+              required maxlength="2000"
+              placeholder="Describe what needs to be delivered"></textarea>
           </div>
 
           <div class="field hidden" id="passengerField">
             <label for="passengerCount">Number of Passengers *</label>
             <select id="passengerCount" name="passengerCount">
+              <option value="">Select passengers</option>
               <option value="1">1 passenger</option>
               <option value="2">2 passengers</option>
               <option value="3">3 passengers</option>
@@ -385,29 +422,31 @@
           </div>
 
           <div class="field hidden" id="vehicleNeededField">
-            <label for="vehicleNeeded">Vehicle Needed</label>
+            <label for="vehicleNeeded">Vehicle Needed *</label>
             <select id="vehicleNeeded" name="vehicleNeeded">
-              <option value="">Not sure</option>
+              <option value="">Select vehicle</option>
               <option value="motorcycle">Motorcycle</option>
               <option value="car">Car</option>
               <option value="pickup">Pickup</option>
               <option value="van">Van</option>
               <option value="truck">Truck</option>
               <option value="container-truck">Container truck</option>
-              <option value="other">Other suitable vehicle</option>
+              <option value="other">Other</option>
             </select>
           </div>
 
           <div class="field hidden" id="loadWeightField">
             <label for="loadWeight">Estimated Load Weight</label>
             <input id="loadWeight" name="loadWeight"
-              type="text" placeholder="e.g. 500 kg or unknown">
+              type="text" maxlength="100"
+              placeholder="e.g. 2 tonnes">
           </div>
 
           <div class="field hidden" id="loadDimensionsField">
             <label for="loadDimensions">Load Dimensions</label>
             <input id="loadDimensions" name="loadDimensions"
-              type="text" placeholder="Approximate length, width and height">
+              type="text" maxlength="100"
+              placeholder="Length × width × height">
           </div>
 
           <div class="field full hidden" id="loadMediaField">
@@ -415,19 +454,21 @@
             <input id="loadPhotos" name="loadPhotos"
               type="file" accept="image/jpeg,image/png,image/webp"
               multiple>
-            <label for="loadVideo" style="margin-top:12px;">
-              Load Video (optional, maximum 30 seconds)
+            <p class="help">Up to 4 photos, maximum 5 MB each.</p>
+
+            <label for="loadVideo" style="margin-top:14px">
+              Load Video (optional)
             </label>
             <input id="loadVideo" name="loadVideo"
               type="file" accept="video/mp4,video/webm">
-            <p class="muted">
-              Show the load clearly. A video alone cannot verify
-              its actual weight or dimensions.
+            <p class="help">
+              MP4 or WebM, maximum 20 MB. The server must verify the
+              30-second duration limit.
             </p>
           </div>
 
-          <div class="field full">
-            <label for="deliveryFor">Who is this request for? *</label>
+          <div class="field">
+            <label for="deliveryFor">Who is this for? *</label>
             <select id="deliveryFor" name="deliveryFor" required>
               <option value="myself">Myself</option>
               <option value="other">Someone else</option>
@@ -435,375 +476,296 @@
           </div>
 
           <div class="field full hidden" id="recipientFields">
-            <label for="recipientName">Recipient's Full Name *</label>
+            <label for="recipientName">Recipient Full Name *</label>
             <input id="recipientName" name="recipientName"
-              type="text" autocomplete="off">
+              type="text" maxlength="120">
 
-            <label for="recipientPhone" style="margin-top:12px;">
-              Recipient's Phone Number *
+            <label for="recipientPhone" style="margin-top:12px">
+              Recipient Phone Number *
             </label>
             <input id="recipientPhone" name="recipientPhone"
-              type="tel" autocomplete="off">
+              type="tel" maxlength="30">
           </div>
-
         </div>
 
-        <div class="info-box">
-          <strong>Agree on the fare directly.</strong>
-          <p class="muted">
-            No fare is set by this form. Contact the provider and
-            agree on the amount before accepting a job.
-          </p>
+        <div class="notice">
+          No initial fare offer is required. Customer and agent can discuss
+          and agree on the fare directly. Do not send money to an agent
+          before confirming the details of your transaction.
         </div>
 
-        <button type="submit" class="btn btn-success btn-block"
-          id="submitRequestBtn">
-          Submit Request
-        </button>
+        <div class="form-actions">
+          <button class="btn" id="submitRequestBtn" type="submit">
+            Submit Request
+          </button>
+        </div>
 
-        <p id="formStatus" class="form-status muted"
-          role="status" aria-live="polite"></p>
+        <p class="status" id="formStatus" role="status" aria-live="polite"></p>
       </form>
     </section>
 
-    <!-- AGENT REGISTRATION -->
     <section class="panel" id="riderRegistrationPanel" hidden>
       <h2>Register as a Transport Agent</h2>
       <p class="muted">
-        Apply once for transport services. Your application must
-        be reviewed before you can access approved jobs.
+        Apply to provide delivery, ride or haulage services.
+        Applications must be approved before you can accept jobs.
       </p>
 
-      <form id="riderRegistrationForm"
-        enctype="multipart/form-data">
+      <div class="notice">
+        Your vehicle document and selfie are submitted privately for review.
+        Do not upload someone else's documents without permission.
+      </div>
 
+      <form id="riderRegistrationForm" enctype="multipart/form-data">
         <div class="form-grid">
-
           <div class="field">
             <label for="riderFullName">Full Name *</label>
             <input id="riderFullName" name="fullName"
-              type="text" autocomplete="name" required>
+              type="text" autocomplete="name" required maxlength="120">
           </div>
 
           <div class="field">
             <label for="riderPhone">Phone Number *</label>
-            <input id="riderPhone" name="phone" type="tel"
-              autocomplete="tel" required>
+            <input id="riderPhone" name="phone"
+              type="tel" autocomplete="tel" required maxlength="30">
           </div>
 
           <div class="field full">
-            <label for="vehicleRegistration">
-              Vehicle Registration Number *
-            </label>
-            <input id="vehicleRegistration"
-              name="vehicleRegistration" type="text"
-              placeholder="Enter your vehicle registration" required>
+            <label for="vehicleRegistration">Vehicle Registration Number *</label>
+            <input id="vehicleRegistration" name="vehicleRegistration"
+              type="text" required maxlength="40">
           </div>
 
-          <div class="field full">
-            <label for="insuranceDocument">
-              Vehicle Identity Document Photo *
-            </label>
+          <div class="field">
+            <label for="insuranceDocument">Vehicle Document Photo *</label>
             <input id="insuranceDocument" name="insuranceDocument"
-              type="file"
-              accept="image/jpeg,image/png,image/webp,application/pdf"
-              required>
-            <p class="muted">
-              Upload an accepted vehicle document or sticker,
-              such as insurance, roadworthiness or another
-              approved vehicle identity document.
-            </p>
+              type="file" accept="image/jpeg,image/png,image/webp" required>
+            <p class="help">JPG, PNG or WebP, maximum 2 MB.</p>
           </div>
 
-          <div class="field full">
-            <label for="riderSelfie">Your Current Selfie *</label>
+          <div class="field">
+            <label for="riderSelfie">Your Selfie *</label>
             <input id="riderSelfie" name="riderSelfie"
               type="file" accept="image/jpeg,image/png,image/webp"
               capture="user" required>
-            <p class="muted">
-              This photo is for private verification, not a public
-              profile image.
-            </p>
+            <p class="help">JPG, PNG or WebP, maximum 2 MB.</p>
           </div>
 
           <div class="field">
-            <label for="alternativeContactName">
-              Alternative Contact Name *
-            </label>
+            <label for="alternativeContactName">Alternative Contact Name *</label>
             <input id="alternativeContactName"
-              name="alternativeContactName" type="text" required>
+              name="alternativeContactName" type="text"
+              required maxlength="120">
           </div>
 
           <div class="field">
-            <label for="alternativeRelationship">
-              Relationship *
-            </label>
+            <label for="alternativeRelationship">Relationship *</label>
             <input id="alternativeRelationship"
               name="alternativeRelationship" type="text"
-              placeholder="e.g. spouse, sibling or friend" required>
+              required maxlength="80"
+              placeholder="e.g. sibling, spouse, friend">
           </div>
 
           <div class="field full">
-            <label for="alternativeContactPhone">
-              Alternative Contact Phone *
-            </label>
+            <label for="alternativeContactPhone">Alternative Contact Phone *</label>
             <input id="alternativeContactPhone"
-              name="alternativeContactPhone" type="tel" required>
+              name="alternativeContactPhone" type="tel"
+              required maxlength="30">
           </div>
-
         </div>
 
-        <div class="info-box">
-          <strong>Privacy and approval</strong>
-          <p class="muted">
-            Verification documents and selfies must be stored
-            privately. Do not upload real customer or agent
-            documents until secure server-side upload validation
-            and access controls are working.
-          </p>
+        <div class="form-actions">
+          <button class="btn" type="submit">Submit Agent Application</button>
         </div>
 
-        <button type="submit" class="btn btn-success btn-block">
-          Submit Agent Application
-        </button>
-
-        <p id="riderRegistrationStatus" class="form-status muted"
+        <p class="status" id="riderRegistrationStatus"
           role="status" aria-live="polite"></p>
       </form>
     </section>
 
-    
-    <!-- LIVE TRANSPORT REQUESTS -->
-    <section class="live-deliveries">
-      <h2 id="liveJobsHeading">Live Delivery Requests</h2>
+    <section class="panel" id="liveJobsPanel">
+      <div class="jobs-heading">
+        <div>
+          <h2 id="liveJobsHeading">Live Delivery Requests</h2>
+          <p class="muted" id="liveJobsMessage" role="status" aria-live="polite">
+            Loading live requests...
+          </p>
+        </div>
+      </div>
 
-      <p class="muted" id="liveJobsMessage">
-        Browse available delivery jobs. Contact the customer
-        to agree on the fare before accepting.
-      </p>
-
-      <div class="info-box">
-        <strong>🔔 ShukAfrica Job Alerts</strong>
-        <p class="muted">
-          Enable browser notification permission where supported.
-          This alone does not connect you to live job alerts.
-        </p>
-
-        <button type="button" id="enablePushBtn"
-          class="btn btn-success">
+      <div class="tool-row">
+        <button type="button" class="btn secondary" id="enablePushBtn">
           Enable Notifications
         </button>
-        <p id="notificationStatus" class="muted" role="status">
-          Notifications are not enabled.
-        </p>
+        <span class="tool-status" id="notificationStatus"></span>
+      </div>
 
-        <button type="button" id="enableGpsBtn"
-          class="btn btn-secondary">
-          📍 Enable Location
+      <div class="tool-row">
+        <button type="button" class="btn secondary" id="enableGpsBtn">
+          Detect My Location
         </button>
-        <p id="gpsStatus" class="muted" role="status">
-          Location is not enabled.
-        </p>
+        <span class="tool-status" id="gpsStatus"></span>
       </div>
 
-      <div class="info-box" id="liveJobsEmpty">
-        <strong>No live jobs are connected yet.</strong>
-        <p class="muted">
-          Real customer requests will appear here after the
-          secure job-posting and job-listing backend is connected.
-          No demo jobs are shown as real requests.
-        </p>
+      <div class="empty-state" id="liveJobsEmpty" hidden>
+        No open requests in this category right now.
       </div>
 
-      <!-- Reserved for a real job returned by the backend.
-           Keep hidden until populated with genuine job data. -->
-      <article class="delivery-job" id="deliveryJobCard" hidden>
-        <h3 id="jobTitle">Transport Request</h3>
+      <div class="job-list" id="liveJobsList">
+        <article class="job-card" id="deliveryJobCard" hidden>
+          <h3 id="jobTitle">Transport Request</h3>
 
-        <p><strong>Pickup:</strong>
-          <span id="jobPickup"></span>
-        </p>
-        <p><strong>Destination:</strong>
-          <span id="jobDestination"></span>
-        </p>
-        <p><strong>Details:</strong>
-          <span id="jobPackage"></span>
-        </p>
-        <p><strong>Status:</strong>
-          <span id="deliveryStatus">Available</span>
-        </p>
+          <p class="job-label">Pickup</p>
+          <p id="jobPickup"></p>
 
-        <div class="info-box" id="customerContactBox">
-          <h3>Customer Contact</h3>
-          <p><strong>Phone:</strong>
-            <span id="jobCustomerPhone"></span>
+          <p class="job-label">Destination</p>
+          <p id="jobDestination"></p>
+
+          <p class="job-label">Details</p>
+          <p id="jobPackage"></p>
+
+          <p>
+            <span class="job-status" id="deliveryStatus">Pending</span>
           </p>
-          <div class="contact-actions">
-            <a href="#" id="callCustomerBtn"
-              class="btn btn-secondary">Call Customer</a>
-            <a href="#" id="whatsappCustomerBtn"
-              class="btn btn-success"
-              target="_blank" rel="noopener noreferrer">
-              WhatsApp Customer
-            </a>
+
+          <p id="jobCustomerPhone" hidden></p>
+          <a id="callCustomerBtn" hidden>Call customer</a>
+          <a id="whatsappCustomerBtn" hidden>WhatsApp customer</a>
+
+          <div class="job-actions">
+            <button type="button" class="btn" id="acceptInitialBtn">
+              Accept Job
+            </button>
+            <button type="button" class="btn secondary"
+              id="releaseDeliveryBtn" hidden>
+              Release Job
+            </button>
           </div>
-        </div>
-
-        <div class="info-box">
-          <p class="muted">
-            Contact the customer and agree on the fare before
-            accepting the job.
-          </p>
-          <button type="button" id="acceptInitialBtn"
-            class="btn btn-success">
-            Accept &amp; Lock Job
-          </button>
-          <button type="button" id="releaseDeliveryBtn"
-            class="btn btn-warning" hidden>
-            Release Job
-          </button>
-        </div>
-      </article>
+        </article>
+      </div>
     </section>
 
-    <p class="page-note">
-      ShukAfrica — Connecting people, services and opportunities
-      across Africa.
-    </p>
-  </main>
-
-  <script>
+    
+    <script>
     document.addEventListener("DOMContentLoaded", function () {
       "use strict";
 
-      // PAGE ELEMENTS
       const requestPanel = document.getElementById("requestPanel");
-      const agentPanel =
-        document.getElementById("riderRegistrationPanel");
+      const agentPanel = document.getElementById("riderRegistrationPanel");
       const openAgentBtn = document.getElementById("openAgentBtn");
-      const requestForm =
-        document.getElementById("deliveryRequestForm");
-      const riderForm =
-        document.getElementById("riderRegistrationForm");
+      const requestForm = document.getElementById("deliveryRequestForm");
+      const riderForm = document.getElementById("riderRegistrationForm");
 
-      const categoryButtons =
-        document.querySelectorAll(".category-tab");
-
-      const requestFormTitle =
-        document.getElementById("requestFormTitle");
+      const categoryButtons = document.querySelectorAll(".category-tab");
+      const requestFormTitle = document.getElementById("requestFormTitle");
       const packageLabel = document.getElementById("packageLabel");
       const packageDetails = document.getElementById("packageDetails");
       const packageField = document.getElementById("packageField");
 
-      const passengerField =
-        document.getElementById("passengerField");
-      const passengerCount =
-        document.getElementById("passengerCount");
-
-      const vehicleNeededField =
-        document.getElementById("vehicleNeededField");
-      const loadWeightField =
-        document.getElementById("loadWeightField");
-      const loadDimensionsField =
-        document.getElementById("loadDimensionsField");
-      const loadMediaField =
-        document.getElementById("loadMediaField");
+      const passengerField = document.getElementById("passengerField");
+      const passengerCount = document.getElementById("passengerCount");
+      const vehicleNeededField = document.getElementById("vehicleNeededField");
+      const loadWeightField = document.getElementById("loadWeightField");
+      const loadDimensionsField = document.getElementById("loadDimensionsField");
+      const loadMediaField = document.getElementById("loadMediaField");
 
       const loadWeight = document.getElementById("loadWeight");
-      const loadDimensions =
-        document.getElementById("loadDimensions");
+      const loadDimensions = document.getElementById("loadDimensions");
       const loadPhotos = document.getElementById("loadPhotos");
       const loadVideo = document.getElementById("loadVideo");
 
       const deliveryFor = document.getElementById("deliveryFor");
-      const recipientFields =
-        document.getElementById("recipientFields");
-      const recipientName =
-        document.getElementById("recipientName");
-      const recipientPhone =
-        document.getElementById("recipientPhone");
+      const recipientFields = document.getElementById("recipientFields");
+      const recipientName = document.getElementById("recipientName");
+      const recipientPhone = document.getElementById("recipientPhone");
 
       const formStatus = document.getElementById("formStatus");
-      const riderStatus =
-        document.getElementById("riderRegistrationStatus");
-
-      const liveHeading =
-        document.getElementById("liveJobsHeading");
-      const liveMessage =
-        document.getElementById("liveJobsMessage");
+      const riderStatus = document.getElementById("riderRegistrationStatus");
+      const liveHeading = document.getElementById("liveJobsHeading");
+      const liveMessage = document.getElementById("liveJobsMessage");
+      const liveJobsEmpty = document.getElementById("liveJobsEmpty");
+      const liveJobsList = document.getElementById("liveJobsList");
+      const jobTemplate = document.getElementById("deliveryJobCard");
 
       let currentCategory = "delivery";
+      let loadingJobs = false;
 
-      // SHOW THE SELECTED CUSTOMER REQUEST FORM
+      const categoryNames = {
+        delivery: "Delivery",
+        ride: "Ride",
+        haulage: "Haulage"
+      };
+
+      function showStatus(element, message) {
+        if (element) element.textContent = message;
+      }
+
+      function valueOf(object, ...keys) {
+        for (const key of keys) {
+          if (object && object[key] !== undefined &&
+              object[key] !== null) {
+            return String(object[key]);
+          }
+        }
+        return "";
+      }
+
+      async function readJSON(response) {
+        return response.json().catch(function () {
+          return {};
+        });
+      }
+
       function selectCategory(category) {
+        if (!Object.prototype.hasOwnProperty.call(categoryNames, category)) {
+          category = "delivery";
+        }
+
         currentCategory = category;
 
         categoryButtons.forEach(function (button) {
-          const selected = button.dataset.category === category;
-          button.setAttribute("aria-pressed", String(selected));
+          button.setAttribute(
+            "aria-pressed",
+            String(button.dataset.category === category)
+          );
         });
 
         agentPanel.hidden = true;
         requestPanel.hidden = false;
 
-        passengerField.classList.toggle(
-          "hidden", category !== "ride"
-        );
-        vehicleNeededField.classList.toggle(
-          "hidden", category !== "haulage"
-        );
-        loadWeightField.classList.toggle(
-          "hidden", category !== "haulage"
-        );
-        loadDimensionsField.classList.toggle(
-          "hidden", category !== "haulage"
-        );
-        loadMediaField.classList.toggle(
-          "hidden", category !== "haulage"
-        );
+        passengerField.classList.toggle("hidden", category !== "ride");
+        vehicleNeededField.classList.toggle("hidden", category !== "haulage");
+        loadWeightField.classList.toggle("hidden", category !== "haulage");
+        loadDimensionsField.classList.toggle("hidden", category !== "haulage");
+        loadMediaField.classList.toggle("hidden", category !== "haulage");
+
+        passengerCount.required = category === "ride";
+        vehicleNeededField.querySelector("select").required =
+          category === "haulage";
 
         if (category === "ride") {
           requestFormTitle.textContent = "Request a Ride";
           packageLabel.textContent = "Trip Notes (optional)";
-          packageDetails.placeholder =
-            "Optional trip instructions";
+          packageDetails.placeholder = "Optional trip instructions";
           packageDetails.required = false;
-          packageField.classList.remove("hidden");
-
-          passengerCount.required = true;
-
           liveHeading.textContent = "Live Ride Requests";
-          liveMessage.textContent =
-            "Passenger transport requests will appear here when the live jobs backend is connected.";
         } else if (category === "haulage") {
           requestFormTitle.textContent = "Request Haulage";
           packageLabel.textContent = "Load Details *";
           packageDetails.placeholder =
             "Describe the load, such as cement, timber, machinery or containers";
           packageDetails.required = true;
-          packageField.classList.remove("hidden");
-
-          passengerCount.required = false;
-
           liveHeading.textContent = "Live Haulage Jobs";
-          liveMessage.textContent =
-            "Haulage requests will appear here when the live jobs backend is connected.";
         } else {
           requestFormTitle.textContent = "Request a Delivery";
           packageLabel.textContent = "Package Details *";
-          packageDetails.placeholder =
-            "Describe what needs to be delivered";
+          packageDetails.placeholder = "Describe what needs to be delivered";
           packageDetails.required = true;
-          packageField.classList.remove("hidden");
-
-          passengerCount.required = false;
-
           liveHeading.textContent = "Live Delivery Requests";
-          liveMessage.textContent =
-            "Delivery requests will appear here when the live jobs backend is connected.";
         }
 
-        formStatus.textContent = "";
+        showStatus(formStatus, "");
+        loadLiveJobs();
       }
 
       categoryButtons.forEach(function (button) {
@@ -816,7 +778,6 @@
         });
       });
 
-      // AGENT REGISTRATION BUTTON
       openAgentBtn.addEventListener("click", function () {
         const shouldOpen = agentPanel.hidden;
 
@@ -831,7 +792,6 @@
         }
       });
 
-      // RECIPIENT DETAILS
       deliveryFor.addEventListener("change", function () {
         const isOther = deliveryFor.value === "other";
 
@@ -845,20 +805,22 @@
         }
       });
 
-      // OPTIONAL LOAD MEDIA VALIDATION
       loadPhotos.addEventListener("change", function () {
         const files = Array.from(loadPhotos.files || []);
-        const maxFileSize = 8 * 1024 * 1024;
+        const allowed = ["image/jpeg", "image/png", "image/webp"];
 
-        const invalid = files.some(function (file) {
-          return ![
-            "image/jpeg", "image/png", "image/webp"
-          ].includes(file.type) || file.size > maxFileSize;
-        });
+        if (files.length > 4) {
+          alert("Choose no more than 4 load photos.");
+          loadPhotos.value = "";
+          return;
+        }
 
-        if (invalid) {
+        if (files.some(function (file) {
+          return !allowed.includes(file.type) ||
+            file.size > 5 * 1024 * 1024;
+        })) {
           alert(
-            "Each load photo must be JPG, PNG or WebP and no larger than 8 MB."
+            "Each load photo must be JPG, PNG or WebP and no larger than 5 MB."
           );
           loadPhotos.value = "";
         }
@@ -866,7 +828,6 @@
 
       loadVideo.addEventListener("change", function () {
         const file = loadVideo.files && loadVideo.files[0];
-
         if (!file) return;
 
         if (!["video/mp4", "video/webm"].includes(file.type)) {
@@ -882,199 +843,364 @@
         }
 
         alert(
-          "Please note: the browser cannot reliably verify the video's duration here. The server must enforce the 30-second limit."
+          "Video selected. The server must verify the 30-second duration limit."
         );
       });
 
-      // CUSTOMER REQUEST FORM
-      requestForm.addEventListener("submit", function (event) {
+      // Submit a customer request to the real backend.
+      requestForm.addEventListener("submit", async function (event) {
         event.preventDefault();
-
-        formStatus.textContent = "";
+        showStatus(formStatus, "");
 
         if (!requestForm.reportValidity()) return;
 
-        const selfie = document.getElementById("customerSelfie")
-          .files[0];
+        const selfie = document.getElementById("customerSelfie").files[0];
+        const allowedImages = ["image/jpeg", "image/png", "image/webp"];
 
         if (!selfie) {
-          formStatus.textContent =
-            "Please select your photo before continuing.";
+          showStatus(formStatus, "Please select your photo before continuing.");
           return;
         }
 
-        if (![
-          "image/jpeg", "image/png", "image/webp"
-        ].includes(selfie.type) || selfie.size > 8 * 1024 * 1024) {
-          formStatus.textContent =
-            "Choose a JPG, PNG or WebP photo no larger than 8 MB.";
+        if (!allowedImages.includes(selfie.type) ||
+            selfie.size > 2 * 1024 * 1024) {
+          showStatus(
+            formStatus,
+            "Your photo must be JPG, PNG or WebP and no larger than 2 MB."
+          );
           return;
         }
 
-        if (currentCategory === "haulage") {
-          const weight = loadWeight.value.trim();
-          const dimensions = loadDimensions.value.trim();
+        if (currentCategory === "haulage" &&
+            !loadWeight.value.trim() &&
+            !loadDimensions.value.trim()) {
+          showStatus(
+            formStatus,
+            "For haulage, provide an estimated weight or load dimensions."
+          );
+          return;
+        }
 
-          if (!weight && !dimensions) {
-            formStatus.textContent =
-              "For haulage, provide an estimated weight or load dimensions.";
+        const button = document.getElementById("submitRequestBtn");
+        button.disabled = true;
+        showStatus(formStatus, "Submitting your request securely...");
+
+        try {
+          const data = new FormData(requestForm);
+          data.set("category", currentCategory);
+          data.set("customerSelfie", selfie);
+
+          const response = await fetch("/api/delivery", {
+            method: "POST",
+            credentials: "include",
+            body: data
+          });
+
+          const result = await readJSON(response);
+
+          if (!response.ok || result.success !== true) {
+            showStatus(
+              formStatus,
+              "Request not published: " +
+              valueOf(result, "error", "message") +
+              " (HTTP " + response.status + ")."
+            );
             return;
           }
+
+          requestForm.reset();
+          recipientFields.classList.add("hidden");
+          recipientName.required = false;
+          recipientPhone.required = false;
+
+          showStatus(
+            formStatus,
+            "Your request was submitted successfully."
+          );
+
+          await loadLiveJobs();
+        } catch (error) {
+          showStatus(
+            formStatus,
+            "Could not contact the server. Check your connection and try again."
+          );
+        } finally {
+          button.disabled = false;
         }
-
-        formStatus.textContent =
-          "Your form passed the basic browser checks, but this request has NOT been published. The secure customer-request backend still needs to be connected.";
-
-        alert(
-          "The form is ready for backend integration. No live job has been created yet."
-        );
       });
 
-      // AGENT REGISTRATION
+      // Agent registration sends real file objects, not file-name strings.
       riderForm.addEventListener("submit", async function (event) {
         event.preventDefault();
-
-        riderStatus.textContent = "";
+        showStatus(riderStatus, "");
 
         if (!riderForm.reportValidity()) return;
 
-        const submitButton =
-          riderForm.querySelector('button[type="submit"]');
-
+        const button = riderForm.querySelector('button[type="submit"]');
         const documentFile =
           document.getElementById("insuranceDocument").files[0];
-        const riderSelfie =
+        const selfie =
           document.getElementById("riderSelfie").files[0];
+        const allowedImages = ["image/jpeg", "image/png", "image/webp"];
 
-        const allowedImages = [
-          "image/jpeg", "image/png", "image/webp"
-        ];
-
-        if (!documentFile || !riderSelfie) {
-          riderStatus.textContent =
-            "Select both the vehicle document and your selfie.";
+        if (!documentFile || !selfie) {
+          showStatus(
+            riderStatus,
+            "Select both the vehicle document image and your selfie."
+          );
           return;
         }
 
-        if (documentFile.size > 8 * 1024 * 1024 ||
-            riderSelfie.size > 8 * 1024 * 1024) {
-          riderStatus.textContent =
-            "Each uploaded file must be no larger than 8 MB.";
+        if (!allowedImages.includes(documentFile.type) ||
+            !allowedImages.includes(selfie.type)) {
+          showStatus(
+            riderStatus,
+            "Both uploads must be JPG, PNG or WebP images."
+          );
           return;
         }
 
-        
-        if (!allowedImages.includes(documentFile.type)) {
-          riderStatus.textContent =
-            "The vehicle document must be a JPG, PNG or WebP image.";
+        if (documentFile.size > 2 * 1024 * 1024 ||
+            selfie.size > 2 * 1024 * 1024) {
+          showStatus(riderStatus, "Each image must be no larger than 2 MB.");
           return;
         }
 
-        submitButton.disabled = true;
-        riderStatus.textContent =
-          "Submitting application. Please wait...";
+        const data = new FormData(riderForm);
+        data.set("insuranceDocument", documentFile);
+        data.set("riderSelfie", selfie);
+
+        button.disabled = true;
+        showStatus(riderStatus, "Submitting application. Please wait...");
+
+        try {
+          const response = await fetch("/api/delivery/partners", {
+            method: "POST",
+            credentials: "include",
+            body: data
+          });
+
+          const result = await readJSON(response);
+
+          if (!response.ok || result.success !== true) {
+            showStatus(
+              riderStatus,
+              "Application not accepted: " +
+              valueOf(result, "error", "message") +
+              " (HTTP " + response.status + ")."
+            );
+            return;
+          }
+
+          showStatus(
+            riderStatus,
+            "Application received. Wait for admin approval before taking jobs."
+          );
+          riderForm.reset();
+        } catch (error) {
+          showStatus(
+            riderStatus,
+            "Could not contact the server. Check your connection and try again."
+          );
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      function renderJobs(jobs) {
+        liveJobsList.querySelectorAll("[data-generated-job]").forEach(
+          function (card) {
+            card.remove();
+          }
+        );
+
+        liveJobsEmpty.hidden = jobs.length > 0;
+
+        jobs.forEach(function (job) {
+          const card = jobTemplate.cloneNode(true);
+          card.hidden = false;
+          card.removeAttribute("id");
+          card.dataset.generatedJob = "true";
+          card.dataset.jobId = valueOf(job, "id");
+
+          const title = card.querySelector("#jobTitle");
+          const pickup = card.querySelector("#jobPickup");
+          const destination = card.querySelector("#jobDestination");
+          const details = card.querySelector("#jobPackage");
+          const status = card.querySelector("#deliveryStatus");
+          const accept = card.querySelector("#acceptInitialBtn");
+          const release = card.querySelector("#releaseDeliveryBtn");
+
+          if (title) title.textContent = categoryNames[currentCategory] + " Request";
+          if (pickup) {
+            pickup.textContent = valueOf(job, "pickup_location", "pickupLocation");
+          }
+          if (destination) {
+            destination.textContent =
+              valueOf(job, "destination_location", "destinationLocation");
+          }
+          if (details) {
+            details.textContent =
+              valueOf(job, "package_details", "packageDetails") ||
+              "No additional details provided.";
+          }
+          if (status) {
+            status.textContent = valueOf(job, "status") || "pending";
+          }
+
+          // Do not publish customer phone numbers or private media keys.
+          ["jobCustomerPhone", "callCustomerBtn", "whatsappCustomerBtn"]
+            .forEach(function (id) {
+              const element = card.querySelector("#" + id);
+              if (element) element.hidden = true;
+            });
+
+          if (accept) {
+            accept.hidden = false;
+            accept.disabled = false;
+            accept.textContent = "Accept Job";
+            accept.addEventListener("click", function () {
+              updateJob(job, "accept", accept);
+            });
+          }
+
+          if (release) release.hidden = true;
+
+          card.querySelectorAll("[id]").forEach(function (element) {
+            element.removeAttribute("id");
+          });
+
+          liveJobsList.appendChild(card);
+        });
+      }
+
+      async function loadLiveJobs() {
+        if (loadingJobs) return;
+        loadingJobs = true;
+
+        showStatus(
+          liveMessage,
+          "Loading " + categoryNames[currentCategory].toLowerCase() + " requests..."
+        );
 
         try {
           const response = await fetch(
-            "/api/delivery/partners",
+            "/api/delivery?category=" + encodeURIComponent(currentCategory),
             {
-              method: "POST",
+              method: "GET",
               credentials: "include",
-              
-body: (() => {
-  const formData = new FormData(riderForm);
-
-  const documentInput =
-    document.getElementById("insuranceDocument");
-  const selfieInput =
-    document.getElementById("riderSelfie");
-
-  if (documentInput.files.length > 0) {
-    formData.set(
-      "insuranceDocument",
-      documentInput.files[0]
-    );
-  }
-
-  if (selfieInput.files.length > 0) {
-    formData.set(
-      "riderSelfie",
-      selfieInput.files[0]
-    );
-  }
-
-  return formData;
-})()
-
+              cache: "no-store"
             }
           );
 
-          const result = await response.json().catch(function () {
-            return {};
-          });
+          const result = await readJSON(response);
 
-          if (!response.ok || !result.success) {
-  riderStatus.textContent =
-    "HTTP " + response.status + ": " +
-    JSON.stringify(result);
-  return;
+          if (!response.ok || result.success === false) {
+            showStatus(liveMessage, "Could not load live requests. Please refresh.");
+            liveJobsEmpty.hidden = false;
+            return;
           }
 
-          riderStatus.textContent =
-            "Application received. Wait for verification before using approved transport jobs.";
-          riderForm.reset();
-        } catch (error) {
-          riderStatus.textContent =
-            "Could not contact the server. Check your connection and try again.";
-        } finally {
-          submitButton.disabled = false;
-        }
-      });
+          const jobs = Array.isArray(result)
+            ? result
+            : Array.isArray(result.requests)
+              ? result.requests
+              : Array.isArray(result.jobs)
+                ? result.jobs
+                : [];
 
-      // BROWSER NOTIFICATION PERMISSION ONLY.
-      // Actual push delivery requires a push service and backend.
-      const enablePushBtn =
-        document.getElementById("enablePushBtn");
-      const notificationStatus =
-        document.getElementById("notificationStatus");
+          renderJobs(jobs);
+
+          showStatus(
+            liveMessage,
+            jobs.length
+              ? "Showing requests returned by the server."
+              : "No open requests in this category right now."
+          );
+        } catch (error) {
+          showStatus(liveMessage, "Could not connect to live requests.");
+          liveJobsEmpty.hidden = false;
+        } finally {
+          loadingJobs = false;
+        }
+      }
+
+      async function updateJob(job, action, button) {
+        const id = valueOf(job, "id");
+
+        if (!id) {
+          alert("This job has no valid server ID.");
+          return;
+        }
+
+        const originalText = button.textContent;
+        button.disabled = true;
+        button.textContent = "Please wait...";
+
+        try {
+          const response = await fetch("/api/delivery", {
+            method: "PATCH",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: id, action: action })
+          });
+
+          const result = await readJSON(response);
+
+          if (!response.ok || result.success !== true) {
+            alert(
+              "The server did not confirm this action: " +
+              valueOf(result, "error", "message") +
+              " (HTTP " + response.status + ")."
+            );
+            button.disabled = false;
+            button.textContent = originalText;
+            return;
+          }
+
+          alert("The server confirmed the job action.");
+          await loadLiveJobs();
+        } catch (error) {
+          alert("Could not contact the server. Check the job status before retrying.");
+          button.disabled = false;
+          button.textContent = originalText;
+        }
+      }
+
+      // Browser notification permission only; push delivery is not implemented here.
+      const enablePushBtn = document.getElementById("enablePushBtn");
+      const notificationStatus = document.getElementById("notificationStatus");
 
       enablePushBtn.addEventListener("click", async function () {
         if (!("Notification" in window)) {
-          notificationStatus.textContent =
-            "This browser does not support notifications.";
+          showStatus(notificationStatus, "This browser does not support notifications.");
           return;
         }
 
         try {
-          const permission =
-            await Notification.requestPermission();
-
-          if (permission === "granted") {
-            notificationStatus.textContent =
-              "Notification permission granted. Live alerts still require backend push integration.";
-          } else {
-            notificationStatus.textContent =
-              "Notification permission was not granted.";
-          }
+          const permission = await Notification.requestPermission();
+          showStatus(
+            notificationStatus,
+            permission === "granted"
+              ? "Permission granted. Actual push alerts need backend integration."
+              : "Notification permission was not granted."
+          );
         } catch (error) {
-          notificationStatus.textContent =
-            "Unable to request notification permission.";
+          showStatus(notificationStatus, "Unable to request notification permission.");
         }
       });
 
-      // GPS: SESSION ONLY. NO COORDINATES ARE SENT TO THE SERVER.
-      const enableGpsBtn =
-        document.getElementById("enableGpsBtn");
+      // GPS stays in this browser session; coordinates are not sent to the server.
+      const enableGpsBtn = document.getElementById("enableGpsBtn");
       const gpsStatus = document.getElementById("gpsStatus");
 
       enableGpsBtn.addEventListener("click", function () {
         if (!navigator.geolocation) {
-          gpsStatus.textContent =
-            "Location is not supported by this browser.";
+          showStatus(gpsStatus, "Location is not supported by this browser.");
           return;
         }
 
-        gpsStatus.textContent = "Requesting location permission...";
+        showStatus(gpsStatus, "Requesting location permission...");
 
         navigator.geolocation.getCurrentPosition(
           function (position) {
@@ -1082,13 +1208,10 @@ body: (() => {
               latitude: position.coords.latitude,
               longitude: position.coords.longitude
             };
-
-            gpsStatus.textContent =
-              "Location detected for this page session only.";
+            showStatus(gpsStatus, "Location detected for this page session only.");
           },
           function () {
-            gpsStatus.textContent =
-              "Location permission denied or location unavailable.";
+            showStatus(gpsStatus, "Location permission denied or unavailable.");
           },
           {
             enableHighAccuracy: true,
@@ -1098,12 +1221,11 @@ body: (() => {
         );
       });
 
-      // NO DEMO ACCEPT / CANCEL ACTIONS.
-      // Real job locking must be enforced by the server.
       selectCategory("delivery");
     });
-  </script>
+    </script>
+  </main>
 </body>
 </html>
 
-                
+              
