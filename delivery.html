@@ -1031,6 +1031,22 @@
         let selfie =
           document.getElementById("riderSelfie").files[0];
 
+        if (!documentFile || !selfie) {
+          showStatus(
+            riderStatus,
+            "Select both the vehicle document image and your selfie."
+          );
+          return;
+        }
+
+        try {
+          documentFile = await compressPhoto(documentFile);
+          selfie = await compressPhoto(selfie);
+        } catch (error) {
+          showStatus(riderStatus, error.message);
+          return;
+        }
+        
         const allowedImages = ["image/jpeg", "image/png", "image/webp"];
 
         if (!documentFile || !selfie) {
