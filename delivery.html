@@ -1089,7 +1089,9 @@ alert(
           return;
         }
 
-        
+        const data = new FormData(riderForm);
+data.set("insuranceDocument", documentFile);
+data.set("riderSelfie", selfie);
         const insuranceCheck = data.get("insuranceDocument");
         const selfieCheck = data.get("riderSelfie");
 
