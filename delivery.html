@@ -1076,6 +1076,20 @@
         data.set("insuranceDocument", documentFile);
         data.set("riderSelfie", selfie);
 
+        console.log(
+          "Insurance upload:",
+          data.get("insuranceDocument") instanceof File,
+          data.get("insuranceDocument")?.type,
+          data.get("insuranceDocument")?.size
+        );
+
+        console.log(
+          "Selfie upload:",
+          data.get("riderSelfie") instanceof File,
+          data.get("riderSelfie")?.type,
+          data.get("riderSelfie")?.size
+        );
+
         button.disabled = true;
         showStatus(riderStatus, "Submitting application. Please wait...");
 
