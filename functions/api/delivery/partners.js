@@ -169,6 +169,20 @@ export async function onRequestPost({ request, env }) {
     }
 
     const form = await request.formData();
+    const fileEntry = form.get("insuranceDocument");
+const selfieEntry = form.get("riderSelfie");
+
+console.log("UPLOAD FIELD CHECK", JSON.stringify({
+  contentType: request.headers.get("Content-Type"),
+  insuranceType: typeof fileEntry,
+  insuranceConstructor: fileEntry?.constructor?.name,
+  insuranceHasArrayBuffer:
+    typeof fileEntry?.arrayBuffer === "function",
+  selfieType: typeof selfieEntry,
+  selfieConstructor: selfieEntry?.constructor?.name,
+  selfieHasArrayBuffer:
+    typeof selfieEntry?.arrayBuffer === "function"
+}));
 
     const fullName = String(form.get("fullName") || "").trim();
     const phone = String(form.get("phone") || "").trim();
