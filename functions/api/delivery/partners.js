@@ -304,10 +304,12 @@ export async function onRequestPost({ request, env }) {
       }
     }
 
+    
     return json({
       success: false,
       error: "Unable to submit rider application. Please try again."
     }, 500, origin);
   }
-    }
+}
+
                   
