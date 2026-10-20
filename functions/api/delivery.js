@@ -31,16 +31,33 @@ function textValue(form, name, maxLength = 500) {
   return value.trim().slice(0, maxLength);
 }
 
+
 function isUploadedFile(value) {
   return Boolean(
     value &&
-    typeof value !== "string" &&
+    typeof value === "object" &&
+    typeof value.name === "string" &&
+    value.name.length > 0 &&
     typeof value.arrayBuffer === "function" &&
     typeof value.size === "number" &&
-    value.size > 0
+    value.size > 0 &&
+    typeof value.type === "string" &&
+    value.type.length > 0
   );
 }
 
+function isEmptyFileEntry(value) {
+  return (
+    value == null ||
+    value === "" ||
+    (
+      typeof value === "object" &&
+      typeof value.size === "number" &&
+      value.size === 0 &&
+      (!value.name || value.name === "")
+    )
+  );
+}
 function getToken(request) {
   const cookie = request.headers.get("Cookie") || "";
   const match = cookie.match(/(?:^|;\s*)shuk_seller_session=([^;]+)/);
@@ -330,8 +347,8 @@ export async function onRequestPost({ request, env }) {
     }
 
     if (rawLoadPhotos.some(value =>
-      value !== null && value !== "" && !isUploadedFile(value)
-    )) {
+  !isEmptyFileEntry(value) && !isUploadedFile(value)
+)) {
       return json({
         success: false,
         error: "The haulage photo upload is invalid."
@@ -355,7 +372,7 @@ export async function onRequestPost({ request, env }) {
       }
     }
 
-    if (rawVideo && rawVideo !== "" && !loadVideo) {
+    if (!isEmptyFileEntry(rawVideo) && !loadVideo) {
       return json({
         success: false,
         error: "The haulage video upload is invalid."
