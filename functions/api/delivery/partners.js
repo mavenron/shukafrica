@@ -88,31 +88,43 @@ function validText(value, maxLength) {
     value.trim().length <= maxLength;
 }
 
+
 function getImage(form, fieldName) {
   const entry = form.get(fieldName);
 
   if (
     !entry ||
-    typeof entry === "string" ||
+    typeof entry !== "object" ||
+    typeof entry.name !== "string" ||
+    entry.name.length === 0 ||
     typeof entry.arrayBuffer !== "function" ||
     typeof entry.size !== "number" ||
-    entry.size < 1
+    entry.size < 1 ||
+    typeof entry.type !== "string" ||
+    entry.type.length === 0
   ) {
-    return { error: `${fieldName} must be an uploaded image.` };
+    return {
+      error: `${fieldName} must be an uploaded image.`
+    };
   }
 
   if (entry.size > MAX_FILE_SIZE) {
-    return { error: `${fieldName} must be 9 MB or smaller.` };
+    return {
+      error: `${fieldName} must be 9 MB or smaller.`
+    };
   }
 
   const extension = ALLOWED_TYPES[entry.type];
 
   if (!extension) {
-    return { error: `${fieldName} must be JPG, PNG or WebP.` };
+    return {
+      error: `${fieldName} must be JPG, PNG or WebP.`
+    };
   }
 
   return { file: entry, extension };
 }
+
 
 async function savePrivateImage(env, key, file) {
   await env.PRIVATE_MEDIA.put(key, await file.arrayBuffer(), {
