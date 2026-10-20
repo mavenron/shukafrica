@@ -4,7 +4,7 @@ const ALLOWED_ORIGINS = new Set([
   "https://shukafrica.pages.dev"
 ]);
 
-const MAX_FILE_SIZE = 9 * 1024 * 1024;
+const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
 const ALLOWED_TYPES = {
   "image/jpeg": "jpg",
@@ -16,13 +16,13 @@ function json(data, status = 200, origin = "") {
   const headers = {
     "Content-Type": "application/json; charset=utf-8",
     "Cache-Control": "no-store",
-    "X-Content-Type-Options": "nosniff"
+    "X-Content-Type-Options": "nosniff",
+    "Vary": "Origin"
   };
 
   if (origin && ALLOWED_ORIGINS.has(origin)) {
     headers["Access-Control-Allow-Origin"] = origin;
     headers["Access-Control-Allow-Credentials"] = "true";
-    headers["Vary"] = "Origin";
   }
 
   return new Response(JSON.stringify(data), { status, headers });
@@ -36,7 +36,13 @@ function getOrigin(request) {
 function getToken(request) {
   const cookie = request.headers.get("Cookie") || "";
   const match = cookie.match(/(?:^|;\s*)shuk_seller_session=([^;]+)/);
-  return match ? match[1] : "";
+  if (!match) return "";
+
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
 }
 
 async function sha256(value) {
@@ -63,14 +69,12 @@ async function getSeller(request, env) {
 
   if (
     !session ||
+    !session.phone ||
+    !session.phone.startsWith("email:") ||
     !session.expires_at ||
     !Number.isFinite(Date.parse(session.expires_at)) ||
     Date.parse(session.expires_at) <= Date.now()
   ) {
-    return null;
-  }
-
-  if (!session.phone || !session.phone.startsWith("email:")) {
     return null;
   }
 
@@ -88,43 +92,40 @@ function validText(value, maxLength) {
     value.trim().length <= maxLength;
 }
 
-
 function getImage(form, fieldName) {
-  const entry = form.get(fieldName);
+  const entries = form.getAll(fieldName);
 
+  if (entries.length !== 1) {
+    return { error: `${fieldName} must contain exactly one uploaded image.` };
+  }
+
+  const file = entries[0];
+
+  // A genuine browser upload should be represented by a File/Blob-like object,
+  // not a text field containing a filename.
   if (
-    !entry ||
-    typeof entry !== "object" ||
-    typeof entry.name !== "string" ||
-    entry.name.length === 0 ||
-    typeof entry.arrayBuffer !== "function" ||
-    typeof entry.size !== "number" ||
-    entry.size < 1 ||
-    typeof entry.type !== "string" ||
-    entry.type.length === 0
+    !(file instanceof File) ||
+    !file.name ||
+    file.size < 1 ||
+    typeof file.arrayBuffer !== "function"
   ) {
     return {
-      error: `${fieldName} must be an uploaded image.`
+      error: `${fieldName} was not received as an uploaded file. Please reselect the image and try again.`
     };
   }
 
-  if (entry.size > MAX_FILE_SIZE) {
-    return {
-      error: `${fieldName} must be 9 MB or smaller.`
-    };
+  if (file.size > MAX_FILE_SIZE) {
+    return { error: `${fieldName} must be 2 MB or smaller.` };
   }
 
-  const extension = ALLOWED_TYPES[entry.type];
+  const extension = ALLOWED_TYPES[file.type];
 
   if (!extension) {
-    return {
-      error: `${fieldName} must be JPG, PNG or WebP.`
-    };
+    return { error: `${fieldName} must be JPG, PNG or WebP.` };
   }
 
-  return { file: entry, extension };
+  return { file, extension };
 }
-
 
 async function savePrivateImage(env, key, file) {
   await env.PRIVATE_MEDIA.put(key, await file.arrayBuffer(), {
@@ -135,12 +136,20 @@ async function savePrivateImage(env, key, file) {
   });
 }
 
+async function deleteIfPresent(env, key) {
+  if (!key) return;
+
+  try {
+    await env.PRIVATE_MEDIA.delete(key);
+  } catch {
+    console.error("Private image cleanup failed.");
+  }
+}
+
 export async function onRequestOptions({ request }) {
   const origin = getOrigin(request);
 
-  if (!origin) {
-    return new Response(null, { status: 403 });
-  }
+  if (!origin) return new Response(null, { status: 403 });
 
   return new Response(null, {
     status: 204,
@@ -214,11 +223,11 @@ export async function onRequestPost({ request, env }) {
 
   const contentType = request.headers.get("Content-Type") || "";
 
-  if (!contentType.toLowerCase().startsWith("multipart/form-data;")) {
+  if (!contentType.toLowerCase().includes("multipart/form-data")) {
     return json({
       success: false,
-      error: "Please submit the form with both required images."
-    }, 400, origin);
+      error: "The form must be submitted as multipart file data."
+    }, 415, origin);
   }
 
   let insuranceKey = null;
@@ -262,7 +271,6 @@ export async function onRequestPost({ request, env }) {
     }
 
     const insuranceResult = getImage(form, "insuranceDocument");
-
     if (insuranceResult.error) {
       return json({
         success: false,
@@ -271,7 +279,6 @@ export async function onRequestPost({ request, env }) {
     }
 
     const selfieResult = getImage(form, "riderSelfie");
-
     if (selfieResult.error) {
       return json({
         success: false,
@@ -298,7 +305,6 @@ export async function onRequestPost({ request, env }) {
 
     insuranceKey =
       `rider-insurance/${seller.id}/${id}.${insuranceResult.extension}`;
-
     selfieKey =
       `rider-selfies/${seller.id}/${id}.${selfieResult.extension}`;
 
@@ -325,6 +331,7 @@ export async function onRequestPost({ request, env }) {
       alternativeContactPhone
     ).run();
 
+    // The images are stored privately. Do not return their storage keys.
     return json({
       success: true,
       message: "Your agent application has been submitted for admin review.",
@@ -333,21 +340,8 @@ export async function onRequestPost({ request, env }) {
   } catch (error) {
     console.error("Agent application submission failed:", error);
 
-    if (insuranceKey) {
-      try {
-        await env.PRIVATE_MEDIA.delete(insuranceKey);
-      } catch (cleanupError) {
-        console.error("Insurance image cleanup failed.");
-      }
-    }
-
-    if (selfieKey) {
-      try {
-        await env.PRIVATE_MEDIA.delete(selfieKey);
-      } catch (cleanupError) {
-        console.error("Selfie cleanup failed.");
-      }
-    }
+    await deleteIfPresent(env, insuranceKey);
+    await deleteIfPresent(env, selfieKey);
 
     return json({
       success: false,
@@ -355,4 +349,3 @@ export async function onRequestPost({ request, env }) {
     }, 500, origin);
   }
 }
-  
