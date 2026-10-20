@@ -320,17 +320,29 @@ export async function onRequestPost({ request, env }) {
       }, 400);
     }
 
-    const customerPhoto = form.get("customerSelfie");
-    const customerPhotoError =
-      validateImage(customerPhoto, MAX_CUSTOMER_PHOTO);
+    
+const customerPhoto = form.get("customerSelfie");
 
-    if (customerPhotoError) {
-      return json({
-        success: false,
-        error: "Customer selfie: " + customerPhotoError
-      }, 400);
-    }
+// TEMPORARY DIAGNOSTIC – remove later
+let debugInfo = "";
+if (customerPhoto == null) {
+  debugInfo = "null";
+} else if (typeof customerPhoto === "string") {
+  debugInfo = "string (empty or value)";
+} else if (typeof customerPhoto === "object") {
+  debugInfo = `object | name: "${customerPhoto.name || "empty"}" | size: \( {customerPhoto.size} | type: " \){customerPhoto.type || "empty"}" | hasArrayBuffer: ${typeof customerPhoto.arrayBuffer === "function"}`;
+} else {
+  debugInfo = "unknown type: " + typeof customerPhoto;
+}
 
+const customerPhotoError = validateImage(customerPhoto, MAX_CUSTOMER_PHOTO);
+
+if (customerPhotoError) {
+  return json({
+    success: false,
+    error: "Customer selfie: " + customerPhotoError + " | DEBUG: " + debugInfo
+  }, 400);
+}
     const rawLoadPhotos = form.getAll("loadPhotos");
     const loadPhotos = rawLoadPhotos.filter(isUploadedFile);
     const rawVideo = form.get("loadVideo");
