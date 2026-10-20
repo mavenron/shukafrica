@@ -782,30 +782,41 @@
         return !error;
       }
 
-      function setFilePreview(inputId, previewId, kind, limit) {
-        const input = document.getElementById(inputId);
-        const preview = document.getElementById(previewId);
+      
+function setFilePreview(inputId, previewId, kind, limit) {
+  const input = document.getElementById(inputId);
+  const preview = document.getElementById(previewId);
 
-        input.addEventListener("change", function () {
-          const file = input.files && input.files[0];
+  if (!input || !preview) {
+    console.error("Missing file input or preview:", inputId);
+    return;
+  }
 
-          if (!file) {
-            clearPreview(input, preview);
-            return;
-          }
+  // Let the user choose an existing file from the phone.
+  // Do not force the live camera to open.
+  input.removeAttribute("capture");
 
-          const error = validateFile(file, kind);
+  input.addEventListener("change", function () {
+    const file = input.files && input.files[0];
 
-          if (error) {
-            clearPreview(input, preview);
-            input.value = "";
-            alert(error);
-            return;
-          }
+    if (!file) {
+      clearPreview(input, preview);
+      return;
+    }
 
-          showFilePreview(input, preview, kind);
-        });
-      }
+    const error = validateFile(file, kind);
+
+    if (error) {
+      clearPreview(input, preview);
+      input.value = "";
+      alert(error);
+      return;
+    }
+
+    showFilePreview(input, preview, kind);
+  });
+}
+
 
       setFilePreview(
         "customerSelfie",
