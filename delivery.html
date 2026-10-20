@@ -927,8 +927,31 @@
         const data = new FormData(requestForm);
         data.set("category", currentCategory);
 
-        // Force the real File objects (this fixes the Android issue)
-        data.set("customerSelfie", selectedCustomerSelfie);
+        
+const data = new FormData(requestForm);
+data.set("category", currentCategory);
+
+const selfieInput = document.getElementById("customerSelfie");
+
+console.log("Customer selfie check:", {
+  inputExists: Boolean(selfieInput),
+  inputName: selfieInput?.name,
+  inputType: selfieInput?.type,
+  filesCount: selfieInput?.files?.length ?? 0,
+  selectedFileExists: Boolean(selectedCustomerSelfie),
+  selectedFileName: selectedCustomerSelfie?.name ?? null,
+  selectedFileSize: selectedCustomerSelfie?.size ?? null,
+  formHasSelfie: data.has("customerSelfie"),
+  formSelfieIsString: typeof data.get("customerSelfie") === "string"
+});
+
+if (!selectedCustomerSelfie) {
+  showStatus(formStatus, "Please select your selfie again.");
+  return;
+}
+
+data.set("customerSelfie", selectedCustomerSelfie);
+        
 
         if (selectedLoadPhoto) {
           data.set("loadPhotos", selectedLoadPhoto);
