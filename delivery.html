@@ -19,9 +19,7 @@
       --success: #91e6b3;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -31,18 +29,9 @@
       line-height: 1.55;
     }
 
-    button, input, select, textarea {
-      font: inherit;
-    }
-
-    button {
-      cursor: pointer;
-    }
-
-    button:disabled {
-      cursor: not-allowed;
-      opacity: 0.6;
-    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .6; }
 
     header {
       padding: 18px 16px;
@@ -59,10 +48,9 @@
       gap: 12px;
     }
 
-    h1 {
-      margin: 0;
-      font-size: clamp(23px, 5vw, 32px);
-    }
+    h1 { margin: 0; font-size: clamp(23px, 5vw, 32px); }
+    h2 { font-size: 21px; margin: 0 0 8px; }
+    h3 { margin: 0 0 8px; font-size: 17px; }
 
     .subtitle {
       margin: 4px 0 0;
@@ -84,24 +72,12 @@
       margin-bottom: 20px;
     }
 
-    h2 {
-      font-size: 21px;
-      margin: 0 0 8px;
-    }
-
-    h3 {
-      margin: 0 0 8px;
-      font-size: 17px;
-    }
-
     .muted, .help {
       color: var(--muted);
       font-size: 13px;
     }
 
-    .help {
-      margin: 5px 0 0;
-    }
+    .help { margin: 5px 0 0; }
 
     .category-tabs {
       display: grid;
@@ -131,14 +107,8 @@
       gap: 14px;
     }
 
-    .field {
-      min-width: 0;
-      margin-bottom: 14px;
-    }
-
-    .field.full {
-      grid-column: 1 / -1;
-    }
+    .field { min-width: 0; margin-bottom: 14px; }
+    .field.full { grid-column: 1 / -1; }
 
     label {
       display: block;
@@ -158,20 +128,14 @@
       border-radius: 8px;
     }
 
-    input[type="file"] {
-      padding: 9px;
-      font-size: 13px;
-    }
+    input[type="file"] { padding: 9px; font-size: 13px; }
 
     input:focus, select:focus, textarea:focus {
       outline: 2px solid var(--accent);
       outline-offset: 1px;
     }
 
-    textarea {
-      min-height: 95px;
-      resize: vertical;
-    }
+    textarea { min-height: 95px; resize: vertical; }
 
     .btn {
       display: inline-flex;
@@ -194,16 +158,8 @@
       border: 1px solid var(--border);
     }
 
-    .btn.danger {
-      background: #743b3b;
-      color: white;
-    }
-
-    .top-button {
-      flex-shrink: 0;
-      font-size: 13px;
-      padding: 9px 11px;
-    }
+    .btn.danger { background: #743b3b; color: white; }
+    .top-button { flex-shrink: 0; font-size: 13px; padding: 9px 11px; }
 
     .form-actions {
       display: flex;
@@ -230,9 +186,7 @@
       margin: 12px 0;
     }
 
-    .hidden, [hidden] {
-      display: none !important;
-    }
+    .hidden, [hidden] { display: none !important; }
 
     .jobs-heading {
       display: flex;
@@ -258,16 +212,13 @@
       overflow-wrap: anywhere;
     }
 
-    .job-card p {
-      margin: 7px 0;
-      font-size: 14px;
-    }
+    .job-card p { margin: 7px 0; font-size: 14px; }
 
     .job-card .job-label {
       color: var(--muted);
       font-size: 12px;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: .04em;
     }
 
     .job-status {
@@ -286,10 +237,7 @@
       margin-top: 14px;
     }
 
-    .job-actions .btn {
-      font-size: 13px;
-      min-height: 40px;
-    }
+    .job-actions .btn { font-size: 13px; min-height: 40px; }
 
     .empty-state {
       padding: 20px 12px;
@@ -312,22 +260,43 @@
       align-self: center;
     }
 
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .preview-item {
+      min-width: 0;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: #101b23;
+    }
+
+    .preview-item img,
+    .preview-item video {
+      display: block;
+      width: 100%;
+      max-height: 240px;
+      object-fit: contain;
+      border-radius: 6px;
+      background: #080d11;
+    }
+
+    .preview-caption {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
     @media (max-width: 650px) {
-      .header-inner {
-        align-items: flex-start;
-      }
-
-      .form-grid, .job-list {
-        grid-template-columns: 1fr;
-      }
-
-      section.panel {
-        padding: 14px;
-      }
-
-      .category-tab {
-        font-size: 13px;
-      }
+      .header-inner { align-items: flex-start; }
+      .form-grid, .job-list { grid-template-columns: 1fr; }
+      section.panel { padding: 14px; }
+      .category-tab { font-size: 13px; }
     }
   </style>
 </head>
@@ -339,11 +308,9 @@
         <h1>Ride &amp; Delivery</h1>
         <p class="subtitle">Find deliveries. Connect. Earn.</p>
       </div>
-      <button
-        type="button"
-        class="btn top-button"
-        id="openAgentBtn"
-      >Register Agent</button>
+      <button type="button" class="btn top-button" id="openAgentBtn">
+        Register Agent
+      </button>
     </div>
   </header>
 
@@ -382,7 +349,8 @@
             <input id="customerSelfie" name="customerSelfie"
               type="file" accept="image/jpeg,image/png,image/webp"
               capture="user" required>
-            <p class="help">JPG, PNG or WebP. Maximum 2 MB.</p>
+            <p class="help">JPG, PNG or WebP. Maximum 9 MB. Original quality is preserved.</p>
+            <div id="customerSelfiePreview" class="preview-grid" hidden></div>
           </div>
 
           <div class="field">
@@ -437,34 +405,33 @@
 
           <div class="field hidden" id="loadWeightField">
             <label for="loadWeight">Estimated Load Weight</label>
-            <input id="loadWeight" name="loadWeight"
-              type="text" maxlength="100"
-              placeholder="e.g. 2 tonnes">
+            <input id="loadWeight" name="loadWeight" type="text"
+              maxlength="100" placeholder="e.g. 2 tonnes">
           </div>
 
           <div class="field hidden" id="loadDimensionsField">
             <label for="loadDimensions">Load Dimensions</label>
-            <input id="loadDimensions" name="loadDimensions"
-              type="text" maxlength="100"
-              placeholder="Length × width × height">
+            <input id="loadDimensions" name="loadDimensions" type="text"
+              maxlength="100" placeholder="Length × width × height">
           </div>
 
           <div class="field full hidden" id="loadMediaField">
-            <label for="loadPhotos">Load Photos (optional)</label>
-            <input id="loadPhotos" name="loadPhotos"
-              type="file" accept="image/jpeg,image/png,image/webp"
-              multiple>
-            <p class="help">Up to 4 photos, maximum 5 MB each.</p>
+            <label for="loadPhotos">One Load Photo (optional)</label>
+            <input id="loadPhotos" name="loadPhotos" type="file"
+              accept="image/jpeg,image/png,image/webp">
+            <p class="help">Choose one JPG, PNG or WebP photo. Maximum 9 MB.</p>
+            <div id="loadPhotosPreview" class="preview-grid" hidden></div>
 
             <label for="loadVideo" style="margin-top:14px">
-              Load Video (optional)
+              One Load Video (optional)
             </label>
-            <input id="loadVideo" name="loadVideo"
-              type="file" accept="video/mp4,video/webm">
+            <input id="loadVideo" name="loadVideo" type="file"
+              accept="video/mp4,video/webm,video/quicktime">
             <p class="help">
-              MP4 or WebM, maximum 20 MB. The server must verify the
-              30-second duration limit.
+              MP4, WebM or MOV. Maximum 20 MB. A two-minute video is allowed
+              if it is within the file-size limit.
             </p>
+            <div id="loadVideoPreview" class="preview-grid" hidden></div>
           </div>
 
           <div class="field">
@@ -502,8 +469,9 @@
 
         <p class="status" id="formStatus" role="status" aria-live="polite"></p>
       </form>
-    </section>
+                                           </section>
 
+    
     <section class="panel" id="riderRegistrationPanel" hidden>
       <h2>Register as a Transport Agent</h2>
       <p class="muted">
@@ -540,7 +508,8 @@
             <label for="insuranceDocument">Vehicle Document Photo *</label>
             <input id="insuranceDocument" name="insuranceDocument"
               type="file" accept="image/jpeg,image/png,image/webp" required>
-            <p class="help">JPG, PNG or WebP, maximum 2 MB.</p>
+            <p class="help">JPG, PNG or WebP. Maximum 9 MB.</p>
+            <div id="insuranceDocumentPreview" class="preview-grid" hidden></div>
           </div>
 
           <div class="field">
@@ -548,7 +517,8 @@
             <input id="riderSelfie" name="riderSelfie"
               type="file" accept="image/jpeg,image/png,image/webp"
               capture="user" required>
-            <p class="help">JPG, PNG or WebP, maximum 2 MB.</p>
+            <p class="help">JPG, PNG or WebP. Maximum 9 MB.</p>
+            <div id="riderSelfiePreview" class="preview-grid" hidden></div>
           </div>
 
           <div class="field">
@@ -645,7 +615,6 @@
       </div>
     </section>
 
-    
     <script>
     document.addEventListener("DOMContentLoaded", function () {
       "use strict";
@@ -660,7 +629,6 @@
       const requestFormTitle = document.getElementById("requestFormTitle");
       const packageLabel = document.getElementById("packageLabel");
       const packageDetails = document.getElementById("packageDetails");
-      const packageField = document.getElementById("packageField");
 
       const passengerField = document.getElementById("passengerField");
       const passengerCount = document.getElementById("passengerCount");
@@ -687,8 +655,19 @@
       const liveJobsList = document.getElementById("liveJobsList");
       const jobTemplate = document.getElementById("deliveryJobCard");
 
+      const MAX_IMAGE_SIZE = 9 * 1024 * 1024;
+      const MAX_VIDEO_SIZE = 20 * 1024 * 1024;
+
+      const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+      const VIDEO_TYPES = [
+        "video/mp4",
+        "video/webm",
+        "video/quicktime"
+      ];
+
       let currentCategory = "delivery";
       let loadingJobs = false;
+      const previewURLs = new Map();
 
       const categoryNames = {
         delivery: "Delivery",
@@ -700,90 +679,6 @@
         if (element) element.textContent = message;
       }
 
-      // Compress large photos in the browser before uploading.
-      async function compressPhoto(file, maxBytes = 2 * 1024 * 1024) {
-        if (!file || !file.type.startsWith("image/")) {
-          throw new Error("Please select a valid image.");
-        }
-
-        if (file.size <= maxBytes && file.type === "image/jpeg") {
-          return file;
-        }
-
-        const imageURL = URL.createObjectURL(file);
-
-        try {
-          const image = new Image();
-
-          await new Promise(function (resolve, reject) {
-  image.onload = function () {
-    if (image.naturalWidth > 0 && image.naturalHeight > 0) {
-      resolve();
-    } else {
-      reject(new Error("The selected photo has invalid dimensions."));
-    }
-  };
-
-  image.onerror = function () {
-    reject(
-      new Error(
-        "Your browser could not open this photo. Try selecting a JPG or PNG image from your Gallery."
-      )
-    );
-  };
-
-  image.src = imageURL;
-});
-          const maxDimension = 1600;
-          const scale = Math.min(
-            1,
-            maxDimension / Math.max(image.width, image.height)
-          );
-
-          const canvas = document.createElement("canvas");
-          canvas.width = Math.max(1, Math.round(image.width * scale));
-          canvas.height = Math.max(1, Math.round(image.height * scale));
-
-          const context = canvas.getContext("2d");
-
-          if (!context) {
-            throw new Error("Photo compression is not supported by this browser.");
-          }
-
-          context.drawImage(image, 0, 0, canvas.width, canvas.height);
-
-          let quality = 0.85;
-          let blob = await new Promise(function (resolve) {
-            canvas.toBlob(resolve, "image/jpeg", quality);
-          });
-
-          while (blob && blob.size > maxBytes && quality > 0.4) {
-            quality -= 0.1;
-            blob = await new Promise(function (resolve) {
-              canvas.toBlob(resolve, "image/jpeg", quality);
-            });
-          }
-
-          if (!blob || blob.size > maxBytes) {
-            throw new Error(
-              "This photo is still too large. Please choose a smaller photo."
-            );
-          }
-
-          const safeName = (file.name || "photo")
-            .replace(/\.[^.]+$/, "")
-            .replace(/[^a-zA-Z0-9_-]/g, "_");
-
-          return new File(
-            [blob],
-            safeName + ".jpg",
-            { type: "image/jpeg", lastModified: Date.now() }
-          );
-        } finally {
-          URL.revokeObjectURL(imageURL);
-        }
-            }
-      
       function valueOf(object, ...keys) {
         for (const key of keys) {
           if (object && object[key] !== undefined &&
@@ -800,6 +695,154 @@
         });
       }
 
+      function formatSize(bytes) {
+        return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+      }
+
+      function clearPreview(input, preview) {
+        const oldURL = previewURLs.get(input.id);
+        if (oldURL) URL.revokeObjectURL(oldURL);
+        previewURLs.delete(input.id);
+
+        preview.replaceChildren();
+        preview.hidden = true;
+      }
+
+      function showFilePreview(input, preview, kind) {
+        clearPreview(input, preview);
+
+        const file = input.files && input.files[0];
+        if (!file) return;
+
+        const url = URL.createObjectURL(file);
+        previewURLs.set(input.id, url);
+
+        const item = document.createElement("div");
+        item.className = "preview-item";
+
+        let media;
+
+        if (kind === "video") {
+          media = document.createElement("video");
+          media.controls = true;
+          media.preload = "metadata";
+          media.playsInline = true;
+        } else {
+          media = document.createElement("img");
+          media.alt = "Selected " + input.name;
+        }
+
+        media.src = url;
+
+        const caption = document.createElement("div");
+        caption.className = "preview-caption";
+        caption.textContent = file.name + " · " + formatSize(file.size);
+
+        item.append(media, caption);
+        preview.appendChild(item);
+        preview.hidden = false;
+      }
+
+      function validateFile(file, kind) {
+        if (!file) return "Please select a file.";
+
+        if (kind === "image") {
+          if (!IMAGE_TYPES.includes(file.type)) {
+            return "Choose a JPG, PNG or WebP image.";
+          }
+
+          if (file.size > MAX_IMAGE_SIZE) {
+            return "The image must be 9 MB or smaller.";
+          }
+
+          return "";
+        }
+
+        if (!VIDEO_TYPES.includes(file.type)) {
+          return "Choose an MP4, WebM or MOV video.";
+        }
+
+        if (file.size > MAX_VIDEO_SIZE) {
+          return "The video must be 20 MB or smaller.";
+        }
+
+        return "";
+      }
+
+      function validateOptionalFile(input, kind, messageElement) {
+        const file = input.files && input.files[0];
+
+        if (!file) {
+          showStatus(messageElement, "");
+          return true;
+        }
+
+        const error = validateFile(file, kind);
+        showStatus(messageElement, error);
+        return !error;
+      }
+
+      function setFilePreview(inputId, previewId, kind, limit) {
+        const input = document.getElementById(inputId);
+        const preview = document.getElementById(previewId);
+
+        input.addEventListener("change", function () {
+          const file = input.files && input.files[0];
+
+          if (!file) {
+            clearPreview(input, preview);
+            return;
+          }
+
+          const error = validateFile(file, kind);
+
+          if (error) {
+            clearPreview(input, preview);
+            input.value = "";
+            alert(error);
+            return;
+          }
+
+          showFilePreview(input, preview, kind);
+        });
+      }
+
+      setFilePreview(
+        "customerSelfie",
+        "customerSelfiePreview",
+        "image",
+        MAX_IMAGE_SIZE
+      );
+
+      setFilePreview(
+        "loadPhotos",
+        "loadPhotosPreview",
+        "image",
+        MAX_IMAGE_SIZE
+      );
+
+      setFilePreview(
+        "loadVideo",
+        "loadVideoPreview",
+        "video",
+        MAX_VIDEO_SIZE
+      );
+
+      setFilePreview(
+        "insuranceDocument",
+        "insuranceDocumentPreview",
+        "image",
+        MAX_IMAGE_SIZE
+      );
+
+      setFilePreview(
+        "riderSelfie",
+        "riderSelfiePreview",
+        "image",
+        MAX_IMAGE_SIZE
+      );
+
+       
       function selectCategory(category) {
         if (!Object.prototype.hasOwnProperty.call(categoryNames, category)) {
           category = "delivery";
@@ -889,95 +932,66 @@
         }
       });
 
+      // Only one haulage photo is allowed.
       loadPhotos.addEventListener("change", function () {
-        const files = Array.from(loadPhotos.files || []);
-        const allowed = ["image/jpeg", "image/png", "image/webp"];
-
-        if (files.length > 4) {
-          alert("Choose no more than 4 load photos.");
+        if (loadPhotos.files && loadPhotos.files.length > 1) {
           loadPhotos.value = "";
-          return;
-        }
-
-        if (files.some(function (file) {
-          return !allowed.includes(file.type) ||
-            file.size > 5 * 1024 * 1024;
-        })) {
-          alert(
-            "Each load photo must be JPG, PNG or WebP and no larger than 5 MB."
+          clearPreview(
+            loadPhotos,
+            document.getElementById("loadPhotosPreview")
           );
-          loadPhotos.value = "";
+          alert("Choose only one haulage photo.");
         }
       });
 
-      loadVideo.addEventListener("change", function () {
-        const file = loadVideo.files && loadVideo.files[0];
-        if (!file) return;
-
-        if (!["video/mp4", "video/webm"].includes(file.type)) {
-          alert("Choose an MP4 or WebM video.");
-          loadVideo.value = "";
-          return;
-        }
-
-        if (file.size > 20 * 1024 * 1024) {
-          alert("The video must be no larger than 20 MB.");
-          loadVideo.value = "";
-          return;
-        }
-
-        alert(
-          "Video selected. The server must verify the 30-second duration limit."
-        );
-      });
-
-      // Submit a customer request to the real backend.
+      // Submit customer delivery, ride or haulage request.
       requestForm.addEventListener("submit", async function (event) {
         event.preventDefault();
         showStatus(formStatus, "");
 
         if (!requestForm.reportValidity()) return;
 
-        
-        let selfie = document.getElementById("customerSelfie").files[0];
+        const customerPhoto =
+          document.getElementById("customerSelfie").files[0];
 
-        if (!selfie) {
-          showStatus(formStatus, "Please select your photo before continuing.");
+        const customerPhotoError = validateFile(customerPhoto, "image");
+
+        if (customerPhotoError) {
+          showStatus(formStatus, customerPhotoError);
           return;
         }
 
-        try {
-          selfie = await compressPhoto(selfie);
-        } catch (error) {
-          showStatus(formStatus, error.message);
-          return;
-        }
-
-        const allowedImages = ["image/jpeg", "image/png", "image/webp"];
-        
-
-        if (!selfie) {
-          showStatus(formStatus, "Please select your photo before continuing.");
-          return;
-        }
-
-        if (!allowedImages.includes(selfie.type) ||
-            selfie.size > 2 * 1024 * 1024) {
-          showStatus(
-            formStatus,
-            "Your photo must be JPG, PNG or WebP and no larger than 2 MB."
-          );
-          return;
-        }
-
-        if (currentCategory === "haulage" &&
-            !loadWeight.value.trim() &&
-            !loadDimensions.value.trim()) {
+        if (
+          currentCategory === "haulage" &&
+          !loadWeight.value.trim() &&
+          !loadDimensions.value.trim()
+        ) {
           showStatus(
             formStatus,
             "For haulage, provide an estimated weight or load dimensions."
           );
           return;
+        }
+
+        if (currentCategory === "haulage") {
+          const loadPhoto = loadPhotos.files && loadPhotos.files[0];
+          const video = loadVideo.files && loadVideo.files[0];
+
+          if (loadPhoto) {
+            const error = validateFile(loadPhoto, "image");
+            if (error) {
+              showStatus(formStatus, error);
+              return;
+            }
+          }
+
+          if (video) {
+            const error = validateFile(video, "video");
+            if (error) {
+              showStatus(formStatus, error);
+              return;
+            }
+          }
         }
 
         const button = document.getElementById("submitRequestBtn");
@@ -987,14 +1001,7 @@
         try {
           const data = new FormData(requestForm);
           data.set("category", currentCategory);
-          data.set("customerSelfie", selfie);
-alert(
-  "Photo is a File: " +
-  (data.get("customerSelfie") instanceof File) +
-  "\nType: " + (data.get("customerSelfie")?.type || "none") +
-  "\nSize: " + (data.get("customerSelfie")?.size ?? "none") +
-  " bytes"
-);
+
           const response = await fetch("/api/delivery", {
             method: "POST",
             credentials: "include",
@@ -1014,9 +1021,23 @@ alert(
           }
 
           requestForm.reset();
+
+          [
+            ["customerSelfie", "customerSelfiePreview"],
+            ["loadPhotos", "loadPhotosPreview"],
+            ["loadVideo", "loadVideoPreview"]
+          ].forEach(function (pair) {
+            clearPreview(
+              document.getElementById(pair[0]),
+              document.getElementById(pair[1])
+            );
+          });
+
           recipientFields.classList.add("hidden");
           recipientName.required = false;
           recipientPhone.required = false;
+
+          selectCategory(currentCategory);
 
           showStatus(
             formStatus,
@@ -1034,81 +1055,36 @@ alert(
         }
       });
 
-      // Agent registration sends real file objects, not file-name strings.
+      // Submit agent registration without compressing either image.
       riderForm.addEventListener("submit", async function (event) {
         event.preventDefault();
         showStatus(riderStatus, "");
 
         if (!riderForm.reportValidity()) return;
 
-        const button = riderForm.querySelector('button[type="submit"]');
-        
-        let documentFile =
+        const documentFile =
           document.getElementById("insuranceDocument").files[0];
-        let selfie =
+        const selfie =
           document.getElementById("riderSelfie").files[0];
 
-        if (!documentFile || !selfie) {
+        const documentError = validateFile(documentFile, "image");
+        const selfieError = validateFile(selfie, "image");
+
+        if (documentError || selfieError) {
           showStatus(
             riderStatus,
-            "Select both the vehicle document image and your selfie."
+            documentError || selfieError
           );
           return;
         }
+
+        const button = riderForm.querySelector('button[type="submit"]');
+        button.disabled = true;
+        showStatus(riderStatus, "Submitting your application securely...");
 
         try {
-          documentFile = await compressPhoto(documentFile);
-          selfie = await compressPhoto(selfie);
-        } catch (error) {
-          showStatus(riderStatus, error.message);
-          return;
-        }
-        
-        const allowedImages = ["image/jpeg", "image/png", "image/webp"];
+          const data = new FormData(riderForm);
 
-        if (!documentFile || !selfie) {
-          showStatus(
-            riderStatus,
-            "Select both the vehicle document image and your selfie."
-          );
-          return;
-        }
-
-        if (!allowedImages.includes(documentFile.type) ||
-            !allowedImages.includes(selfie.type)) {
-          showStatus(
-            riderStatus,
-            "Both uploads must be JPG, PNG or WebP images."
-          );
-          return;
-        }
-
-        if (documentFile.size > 2 * 1024 * 1024 ||
-            selfie.size > 2 * 1024 * 1024) {
-          showStatus(riderStatus, "Each image must be no larger than 2 MB.");
-          return;
-        }
-
-        const data = new FormData(riderForm);
-data.set("insuranceDocument", documentFile);
-data.set("riderSelfie", selfie);
-        const insuranceCheck = data.get("insuranceDocument");
-        const selfieCheck = data.get("riderSelfie");
-
-        showStatus(
-          riderStatus,
-          "DEBUG — Document: " +
-          (insuranceCheck instanceof File) +
-          ", type: " + (insuranceCheck?.type || "none") +
-          ", size: " + (insuranceCheck?.size ?? "none") +
-          " bytes. Selfie: " +
-          (selfieCheck instanceof File) +
-          ", type: " + (selfieCheck?.type || "none") +
-          ", size: " + (selfieCheck?.size ?? "none") +
-          " bytes."
-        );
-
-        try {
           const response = await fetch("/api/delivery/partners", {
             method: "POST",
             credentials: "include",
@@ -1127,11 +1103,22 @@ data.set("riderSelfie", selfie);
             return;
           }
 
+          riderForm.reset();
+
+          [
+            ["insuranceDocument", "insuranceDocumentPreview"],
+            ["riderSelfie", "riderSelfiePreview"]
+          ].forEach(function (pair) {
+            clearPreview(
+              document.getElementById(pair[0]),
+              document.getElementById(pair[1])
+            );
+          });
+
           showStatus(
             riderStatus,
             "Application received. Wait for admin approval before taking jobs."
           );
-          riderForm.reset();
         } catch (error) {
           showStatus(
             riderStatus,
@@ -1166,24 +1153,32 @@ data.set("riderSelfie", selfie);
           const accept = card.querySelector("#acceptInitialBtn");
           const release = card.querySelector("#releaseDeliveryBtn");
 
-          if (title) title.textContent = categoryNames[currentCategory] + " Request";
-          if (pickup) {
-            pickup.textContent = valueOf(job, "pickup_location", "pickupLocation");
+          if (title) {
+            title.textContent =
+              categoryNames[currentCategory] + " Request";
           }
+
+          if (pickup) {
+            pickup.textContent =
+              valueOf(job, "pickup_location", "pickupLocation");
+          }
+
           if (destination) {
             destination.textContent =
               valueOf(job, "destination_location", "destinationLocation");
           }
+
           if (details) {
             details.textContent =
               valueOf(job, "package_details", "packageDetails") ||
               "No additional details provided.";
           }
+
           if (status) {
             status.textContent = valueOf(job, "status") || "pending";
           }
 
-          // Do not publish customer phone numbers or private media keys.
+          // Keep customer contact details private on the public job list.
           ["jobCustomerPhone", "callCustomerBtn", "whatsappCustomerBtn"]
             .forEach(function (id) {
               const element = card.querySelector("#" + id);
@@ -1215,7 +1210,9 @@ data.set("riderSelfie", selfie);
 
         showStatus(
           liveMessage,
-          "Loading " + categoryNames[currentCategory].toLowerCase() + " requests..."
+          "Loading " +
+          categoryNames[currentCategory].toLowerCase() +
+          " requests..."
         );
 
         try {
@@ -1231,7 +1228,10 @@ data.set("riderSelfie", selfie);
           const result = await readJSON(response);
 
           if (!response.ok || result.success === false) {
-            showStatus(liveMessage, "Could not load live requests. Please refresh.");
+            showStatus(
+              liveMessage,
+              "Could not load live requests. Please refresh."
+            );
             liveJobsEmpty.hidden = false;
             return;
           }
@@ -1296,24 +1296,30 @@ data.set("riderSelfie", selfie);
           alert("The server confirmed the job action.");
           await loadLiveJobs();
         } catch (error) {
-          alert("Could not contact the server. Check the job status before retrying.");
+          alert(
+            "Could not contact the server. Check the job status before retrying."
+          );
           button.disabled = false;
           button.textContent = originalText;
         }
       }
 
-      // Browser notification permission only; push delivery is not implemented here.
+      // This requests browser permission; server push is not implemented here.
       const enablePushBtn = document.getElementById("enablePushBtn");
       const notificationStatus = document.getElementById("notificationStatus");
 
       enablePushBtn.addEventListener("click", async function () {
         if (!("Notification" in window)) {
-          showStatus(notificationStatus, "This browser does not support notifications.");
+          showStatus(
+            notificationStatus,
+            "This browser does not support notifications."
+          );
           return;
         }
 
         try {
           const permission = await Notification.requestPermission();
+
           showStatus(
             notificationStatus,
             permission === "granted"
@@ -1321,11 +1327,14 @@ data.set("riderSelfie", selfie);
               : "Notification permission was not granted."
           );
         } catch (error) {
-          showStatus(notificationStatus, "Unable to request notification permission.");
+          showStatus(
+            notificationStatus,
+            "Unable to request notification permission."
+          );
         }
       });
 
-      // GPS stays in this browser session; coordinates are not sent to the server.
+      // Coordinates remain in this browser session and are not sent to the API.
       const enableGpsBtn = document.getElementById("enableGpsBtn");
       const gpsStatus = document.getElementById("gpsStatus");
 
@@ -1343,10 +1352,17 @@ data.set("riderSelfie", selfie);
               latitude: position.coords.latitude,
               longitude: position.coords.longitude
             };
-            showStatus(gpsStatus, "Location detected for this page session only.");
+
+            showStatus(
+              gpsStatus,
+              "Location detected for this page session only."
+            );
           },
           function () {
-            showStatus(gpsStatus, "Location permission denied or unavailable.");
+            showStatus(
+              gpsStatus,
+              "Location permission denied or unavailable."
+            );
           },
           {
             enableHighAccuracy: true,
@@ -1362,4 +1378,3 @@ data.set("riderSelfie", selfie);
   </main>
 </body>
 </html>
-
