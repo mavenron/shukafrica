@@ -1,8 +1,7 @@
-
-const MAX_CUSTOMER_PHOTO = 2 * 1024 * 1024;
-const MAX_LOAD_PHOTO = 5 * 1024 * 1024;
+const MAX_CUSTOMER_PHOTO = 9 * 1024 * 1024;
+const MAX_LOAD_PHOTO = 9 * 1024 * 1024;
 const MAX_LOAD_VIDEO = 20 * 1024 * 1024;
-const MAX_LOAD_PHOTOS = 4;
+const MAX_LOAD_PHOTOS = 1;
 
 const IMAGE_TYPES = {
   "image/jpeg": "jpg",
@@ -130,7 +129,7 @@ function validateImage(file, maxSize) {
   }
 
   if (file.size > maxSize) {
-    return "An image exceeds the permitted file size.";
+    return "The image must be 9 MB or smaller.";
   }
 
   if (!IMAGE_TYPES[file.type]) {
@@ -150,11 +149,6 @@ export async function onRequestOptions() {
   });
 }
 
-/*
- * GET /api/delivery
- * Returns real pending requests.
- * Private customer contact details and private media keys are not returned.
- */
 export async function onRequestGet({ env, request }) {
   if (!env.DB) {
     return json({ success: false, error: "Database unavailable." }, 503);
@@ -164,31 +158,27 @@ export async function onRequestGet({ env, request }) {
     const category = new URL(request.url).searchParams.get("category");
     const allowedCategories = ["delivery", "ride", "haulage"];
 
-    let result;
-
-    if (category && allowedCategories.includes(category)) {
-      result = await env.DB.prepare(`
-        SELECT
-          id, category, pickup_location, destination_location,
-          package_details, passenger_count, vehicle_needed,
-          load_weight, load_dimensions, status, created_at
-        FROM delivery_requests
-        WHERE status = 'pending' AND category = ?
-        ORDER BY created_at DESC
-        LIMIT 100
-      `).bind(category).all();
-    } else {
-      result = await env.DB.prepare(`
-        SELECT
-          id, category, pickup_location, destination_location,
-          package_details, passenger_count, vehicle_needed,
-          load_weight, load_dimensions, status, created_at
-        FROM delivery_requests
-        WHERE status = 'pending'
-        ORDER BY created_at DESC
-        LIMIT 100
-      `).all();
-    }
+    const result = category && allowedCategories.includes(category)
+      ? await env.DB.prepare(`
+          SELECT
+            id, category, pickup_location, destination_location,
+            package_details, passenger_count, vehicle_needed,
+            load_weight, load_dimensions, status, created_at
+          FROM delivery_requests
+          WHERE status = 'pending' AND category = ?
+          ORDER BY created_at DESC
+          LIMIT 100
+        `).bind(category).all()
+      : await env.DB.prepare(`
+          SELECT
+            id, category, pickup_location, destination_location,
+            package_details, passenger_count, vehicle_needed,
+            load_weight, load_dimensions, status, created_at
+          FROM delivery_requests
+          WHERE status = 'pending'
+          ORDER BY created_at DESC
+          LIMIT 100
+        `).all();
 
     return json({
       success: true,
@@ -203,19 +193,6 @@ export async function onRequestGet({ env, request }) {
   }
 }
 
-/*
- * POST /api/delivery
- * Accepts multipart/form-data.
- *
- * Required:
- * customerName, customerPhone, pickupLocation, destinationLocation,
- * packageDetails, customerSelfie
- *
- * Optional:
- * category, deliveryFor, recipientName, recipientPhone,
- * passengerCount, vehicleNeeded, loadWeight, loadDimensions,
- * loadPhotos (multiple), loadVideo
- */
 export async function onRequestPost({ request, env }) {
   if (!env.DB || !env.PRIVATE_MEDIA) {
     return json({
@@ -240,9 +217,9 @@ export async function onRequestPost({ request, env }) {
 
     const customerName = textValue(form, "customerName", 120);
     const customerPhone = textValue(form, "customerPhone", 30);
-    const pickup = textValue(form, "pickupLocation", 200);
-    const destination = textValue(form, "destinationLocation", 200);
-    const packageDetails = textValue(form, "packageDetails", 500);
+    const pickup = textValue(form, "pickupLocation", 250);
+    const destination = textValue(form, "destinationLocation", 250);
+    const packageDetails = textValue(form, "packageDetails", 2000);
 
     const rawCategory = textValue(form, "category", 20).toLowerCase();
     const category = ["delivery", "ride", "haulage"].includes(rawCategory)
@@ -264,7 +241,8 @@ export async function onRequestPost({ request, env }) {
 
     if (
       !customerName || !customerPhone || !pickup ||
-      !destination || !packageDetails
+      !destination ||
+      (category !== "ride" && !packageDetails)
     ) {
       return json({
         success: false,
@@ -275,9 +253,9 @@ export async function onRequestPost({ request, env }) {
     if (
       customerName.length > 120 ||
       customerPhone.length > 30 ||
-      pickup.length > 200 ||
-      destination.length > 200 ||
-      packageDetails.length > 500
+      pickup.length > 250 ||
+      destination.length > 250 ||
+      packageDetails.length > 2000
     ) {
       return json({
         success: false,
@@ -299,11 +277,29 @@ export async function onRequestPost({ request, env }) {
       category === "ride" &&
       (!Number.isInteger(passengerCount) ||
        passengerCount < 1 ||
-       passengerCount > 30)
+       passengerCount > 8)
     ) {
       return json({
         success: false,
         error: "Enter a valid passenger count."
+      }, 400);
+    }
+
+    if (category === "haulage" && !vehicleNeeded) {
+      return json({
+        success: false,
+        error: "Select the vehicle needed for haulage."
+      }, 400);
+    }
+
+    if (
+      category === "haulage" &&
+      !loadWeight &&
+      !loadDimensions
+    ) {
+      return json({
+        success: false,
+        error: "Provide the estimated load weight or dimensions."
       }, 400);
     }
 
@@ -318,23 +314,34 @@ export async function onRequestPost({ request, env }) {
       }, 400);
     }
 
-    const loadPhotos = form.getAll("loadPhotos")
-      .filter(isUploadedFile);
-
+    const rawLoadPhotos = form.getAll("loadPhotos");
+    const loadPhotos = rawLoadPhotos.filter(isUploadedFile);
     const rawVideo = form.get("loadVideo");
     const loadVideo = isUploadedFile(rawVideo) ? rawVideo : null;
 
-    if (category !== "haulage" && (loadPhotos.length || loadVideo)) {
+    if (
+      category !== "haulage" &&
+      (rawLoadPhotos.some(isUploadedFile) || loadVideo)
+    ) {
       return json({
         success: false,
         error: "Load photos and video are only allowed for haulage."
       }, 400);
     }
 
+    if (rawLoadPhotos.some(value =>
+      value !== null && value !== "" && !isUploadedFile(value)
+    )) {
+      return json({
+        success: false,
+        error: "The haulage photo upload is invalid."
+      }, 400);
+    }
+
     if (loadPhotos.length > MAX_LOAD_PHOTOS) {
       return json({
         success: false,
-        error: "You can upload a maximum of four load photos."
+        error: "Upload only one haulage photo."
       }, 400);
     }
 
@@ -343,9 +350,16 @@ export async function onRequestPost({ request, env }) {
       if (error) {
         return json({
           success: false,
-          error: "Load photo: " + error
+          error: "Haulage photo: " + error
         }, 400);
       }
+    }
+
+    if (rawVideo && rawVideo !== "" && !loadVideo) {
+      return json({
+        success: false,
+        error: "The haulage video upload is invalid."
+      }, 400);
     }
 
     if (loadVideo) {
@@ -435,7 +449,6 @@ export async function onRequestPost({ request, env }) {
     }, 201);
   } catch (error) {
     console.error("Delivery request creation failed:", error);
-
     await removeUploadedFiles(env, savedKeys);
 
     return json({
@@ -445,14 +458,6 @@ export async function onRequestPost({ request, env }) {
   }
 }
 
-/*
- * PATCH /api/delivery
- * Body: {"id":"request-id","action":"accept"}
- * Body: {"id":"request-id","action":"release"}
- *
- * Agent identity is derived from the authenticated seller session.
- * Browser-supplied partner IDs and names are not trusted.
- */
 export async function onRequestPatch({ request, env }) {
   if (!env.DB) {
     return json({ success: false, error: "Database unavailable." }, 503);
@@ -488,12 +493,7 @@ export async function onRequestPatch({ request, env }) {
             partner_phone = ?,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND status = 'pending'
-      `).bind(
-        agent.id,
-        agent.full_name,
-        agent.phone,
-        id
-      ).run();
+      `).bind(agent.id, agent.full_name, agent.phone, id).run();
 
       if (!result.meta || !result.meta.changes) {
         return json({
@@ -502,10 +502,7 @@ export async function onRequestPatch({ request, env }) {
         }, 409);
       }
 
-      return json({
-        success: true,
-        message: "Request accepted."
-      });
+      return json({ success: true, message: "Request accepted." });
     }
 
     const result = await env.DB.prepare(`
@@ -527,10 +524,7 @@ export async function onRequestPatch({ request, env }) {
       }, 403);
     }
 
-    return json({
-      success: true,
-      message: "Request released."
-    });
+    return json({ success: true, message: "Request released." });
   } catch (error) {
     console.error("Delivery request action failed:", error);
 
@@ -540,4 +534,4 @@ export async function onRequestPatch({ request, env }) {
     }, 500);
   }
     }
-       
+        
