@@ -1,1 +1,1258 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101820">
+  <title>Ride &amp; Delivery | ShukAfrica</title>
+  <style>
+    :root {
+      --bg: #101820;
+      --panel: #192630;
+      --panel2: #223441;
+      --text: #f5f7fa;
+      --muted: #b5c2cc;
+      --accent: #f5a623;
+      --border: #354956;
+      --danger: #ff8b8b;
+      --success: #91e6b3;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .6; }
+    header {
+      padding: 18px 16px;
+      background: #0b1218;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1000px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    h1 { margin: 0; font-size: clamp(23px, 5vw, 32px); }
+    h2 { font-size: 21px; margin: 0 0 8px; }
+    h3 { margin: 0 0 8px; font-size: 17px; }
+    .subtitle { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+    main { max-width: 1000px; margin: auto; padding: 20px 14px 50px; }
+    section.panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 20px;
+    }
+    .muted, .help { color: var(--muted); font-size: 13px; }
+    .help { margin: 5px 0 0; }
+    .category-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 9px;
+      margin: 18px 0;
+    }
+    .category-tab {
+      padding: 12px 6px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: var(--panel2);
+      color: var(--text);
+      font-weight: 700;
+    }
+    .category-tab[aria-pressed="true"] {
+      background: var(--accent);
+      color: #151b20;
+      border-color: var(--accent);
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .field { min-width: 0; margin-bottom: 14px; }
+    .field.full { grid-column: 1 / -1; }
+    label { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 700; }
+    input, select, textarea {
+      display: block;
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 11px;
+      color: var(--text);
+      background: #0e171e;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    input[type="file"] { padding: 9px; font-size: 13px; }
+    input:focus, select:focus, textarea:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+    textarea { min-height: 95px; resize: vertical; }
+    .btn {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 10px 16px;
+      border: 0;
+      border-radius: 9px;
+      background: var(--accent);
+      color: #151b20;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .btn.secondary {
+      background: var(--panel2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn.danger { background: #743b3b; color: white; }
+    .top-button { flex-shrink: 0; font-size: 13px; padding: 9px 11px; }
+    .form-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+    .status {
+      min-height: 22px;
+      margin: 12px 0 0;
+      color: var(--success);
+      overflow-wrap: anywhere;
+      font-size: 14px;
+    }
+    .notice {
+      padding: 12px;
+      border-radius: 9px;
+      background: #101b23;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 13px;
+      margin: 12px 0;
+    }
+    .hidden, [hidden] { display: none !important; }
+    .jobs-heading {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .job-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .job-card {
+      min-width: 0;
+      padding: 15px;
+      background: #101b23;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      overflow-wrap: anywhere;
+    }
+    .job-card p { margin: 7px 0; font-size: 14px; }
+    .job-card .job-label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .job-status {
+      display: inline-block;
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--success);
+      font-size: 12px;
+    }
+    .job-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .job-actions .btn { font-size: 13px; min-height: 40px; }
+    .empty-state {
+      padding: 20px 12px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+    }
+    .tool-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .tool-status { color: var(--muted); font-size: 12px; align-self: center; }
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .preview-item {
+      min-width: 0;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: #101b23;
+    }
+    .preview-item img, .preview-item video {
+      display: block;
+      width: 100%;
+      max-height: 240px;
+      object-fit: contain;
+      border-radius: 6px;
+      background: #080d11;
+    }
+    .preview-caption {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+    @media (max-width: 650px) {
+      .header-inner { align-items: flex-start; }
+      .form-grid, .job-list { grid-template-columns: 1fr; }
+      section.panel { padding: 14px; }
+      .category-tab { font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>Ride &amp; Delivery</h1>
+      <p class="subtitle">Find deliveries. Connect. Earn.</p>
+    </div>
+    <button type="button" class="btn top-button" id="openAgentBtn">Register Agent</button>
+  </div>
+</header>
+<main>
+  <section class="panel" id="requestPanel">
+    <h2>What do you need?</h2>
+    <p class="muted">Choose a service and submit your request.</p>
+    <div class="category-tabs" aria-label="Choose transport service">
+      <button type="button" class="category-tab" data-category="delivery" aria-pressed="true">Delivery</button>
+      <button type="button" class="category-tab" data-category="ride" aria-pressed="false">Ride</button>
+      <button type="button" class="category-tab" data-category="haulage" aria-pressed="false">Haulage</button>
+    </div>
+    <h2 id="requestFormTitle">Request a Delivery</h2>
+    <form id="deliveryRequestForm" enctype="multipart/form-data">
+      <div class="form-grid">
+        <div class="field">
+          <label for="customerName">Your Full Name *</label>
+          <input id="customerName" name="customerName" type="text" autocomplete="name" required maxlength="120">
+        </div>
+        <div class="field">
+          <label for="customerPhone">Your Phone Number *</label>
+          <input id="customerPhone" name="customerPhone" type="tel" autocomplete="tel" required maxlength="30">
+        </div>
+        <div class="field full">
+          <label for="customerSelfie">Your Photo *</label>
+          <input id="customerSelfie" name="customerSelfie" type="file" accept="image/jpeg,image/png,image/webp" required>
+          <p class="help">JPG, PNG or WebP. Maximum 9 MB. Original quality is preserved.</p>
+          <div id="customerSelfiePreview" class="preview-grid" hidden></div>
+        </div>
+        <div class="field">
+          <label for="pickupLocation">Pickup Location *</label>
+          <input id="pickupLocation" name="pickupLocation" type="text" required maxlength="250" placeholder="Where should the agent go?">
+        </div>
+        <div class="field">
+          <label for="destinationLocation">Destination *</label>
+          <input id="destinationLocation" name="destinationLocation" type="text" required maxlength="250" placeholder="Where should it go?">
+        </div>
+        <div class="field full" id="packageField">
+          <label for="packageDetails" id="packageLabel">Package Details *</label>
+          <textarea id="packageDetails" name="packageDetails" required maxlength="2000" placeholder="Describe what needs to be delivered"></textarea>
+        </div>
+        <div class="field hidden" id="passengerField">
+          <label for="passengerCount">Number of Passengers *</label>
+          <select id="passengerCount" name="passengerCount">
+            <option value="">Select passengers</option>
+            <option value="1">1 passenger</option><option value="2">2 passengers</option>
+            <option value="3">3 passengers</option><option value="4">4 passengers</option>
+            <option value="5">5 passengers</option><option value="6">6 passengers</option>
+            <option value="7">7 passengers</option><option value="8">8 passengers</option>
+          </select>
+        </div>
+        <div class="field hidden" id="vehicleNeededField">
+          <label for="vehicleNeeded">Vehicle Needed *</label>
+          <select id="vehicleNeeded" name="vehicleNeeded">
+            <option value="">Select vehicle</option>
+            <option value="motorcycle">Motorcycle</option><option value="car">Car</option>
+            <option value="pickup">Pickup</option><option value="van">Van</option>
+            <option value="truck">Truck</option><option value="container-truck">Container truck</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="field hidden" id="loadWeightField">
+          <label for="loadWeight">Estimated Load Weight</label>
+          <input id="loadWeight" name="loadWeight" type="text" maxlength="100" placeholder="e.g. 2 tonnes">
+        </div>
+        <div class="field hidden" id="loadDimensionsField">
+          <label for="loadDimensions">Load Dimensions</label>
+          <input id="loadDimensions" name="loadDimensions" type="text" maxlength="100" placeholder="Length × width × height">
+        </div>
+        <div class="field full hidden" id="loadMediaField">
+          <label for="loadPhotos">One Load Photo (optional)</label>
+          <input id="loadPhotos" name="loadPhotos" type="file" accept="image/jpeg,image/png,image/webp">
+          <p class="help">Choose one JPG, PNG or WebP photo. Maximum 9 MB.</p>
+          <div id="loadPhotosPreview" class="preview-grid" hidden></div>
+          <label for="loadVideo" style="margin-top:14px">One Load Video (optional)</label>
+          <input id="loadVideo" name="loadVideo" type="file" accept="video/mp4,video/webm,video/quicktime">
+          <p class="help">MP4, WebM or MOV. Maximum 20 MB. No duration restriction beyond the file-size limit.</p>
+          <div id="loadVideoPreview" class="preview-grid" hidden></div>
+        </div>
+        <div class="field">
+          <label for="deliveryFor">Who is this for? *</label>
+          <select id="deliveryFor" name="deliveryFor" required>
+            <option value="myself">Myself</option><option value="other">Someone else</option>
+          </select>
+        </div>
+        <div class="field full hidden" id="recipientFields">
+          <label for="recipientName">Recipient Full Name *</label>
+          <input id="recipientName" name="recipientName" type="text" maxlength="120">
+          <label for="recipientPhone" style="margin-top:12px">Recipient Phone Number *</label>
+          <input id="recipientPhone" name="recipientPhone" type="tel" maxlength="30">
+        </div>
+      </div>
+      <div class="notice">
+        No initial fare offer is required. Customer and agent can discuss and agree on the fare directly.
+        Do not send money to an agent before confirming the details of your transaction.
+      </div>
+      <div class="form-actions">
+        <button class="btn" id="submitRequestBtn" type="submit">Submit Request</button>
+      </div>
+      <p class="status" id="formStatus" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+  <section class="panel" id="riderRegistrationPanel" hidden>
+    <h2>Register as a Transport Agent</h2>
+    <p class="muted">Apply to provide delivery, ride or haulage services. Applications must be approved before you can accept jobs.</p>
+    <div class="notice">Your vehicle document and selfie are submitted privately for review. Do not upload someone else's documents without permission.</div>
+    <form id="riderRegistrationForm" enctype="multipart/form-data">
+      <div class="form-grid">
+        <div class="field">
+          <label for="riderFullName">Full Name *</label>
+          <input id="riderFullName" name="fullName" type="text" autocomplete="name" required maxlength="120">
+        </div>
+        <div class="field">
+          <label for="riderPhone">Phone Number *</label>
+          <input id="riderPhone" name="phone" type="tel" autocomplete="tel" required maxlength="30">
+        </div>
+        <div class="field full">
+          <label for="vehicleRegistration">Vehicle Registration Number *</label>
+          <input id="vehicleRegistration" name="vehicleRegistration" type="text" required maxlength="40">
+        </div>
+        <div class="field">
+          <label for="insuranceDocument">Vehicle Document Photo *</label>
+          <input id="insuranceDocument" name="insuranceDocument" type="file" accept="image/jpeg,image/png,image/webp" required>
+          <p class="help">JPG, PNG or WebP. Maximum 9 MB.</p>
+          <div id="insuranceDocumentPreview" class="preview-grid" hidden></div>
+        </div>
+        <div class="field">
+          <label for="riderSelfie">Your Selfie *</label>
+          <input id="riderSelfie" name="riderSelfie" type="file" accept="image/jpeg,image/png,image/webp" required>
+          <p class="help">JPG, PNG or WebP. Maximum 9 MB.</p>
+          <div id="riderSelfiePreview" class="preview-grid" hidden></div>
+        </div>
+        <div class="field">
+          <label for="alternativeContactName">Alternative Contact Name *</label>
+          <input id="alternativeContactName" name="alternativeContactName" type="text" required maxlength="120">
+        </div>
+        <div class="field">
+          <label for="alternativeRelationship">Relationship *</label>
+          <input id="alternativeRelationship" name="alternativeRelationship" type="text" required maxlength="80" placeholder="e.g. sibling, spouse, friend">
+        </div>
+        <div class="field full">
+          <label for="alternativeContactPhone">Alternative Contact Phone *</label>
+          <input id="alternativeContactPhone" name="alternativeContactPhone" type="tel" required maxlength="30">
+        </div>
+      </div>
+      <div class="form-actions"><button class="btn" type="submit">Submit Agent Application</button></div>
+      <p class="status" id="riderRegistrationStatus" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+  <section class="panel" id="liveJobsPanel">
+    <div class="jobs-heading">
+      <div>
+        <h2 id="liveJobsHeading">Live Delivery Requests</h2>
+        <p class="muted" id="liveJobsMessage" role="status" aria-live="polite">Loading live requests...</p>
+      </div>
+    </div>
+    <div class="tool-row">
+      <button type="button" class="btn secondary" id="enablePushBtn">Enable Notifications</button>
+      <span class="tool-status" id="notificationStatus"></span>
+    </div>
+    <div class="tool-row">
+      <button type="button" class="btn secondary" id="enableGpsBtn">Detect My Location</button>
+      <span class="tool-status" id="gpsStatus"></span>
+    </div>
+    <div class="empty-state" id="liveJobsEmpty" hidden>No open requests in this category right now.</div>
+    <div class="job-list" id="liveJobsList">
+      <article class="job-card" id="deliveryJobCard" hidden>
+        <h3 id="jobTitle">Transport Request</h3>
+        <p class="job-label">Pickup</p><p id="jobPickup"></p>
+        <p class="job-label">Destination</p><p id="jobDestination"></p>
+        <p class="job-label">Details</p><p id="jobPackage"></p>
+        <p><span class="job-status" id="deliveryStatus">Pending</span></p>
+        <p id="jobCustomerPhone" hidden></p>
+        <a id="callCustomerBtn" hidden>Call customer</a>
+        <a id="whatsappCustomerBtn" hidden>WhatsApp customer</a>
+        <div class="job-actions">
+          <button type="button" class="btn" id="acceptInitialBtn">Accept Job</button>
+          <button type="button" class="btn secondary" id="releaseDeliveryBtn" hidden>Release Job</button>
+        </div>
+      </article>
+    </div>
+  </section>
+</main>
+<script>
+  
+document.addEventListener("DOMContentLoaded", function () {
+  "use strict";
+
+  // ---------- DOM references ----------
+  const requestPanel = document.getElementById("requestPanel");
+  const agentPanel = document.getElementById("riderRegistrationPanel");
+  const openAgentBtn = document.getElementById("openAgentBtn");
+  const requestForm = document.getElementById("deliveryRequestForm");
+  const riderForm = document.getElementById("riderRegistrationForm");
+
+  const categoryButtons = document.querySelectorAll(".category-tab");
+  const requestFormTitle = document.getElementById("requestFormTitle");
+  const packageLabel = document.getElementById("packageLabel");
+  const packageDetails = document.getElementById("packageDetails");
+
+  const passengerField = document.getElementById("passengerField");
+  const passengerCount = document.getElementById("passengerCount");
+  const vehicleNeededField = document.getElementById("vehicleNeededField");
+  const vehicleNeeded = document.getElementById("vehicleNeeded");
+  const loadWeightField = document.getElementById("loadWeightField");
+  const loadDimensionsField = document.getElementById("loadDimensionsField");
+  const loadMediaField = document.getElementById("loadMediaField");
+  const loadWeight = document.getElementById("loadWeight");
+  const loadDimensions = document.getElementById("loadDimensions");
+  const loadPhotos = document.getElementById("loadPhotos");
+  const loadVideo = document.getElementById("loadVideo");
+
+  const deliveryFor = document.getElementById("deliveryFor");
+  const recipientFields = document.getElementById("recipientFields");
+  const recipientName = document.getElementById("recipientName");
+  const recipientPhone = document.getElementById("recipientPhone");
+
+  const formStatus = document.getElementById("formStatus");
+  const riderStatus = document.getElementById("riderRegistrationStatus");
+  const liveHeading = document.getElementById("liveJobsHeading");
+  const liveMessage = document.getElementById("liveJobsMessage");
+  const liveJobsEmpty = document.getElementById("liveJobsEmpty");
+  const liveJobsList = document.getElementById("liveJobsList");
+  const jobTemplate = document.getElementById("deliveryJobCard");
+
+  const MAX_IMAGE_SIZE = 9 * 1024 * 1024;
+  const MAX_VIDEO_SIZE = 20 * 1024 * 1024;
+  const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+  const VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
+
+  const categoryNames = {
+    delivery: "Delivery",
+    ride: "Ride",
+    haulage: "Haulage"
+  };
+
+  let currentCategory = "delivery";
+  let loadingJobs = false;
+  let refreshJobsAfterLoad = false;
+  const previewURLs = new Map();
+
+  // Keep references to the actual selected files for mobile browsers.
+  let selectedCustomerSelfie = null;
+  let selectedLoadPhoto = null;
+  let selectedLoadVideo = null;
+  let selectedInsuranceDoc = null;
+  let selectedRiderSelfie = null;
+
+  function showStatus(element, message) {
+    if (element) element.textContent = message || "";
+  }
+
+  function valueOf(object, ...keys) {
+    for (const key of keys) {
+      if (object && object[key] !== undefined && object[key] !== null) {
+        return String(object[key]);
+      }
+    }
+    return "";
+  }
+
+  async function readJSON(response) {
+    return response.json().catch(function () {
+      return {};
+    });
+  }
+
+  function formatSize(bytes) {
+    return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+  }
+
+  function clearPreview(input, preview) {
+    if (!input || !preview) return;
+
+    const oldURL = previewURLs.get(input.id);
+    if (oldURL) URL.revokeObjectURL(oldURL);
+
+    previewURLs.delete(input.id);
+    preview.replaceChildren();
+    preview.hidden = true;
+  }
+
+  function showFilePreview(input, preview, kind) {
+    clearPreview(input, preview);
+
+    const file = input.files && input.files[0];
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+    previewURLs.set(input.id, url);
+
+    const item = document.createElement("div");
+    item.className = "preview-item";
+
+    let media;
+
+    if (kind === "video") {
+      media = document.createElement("video");
+      media.controls = true;
+      media.preload = "metadata";
+      media.playsInline = true;
+    } else {
+      media = document.createElement("img");
+      media.alt = "Selected " + input.name;
+    }
+
+    media.src = url;
+
+    const caption = document.createElement("div");
+    caption.className = "preview-caption";
+    caption.textContent = file.name + " · " + formatSize(file.size);
+
+    item.append(media, caption);
+    preview.appendChild(item);
+    preview.hidden = false;
+  }
+
+  function validateFile(file, kind) {
+    if (!file) return "Please select a file.";
+
+    if (kind === "image") {
+      if (!IMAGE_TYPES.includes(file.type)) {
+        return "Choose a JPG, PNG or WebP image.";
+      }
+
+      if (file.size > MAX_IMAGE_SIZE) {
+        return "The image must be 9 MB or smaller.";
+      }
+
+      return "";
+    }
+
+    if (!VIDEO_TYPES.includes(file.type)) {
+      return "Choose an MP4, WebM or MOV video.";
+    }
+
+    if (file.size > MAX_VIDEO_SIZE) {
+      return "The video must be 20 MB or smaller.";
+    }
+
+    return "";
+  }
+
+  function setFilePreview(inputId, previewId, kind, storeCallback) {
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+
+    if (!input || !preview) return;
+
+    input.removeAttribute("capture");
+
+    input.addEventListener("change", function () {
+      const file = input.files && input.files[0];
+
+      if (!file) {
+        clearPreview(input, preview);
+        if (storeCallback) storeCallback(null);
+        return;
+      }
+
+      const error = validateFile(file, kind);
+
+      if (error) {
+        clearPreview(input, preview);
+        input.value = "";
+
+        if (storeCallback) storeCallback(null);
+
+        showStatus(formStatus, error);
+        alert(error);
+        return;
+      }
+
+      showFilePreview(input, preview, kind);
+
+      if (storeCallback) storeCallback(file);
+      showStatus(formStatus, "");
+    });
+  }
+
+  // ---------- File preview setup ----------
+  setFilePreview(
+    "customerSelfie",
+    "customerSelfiePreview",
+    "image",
+    function (file) { selectedCustomerSelfie = file; }
+  );
+
+  setFilePreview(
+    "loadPhotos",
+    "loadPhotosPreview",
+    "image",
+    function (file) { selectedLoadPhoto = file; }
+  );
+
+  setFilePreview(
+    "loadVideo",
+    "loadVideoPreview",
+    "video",
+    function (file) { selectedLoadVideo = file; }
+  );
+
+  setFilePreview(
+    "insuranceDocument",
+    "insuranceDocumentPreview",
+    "image",
+    function (file) { selectedInsuranceDoc = file; }
+  );
+
+  setFilePreview(
+    "riderSelfie",
+    "riderSelfiePreview",
+    "image",
+    function (file) { selectedRiderSelfie = file; }
+  );
+
+  // ---------- Category switching ----------
+  function selectCategory(category) {
+    if (!Object.prototype.hasOwnProperty.call(categoryNames, category)) {
+      category = "delivery";
+    }
+
+    currentCategory = category;
+
+    categoryButtons.forEach(function (button) {
+      button.setAttribute(
+        "aria-pressed",
+        String(button.dataset.category === category)
+      );
+    });
+
+    agentPanel.hidden = true;
+    requestPanel.hidden = false;
+
+    passengerField.classList.toggle("hidden", category !== "ride");
+    vehicleNeededField.classList.toggle("hidden", category !== "haulage");
+    loadWeightField.classList.toggle("hidden", category !== "haulage");
+    loadDimensionsField.classList.toggle("hidden", category !== "haulage");
+    loadMediaField.classList.toggle("hidden", category !== "haulage");
+
+    passengerCount.required = category === "ride";
+    vehicleNeeded.required = category === "haulage";
+
+    if (category === "ride") {
+      requestFormTitle.textContent = "Request a Ride";
+      packageLabel.textContent = "Trip Notes (optional)";
+      packageDetails.placeholder = "Optional trip instructions";
+      packageDetails.required = false;
+      liveHeading.textContent = "Live Ride Requests";
+    } else if (category === "haulage") {
+      requestFormTitle.textContent = "Request Haulage";
+      packageLabel.textContent = "Load Details *";
+      packageDetails.placeholder =
+        "Describe the load, such as cement, timber, machinery or containers";
+      packageDetails.required = true;
+      liveHeading.textContent = "Live Haulage Jobs";
+    } else {
+      requestFormTitle.textContent = "Request a Delivery";
+      packageLabel.textContent = "Package Details *";
+      packageDetails.placeholder = "Describe what needs to be delivered";
+      packageDetails.required = true;
+      liveHeading.textContent = "Live Delivery Requests";
+    }
+
+    showStatus(formStatus, "");
+    loadLiveJobs();
+  }
+
+  categoryButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+      selectCategory(button.dataset.category);
+      requestPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
+
+  openAgentBtn.addEventListener("click", function () {
+    const shouldOpen = agentPanel.hidden;
+
+    requestPanel.hidden = true;
+    agentPanel.hidden = !shouldOpen;
+
+    if (shouldOpen) {
+      agentPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  });
+
+  deliveryFor.addEventListener("change", function () {
+    const isOther = deliveryFor.value === "other";
+
+    recipientFields.classList.toggle("hidden", !isOther);
+    recipientName.required = isOther;
+    recipientPhone.required = isOther;
+
+    if (!isOther) {
+      recipientName.value = "";
+      recipientPhone.value = "";
+    }
+  });
+
+  loadPhotos.addEventListener("change", function () {
+    if (loadPhotos.files && loadPhotos.files.length > 1) {
+      loadPhotos.value = "";
+      selectedLoadPhoto = null;
+
+      clearPreview(
+        loadPhotos,
+        document.getElementById("loadPhotosPreview")
+      );
+
+      alert("Choose only one haulage photo.");
+    }
+  });
+
+  // ---------- Customer request submission ----------
+  requestForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    showStatus(formStatus, "");
+
+    if (!requestForm.reportValidity()) return;
+
+    if (!selectedCustomerSelfie) {
+      showStatus(formStatus, "Please select your photo first.");
+      return;
+    }
+
+    const selfieError = validateFile(selectedCustomerSelfie, "image");
+
+    if (selfieError) {
+      showStatus(formStatus, selfieError);
+      return;
+    }
+
+    if (
+      currentCategory === "haulage" &&
+      !loadWeight.value.trim() &&
+      !loadDimensions.value.trim()
+    ) {
+      showStatus(
+        formStatus,
+        "For haulage, provide an estimated weight or load dimensions."
+      );
+      return;
+    }
+
+    if (currentCategory === "haulage") {
+      if (selectedLoadPhoto) {
+        const error = validateFile(selectedLoadPhoto, "image");
+        if (error) {
+          showStatus(formStatus, error);
+          return;
+        }
+      }
+
+      if (selectedLoadVideo) {
+        const error = validateFile(selectedLoadVideo, "video");
+        if (error) {
+          showStatus(formStatus, error);
+          return;
+        }
+      }
+    }
+
+    const button = document.getElementById("submitRequestBtn");
+    button.disabled = true;
+    showStatus(formStatus, "Submitting your request securely...");
+
+    try {
+      const data = new FormData(requestForm);
+      data.set("category", currentCategory);
+      data.set("customerSelfie", selectedCustomerSelfie);
+
+      if (selectedLoadPhoto && currentCategory === "haulage") {
+        data.set("loadPhotos", selectedLoadPhoto);
+      } else {
+        data.delete("loadPhotos");
+      }
+
+      if (selectedLoadVideo && currentCategory === "haulage") {
+        data.set("loadVideo", selectedLoadVideo);
+      } else {
+        data.delete("loadVideo");
+      }
+
+      const response = await fetch("/api/delivery", {
+        method: "POST",
+        credentials: "include",
+        body: data
+      });
+
+      const result = await readJSON(response);
+
+      if (!response.ok || result.success !== true) {
+        showStatus(
+          formStatus,
+          "Request not published: " +
+            valueOf(result, "error", "message") +
+            " (HTTP " + response.status + ")."
+        );
+        return;
+      }
+
+      requestForm.reset();
+      selectedCustomerSelfie = null;
+      selectedLoadPhoto = null;
+      selectedLoadVideo = null;
+
+      [
+        ["customerSelfie", "customerSelfiePreview"],
+        ["loadPhotos", "loadPhotosPreview"],
+        ["loadVideo", "loadVideoPreview"]
+      ].forEach(function (pair) {
+        clearPreview(
+          document.getElementById(pair[0]),
+          document.getElementById(pair[1])
+        );
+      });
+
+      recipientFields.classList.add("hidden");
+      recipientName.required = false;
+      recipientPhone.required = false;
+
+      showStatus(formStatus, "Your request was submitted successfully.");
+      await loadLiveJobs();
+    } catch (error) {
+      showStatus(
+        formStatus,
+        "Could not contact the server. Check your connection and try again."
+      );
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  // ---------- Agent registration ----------
+  riderForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    showStatus(riderStatus, "");
+
+    if (!riderForm.reportValidity()) return;
+
+    if (!selectedInsuranceDoc || !selectedRiderSelfie) {
+      showStatus(
+        riderStatus,
+        "Please upload both the vehicle document and your selfie."
+      );
+      return;
+    }
+
+    const documentError = validateFile(selectedInsuranceDoc, "image");
+    const selfieError = validateFile(selectedRiderSelfie, "image");
+
+    if (documentError || selfieError) {
+      showStatus(riderStatus, documentError || selfieError);
+      return;
+    }
+
+    const button = riderForm.querySelector('button[type="submit"]');
+    button.disabled = true;
+    showStatus(riderStatus, "Submitting your application securely...");
+
+    try {
+      const data = new FormData(riderForm);
+      data.set("insuranceDocument", selectedInsuranceDoc);
+      data.set("riderSelfie", selectedRiderSelfie);
+
+      const response = await fetch("/api/delivery/partners", {
+        method: "POST",
+        credentials: "include",
+        body: data
+      });
+
+      const result = await readJSON(response);
+
+      if (!response.ok || result.success !== true) {
+        showStatus(
+          riderStatus,
+          "Application not accepted: " +
+            valueOf(result, "error", "message") +
+            " (HTTP " + response.status + ")."
+        );
+        return;
+      }
+
+      riderForm.reset();
+      selectedInsuranceDoc = null;
+      selectedRiderSelfie = null;
+
+      [
+        ["insuranceDocument", "insuranceDocumentPreview"],
+        ["riderSelfie", "riderSelfiePreview"]
+      ].forEach(function (pair) {
+        clearPreview(
+          document.getElementById(pair[0]),
+          document.getElementById(pair[1])
+        );
+      });
+
+      showStatus(
+        riderStatus,
+        "Application received. Wait for admin approval before taking jobs."
+      );
+    } catch (error) {
+      showStatus(
+        riderStatus,
+        "Could not contact the server. Check your connection and try again."
+      );
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+                          
+  // ---------- Live delivery requests ----------
+  function renderJobs(jobs) {
+    liveJobsList.querySelectorAll("[data-generated-job]").forEach(function (card) {
+      card.remove();
+    });
+
+    liveJobsEmpty.hidden = jobs.length > 0;
+
+    jobs.forEach(function (job) {
+      const card = jobTemplate.cloneNode(true);
+
+      card.hidden = false;
+      card.removeAttribute("id");
+      card.dataset.generatedJob = "true";
+      card.dataset.jobId = String(valueOf(job, "id") || "");
+
+      const category = String(valueOf(job, "category") || selectedCategory || "delivery");
+      const status = String(valueOf(job, "status") || "pending");
+
+      const categoryEl = card.querySelector("[data-job-category]");
+      const statusEl = card.querySelector("[data-job-status]");
+      const pickupEl = card.querySelector("[data-job-pickup]");
+      const destinationEl = card.querySelector("[data-job-destination]");
+      const detailsEl = card.querySelector("[data-job-details]");
+      const fareEl = card.querySelector("[data-job-fare]");
+      const createdEl = card.querySelector("[data-job-created]");
+      const acceptButton = card.querySelector("[data-job-accept]");
+      const releaseButton = card.querySelector("[data-job-release]");
+
+      if (categoryEl) categoryEl.textContent = category;
+      if (statusEl) statusEl.textContent = status;
+      if (pickupEl) pickupEl.textContent =
+        String(valueOf(job, "pickup_location") || "Not provided");
+      if (destinationEl) destinationEl.textContent =
+        String(valueOf(job, "destination_location") || "Not provided");
+      if (detailsEl) detailsEl.textContent =
+        String(valueOf(job, "package_details") || "No additional details");
+      if (fareEl) {
+        const fare = valueOf(job, "agreed_fare");
+        fareEl.textContent = fare == null || fare === ""
+          ? "Fare not agreed"
+          : "GH₵ " + String(fare);
+      }
+      if (createdEl) {
+        const created = valueOf(job, "created_at");
+        const parsedDate = created ? new Date(created) : null;
+
+        createdEl.textContent =
+          parsedDate && !Number.isNaN(parsedDate.getTime())
+            ? parsedDate.toLocaleString()
+            : "Time unavailable";
+      }
+
+      if (acceptButton) {
+        acceptButton.disabled = status !== "pending";
+        acceptButton.addEventListener("click", function () {
+          updateJob(job, "accept", acceptButton);
+        });
+      }
+
+      if (releaseButton) {
+        // These cards show available requests, not jobs already owned
+        // by the current partner. Do not expose a release action here.
+        releaseButton.hidden = true;
+        releaseButton.disabled = true;
+      }
+
+      card.querySelectorAll("[id]").forEach(function (element) {
+        element.removeAttribute("id");
+      });
+
+      liveJobsList.appendChild(card);
+    });
+  }
+
+  async function loadLiveJobs() {
+    if (loadingJobs) {
+      refreshJobsAfterLoad = true;
+      return;
+    }
+
+    loadingJobs = true;
+
+    if (liveMessage) {
+      liveMessage.textContent = "Loading available requests…";
+    }
+
+    try {
+      const response = await fetch(
+        "/api/delivery?category=" + encodeURIComponent(selectedCategory),
+        {
+          method: "GET",
+          credentials: "include",
+          cache: "no-store",
+          headers: { "Accept": "application/json" }
+        }
+      );
+
+      const result = await response.json().catch(function () {
+        return {};
+      });
+
+      if (!response.ok || result.success === false) {
+        throw new Error(result.error || "Unable to load delivery requests.");
+      }
+
+      const jobs = Array.isArray(result.requests)
+        ? result.requests
+        : Array.isArray(result.jobs)
+          ? result.jobs
+          : [];
+
+      renderJobs(jobs);
+
+      if (liveMessage) {
+        liveMessage.textContent = jobs.length
+          ? "Available requests are shown below. Review each request before accepting."
+          : "No available requests were returned for this category.";
+      }
+    } catch (error) {
+      renderJobs([]);
+
+      if (liveMessage) {
+        liveMessage.textContent =
+          error.message || "Unable to load requests. Please try again.";
+      }
+
+      if (liveJobsEmpty) {
+        liveJobsEmpty.hidden = false;
+        liveJobsEmpty.textContent =
+          "Requests could not be loaded. Check your connection and try again.";
+      }
+    } finally {
+      loadingJobs = false;
+
+      if (refreshJobsAfterLoad) {
+        refreshJobsAfterLoad = false;
+        loadLiveJobs();
+      }
+    }
+  }
+
+  // ---------- Accept or update a delivery request ----------
+  async function updateJob(job, action, button) {
+    const jobId = String(valueOf(job, "id") || "");
+
+    if (!jobId) {
+      alert("This request is missing its ID. Please refresh the page.");
+      return;
+    }
+
+    if (action === "accept") {
+      const confirmed = confirm(
+        "Accept this request? The server will verify your account and whether the request is still available."
+      );
+
+      if (!confirmed) return;
+    }
+
+    const originalText = button ? button.textContent : "";
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = "Please wait…";
+    }
+
+    try {
+      const response = await fetch("/api/delivery", {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          id: jobId,
+          action: action
+        })
+      });
+
+      const result = await response.json().catch(function () {
+        return {};
+      });
+
+      if (!response.ok || result.success === false) {
+        throw new Error(result.error || "The request could not be updated.");
+      }
+
+      alert(result.message || "The request was updated successfully.");
+      await loadLiveJobs();
+    } catch (error) {
+      alert(error.message || "Unable to update this request.");
+    } finally {
+      if (button && button.isConnected) {
+        button.disabled = false;
+        button.textContent = originalText;
+      }
+    }
+  }
+
+  // ---------- Refresh controls ----------
+  if (refreshJobsButton) {
+    refreshJobsButton.addEventListener("click", function () {
+      loadLiveJobs();
+    });
+  }
+
+  if (categorySelect) {
+    categorySelect.addEventListener("change", function () {
+      selectCategory(categorySelect.value);
+      loadLiveJobs();
+    });
+  }
+
+  // ---------- Notification permission ----------
+  if (enableNotificationsButton) {
+    enableNotificationsButton.addEventListener("click", async function () {
+      if (!("Notification" in window)) {
+        if (notificationStatus) {
+          notificationStatus.textContent =
+            "This browser does not support notification permissions.";
+        }
+        return;
+      }
+
+      try {
+        const permission = await Notification.requestPermission();
+
+        if (notificationStatus) {
+          if (permission === "granted") {
+            notificationStatus.textContent =
+              "Browser notifications are permitted. Actual push alerts still require push-service backend integration.";
+          } else if (permission === "denied") {
+            notificationStatus.textContent =
+              "Notifications are blocked in browser settings.";
+          } else {
+            notificationStatus.textContent =
+              "Notification permission was not granted.";
+          }
+        }
+      } catch (error) {
+        if (notificationStatus) {
+          notificationStatus.textContent =
+            "Unable to request notification permission in this browser.";
+        }
+      }
+    });
+  }
+
+  // ---------- Optional location sharing ----------
+  if (shareLocationButton) {
+    shareLocationButton.addEventListener("click", function () {
+      if (!navigator.geolocation) {
+        if (locationStatus) {
+          locationStatus.textContent =
+            "Location sharing is not supported by this browser.";
+        }
+        return;
+      }
+
+      if (locationStatus) {
+        locationStatus.textContent = "Requesting location permission…";
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        function (position) {
+          window.shukAfricaPartnerLocation = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            accuracy: position.coords.accuracy,
+            capturedAt: new Date().toISOString()
+          };
+
+          if (locationStatus) {
+            locationStatus.textContent =
+              "Location captured for this page session. It has not been sent to the server.";
+          }
+        },
+        function (error) {
+          if (locationStatus) {
+            locationStatus.textContent =
+              error.code === error.PERMISSION_DENIED
+                ? "Location permission was denied."
+                : "Unable to get your location. Check your device settings and try again.";
+          }
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 0
+        }
+      );
+    });
+  }
+
+  // ---------- Initial page setup ----------
+  selectCategory("delivery");
+  loadLiveJobs();
+
+  // Release temporary image-preview URLs when the page is left.
+  window.addEventListener("beforeunload", function () {
+    if (typeof objectUrls !== "undefined" && Array.isArray(objectUrls)) {
+      objectUrls.forEach(function (url) {
+        try {
+          URL.revokeObjectURL(url);
+        } catch (_) {
+          // Ignore already-released preview URLs.
+        }
+      });
+
+      objectUrls.length = 0;
+    }
+  });
+});
+</script>
+</body>
+</html>
