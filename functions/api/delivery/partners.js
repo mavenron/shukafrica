@@ -1,11 +1,10 @@
-
 const ALLOWED_ORIGINS = new Set([
   "https://shukafrica.com",
   "https://www.shukafrica.com",
   "https://shukafrica.pages.dev"
 ]);
 
-const MAX_FILE_SIZE = 2 * 1024 * 1024;
+const MAX_FILE_SIZE = 9 * 1024 * 1024;
 
 const ALLOWED_TYPES = {
   "image/jpeg": "jpg",
@@ -71,19 +70,16 @@ async function getSeller(request, env) {
     return null;
   }
 
-  // Match the existing email-session format used by ShukAfrica.
   if (!session.phone || !session.phone.startsWith("email:")) {
     return null;
   }
-
-  const sellerId = session.phone.slice(6);
 
   return env.DB.prepare(`
     SELECT id, name
     FROM sellers
     WHERE id = ?
     LIMIT 1
-  `).bind(sellerId).first();
+  `).bind(session.phone.slice(6)).first();
 }
 
 function validText(value, maxLength) {
@@ -106,7 +102,7 @@ function getImage(form, fieldName) {
   }
 
   if (entry.size > MAX_FILE_SIZE) {
-    return { error: `${fieldName} must be 2 MB or smaller.` };
+    return { error: `${fieldName} must be 9 MB or smaller.` };
   }
 
   const extension = ALLOWED_TYPES[entry.type];
@@ -119,9 +115,7 @@ function getImage(form, fieldName) {
 }
 
 async function savePrivateImage(env, key, file) {
-  const bytes = await file.arrayBuffer();
-
-  await env.PRIVATE_MEDIA.put(key, bytes, {
+  await env.PRIVATE_MEDIA.put(key, await file.arrayBuffer(), {
     httpMetadata: {
       contentType: file.type,
       cacheControl: "private, no-store"
@@ -244,9 +238,9 @@ export async function onRequestPost({ request, env }) {
     if (
       !validText(fullName, 120) ||
       !validText(phone, 30) ||
-      !validText(vehicleRegistration, 30) ||
+      !validText(vehicleRegistration, 40) ||
       !validText(alternativeContactName, 120) ||
-      !validText(alternativeRelationship, 60) ||
+      !validText(alternativeRelationship, 80) ||
       !validText(alternativeContactPhone, 30)
     ) {
       return json({
@@ -296,31 +290,15 @@ export async function onRequestPost({ request, env }) {
     selfieKey =
       `rider-selfies/${seller.id}/${id}.${selfieResult.extension}`;
 
-    await savePrivateImage(
-      env,
-      insuranceKey,
-      insuranceResult.file
-    );
-
-    await savePrivateImage(
-      env,
-      selfieKey,
-      selfieResult.file
-    );
+    await savePrivateImage(env, insuranceKey, insuranceResult.file);
+    await savePrivateImage(env, selfieKey, selfieResult.file);
 
     await env.DB.prepare(`
       INSERT INTO delivery_partners (
-        id,
-        seller_id,
-        full_name,
-        phone,
-        vehicle_registration,
-        insurance_document_key,
-        rider_selfie_key,
-        alternative_contact_name,
-        alternative_relationship,
-        alternative_contact_phone,
-        status
+        id, seller_id, full_name, phone, vehicle_registration,
+        insurance_document_key, rider_selfie_key,
+        alternative_contact_name, alternative_relationship,
+        alternative_contact_phone, status
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
     `).bind(
       id,
