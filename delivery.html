@@ -775,10 +775,25 @@
           return;
         }
 
-        showFilePreview(input, preview, kind);
-        if (storeCallback) storeCallback(file);
-      });
-    }
+        
+showFilePreview(input, preview, kind);
+
+if (storeCallback) {
+  storeCallback(file);
+}
+
+showStatus(
+  formStatus,
+  "Preview check: " +
+    input.id +
+    " | File: " +
+    file.name +
+    " | Size: " +
+    formatSize(file.size) +
+    " | Preview items: " +
+    preview.children.length
+);
+        
 
     // Wire previews + store real File objects
     setFilePreview("customerSelfie", "customerSelfiePreview", "image", function (f) {
