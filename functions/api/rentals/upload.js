@@ -207,17 +207,35 @@ export async function onRequest({ request, env }) {
 const entry = form.get("file");
 const kind = form.get("kind");
 
-if (
-  !entry ||
-  typeof entry === "string" ||
-  typeof entry.arrayBuffer !== "function" ||
-  typeof entry.size !== "number"
-) {
+
+if (!entry) {
   return json({
     success: false,
-    error: "The uploaded file was not received correctly. Please select the photo again."
+    error: "Diagnostic: the file field is missing."
   }, 400, origin);
 }
+
+if (typeof entry === "string") {
+  return json({
+    success: false,
+    error: "Diagnostic: the file field arrived as text."
+  }, 400, origin);
+}
+
+if (typeof entry.arrayBuffer !== "function") {
+  return json({
+    success: false,
+    error: "Diagnostic: the file has no arrayBuffer method."
+  }, 400, origin);
+}
+
+if (typeof entry.size !== "number") {
+  return json({
+    success: false,
+    error: "Diagnostic: the file size is missing."
+  }, 400, origin);
+}
+    
 
 const file = entry;
 
