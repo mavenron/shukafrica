@@ -783,7 +783,7 @@ function editRental(rental) {
   $("title").value = rental.title || "";
   $("description").value = rental.description || "";
   $("price").value = rental.price || "";
-  $("availability").value = rental.availability || "Available";
+  updateAvailability(rental.availability || "Available");
   $("condition").value = rental.condition || "Good Condition";
   $("location").value = rental.location || "";
   $("contact").value = rental.contact || "";
