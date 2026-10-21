@@ -204,12 +204,22 @@ export async function onRequest({ request, env }) {
     // Check declared size when available before parsing multipart data.
     // The per-file limit below remains the authoritative file-size check.
     const form = await request.formData();
-    const file = form.get("file");
-    const kind = form.get("kind");
+const entry = form.get("file");
+const kind = form.get("kind");
 
-    if (!(file instanceof File)) {
-      return json({ success: false, error: "Select a file to upload." }, 400, origin);
-    }
+if (
+  !entry ||
+  typeof entry === "string" ||
+  typeof entry.arrayBuffer !== "function" ||
+  typeof entry.size !== "number"
+) {
+  return json({
+    success: false,
+    error: "The uploaded file was not received correctly. Please select the photo again."
+  }, 400, origin);
+}
+
+const file = entry;
 
     if (!["photo", "video"].includes(kind)) {
       return json({
