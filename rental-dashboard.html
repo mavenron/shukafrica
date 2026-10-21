@@ -815,9 +815,7 @@ function editRental(rental) {
   $("condition").value = rental.condition || "Good Condition";
   $("location").value = rental.location || "";
   $("contact").value = rental.contact || "";
-  $("terms").value = rental.terms || "";
-  $("instructions").value = rental.instructions
-|| "";
+  $("terms").value = rental.terms || rental.instructions || "";
 
   $("formHeading").textContent = "Edit Rental";
   $("saveBtn").textContent = "Save Changes";
