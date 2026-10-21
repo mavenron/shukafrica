@@ -655,3 +655,334 @@ async function refreshAll() {
   }
   }
   
+function resetRentalForm() {
+  clearPreviewUrls();
+  $("rentalForm").reset();
+  $("editingId").value = "";
+  $("editorHeading").textContent = "Add a rental";
+  $("saveListingBtn").textContent = "Publish rental";
+  $("cancelEditBtn").hidden = true;
+  $("imagePreview").replaceChildren();
+  $("existingImages").textContent = "";
+  $("videoPreview").replaceChildren();
+  $("existingVideo").textContent = "";
+  $("formStatus").textContent = "";
+  editingListing = null;
+}
+
+function beginEdit(item) {
+  editingListing = item;
+  clearPreviewUrls();
+
+  $("editingId").value = item.id || "";
+  $("rentalTitle").value = item.title || "";
+  $("rentalDescription").value = item.description || "";
+  $("rentalPrice").value = item.price ?? "";
+  $("rentalCondition").value = item.condition || "";
+  $("rentalTerms").value = item.terms || "";
+  $("rentalLocation").value = item.location || "";
+  $("rentalContact").value = item.contact || "";
+
+  const availability = document.querySelector(
+    'input[name="availability"][value="' + (item.availability || "available") + '"]'
+  );
+  if (availability) availability.checked = true;
+
+  $("rentalImages").value = "";
+  $("rentalVideo").value = "";
+  $("imagePreview").replaceChildren();
+  $("videoPreview").replaceChildren();
+
+  const keys = imageKeys(item);
+  $("existingImages").textContent = keys.length
+    ? "Existing photos: " + keys.length + ". New photos will replace the existing photos."
+    : "No existing photos.";
+
+  $("existingVideo").textContent = item.video_key
+    ? "An existing video is saved. Choose a new video to replace it."
+    : "No existing video.";
+
+  $("editorHeading").textContent = "Edit rental";
+  $("saveListingBtn").textContent = "Save changes";
+  $("cancelEditBtn").hidden = false;
+  $("formStatus").textContent = "";
+  $("rentalForm").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function previewSelectedImages() {
+  clearPreviewUrls();
+  const container = $("imagePreview");
+  container.replaceChildren();
+
+  const files = Array.from($("rentalImages").files || []);
+  if (files.length > MAX_PHOTOS) {
+    setStatus($("formStatus"), "Choose no more than 3 photos.", "error");
+    $("rentalImages").value = "";
+    return;
+  }
+
+  for (const file of files) {
+    if (!file.type.startsWith("image/")) {
+      setStatus($("formStatus"), "Only image files can be selected as photos.", "error");
+      $("rentalImages").value = "";
+      container.replaceChildren();
+      clearPreviewUrls();
+      return;
+    }
+    if (file.size > PHOTO_LIMIT) {
+      setStatus($("formStatus"), "Each photo must be 4 MB or smaller.", "error");
+      $("rentalImages").value = "";
+      container.replaceChildren();
+      clearPreviewUrls();
+      return;
+    }
+
+    const url = URL.createObjectURL(file);
+    previewUrls.push(url);
+    const img = document.createElement("img");
+    img.src = url;
+    img.alt = "Selected rental photo preview";
+    img.className = "rental-gallery-image";
+    container.appendChild(img);
+  }
+}
+
+function previewSelectedVideo() {
+  $("videoPreview").replaceChildren();
+  const file = $("rentalVideo").files?.[0];
+  if (!file) return;
+
+  if (!file.type.startsWith("video/")) {
+    setStatus($("formStatus"), "Please choose a video file.", "error");
+    $("rentalVideo").value = "";
+    return;
+  }
+  if (file.size > VIDEO_LIMIT) {
+    setStatus($("formStatus"), "The video must be 10 MB or smaller.", "error");
+    $("rentalVideo").value = "";
+    return;
+  }
+
+  const url = URL.createObjectURL(file);
+  previewUrls.push(url);
+
+  const video = document.createElement("video");
+  video.src = url;
+  video.controls = true;
+  video.preload = "metadata";
+  video.className = "rental-video";
+  $("videoPreview").appendChild(video);
+}
+
+async function uploadMedia(file, kind) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("kind", kind);
+
+  const response = await fetch(API.upload, {
+    method: "POST",
+    credentials: "same-origin",
+    body: formData
+  });
+
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error("The upload endpoint returned an unreadable response.");
+  }
+
+  if (!response.ok || data.success === false) {
+    throw new Error(data.error || data.message || "Media upload failed.");
+  }
+
+  const key = data.key || data.media_key || data.objectKey;
+  if (!key) {
+    throw new Error("Upload response did not contain a media key. We need to check upload.js.");
+  }
+  return key;
+}
+
+async function handleRentalSubmit(event) {
+  event.preventDefault();
+  if (busy) return;
+
+  const title = $("rentalTitle").value.trim();
+  const price = $("rentalPrice").value.trim();
+  const contact = $("rentalContact").value.trim();
+  const photos = Array.from($("rentalImages").files || []);
+  const video = $("rentalVideo").files?.[0] || null;
+
+  if (!owner) {
+    setStatus($("formStatus"), "Please sign in before publishing a rental.", "error");
+    return;
+  }
+  if (!title || !price || !contact) {
+    setStatus($("formStatus"), "Enter a title, price, and contact number.", "error");
+    return;
+  }
+  if (photos.length > MAX_PHOTOS) {
+    setStatus($("formStatus"), "Choose no more than 3 photos.", "error");
+    return;
+  }
+  if (photos.some(file => file.size > PHOTO_LIMIT)) {
+    setStatus($("formStatus"), "Each photo must be 4 MB or smaller.", "error");
+    return;
+  }
+  if (video && video.size > VIDEO_LIMIT) {
+    setStatus($("formStatus"), "The video must be 10 MB or smaller.", "error");
+    return;
+  }
+
+  busy = true;
+  $("saveListingBtn").disabled = true;
+  setStatus($("formStatus"), "Saving rental details and uploading media…", "info");
+
+  try {
+    const old = editingListing || {};
+    const imageKeysToSave = photos.length
+      ? await Promise.all(photos.map(file => uploadMedia(file, "photo")))
+      : imageKeys(old);
+
+    let videoKey = old.video_key || "";
+    if (video) videoKey = await uploadMedia(video, "video");
+
+    const availabilityInput = document.querySelector('input[name="availability"]:checked');
+
+    const payload = {
+      action: editingListing ? "update" : "create",
+      title,
+      description: $("rentalDescription").value.trim(),
+      price: Number(price),
+      availability: availabilityInput?.value || "available",
+      condition: $("rentalCondition").value,
+      terms: $("rentalTerms").value.trim(),
+      location: $("rentalLocation").value.trim(),
+      contact,
+      image_1: imageKeysToSave[0] || "",
+      image_2: imageKeysToSave[1] || "",
+      image_3: imageKeysToSave[2] || "",
+      video_key: videoKey
+    };
+
+    if (editingListing) payload.id = editingListing.id;
+
+    await apiRequest(API.manage, jsonOptions(payload));
+    resetRentalForm();
+    showGlobal("Rental listing saved successfully.", "success");
+    await refreshAll();
+  } catch (error) {
+    setStatus($("formStatus"), error.message || "Could not save this rental.", "error");
+  } finally {
+    busy = false;
+    $("saveListingBtn").disabled = false;
+  }
+}
+
+$("openOwnerBtn").addEventListener("click", showOwnerPanel);
+$("closeOwnerBtn").addEventListener("click", () => {
+  $("ownerPanel").hidden = true;
+});
+$("showLoginBtn").addEventListener("click", showLogin);
+$("showRegisterBtn").addEventListener("click", showRegister);
+$("newListingBtn").addEventListener("click", () => {
+  resetRentalForm();
+  $("editorHeading").textContent = "Add a rental";
+  $("rentalForm").scrollIntoView({ behavior: "smooth", block: "start" });
+});
+$("cancelEditBtn").addEventListener("click", resetRentalForm);
+$("refreshBtn").addEventListener("click", refreshAll);
+$("rentalImages").addEventListener("change", previewSelectedImages);
+$("rentalVideo").addEventListener("change", previewSelectedVideo);
+$("rentalForm").addEventListener("submit", handleRentalSubmit);
+
+$("registerForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  if (busy) return;
+
+  busy = true;
+  const button = $("registerForm").querySelector('button[type="submit"]');
+  if (button) button.disabled = true;
+
+  try {
+    await apiRequest(API.register, jsonOptions({
+      name: $("registerName").value.trim(),
+      email: $("registerEmail").value.trim(),
+      password: $("registerPassword").value
+    }));
+    $("registerForm").reset();
+    showLogin();
+    setStatus($("loginStatus"), "Account created. Please sign in.", "success");
+  } catch (error) {
+    setStatus($("registerStatus"), error.message || "Registration failed.", "error");
+  } finally {
+    busy = false;
+    if (button) button.disabled = false;
+  }
+});
+
+$("loginForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  if (busy) return;
+
+  busy = true;
+  const button = $("loginForm").querySelector('button[type="submit"]');
+  if (button) button.disabled = true;
+
+  try {
+    const data = await apiRequest(API.login, jsonOptions({
+      email: $("loginEmail").value.trim(),
+      password: $("loginPassword").value
+    }));
+    owner = data.owner || data.user || null;
+    if (!owner) {
+      await loadSession();
+    } else {
+      setAuthView();
+      await loadMyListings();
+    }
+    $("loginForm").reset();
+    showGlobal("Signed in successfully.", "success");
+  } catch (error) {
+    setStatus($("loginStatus"), error.message || "Sign-in failed.", "error");
+  } finally {
+    busy = false;
+    if (button) button.disabled = false;
+  }
+});
+
+$("logoutBtn").addEventListener("click", async () => {
+  try {
+    await apiRequest(API.logout, { method: "POST", credentials: "same-origin" });
+  } catch (error) {
+    showGlobal(error.message || "Sign-out request failed.", "error");
+    return;
+  }
+
+  owner = null;
+  myListings = [];
+  resetRentalForm();
+  setAuthView();
+  renderMyListings();
+  showGlobal("You have signed out.", "success");
+});
+
+async function startRentalsPage() {
+  setAuthView();
+  renderEmpty($("rentalListings"), "Loading rental listings…");
+  try {
+    await loadPublicListings();
+  } catch (error) {
+    renderEmpty($("rentalListings"), "Could not load rentals. Please refresh and try again.");
+    showGlobal(error.message || "Could not load rental listings.", "error");
+  }
+  try {
+    await loadSession();
+  } catch {
+    owner = null;
+    setAuthView();
+  }
+}
+
+startRentalsPage();
+</script>
