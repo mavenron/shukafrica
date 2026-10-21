@@ -56,22 +56,35 @@ function optionalText(value, maxLength) {
   return cleaned.length <= maxLength ? cleaned : null;
 }
 
-function validMediaKey(value, ownerId, required = false) {
+function validMediaKey(value, ownerId, field, required = false) {
   if (value === undefined || value === null || value === "") {
     return required ? null : "";
   }
 
-  if (typeof value !== "string" || value.length > 500) {
+  if (typeof value !== "string" || value.length > 200) {
     return null;
   }
 
-  // Media keys must belong to this owner's Rentals folder.
   const prefix = `rentals/${ownerId}/`;
 
   if (!value.startsWith(prefix)) return null;
-  if (value.includes("..") || value.includes("\\") || value.includes("?")) {
-    return null;
-  }
+
+  const filename = value.slice(prefix.length);
+
+  // Uploaded files use a UUID filename and an approved extension.
+  const match = filename.match(
+    /^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})\.(jpg|png|webp|mp4|avi|webm)$/i
+  );
+
+  if (!match) return null;
+
+  const extension = match[2].toLowerCase();
+  const isVideo = field === "video_key";
+  const videoExtensions = ["mp4", "avi", "webm"];
+  const imageExtensions = ["jpg", "png", "webp"];
+
+  if (isVideo && !videoExtensions.includes(extension)) return null;
+  if (!isVideo && !imageExtensions.includes(extension)) return null;
 
   return value;
 }
@@ -104,14 +117,12 @@ async function getOwner(request, env) {
     return null;
   }
 
-  const owner = await env.DB.prepare(`
+  return await env.DB.prepare(`
     SELECT id
     FROM rental_owners
     WHERE id = ?
     LIMIT 1
   `).bind(session.owner_id).first();
-
-  return owner || null;
 }
 
 async function readBody(request) {
@@ -138,6 +149,7 @@ async function readBody(request) {
 
 function getListingFields(body, ownerId, partial = false) {
   const fields = {};
+
   const textFields = {
     title: 120,
     description: 5000,
@@ -149,11 +161,12 @@ function getListingFields(body, ownerId, partial = false) {
   };
 
   for (const [field, maxLength] of Object.entries(textFields)) {
-    if (partial && !(field in body)) continue;
+    if (partial && !Object.hasOwn(body, field)) continue;
 
-    const value = field === "condition" || field === "terms"
-      ? optionalText(body[field], maxLength)
-      : cleanText(body[field], maxLength);
+    const value =
+      field === "condition" || field === "terms"
+        ? optionalText(body[field], maxLength)
+        : cleanText(body[field], maxLength);
 
     if (value === null) {
       throw new Error(`INVALID_${field.toUpperCase()}`);
@@ -162,7 +175,7 @@ function getListingFields(body, ownerId, partial = false) {
     fields[field] = value;
   }
 
-  if (!partial || "availability" in body) {
+  if (!partial || Object.hasOwn(body, "availability")) {
     const availability = body.availability === undefined
       ? "Available"
       : body.availability;
@@ -180,9 +193,9 @@ function getListingFields(body, ownerId, partial = false) {
     ["image_3", false],
     ["video_key", false]
   ]) {
-    if (partial && !(field in body)) continue;
+    if (partial && !Object.hasOwn(body, field)) continue;
 
-    const key = validMediaKey(body[field], ownerId, required);
+    const key = validMediaKey(body[field], ownerId, field, required);
 
     if (key === null) {
       throw new Error(`INVALID_${field.toUpperCase()}`);
@@ -191,17 +204,70 @@ function getListingFields(body, ownerId, partial = false) {
     fields[field] = key || null;
   }
 
+  const photoKeys = [
+    fields.image_1,
+    fields.image_2,
+    fields.image_3
+  ].filter(Boolean);
+
+  if (new Set(photoKeys).size !== photoKeys.length) {
+    throw new Error("INVALID_IMAGE_KEYS");
+  }
+
   return fields;
+}
+
+async function verifyMedia(fields, env) {
+  const mediaEntries = [
+    ["image_1", "image"],
+    ["image_2", "image"],
+    ["image_3", "image"],
+    ["video_key", "video"]
+  ];
+
+  const supplied = mediaEntries.filter(([field]) =>
+    Object.hasOwn(fields, field) && fields[field]
+  );
+
+  if (supplied.length === 0) return;
+
+  if (!env.RENTAL_MEDIA) {
+    throw new Error("RENTAL_MEDIA_UNAVAILABLE");
+  }
+
+  for (const [field, kind] of supplied) {
+    const object = await env.RENTAL_MEDIA.head(fields[field]);
+
+    if (!object) {
+      throw new Error(`MISSING_MEDIA_${field.toUpperCase()}`);
+    }
+
+    const contentType = (
+      object.httpMetadata?.contentType || ""
+    ).toLowerCase();
+
+    if (kind === "image" && !contentType.startsWith("image/")) {
+      throw new Error(`INVALID_MEDIA_${field.toUpperCase()}`);
+    }
+
+    if (kind === "video" && !contentType.startsWith("video/")) {
+      throw new Error("INVALID_MEDIA_VIDEO_KEY");
+    }
+  }
 }
 
 export async function onRequest({ request, env }) {
   const origin = request.headers.get("Origin") || "";
 
   if (origin && !ALLOWED_ORIGINS.has(origin)) {
-    return json({ error: "Origin not allowed." }, 403);
+    return json({ success: false, error: "Origin not allowed." }, 403);
   }
 
   if (request.method === "OPTIONS") {
+    if (!ALLOWED_ORIGINS.has(origin)) {
+      return new Response(null, { status: 403 });
+    }
+
     return new Response(null, {
       status: 204,
       headers: {
@@ -216,39 +282,56 @@ export async function onRequest({ request, env }) {
   }
 
   if (request.method !== "POST") {
-    return json({ error: "Method not allowed." }, 405, origin);
+    return json(
+      { success: false, error: "Method not allowed." },
+      405,
+      origin
+    );
   }
 
   if (!env.DB) {
-    return json({ error: "Database unavailable." }, 503, origin);
-  }
-
-  if (origin && !ALLOWED_ORIGINS.has(origin)) {
-    return json({ error: "Origin not allowed." }, 403);
+    return json(
+      { success: false, error: "Database unavailable." },
+      503,
+      origin
+    );
   }
 
   if (
-    request.headers.get("Content-Type")?.split(";")[0].trim()
-      !== "application/json"
+    (request.headers.get("Content-Type") || "")
+      .split(";")[0].trim().toLowerCase() !== "application/json"
   ) {
-    return json({ error: "Send JSON data." }, 415, origin);
+    return json(
+      { success: false, error: "Send JSON data." },
+      415,
+      origin
+    );
   }
 
   try {
     const owner = await getOwner(request, env);
 
     if (!owner) {
-      return json({ error: "Please log in to manage your rentals." }, 401, origin);
+      return json({
+        success: false,
+        error: "Please log in to manage your rentals."
+      }, 401, origin);
     }
 
     const body = await readBody(request);
 
     if (!body || typeof body !== "object" || Array.isArray(body)) {
-      return json({ error: "Invalid request body." }, 400, origin);
+      return json(
+        { success: false, error: "Invalid request body." },
+        400,
+        origin
+      );
     }
 
     if (body.action === "create") {
       const fields = getListingFields(body, owner.id);
+
+      await verifyMedia(fields, env);
 
       const id = crypto.randomUUID();
 
@@ -286,7 +369,11 @@ export async function onRequest({ request, env }) {
       const id = cleanText(body.id, 100);
 
       if (!id) {
-        return json({ error: "Valid listing ID required." }, 400, origin);
+        return json(
+          { success: false, error: "Valid listing ID required." },
+          400,
+          origin
+        );
       }
 
       const existing = await env.DB.prepare(`
@@ -296,24 +383,26 @@ export async function onRequest({ request, env }) {
       `).bind(id, owner.id).first();
 
       if (!existing) {
-        return json({ error: "Listing not found." }, 404, origin);
+        return json(
+          { success: false, error: "Listing not found." },
+          404,
+          origin
+        );
       }
 
       const fields = getListingFields(body, owner.id, true);
-      const allowed = [
-        "title", "description", "price", "availability",
-        "condition", "terms", "location", "contact",
-        "image_1", "image_2", "image_3", "video_key"
-      ];
 
-      const entries = Object.entries(fields).filter(
-        ([key]) => allowed.includes(key)
-      );
-
-      if (entries.length === 0) {
-        return json({ error: "No listing changes supplied." }, 400, origin);
+      if (Object.keys(fields).length === 0) {
+        return json(
+          { success: false, error: "No listing changes supplied." },
+          400,
+          origin
+        );
       }
 
+      await verifyMedia(fields, env);
+
+      const entries = Object.entries(fields);
       const setClause = entries
         .map(([key]) => `${key} = ?`)
         .join(", ");
@@ -336,7 +425,11 @@ export async function onRequest({ request, env }) {
       const id = cleanText(body.id, 100);
 
       if (!id) {
-        return json({ error: "Valid listing ID required." }, 400, origin);
+        return json(
+          { success: false, error: "Valid listing ID required." },
+          400,
+          origin
+        );
       }
 
       const result = await env.DB.prepare(`
@@ -346,7 +439,11 @@ export async function onRequest({ request, env }) {
       `).bind(id, owner.id).run();
 
       if (!result.meta || result.meta.changes === 0) {
-        return json({ error: "Listing not found." }, 404, origin);
+        return json(
+          { success: false, error: "Listing not found." },
+          404,
+          origin
+        );
       }
 
       return json({
@@ -356,28 +453,46 @@ export async function onRequest({ request, env }) {
     }
 
     return json({
+      success: false,
       error: "Action must be create, update, or delete."
     }, 400, origin);
 
   } catch (error) {
     if (error.message === "BODY_TOO_LARGE") {
-      return json({ error: "Request is too large." }, 413, origin);
+      return json({ success: false, error: "Request is too large." }, 413, origin);
     }
 
     if (error.message === "INVALID_JSON") {
-      return json({ error: "Invalid JSON." }, 400, origin);
+      return json({ success: false, error: "Invalid JSON." }, 400, origin);
     }
 
     if (error.message.startsWith("INVALID_")) {
       return json({
-        error: `Invalid listing field: ${error.message.replace("INVALID_", "").toLowerCase()}.`
+        success: false,
+        error: "One or more listing fields or media references are invalid."
+      }, 400, origin);
+    }
+
+    if (error.message === "RENTAL_MEDIA_UNAVAILABLE") {
+      return json({
+        success: false,
+        error: "Rentals media storage is unavailable."
+      }, 503, origin);
+    }
+
+    if (error.message.startsWith("MISSING_MEDIA_")) {
+      return json({
+        success: false,
+        error: "An uploaded media file could not be found. Please upload it again."
       }, 400, origin);
     }
 
     console.error("Rental management request failed:", error);
 
     return json({
+      success: false,
       error: "Unable to manage this rental listing."
     }, 500, origin);
   }
     }
+           
