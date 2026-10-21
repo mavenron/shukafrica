@@ -1,398 +1,195 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#10130f">
-  <title>Rental Owner Dashboard | ShukAfrica</title>
-  <style>
-    :root {
-      --bg: #10130f;
-      --panel: #1a1f19;
-      --panel2: #222920;
-      --gold: #d9ad47;
-      --text: #f4f3ed;
-      --muted: #b6bbae;
-      --border: #394236;
-      --danger: #ff9c92;
-      --success: #9ee2ae;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: Arial, Helvetica, sans-serif;
-      line-height: 1.55;
-    }
-
-    button, input, textarea, select { font: inherit; }
-
-    button {
-      cursor: pointer;
-      border: 0;
-      border-radius: 9px;
-      padding: 12px 16px;
-      font-weight: 700;
-    }
-
-    button:disabled { opacity: .55; cursor: wait; }
-
-    input, textarea, select {
-      display: block;
-      width: 100%;
-      color: var(--text);
-      background: #11150f;
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      padding: 12px;
-      margin-top: 7px;
-    }
-
-    textarea { min-height: 110px; resize: vertical; }
-
-    input:focus, textarea:focus, select:focus {
-      outline: 2px solid var(--gold);
-      outline-offset: 1px;
-    }
-
-    a { color: var(--gold); }
-
-    .site-header {
-      padding: 20px 16px;
-      background: #171c15;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .header-inner, main {
-      width: min(100% - 28px, 1050px);
-      margin: auto;
-    }
-
-    .brand {
-      color: var(--gold);
-      font-size: 23px;
-      font-weight: 800;
-      letter-spacing: .4px;
-    }
-
-    .tagline { color: var(--muted); font-size: 14px; }
-
-    main { padding: 24px 0 40px; }
-
-    h1 { font-size: clamp(25px, 5vw, 36px); margin: 0 0 7px; }
-    h2 { font-size: 21px; margin-top: 0; }
-    h3 { overflow-wrap: anywhere; }
-
-    .muted, .hint { color: var(--muted); font-size: 13px; }
-    .gold { color: var(--gold); }
-
-    .panel {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 19px;
-      margin-top: 20px;
-    }
-
-    .tabs, .top-actions, .account-row, .section-heading {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .tabs { margin-bottom: 22px; }
-
-    .tabs button { flex: 1; min-width: 135px; }
-
-    .btn-gold {
-      background: var(--gold);
-      color: #17150d;
-    }
-
-    .btn-dark {
-      background: var(--panel2);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    .active { background: var(--gold); color: #17150d; }
-
-    .field { min-width: 0; }
-    .field label { font-weight: 700; font-size: 14px; }
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 17px;
-    }
-    .full { grid-column: 1 / -1; }
-
-    .top-actions { margin-top: 18px; }
-    .top-actions button { flex: 1; }
-
-    .account-row, .section-heading { justify-content: space-between; }
-    .section-heading { margin-bottom: 15px; }
-
-    .status {
-      padding: 11px 13px;
-      border-radius: 8px;
-      margin: 14px 0;
-      overflow-wrap: anywhere;
-      background: #292d24;
-    }
-
-    .status.error { color: var(--danger); border: 1px solid #75443d; }
-    .status.success { color: var(--success); border: 1px solid #396b45; }
-    .hidden { display: none !important; }
-
-    .listing-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 15px;
-    }
-
-    .listing-card {
-      min-width: 0;
-      background: var(--panel2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px;
-      overflow-wrap: anywhere;
-    }
-
-    .listing-card button { margin: 5px 5px 0 0; }
-
-    .rental-preview {
-      width: 100%;
-      max-height: 250px;
-      object-fit: contain;
-      background: #0b0d0a;
-      border-radius: 8px;
-      margin: 8px 0;
-    }
-
-    .preview-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .preview-grid img, .preview-grid video {
-      width: min(100%, 145px);
-      max-height: 140px;
-      object-fit: cover;
-      border-radius: 8px;
-    }
-
-    .footer-note {
-      text-align: center;
-      padding: 25px 12px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-.availability-options {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 8px;
-}
-
-.availability-button {
-  width: auto;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 13px;
-  border: 1px solid transparent;
-  opacity: 0.55;
-}
-
-.availability-button.is-available {
-  background: #174c2c;
-  color: #b8ffc9;
-  border-color: #2b9b50;
-}
-
-.availability-button.is-unavailable {
-  background: #591f25;
-  color: #ffb5bb;
-  border-color: #c64250;
-}
-
-.availability-button.selected {
-  opacity: 1;
-  filter: brightness(1.35);
-  outline: 2px solid currentColor;
-  outline-offset: 2px;
-}
-    
-    @media (max-width: 620px) {
-      .form-grid, .listing-grid { grid-template-columns: 1fr; }
-      .panel { padding: 15px; }
-      .account-row { align-items: flex-start; }
-      .section-heading { align-items: flex-start; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#10130f">
+<title>Rental Owner Dashboard | ShukAfrica</title>
+<style>
+:root{--bg:#10130f;--panel:#1a1f19;--panel2:#222920;--gold:#d9ad47;--text:#f4f3ed;--muted:#b6bbae;--border:#394236;--danger:#ff9c92;--success:#9ee2ae}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.55}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer;border:0;border-radius:9px;padding:12px 16px;font-weight:700}
+button:disabled{opacity:.55;cursor:wait}
+input,textarea,select{display:block;width:100%;color:var(--text);background:#11150f;border:1px solid var(--border);border-radius:9px;padding:12px;margin-top:7px}
+textarea{min-height:110px;resize:vertical}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--gold);outline-offset:1px}
+.site-header{padding:20px 16px;background:#171c15;border-bottom:1px solid var(--border)}
+.header-inner,main{width:min(100% - 28px,1050px);margin:auto}
+.brand{color:var(--gold);font-size:23px;font-weight:800;letter-spacing:.4px}
+.tagline,.muted,.hint{color:var(--muted);font-size:13px}
+main{padding:24px 0 40px}
+h1{font-size:clamp(25px,5vw,36px);margin:0 0 7px}
+h2{font-size:21px;margin-top:0}
+h3{overflow-wrap:anywhere}
+.gold{color:var(--gold)}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:19px;margin-top:20px}
+.tabs,.top-actions,.account-row,.section-heading{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.tabs{margin-bottom:22px}
+.tabs button{flex:1;min-width:135px}
+.btn-gold,.active{background:var(--gold);color:#17150d}
+.btn-dark{background:var(--panel2);color:var(--text);border:1px solid var(--border)}
+.field{min-width:0}
+.field>label{font-weight:700;font-size:14px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}
+.full{grid-column:1/-1}
+.top-actions{margin-top:18px}
+.top-actions button{flex:1}
+.account-row,.section-heading{justify-content:space-between}
+.status{padding:11px 13px;border-radius:8px;margin:14px 0;overflow-wrap:anywhere;background:#292d24}
+.status.error{color:var(--danger);border:1px solid #75443d}
+.status.success{color:var(--success);border:1px solid #396b45}
+.hidden{display:none!important}
+.listing-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.listing-card{min-width:0;background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:14px;overflow-wrap:anywhere}
+.listing-card button{margin:5px 5px 0 0}
+.rental-preview{width:100%;max-height:250px;object-fit:contain;background:#0b0d0a;border-radius:8px;margin:8px 0}
+.preview-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.preview-grid img,.preview-grid video{width:min(100%,145px);max-height:140px;object-fit:cover;border-radius:8px}
+.availability-checkbox{display:flex;align-items:center;gap:10px;margin-top:10px;background:var(--panel2);border:1px solid var(--border);border-radius:9px;padding:12px}
+.availability-checkbox input[type=checkbox]{width:22px;height:22px;margin:0;accent-color:var(--gold);flex-shrink:0}
+.availability-checkbox label{cursor:pointer;font-weight:700}
+.listing-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.footer-note{text-align:center;padding:25px 12px;color:var(--muted);font-size:13px}
+@media(max-width:620px){.form-grid,.listing-grid{grid-template-columns:1fr}.panel{padding:15px}.account-row{align-items:flex-start}.section-heading{align-items:flex-start}.account-row>div:last-child{width:100%}.top-actions button{min-width:120px}}
+</style>
 </head>
 <body>
 <header class="site-header">
-  <div class="header-inner">
-    <div class="brand">ShukAfrica Rentals</div>
-    <div class="tagline">Find it. Rent it. Make it yours.</div>
-  </div>
+<div class="header-inner">
+<div class="brand">ShukAfrica Rentals</div>
+<div class="tagline">Find it. Rent it. Make it yours.</div>
+</div>
 </header>
 
 <main>
-  <h1>Rental Owner Dashboard</h1>
-  <p class="muted">Create your owner account, publish rental listings and manage your items.</p>
+<h1>Rental Owner Dashboard</h1>
+<p class="muted">Create your owner account, publish rental listings and manage your items.</p>
 
-  <div id="authPanel" class="panel">
-    <div class="tabs">
-      <button id="loginTab" class="active" type="button">Log In</button>
-      <button id="registerTab" class="btn-dark" type="button">Create Owner Account</button>
-    </div>
-
-    <form id="authForm">
-      <div id="nameField" class="field hidden" style="margin-bottom:16px">
-        <label for="ownerName">Full Name</label>
-        <input id="ownerName" name="name" autocomplete="name" maxlength="100">
-      </div>
-
-      <div class="field" style="margin-bottom:16px">
-        <label for="ownerEmail">Email Address</label>
-        <input id="ownerEmail" name="email" type="email" autocomplete="email" required maxlength="254">
-      </div>
-
-      <div class="field" style="margin-bottom:16px">
-        <label for="ownerPassword">Password</label>
-        <input id="ownerPassword" name="password" type="password" autocomplete="current-password" minlength="12" maxlength="128" required>
-        <div id="passwordHint" class="hint">Use your rental owner account password.</div>
-      </div>
-
-      <button id="authSubmit" class="btn-gold" type="submit">Log In</button>
-    </form>
-    <div id="authMessage" class="status hidden" role="status" aria-live="polite"></div>
-  </div>
-
-  <section id="dashboardPanel" class="hidden">
-    <div class="panel">
-      <div class="account-row">
-        <div>
-          <div class="muted">Signed in as</div>
-          <strong id="ownerDisplay"></strong>
-          <div id="ownerEmailDisplay" class="muted"></div>
-        </div>
-        <div class="top-actions">
-          <button id="refreshBtn" class="btn-dark" type="button">Refresh My Rentals</button>
-          <button id="logoutButton" class="btn-dark" type="button">Log Out</button>
-        </div>
-      </div>
-    </div>
-
-    <section class="panel" id="editorPanel">
-      <h2 id="formHeading">Add a Rental</h2>
-      <p class="muted">Complete your rental details. Fields marked * are required.</p>
-
-      <form id="rentalForm">
-        <input type="hidden" id="listingId">
-
-        <div class="form-grid">
-          <div class="field full">
-            <label for="title">Rental Title *</label>
-            <input id="title" maxlength="120" required placeholder="e.g. Heavy-duty drilling machine">
-          </div>
-
-          <div class="field full">
-            <label for="description">Description *</label>
-            <textarea id="description" maxlength="5000" required placeholder="Describe the item, its features and how it can be used."></textarea>
-          </div>
-
-          <div class="field">
-            <label for="price">Rental Price *</label>
-            <input id="price" maxlength="100" required placeholder="e.g. GHS 150 per day">
-          </div>
-
-          
-<div class="field">
-  <label>Availability *</label>
-  <input type="hidden" id="availability" value="Available" required>
-
-  <button
-    id="availabilityToggle"
-    type="button"
-    class="availability-button is-available"
-    aria-pressed="true">
-    💚 Available
-        </select>
-      </div>
-          
-<div class="field">
-  <label for="condition">Condition</label>
-  <select id="condition">
-    <option value="Excellent">Excellent</option>
-    <option value="Fair">Fair</option>
-    <option value="Old">Old</option> 
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="location">Location *</label>
-            <input id="location" maxlength="200" required placeholder="e.g. Cape Coast, Central Region">
-          </div>
-
-          <div class="field full">
-            <label for="contact">Contact Details *</label>
-            <input id="contact" maxlength="200" required placeholder="Phone number or preferred contact method">
-          </div>
-
-<div class="field full">
-  <label for="terms">Rental Terms / Instructions</label>
-  <textarea id="terms" maxlength="3000"
-    placeholder="Enter rental duration, deposit, payment, return conditions, fees and any special instructions."></textarea>
+<div id="authPanel" class="panel">
+<div class="tabs">
+<button id="loginTab" class="active" type="button">Log In</button>
+<button id="registerTab" class="btn-dark" type="button">Create Owner Account</button>
 </div>
-          <div class="field full">
-            <label for="photos">Photos * (up to 3, 4 MB each)</label>
-            <input id="photos" type="file" accept="image/jpeg,image/png,image/webp" multiple>
-            <div class="hint">Add at least one photo. When editing, selecting new photos replaces the existing photo set.</div>
-            <div id="photoPreview" class="preview-grid"></div>
-          </div>
+<form id="authForm">
+<div id="nameField" class="field hidden" style="margin-bottom:16px">
+<label for="ownerName">Full Name</label>
+<input id="ownerName" name="name" autocomplete="name" maxlength="100">
+</div>
+<div class="field" style="margin-bottom:16px">
+<label for="ownerEmail">Email Address</label>
+<input id="ownerEmail" name="email" type="email" autocomplete="email" required maxlength="254">
+</div>
+<div class="field" style="margin-bottom:16px">
+<label for="ownerPassword">Password</label>
+<input id="ownerPassword" name="password" type="password" autocomplete="current-password" minlength="12" maxlength="128" required>
+<div id="passwordHint" class="hint">Use your rental owner account password.</div>
+</div>
+<button id="authSubmit" class="btn-gold" type="submit">Log In</button>
+</form>
+<div id="authMessage" class="status hidden" role="status" aria-live="polite"></div>
+</div>
 
-          <div class="field full">
-            <label for="video">Video (optional, 10 MB maximum)</label>
-            <input id="video" type="file" accept="video/mp4,video/webm,video/x-msvideo">
-            <div class="hint">One video. Selecting a new video replaces the existing video.</div>
-            <div id="videoPreview" class="preview-grid"></div>
-          </div>
-        </div>
+<section id="dashboardPanel" class="hidden">
+<div class="panel">
+<div class="account-row">
+<div>
+<div class="muted">Signed in as</div>
+<strong id="ownerDisplay"></strong>
+<div id="ownerEmailDisplay" class="muted"></div>
+</div>
+<div class="top-actions">
+<button id="addRentalBtn" class="btn-gold" type="button">+ Add Rentals</button>
+<button id="logoutButton" class="btn-dark" type="button">Log Out</button>
+</div>
+</div>
+</div>
 
-        <div id="rentalMessage" class="status hidden" role="status" aria-live="polite"></div>
+<section class="panel" id="editorPanel">
+<h2 id="formHeading">Add a Rental</h2>
+<p class="muted">Complete your rental details. Fields marked * are required.</p>
+<form id="rentalForm">
+<input type="hidden" id="listingId">
+<div class="form-grid">
+<div class="field full">
+<label for="title">Rental Title *</label>
+<input id="title" maxlength="120" required placeholder="e.g. Heavy-duty drilling machine">
+</div>
+<div class="field full">
+<label for="description">Description *</label>
+<textarea id="description" maxlength="5000" required placeholder="Describe the item, its features and how it can be used."></textarea>
+</div>
+<div class="field">
+<label for="price">Rental Price *</label>
+<input id="price" maxlength="100" required placeholder="e.g. GHS 150 per day">
+</div>
+<div class="field">
+<label for="availabilityCheckbox">Availability *</label>
+<div class="availability-checkbox">
+<input id="availabilityCheckbox" type="checkbox" checked>
+<label for="availabilityCheckbox">Rental is available</label>
+</div>
+<input type="hidden" id="availability" value="Available">
+</div>
+<div class="field">
+<label for="condition">Condition</label>
+<select id="condition">
+<option value="Excellent">Excellent</option>
+<option value="Fair">Fair</option>
+<option value="Old">Old</option>
+</select>
+</div>
+<div class="field">
+<label for="location">Location *</label>
+<input id="location" maxlength="200" required placeholder="e.g. Cape Coast, Central Region">
+</div>
+<div class="field full">
+<label for="contact">Contact Details *</label>
+<input id="contact" maxlength="200" required placeholder="Phone number or preferred contact method">
+</div>
+<div class="field full">
+<label for="terms">Rental Terms / Instructions</label>
+<textarea id="terms" maxlength="3000" placeholder="Enter rental duration, deposit, payment, return conditions, fees and any special instructions."></textarea>
+</div>
+<div class="field full">
+<label for="photos">Photos * (up to 3, 4 MB each)</label>
+<input id="photos" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+<div class="hint">Add at least one photo. When editing, selecting new photos replaces the existing photo set.</div>
+<div id="photoPreview" class="preview-grid"></div>
+</div>
+<div class="field full">
+<label for="video">Video (optional, 10 MB maximum)</label>
+<input id="video" type="file" accept="video/mp4,video/webm,video/x-msvideo">
+<div class="hint">One video. Selecting a new video replaces the existing video.</div>
+<div id="videoPreview" class="preview-grid"></div>
+</div>
+</div>
+<div id="rentalMessage" class="status hidden" role="status" aria-live="polite"></div>
+<div class="top-actions">
+<button id="saveBtn" class="btn-gold" type="submit">Publish Rental</button>
+<button id="cancelEditBtn" class="btn-dark hidden" type="button">Cancel Editing</button>
+</div>
+</form>
+</section>
 
-        <div class="top-actions">
-          <button id="saveBtn" class="btn-gold" type="submit">Publish Rental</button>
-          <button id="cancelEditBtn" class="btn-dark hidden" type="button">Cancel Editing</button>
-        </div>
-      </form>
-    </section>
+<section class="panel" id="myRentalsPanel">
+<div class="section-heading">
+<div>
+<h2 style="margin-bottom:4px">My Rentals</h2>
+<div class="muted">Your published and removed listings.</div>
+</div>
+<div class="listing-toolbar">
+<strong id="listingCount" class="gold">0 listings</strong>
+<button id="refreshBtn" class="btn-dark" type="button">Refresh</button>
+</div>
+</div>
+<div id="listingMessage" class="status hidden" role="status" aria-live="polite"></div>
+<div id="listingGrid" class="listing-grid"></div>
+</section>
+</section>
 
-    <section class="panel">
-      <div class="section-heading">
-        <div>
-          <h2 style="margin-bottom:4px">My Rentals</h2>
-          <div class="muted">Your published and removed listings.</div>
-        </div>
-        <strong id="listingCount" class="gold">0 listings</strong>
-      </div>
-      <div id="listingMessage" class="status hidden" role="status" aria-live="polite"></div>
-      <div id="listingGrid" class="listing-grid"></div>
-    </section>
-  </section>
-
-  <div class="footer-note">ShukAfrica Rentals · Manage your own listings securely.</div>
+<div class="footer-note">ShukAfrica Rentals · Manage your own listings securely.</div>
 </main>
 
 <script>
@@ -408,33 +205,20 @@ let editingRentalId = null;
 let existingMedia = null;
 let photoObjectURLs = [];
 let videoObjectURL = null;
-  
+
 const availabilityInput = $("availability");
-const availabilityButtons = document.querySelectorAll(
-  ".availability-button[data-value]"
-);
+const availabilityCheckbox = $("availabilityCheckbox");
 
 function updateAvailability(value) {
-  if (!availabilityInput) return;
-
-  availabilityInput.value = value;
-
-  availabilityButtons.forEach(button => {
-    const selected = button.dataset.value === value;
-
-    button.classList.toggle("selected", selected);
-    button.setAttribute("aria-pressed", String(selected));
-  });
+  const available = value === "Available";
+  availabilityInput.value = available ? "Available" : "Unavailable";
+  availabilityCheckbox.checked = available;
 }
 
-availabilityButtons.forEach(button => {
-  button.addEventListener("click", () => {
-    updateAvailability(button.dataset.value);
-  });
+availabilityCheckbox.addEventListener("change", () => {
+  updateAvailability(availabilityCheckbox.checked ? "Available" : "Unavailable");
 });
 
-updateAvailability(availabilityInput?.value || "Available");
-  
 function message(id, text, type = "") {
   const el = $(id);
   if (!el) return;
@@ -489,7 +273,6 @@ function setAuthMode(mode) {
   $("loginTab").classList.toggle("btn-dark", registering);
   $("registerTab").classList.toggle("active", registering);
   $("registerTab").classList.toggle("btn-dark", !registering);
-
   $("nameField").classList.toggle("hidden", !registering);
   $("ownerName").required = registering;
   $("ownerPassword").autocomplete = registering ? "new-password" : "current-password";
@@ -555,7 +338,6 @@ async function checkSession() {
   }
 }
 
-
 function formValues() {
   return {
     title: $("title").value.trim(),
@@ -569,13 +351,16 @@ function formValues() {
   };
 }
 
-
 async function upload(file, kind) {
   const body = new FormData();
-  body.append("file", file);
+  body.append("file", file, file.name);
   body.append("kind", kind);
 
-  const result = await api(`${API}/upload`, { method: "POST", body });
+  const result = await api(`${API}/upload`, {
+    method: "POST",
+    body
+  });
+
   if (!result.key) throw new Error("The upload did not return a media key.");
   return result.key;
 }
@@ -626,7 +411,7 @@ async function getMedia() {
 }
 
 function clearPreviews() {
-  photoObjectURLs.forEach(URL.revokeObjectURL);
+  photoObjectURLs.forEach(url => URL.revokeObjectURL(url));
   photoObjectURLs = [];
   $("photoPreview").replaceChildren();
 
@@ -636,11 +421,19 @@ function clearPreviews() {
 }
 
 $("photos").addEventListener("change", () => {
-  photoObjectURLs.forEach(URL.revokeObjectURL);
+  photoObjectURLs.forEach(url => URL.revokeObjectURL(url));
   photoObjectURLs = [];
   $("photoPreview").replaceChildren();
 
-  Array.from($("photos").files || []).slice(0, 3).forEach(file => {
+  const files = Array.from($("photos").files || []);
+
+  if (files.length > 3) {
+    message("rentalMessage", "Choose no more than 3 photos.", "error");
+  } else {
+    message("rentalMessage", "");
+  }
+
+  files.slice(0, 3).forEach(file => {
     const img = document.createElement("img");
     const url = URL.createObjectURL(file);
     photoObjectURLs.push(url);
@@ -656,6 +449,7 @@ $("video").addEventListener("change", () => {
   $("videoPreview").replaceChildren();
 
   const file = $("video").files[0];
+
   if (file) {
     videoObjectURL = URL.createObjectURL(file);
     const video = document.createElement("video");
@@ -673,23 +467,27 @@ function resetEditor() {
   $("formHeading").textContent = "Add a Rental";
   $("saveBtn").textContent = "Publish Rental";
   $("cancelEditBtn").classList.add("hidden");
+  updateAvailability("Available");
   clearPreviews();
   message("rentalMessage", "");
 }
 
 $("rentalForm").addEventListener("submit", async event => {
   event.preventDefault();
+
   const button = $("saveBtn");
   button.disabled = true;
 
   try {
     const details = formValues();
+
     if (!details.title || !details.description || !details.price ||
         !details.location || !details.contact) {
       throw new Error("Please complete all required fields.");
     }
 
     message("rentalMessage", "Uploading media and saving your rental…");
+
     const media = await getMedia();
     const payload = {
       ...details,
@@ -705,8 +503,8 @@ $("rentalForm").addEventListener("submit", async event => {
     });
 
     resetEditor();
-    message("listingMessage", "Rental saved successfully.", "success");
     await loadRentals();
+    message("listingMessage", "Rental saved successfully.", "success");
   } catch (error) {
     message("rentalMessage", error.message, "error");
   } finally {
@@ -726,7 +524,7 @@ function makeCard(rental) {
   heading.textContent = rental.title || "Untitled rental";
   card.appendChild(heading);
 
-  if (rental.image_1) {             
+  if (rental.image_1) {
     const image = document.createElement("img");
     image.src = mediaURL(rental.image_1);
     image.alt = rental.title || "Rental photo";
@@ -756,8 +554,7 @@ function makeCard(rental) {
     edit.type = "button";
     edit.className = "btn-dark";
     edit.textContent = "Edit";
-    edit.addEventListener("click", () =>
-editRental(rental));
+    edit.addEventListener("click", () => editRental(rental));
     card.appendChild(edit);
 
     const remove = document.createElement("button");
@@ -780,14 +577,14 @@ async function loadRentals() {
     const data = await api(`${API}/manage`);
     currentRentals = Array.isArray(data.rentals) ? data.rentals : [];
 
-    $("listingCount").textContent =
+         $("listingCount").textContent =
       `${currentRentals.length} listing${currentRentals.length === 1 ? "" : "s"}`;
 
     if (!currentRentals.length) {
       const empty = document.createElement("p");
       empty.textContent = "You have not listed any rentals yet.";
       grid.appendChild(empty);
-} else {
+    } else {
       currentRentals.forEach(rental => grid.appendChild(makeCard(rental)));
     }
 
@@ -810,39 +607,64 @@ function editRental(rental) {
 
   $("listingId").value = rental.id;
   $("title").value = rental.title || "";
-  $("description").value = rental.description || "";
+ $("description").value = rental.description || "";
   $("price").value = rental.price || "";
   updateAvailability(rental.availability || "Available");
-  $("condition").value = rental.condition || "Good Condition";
+
+  $("condition").value =
+    ["Excellent", "Fair", "Old"].includes(rental.condition)
+      ? rental.condition
+      : "Excellent";
+
   $("location").value = rental.location || "";
   $("contact").value = rental.contact || "";
   $("terms").value = rental.terms || rental.instructions || "";
+
+  $("photos").value = "";
+  $("video").value = "";
+  clearPreviews();
 
   $("formHeading").textContent = "Edit Rental";
   $("saveBtn").textContent = "Save Changes";
   $("cancelEditBtn").classList.remove("hidden");
   message("rentalMessage", "Leave media fields empty to keep existing media.");
-  $("editorPanel").scrollIntoView({ behavior: "smooth", block: "start" });
+
+  $("editorPanel").scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
 }
 
 $("cancelEditBtn").addEventListener("click", resetEditor);
 $("refreshBtn").addEventListener("click", loadRentals);
+
+$("addRentalBtn").addEventListener("click", () => {
+  resetEditor();
+  $("editorPanel").scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+});
 
 async function removeRental(rental) {
   if (!confirm(`Remove "${rental.title}" from your rentals?`)) return;
 
   try {
     message("listingMessage", "Removing listing…");
+
     await api(`${API}/manage`, {
       method: "POST",
-      body: JSON.stringify({ action: "delete", id: rental.id })
+      body: JSON.stringify({
+        action: "delete",
+        id: rental.id
+      })
     });
+if (editingRentalId === rental.id) resetEditor();
 
-    if (editingRentalId === rental.id) resetEditor();
     await loadRentals();
     message("listingMessage", "Listing removed.", "success");
   } catch (error) {
-message("listingMessage", error.message, "error");
+    message("listingMessage", error.message, "error");
   }
 }
 
@@ -868,4 +690,3 @@ checkSession();
 </script>
 </body>
 </html>
-
