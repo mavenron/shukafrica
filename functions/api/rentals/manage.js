@@ -489,10 +489,9 @@ export async function onRequest({ request, env }) {
 
     console.error("Rental management request failed:", error);
 
-    return json({
+        return json({
       success: false,
       error: "Unable to manage this rental listing."
     }, 500, origin);
   }
-    }
-           
+}
