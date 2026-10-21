@@ -14,3 +14,8 @@ bucket_name = "shukafrica-media"
 [[r2_buckets]]
 binding = "PRIVATE_MEDIA"
 bucket_name = "shukafrica-delivery-private"
+
+
+[[r2_buckets]]
+binding = "RENTAL_MEDIA"
+bucket_name = "shukafrica-rentals-media"
