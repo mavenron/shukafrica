@@ -2,12 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071112">
   <title>Rentals — ShukAfrica</title>
-
   <style>
-    :root{
+    :root {
       --bg:#071112;
       --panel:#101d1e;
       --line:#263738;
@@ -18,624 +17,434 @@
       --red:#ed3e35;
       --radius:18px;
     }
-
-    *{
-      box-sizing:border-box;
-    }
-
-    body{
-      margin:0;
-      background:var(--bg);
-      color:var(--text);
+    * { box-sizing:border-box; }
+    body {
+      margin:0; background:var(--bg); color:var(--text);
       font-family:Arial,sans-serif;
     }
-
-    .wrap{
-      width:min(900px,calc(100% - 28px));
-      margin:auto;
+    button,input,textarea,select { font:inherit; }
+    .wrap { width:min(1000px,calc(100% - 28px)); margin:auto; }
+    header { border-bottom:1px solid var(--line); padding:17px 0; }
+    .top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .brand { font-size:23px; font-weight:800; }
+    .brand span,.back { color:var(--gold); }
+    .back { text-decoration:none; font-size:13px; font-weight:700; }
+    main { padding:28px 0 50px; }
+    h1 { margin:0; font-size:32px; }
+    .intro { color:var(--muted); margin:8px 0 23px; font-size:14px; line-height:1.6; }
+    .toolbar,.card-actions { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; }
+    .btn {
+      border:0; border-radius:999px; padding:12px 17px;
+      font-size:13px; font-weight:800; cursor:pointer;
+      text-decoration:none; display:inline-flex; align-items:center; justify-content:center;
     }
-
-    header{
-      border-bottom:1px solid var(--line);
-      background:#071112;
-      padding:18px 0;
+    .btn:disabled { opacity:.55; cursor:not-allowed; }
+    .gold { background:var(--gold); color:#111; }
+    .dark { background:#1b2b2c; color:white; border:1px solid var(--line); }
+    .danger { background:var(--red); color:white; }
+    .green { background:var(--green); color:white; }
+    .whatsapp { background:#25d366; color:#071112; }
+    .form-box {
+      background:var(--panel); border:1px solid var(--line);
+      border-radius:var(--radius); padding:22px; margin-bottom:28px;
     }
-
-    .top{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
+    .hidden { display:none !important; }
+    .field { margin-bottom:18px; }
+    label { display:block; font-size:12px; font-weight:800; letter-spacing:.5px; margin-bottom:8px; }
+    input,textarea,select {
+      width:100%; border:1px solid #354647; background:#0b1819;
+      color:white; border-radius:11px; padding:13px; outline:none;
     }
-
-    .brand{
-      font-size:23px;
-      font-weight:800;
+    input:focus,textarea:focus,select:focus { border-color:var(--gold); }
+    textarea { min-height:120px; resize:vertical; line-height:1.5; }
+    .hint { display:block; margin-top:7px; color:var(--muted); font-size:12px; line-height:1.5; }
+    .availability { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .availability label { margin:0; }
+    .availability input { width:auto; position:absolute; opacity:0; }
+    .availability span {
+      display:block; text-align:center; padding:13px 8px;
+      border:1px solid #354647; border-radius:11px; cursor:pointer;
     }
-
-    .brand span{
-      color:var(--gold);
+    .availability input:checked + span { border-color:var(--green); background:#09271f; }
+    .preview,.detail-gallery { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
+    .preview img,.preview video { width:94px; height:76px; object-fit:cover; border-radius:10px; background:#000; }
+    .status {
+      padding:12px 14px; margin:0 0 16px; border:1px solid var(--line);
+      border-radius:10px; color:var(--muted); font-size:13px; line-height:1.5;
+      overflow-wrap:anywhere;
     }
-
-    .back{
-      color:var(--gold);
-      text-decoration:none;
-      font-size:13px;
-      font-weight:700;
-    }
-
-    main{
-      padding:30px 0 50px;
-    }
-
-    h1{
-      margin:0;
-      font-size:32px;
-    }
-
-    .intro{
-      color:var(--muted);
-      margin:7px 0 28px;
-      font-size:14px;
-    }
-
-    .form-box{
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      padding:22px;
-    }
-
-    .field{
-      margin-bottom:20px;
-    }
-
-    label{
-      display:block;
-      font-size:12px;
-      font-weight:800;
-      letter-spacing:.6px;
-      margin-bottom:8px;
-    }
-
-    input,
-    textarea,
-    select{
-      width:100%;
-      border:1px solid #354647;
-      background:#0b1819;
-      color:white;
-      border-radius:11px;
-      padding:13px;
-      outline:none;
-    }
-
-    textarea{
-      min-height:160px;
-      resize:vertical;
-      line-height:1.5;
-    }
-
-    textarea:focus{
-      border-color:#ffb52e;
-    }
-
-    .availability{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-    }
-
-    .availability label{
-      margin:0;
-    }
-
-    .availability input{
-      display:none;
-    }
-
-    .availability span{
-      display:block;
-      text-align:center;
-      padding:13px;
-      border:1px solid #354647;
-      border-radius:11px;
-      cursor:pointer;
-    }
-
-    .availability input:checked + span{
-      border-color:var(--green);
-      background:#09271f;
-    }
-
-    .images{
-      border:1px dashed #50605f;
-      border-radius:12px;
-      padding:20px;
-      text-align:center;
-      color:var(--muted);
-    }
-
-    .post{
-      width:100%;
-      border:0;
-      border-radius:999px;
-      background:var(--gold);
-      color:#111;
-      padding:14px;
-      font-weight:800;
-      cursor:pointer;
-      font-size:14px;
-    }
-
-    .note{
-      margin-top:18px;
-      padding:13px;
-      border-radius:10px;
-      background:#171d1d;
-      color:var(--muted);
-      font-size:11px;
-      text-align:center;
-    }
-
-    @media(max-width:600px){
-      h1{
-        font-size:27px;
-      }
-
-      .form-box{
-        padding:17px;
-      }
+    .status.error { color:#ffaaa5; border-color:#74332f; }
+    .status.success { color:#8df0c5; border-color:#17694e; }
+    .section-title { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:30px 0 14px; }
+    .section-title h2 { margin:0; font-size:22px; }
+    .listings { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+    .rental-card { min-width:0; overflow:hidden; border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); }
+    .card-image { width:100%; height:220px; display:block; object-fit:cover; background:#0b1819; }
+    .card-body { padding:17px; }
+    .card-body h3 { font-size:19px; margin:0 0 9px; overflow-wrap:anywhere; }
+    .card-description { color:#d6dfdc; font-size:13px; line-height:1.6; white-space:pre-wrap; overflow-wrap:anywhere; }
+    .price { color:var(--gold); font-size:18px; font-weight:800; margin:13px 0 8px; overflow-wrap:anywhere; }
+    .location { color:var(--muted); font-size:13px; margin:8px 0 12px; overflow-wrap:anywhere; }
+    .availability-tag { font-size:12px; font-weight:800; margin-bottom:10px; }
+    .available { color:#46dfa4; }
+    .unavailable { color:#ff827b; }
+    .card-actions { margin:14px 0 0; gap:8px; }
+    .card-actions .btn { flex:1 1 auto; }
+    .details { border-top:1px solid var(--line); padding:17px; background:#0b1718; }
+    .details h4 { margin:18px 0 7px; color:var(--gold); font-size:12px; letter-spacing:.5px; }
+    .details h4:first-child { margin-top:0; }
+    .detail-text { margin:0; font-size:13px; line-height:1.7; white-space:pre-wrap; overflow-wrap:anywhere; color:#e0e7e4; }
+    .detail-gallery img { width:95px; height:78px; object-fit:cover; border-radius:9px; cursor:pointer; }
+    .detail-video { display:block; width:100%; max-height:340px; border-radius:12px; margin-top:12px; background:#000; }
+    .empty { border:1px dashed #354647; border-radius:14px; padding:25px 17px; color:var(--muted); text-align:center; line-height:1.6; grid-column:1/-1; }
+    .note { margin-top:24px; padding:14px; border-radius:10px; background:#171d1d; color:var(--muted); font-size:11px; line-height:1.6; text-align:center; }
+    .account-line { color:var(--muted); font-size:13px; margin:0 0 17px; overflow-wrap:anywhere; }
+    @media(max-width:650px) {
+      h1 { font-size:27px; }
+      .form-box { padding:16px; }
+      .listings { grid-template-columns:1fr; }
+      .card-image { height:225px; }
+      .section-title h2 { font-size:19px; }
     }
   </style>
 </head>
-
 <body>
 <header>
   <div class="wrap top">
-    <div class="brand">
-      SHUK<span>AFRICA</span>
-    </div>
-
+    <div class="brand">SHUK<span>AFRICA</span></div>
     <a href="index.html" class="back">← Back</a>
   </div>
 </header>
 
-<main>
-  <div class="wrap">
+<main class="wrap">
+  <h1>RENTALS</h1>
+  <p class="intro">Rent products, properties and equipment across the region. Browse listings freely or sign in to manage your rentals.</p>
 
-    <h1>RENTALS</h1>
+  <div class="toolbar">
+    <button class="btn gold" id="openOwnerBtn" type="button">＋ OWNER DASHBOARD</button>
+    <button class="btn dark" id="refreshBtn" type="button">↻ REFRESH LISTINGS</button>
+  </div>
 
-    <p class="intro">
-      Rent products, properties and equipment across the region.
-    </p>
+  <div id="globalStatus" class="status hidden" role="status" aria-live="polite"></div>
 
-    <div class="form-box">
-
-      <div class="field">
-        <label>RENTAL TITLE / HEADLINE</label>
-        <input type="text" id="rentalTitle" placeholder="e.g. Toyota Corolla for Rent">
-      </div>
-
-      <div class="field">
-        <label>DESCRIPTION</label>
-        <textarea id="rentalDescription" placeholder="Describe the rental..."></textarea>
-      </div>
-
-      <div class="field">
-        <label>PHOTOS</label>
-
-        <input
-          type="file"
-          id="rentalImages"
-          accept="image/*"
-          multiple
-        >
-
-        <small style="display:block;margin-top:8px;color:#a8b6b3;">
-          1–5 images required • Maximum 2 MB per image
-        </small>
-
-        <div id="imagePreview" style="
-          display:flex;
-          flex-wrap:wrap;
-          gap:10px;
-          margin-top:12px;
-        "></div>
-      </div>
-
-      <div class="field">
-        <label>PRICE</label>
-        <input type="text" id="rentalPrice" placeholder="e.g. GH₵ 3,000/month">
-      </div>
-
-      <div class="field">
-        <label>AVAILABILITY</label>
-
-        <div class="availability">
-          <label>
-            <input type="radio" name="availability" value="Available" checked>
-            <span>🟢 Available</span>
-          </label>
-
-          <label>
-            <input type="radio" name="availability" value="Not Available">
-            <span>🔴 Not Available</span>
-          </label>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>CONDITION</label>
-        <select id="rentalCondition">
-          <option>New</option>
-          <option>Good Condition</option>
-          <option>Used</option>
-          <option>Needs Repair</option>
-        </select>
-      </div> 
-
-      <div class="field">
-        <label>RENTAL TERMS &amp; REQUIREMENTS</label>
-        <textarea id="rentalTerms" placeholder="Enter rental terms and requirements"></textarea>
-      </div>
-
-      <div class="field">
-        <label>LOCATION</label>
-        <input type="text" id="rentalLocation" placeholder="e.g. Accra, Ghana">
-      </div>
-
-      <div class="field">
-        <label>CONTACT</label>
-        <input type="text" id="rentalContact" placeholder="Phone / WhatsApp">
-      </div>
-
-      <button class="post" type="button" onclick="postRental()">
-        POST RENTAL
-      </button>
-
-      <div id="rentalListings"></div>
-
-      <div class="note">
-        ShukAfrica connects renters with owners. Payment and rental agreements are handled directly between the parties.
-      </div>
-
+  <section id="ownerPanel" class="form-box hidden">
+    <div class="section-title" style="margin-top:0">
+      <h2 id="accountHeading">OWNER ACCOUNT</h2>
+      <button class="btn dark" id="closeOwnerBtn" type="button">CLOSE</button>
     </div>
 
-  </div>
+    <div id="signedOutArea">
+      <p class="intro">Create an account to publish and manage rental listings.</p>
+      <div class="toolbar">
+        <button class="btn gold" id="showLoginBtn" type="button">SIGN IN</button>
+        <button class="btn dark" id="showRegisterBtn" type="button">CREATE ACCOUNT</button>
+      </div>
+
+      <form id="loginForm">
+        <div class="field">
+          <label for="loginEmail">EMAIL ADDRESS</label>
+          <input id="loginEmail" type="email" autocomplete="email" maxlength="254" required>
+        </div>
+        <div class="field">
+          <label for="loginPassword">PASSWORD</label>
+          <input id="loginPassword" type="password" autocomplete="current-password" required>
+        </div>
+        <button class="btn gold" type="submit">SIGN IN</button>
+      </form>
+
+      <form id="registerForm" class="hidden">
+        <div class="field">
+          <label for="registerName">FULL NAME</label>
+          <input id="registerName" type="text" autocomplete="name" maxlength="100" required>
+        </div>
+        <div class="field">
+          <label for="registerEmail">EMAIL ADDRESS</label>
+          <input id="registerEmail" type="email" autocomplete="email" maxlength="254" required>
+        </div>
+        <div class="field">
+          <label for="registerPassword">PASSWORD</label>
+          <input id="registerPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128" required>
+          <small class="hint">Use at least 12 characters. Keep your password private.</small>
+        </div>
+        <button class="btn gold" type="submit">CREATE ACCOUNT</button>
+      </form>
+    </div>
+
+    <div id="signedInArea" class="hidden">
+      <p class="account-line" id="accountSummary"></p>
+      <div class="toolbar">
+        <button class="btn gold" id="newListingBtn" type="button">＋ NEW RENTAL</button>
+        <button class="btn dark" id="logoutBtn" type="button">SIGN OUT</button>
+      </div>
+
+      <h3 id="editorHeading">CREATE A RENTAL</h3>
+      <p class="intro">Complete the details below. The server must accept your listing before it is published.</p>
+
+      <form id="rentalForm">
+        <input type="hidden" id="editingId">
+
+        <div class="field">
+          <label for="rentalTitle">RENTAL TITLE / HEADLINE *</label>
+          <input id="rentalTitle" maxlength="150" placeholder="e.g. Toyota Corolla for Rent" required>
+        </div>
+        <div class="field">
+          <label for="rentalDescription">DESCRIPTION *</label>
+          <textarea id="rentalDescription" maxlength="10000" placeholder="Describe the rental..." required></textarea>
+        </div>
+        <div class="field">
+          <label for="rentalImages">PHOTOS *</label>
+          <input id="rentalImages" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+          <small class="hint">Choose 1–3 photos, maximum 4 MB per photo. When editing, selecting new photos replaces the existing photo set.</small>
+          <div id="imagePreview" class="preview"></div>
+          <div id="existingImages" class="preview"></div>
+        </div>
+        <div class="field">
+          <label for="rentalVideo">OPTIONAL VIDEO</label>
+          <input id="rentalVideo" type="file" accept="video/mp4,video/webm,video/x-msvideo">
+          <small class="hint">Optional: one MP4, WebM or AVI video, maximum 10 MB.</small>
+          <div id="videoPreview" class="preview"></div>
+          <div id="existingVideo"></div>
+        </div>
+        <div class="field">
+          <label for="rentalPrice">PRICE *</label>
+          <input id="rentalPrice" maxlength="100" placeholder="e.g. GH₵ 3,000/month" required>
+        </div>
+        <div class="field">
+          <label>AVAILABILITY *</label>
+          <div class="availability">
+            <label><input type="radio" name="availability" value="Available" checked><span>🟢 Available</span></label>
+            <label><input type="radio" name="availability" value="Not Available"><span>🔴 Not Available</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label for="rentalCondition">CONDITION *</label>
+          <select id="rentalCondition" required>
+            <option>New</option><option selected>Good Condition</option><option>Used</option><option>Needs Repair</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="rentalTerms">RENTAL TERMS &amp; REQUIREMENTS</label>
+          <textarea id="rentalTerms" maxlength="5000" placeholder="Deposit, duration, requirements, and other conditions"></textarea>
+        </div>
+        <div class="field">
+          <label for="rentalLocation">LOCATION *</label>
+          <input id="rentalLocation" maxlength="200" placeholder="e.g. Accra, Ghana" required>
+        </div>
+        <div class="field">
+          <label for="rentalContact">PHONE / WHATSAPP CONTACT *</label>
+          <input id="rentalContact" type="tel" maxlength="40" placeholder="e.g. +233 24 123 4567" required>
+        </div>
+
+        <div id="formStatus" class="status hidden" role="status" aria-live="polite"></div>
+        <div class="toolbar">
+          <button class="btn gold" id="saveListingBtn" type="submit">PUBLISH RENTAL</button>
+          <button class="btn dark hidden" id="cancelEditBtn" type="button">CANCEL EDIT</button>
+        </div>
+      </form>
+
+      <div class="section-title"><h2>MY RENTALS</h2><span class="account-line" id="myCount"></span></div>
+      <div id="myListings" class="listings"><div class="empty">Sign in to load your listings.</div></div>
+    </div>
+  </section>
+
+  <div class="section-title"><h2>AVAILABLE RENTALS</h2><span class="account-line" id="publicCount"></span></div>
+  <div id="rentalListings" class="listings"><div class="empty">Loading rental listings…</div></div>
+
+  <div class="note">ShukAfrica connects renters with owners. Confirm the details and agree on payment and rental terms directly with the owner before making any payment.</div>
 </main>
 
 <script>
-const rentalImages = document.getElementById("rentalImages");
-const imagePreview = document.getElementById("imagePreview");
+"use strict";
 
-rentalImages.addEventListener("change", function() {
+const API = {
+  listings:"/api/rentals/listings",
+  register:"/api/rentals/register",
+  login:"/api/rentals/login",
+  logout:"/api/rentals/logout",
+  session:"/api/rentals/session",
+  manage:"/api/rentals/manage",
+  upload:"/api/rentals/upload",
+  media:"/api/rentals/media"
+};
 
-  imagePreview.innerHTML = "";
+const PHOTO_LIMIT = 4 * 1024 * 1024;
+const VIDEO_LIMIT = 10 * 1024 * 1024;
+const MAX_PHOTOS = 3;
+const $ = id => document.getElementById(id);
 
-  const files = Array.from(this.files);
+let owner = null;
+let publicListings = [];
+let myListings = [];
+let editingListing = null;
+let busy = false;
+let selectedPhotos = [];
+let selectedVideo = null;
+let previewUrls = [];
 
-  if (files.length < 1) {
-    alert("Please select at least 1 image.");
-    this.value = "";
-    return;
-  }
+function mediaUrl(key) {
+  return API.media + "?key=" + encodeURIComponent(key);
+}
 
-  if (files.length > 5) {
-    alert("You can upload a maximum of 5 images.");
-    this.value = "";
-    return;
-  }
-
-  for (const file of files) {
-
-    if (file.size > 2 * 1024 * 1024) {
-      alert(file.name + " is larger than 2 MB.");
-      this.value = "";
-      imagePreview.innerHTML = "";
-      return;
+async function apiRequest(url, options = {}) {
+  const isFormData = options.body instanceof FormData;
+  const response = await fetch(url, {
+    credentials:"same-origin",
+    ...options,
+    headers:{
+      ...(isFormData ? {} : {"Content-Type":"application/json"}),
+      ...(options.headers || {})
     }
-
-    const img = document.createElement("img");
-
-    img.src = URL.createObjectURL(file);
-    img.style.width = "90px";
-    img.style.height = "70px";
-    img.style.objectFit = "cover";
-    img.style.borderRadius = "10px";
-
-    imagePreview.appendChild(img);
-  }
-
-});
-
-
-function postRental() {
-
-  const title = document.getElementById("rentalTitle").value.trim();
-  const location = document.getElementById("rentalLocation").value.trim();
-  const contact = document.getElementById("rentalContact").value.trim();
-  const condition = document.getElementById("rentalCondition").value;
-  const terms = document.getElementById("rentalTerms").value.trim();
-  const description = document.getElementById("rentalDescription").value.trim();
-  const price = document.getElementById("rentalPrice").value.trim();
-
-  const availability = document.querySelector(
-    'input[name="availability"]:checked'
-  )?.value || "Available";
-
-  const files = Array.from(rentalImages.files);
-
-  if (!title || !description) {
-    alert("Please enter the rental headline and description.");
-    return;
-  }
-
-  if (files.length < 1) {
-    alert("Please select at least 1 rental photo.");
-    return;
-  }
-
-  const listing = document.getElementById("rentalListings");
-
-  const mainImage = URL.createObjectURL(files[0]);
-
-  let otherImages = "";
-
-  files.slice(1).forEach(file => {
-
-    const imageUrl = URL.createObjectURL(file);
-
-    otherImages += `
-      <img
-        src="${imageUrl}"
-        onclick="window.open(this.src, '_blank')"
-        style="
-          width:90px;
-          height:70px;
-          object-fit:cover;
-          border-radius:10px;
-          cursor:zoom-in;
-        "
-        alt="Rental photo"
-        onerror="this.style.display='none'"
-      >
-    `;
-
   });
 
-  const cleanPhone = contact.replace(/[^0-9+]/g, '');
+  const text = await response.text();
+  let data = {};
+  try { data = text ? JSON.parse(text) : {}; }
+  catch { throw new Error("The server returned an unexpected response. Please try again."); }
 
-  const cardHTML = `
-    <div class="rental-card" style="
-      margin-top:20px;
-      padding:18px;
-      border:1px solid #263738;
-      border-radius:18px;
-      background:#101d1e;
-    ">
-
-      <a href="javascript:void(0)" onclick="window.open('${mainImage}', '_blank')">
-        <img src="${mainImage}" style="
-          width:100%;
-          height:220px;
-          object-fit:cover;
-          border-radius:14px;
-          display:block;
-          margin-bottom:15px;
-          cursor:zoom-in;
-        ">
-      </a>
-
-      <h2 style="margin-top:0;">${title}</h2>
-
-      <p>${description}</p>
-
-      <div style="
-        color:${availability === "Available" ? "#00a86b" : "#ed3e35"};
-        font-weight:bold;
-        margin-bottom:15px;
-      ">
-        ${availability === "Available" ? "🟢 AVAILABLE" : "🔴 NOT AVAILABLE"}
-      </div>
-
-      <div style="
-        color:#ffb52e;
-        font-size:18px;
-        font-weight:bold;
-        margin:10px 0;
-      ">
-        💰 ${price || "Price not provided"}
-      </div>
-
-      <div style="
-        color:#a8b6b3;
-        margin:8px 0;
-      ">
-        📍 ${location || "Location not provided"}
-      </div>
-
-      <button
-        type="button"
-        onclick="editRental(this)"
-        style="
-          margin-top:10px;
-          margin-right:8px;
-          border:0;
-          border-radius:999px;
-          background:#ffb52e;
-          color:#111;
-          padding:11px 16px;
-          font-weight:800;
-          cursor:pointer;
-        "
-      >
-        ✏️ EDIT RENTAL
-      </button>
-
-      <button
-        type="button"
-        onclick="this.closest('.rental-card').remove()"
-        style="
-          margin-top:10px;
-          margin-right:8px;
-          border:0;
-          border-radius:999px;
-          background:#ed3e35;
-          color:white;
-          padding:11px 16px;
-          font-weight:800;
-          cursor:pointer;
-        "
-      >
-        🗑️ DELETE RENTAL
-      </button>
-
-      <button
-        type="button"
-        onclick="toggleDetails(this)"
-        style="
-          margin-top:10px;
-          border:0;
-          border-radius:999px;
-          background:#ffb52e;
-          color:#111;
-          padding:11px 16px;
-          font-weight:800;
-          cursor:pointer;
-        "
-      >
-        VIEW DETAILS →
-      </button>
-
-      <div class="details-panel" style="
-        display:none;
-        margin-top:15px;
-      ">
-
-        <h3>PHOTOS</h3>
-
-        <div style="
-          display:flex;
-          flex-wrap:wrap;
-          gap:10px;
-        ">
-          <img src="${mainImage}" style="
-            width:90px;
-            height:70px;
-            object-fit:cover;
-            border-radius:10px;
-          ">
-          ${otherImages}
-        </div>
-
-        <h3>CONTACT</h3>
-
-        <p style="
-          font-size:16px;
-          font-weight:bold;
-        ">
-          📞 ${contact || "Contact not provided"}
-        </p>
-
-        <div style="
-          display:flex;
-          gap:10px;
-          flex-wrap:wrap;
-          margin-top:10px;
-        ">
-
-          <a
-            href="tel:${cleanPhone}"
-            style="
-              text-decoration:none;
-              background:#00a86b;
-              color:white;
-              padding:11px 18px;
-              border-radius:999px;
-              font-weight:800;
-              display:inline-block;
-            "
-          >
-            📞 CALL
-          </a>
-
-          <a
-            href="https://wa.me/${cleanPhone.replace('+', '')}"
-            target="_blank"
-            style="
-              text-decoration:none;
-              background:#25D366;
-              color:white;
-              padding:11px 18px;
-              border-radius:999px;
-              font-weight:800;
-              display:inline-block;
-            "
-          >
-            💬 WHATSAPP
-          </a>
-
-        </div>
-
-        <h3>CONDITION</h3>
-
-        <p>
-          🛠️ ${condition}
-        </p>
-
-        <h3>RENTAL TERMS & REQUIREMENTS</h3>
-
-        <p>
-          ${terms || "No special rental terms provided."}
-        </p>
-
-      </div>
-    </div>
-  `;
-
-  listing.insertAdjacentHTML("beforeend", cardHTML);
-
-  // Clear input fields
-  document.getElementById("rentalTitle").value = "";
-  document.getElementById("rentalDescription").value = "";
-  document.getElementById("rentalPrice").value = "";
-  document.getElementById("rentalTerms").value = "";
-  document.getElementById("rentalLocation").value = "";
-  document.getElementById("rentalContact").value = "";
-  rentalImages.value = "";
-  imagePreview.innerHTML = "";
-
-  alert("Your rental listing has been posted!");
+  if (!response.ok || data.success === false) {
+    throw new Error(data.error || data.message || ("Request failed (" + response.status + ")."));
+  }
+  return data;
 }
 
-function toggleDetails(button) {
-  const details = button.closest(".rental-card").querySelector(".details-panel");
-  if (details) {
-    details.style.display = (details.style.display === "none" || !details.style.display) ? "block" : "none";
+function setStatus(el, message, type = "") {
+  el.textContent = message;
+  el.classList.remove("hidden","error","success");
+  if (type) el.classList.add(type);
+}
+function clearStatus(el) {
+  el.textContent = "";
+  el.classList.add("hidden");
+  el.classList.remove("error","success");
+}
+function makeElement(tag, className, text) {
+  const el = document.createElement(tag);
+  if (className) el.className = className;
+  if (text !== undefined) el.textContent = text;
+  return el;
+}
+function createButton(text, className, callback) {
+  const button = makeElement("button","btn " + className,text);
+  button.type = "button";
+  button.addEventListener("click",callback);
+  return button;
+}
+function createMediaImage(key, alt, className = "") {
+  const img = makeElement("img",className);
+  img.src = mediaUrl(key);
+  img.alt = alt || "Rental photo";
+  img.loading = "lazy";
+  img.addEventListener("error",() => { img.alt = "Image could not be loaded"; });
+  return img;
+}
+function showOwnerPanel() {
+  $("ownerPanel").classList.remove("hidden");
+  $("ownerPanel").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function setAuthView() {
+  $("signedOutArea").classList.toggle("hidden",!!owner);
+  $("signedInArea").classList.toggle("hidden",!owner);
+  $("accountHeading").textContent = owner ? "OWNER DASHBOARD" : "OWNER ACCOUNT";
+  if (owner) $("accountSummary").textContent = "Signed in as " + (owner.name || owner.email || "Rental owner");
+  else showLogin();
+}
+function showLogin() {
+  $("loginForm").classList.remove("hidden");
+  $("registerForm").classList.add("hidden");
+}
+function showRegister() {
+  $("registerForm").classList.remove("hidden");
+  $("loginForm").classList.add("hidden");
+}
+async function loadSession() {
+  try {
+    const data = await apiRequest(API.session,{method:"GET"});
+    owner = data.authenticated ? data.owner : null;
+  } catch { owner = null; }
+  setAuthView();
+  if (owner) await loadMyListings();
+}
+async function loadPublicListings() {
+  const container = $("rentalListings");
+  container.replaceChildren(makeElement("div","empty","Loading rental listings…"));
+  try {
+    const data = await apiRequest(API.listings,{method:"GET"});
+    publicListings = Array.isArray(data.listings) ? data.listings : [];
+    renderPublicListings();
+  } catch (error) {
+    container.replaceChildren(makeElement("div","empty",error.message || "Unable to load rental listings."));
   }
 }
-
-function editRental(button) {
-
-  const card = button.closest(".rental-card");
-
-  if (!card) return;
-
-  const title = card.querySelector("h2")?.textContent || "";
-  const description = card.querySelector("p")?.textContent || "";
-
-  document.getElementById("rentalTitle").value = title;
-  document.getElementById("rentalDescription").value = description;
-
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-
+async function loadMyListings() {
+  if (!owner) return;
+  const container = $("myListings");
+  container.replaceChildren(makeElement("div","empty","Loading your rentals…"));
+  try {
+    const data = await apiRequest(API.listings,{method:"GET"});
+    const all = Array.isArray(data.listings) ? data.listings : [];
+    myListings = all.filter(item => item.owner_id && owner.id && String(item.owner_id) === String(owner.id));
+    renderMyListings();
+  } catch (error) {
+    container.replaceChildren(makeElement("div","empty","Unable to load your rentals: " + error.message));
+  }
 }
-</script>
+function renderPublicListings() {
+  const container = $("rentalListings");
+  container.replaceChildren();
+  $("publicCount").textContent = publicListings.length + " listing(s)";
+  if (!publicListings.length) {
+    container.appendChild(makeElement("div","empty","No published rentals yet. Owners can sign in and post the first listing."));
+    return;
+  }
+  publicListings.forEach(item => container.appendChild(createListingCard(item,false)));
+}
+function renderMyListings() {
+  const container = $("myListings");
+  container.replaceChildren();
+  $("myCount").textContent = myListings.length + " listing(s)";
+  if (!myListings.length) {
+    container.appendChild(makeElement("div","empty","No rentals are linked to your account in the public listing response yet."));
+    return;
+  }
+  myListings.forEach(item => container.appendChild(createListingCard(item,true)));
+}
+function normalizePhone(value) {
+  if (!value) return "";
+  let phone = String(value).replace(/[^\d+]/g,"");
+  if (phone.startsWith("00")) phone = "+" + phone.slice(2);
+  return phone.startsWith("+") ? phone.slice(1).replace(/\D/g,"") : phone.replace(/\D/g,"");
+}
+function createListingCard(item,isOwner) {
+  const card = makeElement("article","rental-card");
+  if (item.image_1) card.appendChild(createMediaImage(item.image_1,item.title,"card-image"));
+  else card.appendChild(makeElement("div","empty","No photo available"));
 
-</body>
-  </html>
-  
+  const body = makeElement("div","card-body");
+  body.appendChild(makeElement("h3","",item.title || "Untitled rental"));
+  body.appendChild(makeElement("div","availability-tag " + (item.availability === "Available" ? "available" : "unavailable"),
+    item.availability === "Available" ? "🟢 AVAILABLE" : "🔴 NOT AVAILABLE"));
+  body.appendChild(makeElement("p","card-description",item.description || ""));
+  body.appendChild(makeElement("div","price","💰 " + (item.price || "Price not provided")));
+  body.appendChild(makeElement("div","location","📍 " + (item.location || "Location not provided")));
+
+  const actions = makeElement("div","card-actions");
+  const detailsButton = createButton("VIEW DETAILS →","gold",() => {
+    const details = card.querySelector(".details");
+    details.classList.toggle("hidden");
+    detailsButton.textContent = details.classList.contains("hidden") ? "VIEW DETAILS →" : "HIDE DETAILS ↑";
+  });
+  actions.appendChild(detailsButton);
+
+  const phone = normalizePhone(item.contact);
+  if (phone) {
+    const call = makeElement("a","btn green","📞 CALL");
+    call.href = "tel:" + phone;
+    actions.appendChild(call);
+    const wa = makeElement("a","btn whatsapp","💬 WHATSAPP");
+    wa.href = "https://wa.me/" + phone;
+    wa.target = "_blank";
+    wa.rel = "noopener noreferrer";
+    actions.appendChild(wa);
+  }
+  if (isOwner) {
+    actions.appendChild(createButton("✏️ EDIT
