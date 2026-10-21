@@ -1,990 +1,560 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rentals — ShukAfrica</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#071112">
+  <title>Rentals — ShukAfrica</title>
 
-<style>
-:root {
-  --bg:#071112;
-  --panel:#101d1e;
-  --line:#263738;
-  --text:#f5f7f5;
-  --muted:#a8b6b3;
-  --gold:#ffb52e;
-  --green:#00a86b;
-  --red:#ed3e35;
-  --radius:18px;
-}
-* { box-sizing:border-box; }
-body {
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
-  font-family:Arial,sans-serif;
-}
-.wrap { width:min(900px,calc(100% - 28px)); margin:auto; }
-header {
-  border-bottom:1px solid var(--line);
-  background:var(--bg);
-  padding:18px 0;
-}
-.top {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-}
-.brand { font-size:23px; font-weight:800; }
-.brand span { color:var(--gold); }
-.back { color:var(--gold); text-decoration:none; font-size:13px; font-weight:700; }
-main { padding:30px 0 50px; }
-h1 { margin:0; font-size:32px; }
-.intro { color:var(--muted); margin:7px 0 24px; font-size:14px; }
-.form-box,.section-box {
-  background:var(--panel);
-  border:1px solid var(--line);
-  border-radius:var(--radius);
-  padding:20px;
-  margin-bottom:20px;
-}
-.field { margin-bottom:18px; }
-label {
-  display:block;
-  font-size:12px;
-  font-weight:800;
-  letter-spacing:.5px;
-  margin-bottom:8px;
-}
-input,textarea,select {
-  width:100%;
-  border:1px solid #354647;
-  background:#0b1819;
-  color:white;
-  border-radius:11px;
-  padding:13px;
-  outline:none;
-  font:inherit;
-}
-input:focus,textarea:focus,select:focus { border-color:var(--gold); }
-textarea { min-height:100px; resize:vertical; line-height:1.5; }
-button {
-  font:inherit;
-  cursor:pointer;
-}
-.btn {
-  border:0;
-  border-radius:999px;
-  padding:12px 16px;
-  font-weight:800;
-}
-.gold { background:var(--gold); color:#111; }
-.green { background:var(--green); color:white; }
-.red { background:var(--red); color:white; }
-.secondary { background:#263738; color:white; border:1px solid #405352; }
-.btn:disabled { opacity:.55; cursor:not-allowed; }
-.actions { display:flex; flex-wrap:wrap; gap:9px; margin-top:12px; }
-.availability { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.availability label { margin:0; }
-.availability input { width:auto; }
-.availability span {
-  display:block;
-  text-align:center;
-  padding:13px;
-  border:1px solid #354647;
-  border-radius:11px;
-  cursor:pointer;
-}
-.availability input:checked + span { border-color:var(--green); background:#09271f; }
-.image-grid { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
-.image-grid img {
-  width:90px; height:70px; object-fit:cover;
-  border-radius:10px; border:1px solid var(--line);
-}
-.status { display:none; padding:12px; border-radius:10px; margin:12px 0; font-size:13px; overflow-wrap:anywhere; }
-.status.show { display:block; }
-.status.error { background:#351817; color:#ffb8b3; }
-.status.success { background:#103426; color:#a8f0ca; }
-.status.info { background:#182929; color:#d2e4e0; }
-.rental-card {
-  margin-top:16px;
-  padding:16px;
-  border:1px solid var(--line);
-  border-radius:18px;
-  background:#101d1e;
-  overflow-wrap:anywhere;
-}
-.rental-main-image {
-  width:100%; height:220px; object-fit:cover;
-  border-radius:14px; display:block; margin-bottom:14px;
-  background:#0b1819;
-}
-.rental-card h2 { font-size:21px; margin:0 0 12px; }
-.muted { color:var(--muted); }
-.price { color:var(--gold); font-size:18px; font-weight:800; margin:12px 0; }
-.details-panel { display:none; margin-top:16px; border-top:1px solid var(--line); padding-top:12px; }
-.details-panel.open { display:block; }
-.empty { padding:20px 8px; text-align:center; color:var(--muted); }
-.note {
-  margin-top:18px; padding:13px; border-radius:10px;
-  background:#171d1d; color:var(--muted); font-size:11px; text-align:center;
-}
-.hidden { display:none !important; }
-@media(max-width:600px) {
-  h1 { font-size:27px; }
-  .form-box,.section-box { padding:16px; }
-  .rental-main-image { height:190px; }
-}
-</style>
+  <style>
+    :root {
+      --bg: #071112;
+      --panel: #101d1e;
+      --field: #0b1819;
+      --line: #263738;
+      --text: #f5f7f5;
+      --muted: #a8b6b3;
+      --gold: #ffb52e;
+      --green: #00a86b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 14px;
+    }
+
+    .site-header {
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .topbar {
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      color: white;
+      font-size: 20px;
+      font-weight: 900;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .brand span {
+      color: var(--gold);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-link {
+      color: var(--gold);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .add-rental {
+      width: 42px;
+      height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      background: var(--green);
+      color: white;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .add-rental svg {
+      width: 23px;
+      height: 23px;
+    }
+
+    main {
+      padding-top: 24px;
+      padding-bottom: 40px;
+    }
+
+    .intro {
+      margin-bottom: 19px;
+    }
+
+    h1 {
+      margin: 0 0 5px;
+      font-size: 27px;
+      line-height: 1.2;
+    }
+
+    .tagline {
+      margin: 0 0 5px;
+      color: var(--gold);
+      font-size: 13px;
+      font-weight: bold;
+      line-height: 1.5;
+    }
+
+    .description {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .search-panel {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 9px;
+      padding: 11px;
+      margin-bottom: 23px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    .search-field {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+      min-height: 43px;
+      padding: 0 11px;
+      border: 1px solid #354647;
+      border-radius: 10px;
+      background: var(--field);
+    }
+
+    .search-field svg {
+      width: 17px;
+      height: 17px;
+      flex-shrink: 0;
+      color: var(--gold);
+    }
+
+    .search-field input {
+      width: 100%;
+      min-width: 0;
+      padding: 11px 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: white;
+      font: inherit;
+      font-size: 12px;
+    }
+
+    .search-field input::placeholder {
+      color: #a8b6b3;
+      opacity: 1;
+    }
+
+    .search-field:focus-within {
+      border-color: var(--gold);
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .result-count {
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .rental-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 11px;
+    }
+
+    .rental-card {
+      min-width: 0;
+      overflow: hidden;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 13px;
+    }
+
+    .rental-card[hidden] {
+      display: none !important;
+    }
+
+    .rental-image {
+      display: block;
+      width: 100%;
+      aspect-ratio: 5 / 4;
+      object-fit: cover;
+      background: #142323;
+    }
+
+    .rental-card-content {
+      padding: 10px;
+    }
+
+    .rental-category {
+      margin: 0 0 5px;
+      color: var(--gold);
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+
+    .rental-title {
+      margin: 0 0 6px;
+      font-size: 13px;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+
+    .rental-location {
+      margin: 0 0 7px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .rental-price {
+      margin: 0;
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: bold;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .empty-state {
+      padding: 27px 15px;
+      background: rgba(16, 29, 30, .55);
+      border: 1px dashed #354647;
+      border-radius: 14px;
+      text-align: center;
+    }
+
+    .empty-state svg {
+      width: 31px;
+      height: 31px;
+      margin-bottom: 8px;
+      color: var(--gold);
+    }
+
+    .empty-state h3 {
+      margin: 0 0 7px;
+      font-size: 14px;
+    }
+
+    .empty-state p {
+      max-width: 330px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .empty-state[hidden],
+    .no-results[hidden] {
+      display: none !important;
+    }
+
+    .no-results {
+      padding: 18px 12px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .note {
+      margin-top: 23px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    @media (min-width: 620px) {
+      main {
+        padding-top: 30px;
+      }
+
+      .search-panel {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .rental-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      h1 {
+        font-size: 29px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .brand {
+        font-size: 18px;
+      }
+
+      .add-rental {
+        width: 39px;
+        height: 39px;
+      }
+
+      h1 {
+        font-size: 25px;
+      }
+    }
+  </style>
 </head>
 
 <body>
-<header>
-  <div class="wrap top">
-    <div class="brand">SHUK<span>AFRICA</span></div>
-    <a href="index.html" class="back">← Back</a>
-  </div>
-</header>
+  <header class="site-header">
+    <div class="wrap topbar">
+      <a class="brand" href="index.html">SHUK<span>AFRICA</span></a>
 
-<main>
-<div class="wrap">
-  <h1>RENTALS</h1>
-  <p class="intro">Discover rental products, properties and equipment across the region.</p>
+      <div class="header-actions">
+        <a class="back-link" href="index.html">← Home</a>
 
-  <div class="actions" style="margin-bottom:18px">
-    <button type="button" class="btn gold" id="openOwnerBtn">OWNER DASHBOARD</button>
-    <button type="button" class="btn secondary" id="refreshBtn">↻ REFRESH LISTINGS</button>
-  </div>
-  <div id="globalStatus" class="status" role="status" aria-live="polite"></div>
-
-  <section id="ownerPanel" class="section-box hidden">
-    <div class="top">
-      <h2 style="margin:0;font-size:21px">OWNER DASHBOARD</h2>
-      <button type="button" id="closeOwnerBtn" class="btn secondary">CLOSE</button>
+        <!-- Change this destination only after confirming the real dashboard filename. -->
+        <a
+          class="add-rental"
+          href="rental-dashboard.html"
+          aria-label="List a rental"
+          title="List a rental"
+        >
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M12 5v14M5 12h14"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+            />
+          </svg>
+        </a>
+      </div>
     </div>
+  </header>
 
-    <div id="signedOutArea">
-      <p class="muted">Sign in to manage your rental listings, or create an owner account.</p>
-      <div class="actions">
-        <button type="button" class="btn gold" id="showLoginBtn">LOGIN</button>
-        <button type="button" class="btn secondary" id="showRegisterBtn">CREATE ACCOUNT</button>
+  <main class="wrap">
+    <section class="intro">
+      <h1>RENTALS</h1>
+      <p class="tagline">Find it. Rent it. Make it yours.</p>
+      <p class="description">
+        Discover homes, vehicles, and more across Africa.
+      </p>
+    </section>
+
+    <section class="search-panel" aria-label="Search rentals">
+      <label class="search-field">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle
+            cx="10.8"
+            cy="10.8"
+            r="6.8"
+            stroke="currentColor"
+            stroke-width="1.8"
+          />
+          <path
+            d="m16 16 4.2 4.2"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+          />
+        </svg>
+
+        <input
+          id="rentalSearch"
+          type="search"
+          placeholder="Search by product name or price..."
+          aria-label="Search by product name or price"
+          autocomplete="off"
+        >
+      </label>
+
+      <label class="search-field">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M20 10.2c0 5.2-8 11-8 11s-8-5.8-8-11a8 8 0 1 1 16 0Z"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linejoin="round"
+          />
+          <circle
+            cx="12"
+            cy="10"
+            r="2.5"
+            stroke="currentColor"
+            stroke-width="1.8"
+          />
+        </svg>
+
+        <input
+          id="locationSearch"
+          type="search"
+          placeholder="Search by city, town or country..."
+          aria-label="Search by city, town or country"
+          autocomplete="off"
+        >
+      </label>
+    </section>
+
+    <section aria-labelledby="latest-heading">
+      <div class="section-heading">
+        <h2 id="latest-heading">Latest Rentals</h2>
+        <span id="resultCount" class="result-count">Browse listings</span>
       </div>
 
-      <form id="loginForm" class="form-box" style="margin-top:18px">
-        <h3>Owner Login</h3>
-        <div class="field">
-          <label for="loginEmail">EMAIL ADDRESS</label>
-          <input id="loginEmail" type="email" autocomplete="email" required>
-        </div>
-        <div class="field">
-          <label for="loginPassword">PASSWORD</label>
-          <input id="loginPassword" type="password" autocomplete="current-password" required>
-        </div>
-        <button type="submit" class="btn gold">LOGIN</button>
-        <div id="loginStatus" class="status" role="status"></div>
-      </form>
+      <div id="rentalGrid" class="rental-grid" aria-live="polite"></div>
 
-      <form id="registerForm" class="form-box hidden" style="margin-top:18px">
-        <h3>Create Owner Account</h3>
-        <div class="field">
-          <label for="registerName">FULL NAME</label>
-          <input id="registerName" type="text" autocomplete="name" required maxlength="100">
-        </div>
-        <div class="field">
-          <label for="registerEmail">EMAIL ADDRESS</label>
-          <input id="registerEmail" type="email" autocomplete="email" required>
-        </div>
-        <div class="field">
-          <label for="registerPassword">PASSWORD</label>
-          <input id="registerPassword" type="password" autocomplete="new-password" required minlength="8">
-          <small class="muted">Use at least 8 characters.</small>
-        </div>
-        <button type="submit" class="btn gold">CREATE ACCOUNT</button>
-        <div id="registerStatus" class="status" role="status"></div>
-      </form>
-    </div>
+      <div id="emptyState" class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M3.5 10.5 12 3l8.5 7.5M5.5 9.5V21h13V9.5M9 21v-7h6v7"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
 
-    <div id="signedInArea" class="hidden">
-      <p id="accountSummary" class="muted"></p>
-      <div class="actions">
-        <button type="button" class="btn gold" id="newListingBtn">＋ NEW RENTAL</button>
-        <button type="button" class="btn secondary" id="logoutBtn">LOG OUT</button>
+        <h3>Rental listings will appear here</h3>
+        <p>
+          Homes, vehicles, equipment and other rental offers will appear
+          here when owners publish their listings.
+        </p>
       </div>
 
-      <div id="editorHeading" class="hidden">
-        <h3 id="editorTitle">Create Rental Listing</h3>
+      <div id="noResults" class="no-results" hidden>
+        No rentals match your search. Try another name, price or location.
       </div>
+    </section>
 
-      <form id="rentalForm" class="form-box hidden">
-        <input type="hidden" id="editingId">
+    <p class="note">
+      ShukAfrica connects renters with owners. Confirm rental terms and
+      verify details with the owner before making payments.
+    </p>
+  </main>
 
-        <div class="field">
-          <label for="rentalTitle">RENTAL TITLE / HEADLINE</label>
-          <input id="rentalTitle" required maxlength="160" placeholder="e.g. Toyota Corolla for Rent">
-        </div>
-        <div class="field">
-          <label for="rentalDescription">DESCRIPTION</label>
-          <textarea id="rentalDescription" required maxlength="5000" placeholder="Describe the rental..."></textarea>
-        </div>
-        <div class="field">
-          <label for="rentalImages">PHOTOS — UP TO 3 IMAGES</label>
-          <input id="rentalImages" type="file" accept="image/jpeg,image/png,image/webp" multiple>
-          <small class="muted">Maximum 4 MB per image. Select new photos to upload or keep existing photos when editing.</small>
-          <div id="imagePreview" class="image-grid"></div>
-          <div id="existingImages" class="image-grid"></div>
-        </div>
-        <div class="field">
-          <label for="rentalVideo">OPTIONAL VIDEO</label>
-          <input id="rentalVideo" type="file" accept="video/mp4,video/webm,video/quicktime">
-          <small class="muted">Maximum 10 MB.</small>
-          <div id="videoPreview" class="muted"></div>
-          <div id="existingVideo" class="muted"></div>
-        </div>
-        <div class="field">
-          <label for="rentalPrice">PRICE</label>
-          <input id="rentalPrice" required maxlength="100" placeholder="e.g. GH₵ 3,000/month">
-        </div>
-        <div class="field">
-          <label>AVAILABILITY</label>
-          <div class="availability">
-            <label><input type="radio" name="availability" value="Available" checked><span>🟢 Available</span></label>
-            <label><input type="radio" name="availability" value="Not Available"><span>🔴 Not Available</span></label>
-          </div>
-        </div>
-        <div class="field">
-          <label for="rentalCondition">CONDITION</label>
-          <select id="rentalCondition" required>
-            <option>New</option>
-            <option>Good Condition</option>
-            <option>Used</option>
-            <option>Needs Repair</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="rentalTerms">RENTAL TERMS &amp; REQUIREMENTS</label>
-          <textarea id="rentalTerms" maxlength="3000" placeholder="Enter rental terms and requirements"></textarea>
-        </div>
-        <div class="field">
-          <label for="rentalLocation">LOCATION</label>
-          <input id="rentalLocation" required maxlength="200" placeholder="e.g. Accra, Ghana">
-        </div>
-        <div class="field">
-          <label for="rentalContact">CONTACT</label>
-          <input id="rentalContact" required maxlength="100" placeholder="Phone / WhatsApp">
-        </div>
+  <script>
+    (() => {
+      "use strict";
 
-        <div class="actions">
-          <button type="submit" class="btn gold" id="saveListingBtn">SAVE RENTAL</button>
-          <button type="button" class="btn secondary" id="cancelEditBtn">CANCEL</button>
-        </div>
-        <div id="formStatus" class="status" role="status" aria-live="polite"></div>
-      </form>
+      const rentalSearch = document.getElementById("rentalSearch");
+      const locationSearch = document.getElementById("locationSearch");
+      const rentalGrid = document.getElementById("rentalGrid");
+      const emptyState = document.getElementById("emptyState");
+      const noResults = document.getElementById("noResults");
+      const resultCount = document.getElementById("resultCount");
 
-      <h3>MY RENTALS (<span id="myCount">0</span>)</h3>
-      <div id="myListings"><div class="empty">Loading your rentals…</div></div>
-    </div>
-  </section>
+      function filterRentals() {
+        const query = rentalSearch.value.trim().toLowerCase();
+        const locationQuery = locationSearch.value.trim().toLowerCase();
+        const cards = Array.from(
+          rentalGrid.querySelectorAll(".rental-card")
+        );
 
-  <section class="section-box">
-    <h2 style="margin-top:0">AVAILABLE RENTALS</h2>
-    <p class="muted">Explore listings published by rental owners.</p>
-    <p class="muted">Listings: <strong id="publicCount">0</strong></p>
-    <div id="rentalListings"><div class="empty">Loading rentals…</div></div>
-  </section>
+        let visible = 0;
 
-  <div class="note">
-    ShukAfrica connects renters with owners. Confirm details and rental terms directly with the owner before making payment.
-  </div>
-</div>
-</main>
+        cards.forEach((card) => {
+          const title = (
+            card.dataset.title ||
+            card.querySelector(".rental-title")?.textContent ||
+            ""
+          ).toLowerCase();
 
-<script>
+          const price = (
+            card.dataset.price ||
+            card.querySelector(".rental-price")?.textContent ||
+            ""
+          ).toLowerCase();
 
-  
-"use strict";
+          const category = (
+            card.dataset.category ||
+            card.querySelector(".rental-category")?.textContent ||
+            ""
+          ).toLowerCase();
 
-const API = {
-  listings: "/api/rentals/listings",
-  register: "/api/rentals/register",
-  login: "/api/rentals/login",
-  logout: "/api/rentals/logout",
-  session: "/api/rentals/session",
-  manage: "/api/rentals/manage",
-  upload: "/api/rentals/upload",
-  media: "/api/rentals/media"
-};
+          const location = (
+            card.dataset.location ||
+            card.querySelector(".rental-location")?.textContent ||
+            ""
+          ).toLowerCase();
 
-const PHOTO_LIMIT = 4 * 1024 * 1024;
-const VIDEO_LIMIT = 10 * 1024 * 1024;
-const MAX_PHOTOS = 3;
+          const matchesProduct =
+            !query ||
+            title.includes(query) ||
+            price.includes(query) ||
+            category.includes(query);
 
-const $ = id => document.getElementById(id);
+          const matchesLocation =
+            !locationQuery || location.includes(locationQuery);
 
-let owner = null;
-let publicListings = [];
-let myListings = [];
-let editingListing = null;
-let busy = false;
-let previewUrls = [];
+          const matches = matchesProduct && matchesLocation;
 
-function setStatus(element, message, type = "info") {
-  if (!element) return;
-  element.textContent = message;
-  element.className = "status show " + type;
-}
+          card.hidden = !matches;
 
-function clearStatus(element) {
-  if (!element) return;
-  element.textContent = "";
-  element.className = "status";
-}
+          if (matches) {
+            visible++;
+          }
+        });
 
-function showGlobal(message, type = "info") {
-  setStatus($("globalStatus"), message, type);
-}
+        emptyState.hidden = cards.length > 0;
+        noResults.hidden = cards.length === 0 || visible > 0;
 
-async function apiRequest(url, options = {}) {
-  const response = await fetch(url, {
-    credentials: "same-origin",
-    ...options
-  });
-
-  let data;
-
-  try {
-    data = await response.json();
-  } catch {
-    throw new Error("The server returned an unreadable response.");
-  }
-
-  if (!response.ok || data.success === false) {
-    throw new Error(
-      data.message || data.error || `Request failed (${response.status}).`
-    );
-  }
-
-  return data;
-}
-
-function jsonOptions(body) {
-  return {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  };
-}
-
-function mediaUrl(key) {
-  if (!key) return "";
-  return API.media + "?key=" + encodeURIComponent(key);
-}
-
-function clearPreviewUrls() {
-  previewUrls.forEach(url => URL.revokeObjectURL(url));
-  previewUrls = [];
-}
-
-function makeElement(tag, className, text) {
-  const element = document.createElement(tag);
-
-  if (className) element.className = className;
-  if (text !== undefined) element.textContent = text;
-
-  return element;
-}
-
-function addButton(parent, label, className, callback) {
-  const button = makeElement("button", "btn " + className, label);
-  button.type = "button";
-  button.addEventListener("click", callback);
-  parent.appendChild(button);
-  return button;
-}
-
-function showOwnerPanel() {
-  $("ownerPanel").classList.remove("hidden");
-
-  $("ownerPanel").scrollIntoView({
-    behavior: "smooth",
-    block: "start"
-  });
-}
-
-function setAuthView() {
-  $("signedOutArea").classList.toggle("hidden", !!owner);
-  $("signedInArea").classList.toggle("hidden", !owner);
-
-  if (owner) {
-    const name = owner.name || owner.full_name || "Rental owner";
-    $("accountSummary").textContent = "Signed in as " + name;
-  }
-
-  if (!owner) {
-    $("loginForm").classList.remove("hidden");
-    $("registerForm").classList.add("hidden");
-    resetRentalForm();
-
-    $("myListings").replaceChildren(
-      makeElement("div", "empty", "Log in to manage your rentals.")
-    );
-
-    $("myCount").textContent = "0";
-  }
-}
-
-function showLogin() {
-  $("loginForm").classList.remove("hidden");
-  $("registerForm").classList.add("hidden");
-  clearStatus($("loginStatus"));
-  clearStatus($("registerStatus"));
-}
-
-function showRegister() {
-  $("registerForm").classList.remove("hidden");
-  $("loginForm").classList.add("hidden");
-  clearStatus($("loginStatus"));
-  clearStatus($("registerStatus"));
-}
-
-async function loadSession() {
-  try {
-    const data = await apiRequest(API.session);
-    owner = data.owner || data.user || null;
-  } catch {
-    owner = null;
-  }
-
-  setAuthView();
-
-  if (owner) {
-    await loadMyListings();
-  }
-}
-
-function imageKeys(item) {
-  return [
-    item.image_1,
-    item.image_2,
-    item.image_3
-  ].filter(Boolean);
-}
-
-function normalizePhone(value) {
-  return String(value || "").replace(/[^\d+]/g, "");
-}
-
-function createMediaImage(key, alt, className = "") {
-  const img = makeElement("img", className);
-
-  img.alt = alt || "Rental photo";
-  img.loading = "lazy";
-  img.src = mediaUrl(key);
-
-  img.addEventListener("error", () => {
-    img.style.display = "none";
-  });
-
-  return img;
-  }
-  
-function formatPrice(value) {
-  const number = Number(value);
-  if (!Number.isFinite(number)) return String(value || "Price on request");
-  return "GH₵ " + number.toLocaleString("en-GH");
-}
-
-function formatAvailability(value) {
-  const text = String(value || "").toLowerCase();
-  if (text === "available") return "Available";
-  if (text === "rented" || text === "unavailable") return "Currently rented";
-  return value || "Availability not stated";
-}
-
-function renderEmpty(container, message) {
-  container.replaceChildren();
-  const p = makeElement("p", "empty-state", message);
-  container.appendChild(p);
-}
-
-function renderPublicListings() {
-  const container = $("rentalListings");
-  container.replaceChildren();
-  $("publicCount").textContent = String(publicListings.length);
-
-  if (!publicListings.length) {
-    renderEmpty(container, "No rental listings yet. Check back soon.");
-    return;
-  }
-
-  publicListings.forEach(item => {
-    const card = makeElement("article", "rental-card");
-    const keys = imageKeys(item);
-    if (keys.length) {
-      card.appendChild(createMediaImage(keys[0], item.title || "Rental property", "rental-card-image"));
-    }
-
-    const body = makeElement("div", "rental-card-body");
-    body.appendChild(makeElement("h3", "", item.title || "Rental listing"));
-    body.appendChild(makeElement("p", "rental-price", formatPrice(item.price)));
-    body.appendChild(makeElement("p", "", formatAvailability(item.availability)));
-
-    if (item.location) {
-      body.appendChild(makeElement("p", "", "📍 " + item.location));
-    }
-    if (item.condition) {
-      body.appendChild(makeElement("p", "", "Condition: " + item.condition));
-    }
-    if (item.description) {
-      body.appendChild(makeElement("p", "rental-description", item.description));
-    }
-    if (item.terms) {
-      body.appendChild(makeElement("p", "", "Terms: " + item.terms));
-    }
-
-    if (keys.length > 1) {
-      const gallery = makeElement("div", "rental-gallery");
-      keys.slice(1).forEach(key => {
-        gallery.appendChild(createMediaImage(key, "Additional rental photo", "rental-gallery-image"));
-      });
-      body.appendChild(gallery);
-    }
-
-    if (item.video_key) {
-      const video = document.createElement("video");
-      video.className = "rental-video";
-      video.controls = true;
-      video.preload = "metadata";
-      video.src = mediaUrl(item.video_key);
-      body.appendChild(video);
-    }
-
-    if (item.contact) {
-      const contact = makeElement("p", "", "Contact: " + item.contact);
-      body.appendChild(contact);
-    }
-
-    card.appendChild(body);
-    container.appendChild(card);
-  });
-}
-
-function renderMyListings() {
-  const container = $("myListings");
-  container.replaceChildren();
-  $("myCount").textContent = String(myListings.length);
-
-  if (!myListings.length) {
-    renderEmpty(container, "You have no rental listings yet. Select “Add rental” to create one.");
-    return;
-  }
-
-  myListings.forEach(item => {
-    const card = makeElement("article", "rental-card owner-rental-card");
-    const keys = imageKeys(item);
-
-    if (keys.length) {
-      card.appendChild(createMediaImage(keys[0], item.title || "My rental", "rental-card-image"));
-    }
-
-    const body = makeElement("div", "rental-card-body");
-    body.appendChild(makeElement("h3", "", item.title || "Rental listing"));
-    body.appendChild(makeElement("p", "rental-price", formatPrice(item.price)));
-    body.appendChild(makeElement("p", "", formatAvailability(item.availability)));
-
-    const actions = makeElement("div", "rental-actions");
-    addButton(actions, "Edit", "secondary-button", () => {
-      beginEdit(item);
-    });
-    addButton(actions, "Delete", "danger-button", async () => {
-      const confirmed = window.confirm("Delete this rental listing? This cannot be undone.");
-      if (!confirmed) return;
-
-      try {
-        await apiRequest(API.manage, jsonOptions({
-          action: "delete",
-          id: item.id
-        }));
-        showGlobal("Rental listing deleted.", "success");
-        await refreshAll();
-      } catch (error) {
-        showGlobal(error.message || "Could not delete this listing.", "error");
+        resultCount.textContent =
+          cards.length === 0
+            ? "Browse listings"
+            : `${visible} rental${visible === 1 ? "" : "s"}`;
       }
-    });
 
-    body.appendChild(actions);
-    card.appendChild(body);
-    container.appendChild(card);
-  });
-}
+      rentalSearch.addEventListener("input", filterRentals);
+      locationSearch.addEventListener("input", filterRentals);
 
-async function loadPublicListings() {
-  const data = await apiRequest(API.listings);
-  publicListings = Array.isArray(data.listings) ? data.listings : [];
-  renderPublicListings();
-}
+      // Run this after rental cards have been loaded from the backend.
+      window.refreshRentalSearch = filterRentals;
 
-async function loadMyListings() {
-  if (!owner) {
-    myListings = [];
-    renderMyListings();
-    return;
-  }
-
-  try {
-    const data = await apiRequest("/api/rentals/mine");
-    myListings = Array.isArray(data.listings) ? data.listings : [];
-    renderMyListings();
-  } catch (error) {
-    myListings = [];
-    renderMyListings();
-    showGlobal(
-      "Your account is signed in, but loading your own listings failed. We need to check the secure /api/rentals/mine endpoint.",
-      "error"
-    );
-  }
-}
-
-async function refreshAll() {
-  try {
-    await loadPublicListings();
-    if (owner) await loadMyListings();
-    showGlobal("Rental listings refreshed.", "success");
-  } catch (error) {
-    showGlobal(error.message || "Could not load rental listings.", "error");
-  }
-  }
-  
-function resetRentalForm() {
-  clearPreviewUrls();
-  $("rentalForm").reset();
-  $("editingId").value = "";
-  $("editorHeading").textContent = "Add a rental";
-  $("saveListingBtn").textContent = "Publish rental";
-  $("cancelEditBtn").hidden = true;
-  $("imagePreview").replaceChildren();
-  $("existingImages").textContent = "";
-  $("videoPreview").replaceChildren();
-  $("existingVideo").textContent = "";
-  $("formStatus").textContent = "";
-  editingListing = null;
-}
-
-function beginEdit(item) {
-  editingListing = item;
-  clearPreviewUrls();
-
-  $("editingId").value = item.id || "";
-  $("rentalTitle").value = item.title || "";
-  $("rentalDescription").value = item.description || "";
-  $("rentalPrice").value = item.price ?? "";
-  $("rentalCondition").value = item.condition || "";
-  $("rentalTerms").value = item.terms || "";
-  $("rentalLocation").value = item.location || "";
-  $("rentalContact").value = item.contact || "";
-
-  const availability = document.querySelector(
-    'input[name="availability"][value="' + (item.availability || "available") + '"]'
-  );
-  if (availability) availability.checked = true;
-
-  $("rentalImages").value = "";
-  $("rentalVideo").value = "";
-  $("imagePreview").replaceChildren();
-  $("videoPreview").replaceChildren();
-
-  const keys = imageKeys(item);
-  $("existingImages").textContent = keys.length
-    ? "Existing photos: " + keys.length + ". New photos will replace the existing photos."
-    : "No existing photos.";
-
-  $("existingVideo").textContent = item.video_key
-    ? "An existing video is saved. Choose a new video to replace it."
-    : "No existing video.";
-
-  $("editorHeading").textContent = "Edit rental";
-  $("saveListingBtn").textContent = "Save changes";
-  $("cancelEditBtn").hidden = false;
-  $("formStatus").textContent = "";
-  $("rentalForm").scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
-function previewSelectedImages() {
-  clearPreviewUrls();
-  const container = $("imagePreview");
-  container.replaceChildren();
-
-  const files = Array.from($("rentalImages").files || []);
-  if (files.length > MAX_PHOTOS) {
-    setStatus($("formStatus"), "Choose no more than 3 photos.", "error");
-    $("rentalImages").value = "";
-    return;
-  }
-
-  for (const file of files) {
-    if (!file.type.startsWith("image/")) {
-      setStatus($("formStatus"), "Only image files can be selected as photos.", "error");
-      $("rentalImages").value = "";
-      container.replaceChildren();
-      clearPreviewUrls();
-      return;
-    }
-    if (file.size > PHOTO_LIMIT) {
-      setStatus($("formStatus"), "Each photo must be 4 MB or smaller.", "error");
-      $("rentalImages").value = "";
-      container.replaceChildren();
-      clearPreviewUrls();
-      return;
-    }
-
-    const url = URL.createObjectURL(file);
-    previewUrls.push(url);
-    const img = document.createElement("img");
-    img.src = url;
-    img.alt = "Selected rental photo preview";
-    img.className = "rental-gallery-image";
-    container.appendChild(img);
-  }
-}
-
-function previewSelectedVideo() {
-  $("videoPreview").replaceChildren();
-  const file = $("rentalVideo").files?.[0];
-  if (!file) return;
-
-  if (!file.type.startsWith("video/")) {
-    setStatus($("formStatus"), "Please choose a video file.", "error");
-    $("rentalVideo").value = "";
-    return;
-  }
-  if (file.size > VIDEO_LIMIT) {
-    setStatus($("formStatus"), "The video must be 10 MB or smaller.", "error");
-    $("rentalVideo").value = "";
-    return;
-  }
-
-  const url = URL.createObjectURL(file);
-  previewUrls.push(url);
-
-  const video = document.createElement("video");
-  video.src = url;
-  video.controls = true;
-  video.preload = "metadata";
-  video.className = "rental-video";
-  $("videoPreview").appendChild(video);
-}
-
-async function uploadMedia(file, kind) {
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("kind", kind);
-
-  const response = await fetch(API.upload, {
-    method: "POST",
-    credentials: "same-origin",
-    body: formData
-  });
-
-  let data;
-  try {
-    data = await response.json();
-  } catch {
-    throw new Error("The upload endpoint returned an unreadable response.");
-  }
-
-  if (!response.ok || data.success === false) {
-    throw new Error(data.error || data.message || "Media upload failed.");
-  }
-
-  const key = data.key || data.media_key || data.objectKey;
-  if (!key) {
-    throw new Error("Upload response did not contain a media key. We need to check upload.js.");
-  }
-  return key;
-}
-
-async function handleRentalSubmit(event) {
-  event.preventDefault();
-  if (busy) return;
-
-  const title = $("rentalTitle").value.trim();
-  const price = $("rentalPrice").value.trim();
-  const contact = $("rentalContact").value.trim();
-  const photos = Array.from($("rentalImages").files || []);
-  const video = $("rentalVideo").files?.[0] || null;
-
-  if (!owner) {
-    setStatus($("formStatus"), "Please sign in before publishing a rental.", "error");
-    return;
-  }
-  if (!title || !price || !contact) {
-    setStatus($("formStatus"), "Enter a title, price, and contact number.", "error");
-    return;
-  }
-  if (photos.length > MAX_PHOTOS) {
-    setStatus($("formStatus"), "Choose no more than 3 photos.", "error");
-    return;
-  }
-  if (photos.some(file => file.size > PHOTO_LIMIT)) {
-    setStatus($("formStatus"), "Each photo must be 4 MB or smaller.", "error");
-    return;
-  }
-  if (video && video.size > VIDEO_LIMIT) {
-    setStatus($("formStatus"), "The video must be 10 MB or smaller.", "error");
-    return;
-  }
-
-  busy = true;
-  $("saveListingBtn").disabled = true;
-  setStatus($("formStatus"), "Saving rental details and uploading media…", "info");
-
-  try {
-    const old = editingListing || {};
-    const imageKeysToSave = photos.length
-      ? await Promise.all(photos.map(file => uploadMedia(file, "photo")))
-      : imageKeys(old);
-
-    let videoKey = old.video_key || "";
-    if (video) videoKey = await uploadMedia(video, "video");
-
-    const availabilityInput = document.querySelector('input[name="availability"]:checked');
-
-    const payload = {
-      action: editingListing ? "update" : "create",
-      title,
-      description: $("rentalDescription").value.trim(),
-      price: Number(price),
-      availability: availabilityInput?.value || "available",
-      condition: $("rentalCondition").value,
-      terms: $("rentalTerms").value.trim(),
-      location: $("rentalLocation").value.trim(),
-      contact,
-      image_1: imageKeysToSave[0] || "",
-      image_2: imageKeysToSave[1] || "",
-      image_3: imageKeysToSave[2] || "",
-      video_key: videoKey
-    };
-
-    if (editingListing) payload.id = editingListing.id;
-
-    await apiRequest(API.manage, jsonOptions(payload));
-    resetRentalForm();
-    showGlobal("Rental listing saved successfully.", "success");
-    await refreshAll();
-  } catch (error) {
-    setStatus($("formStatus"), error.message || "Could not save this rental.", "error");
-  } finally {
-    busy = false;
-    $("saveListingBtn").disabled = false;
-  }
-}
-
-$("openOwnerBtn").addEventListener("click", showOwnerPanel);
-$("closeOwnerBtn").addEventListener("click", () => {
-  $("ownerPanel").hidden = true;
-});
-$("showLoginBtn").addEventListener("click", showLogin);
-$("showRegisterBtn").addEventListener("click", showRegister);
-$("newListingBtn").addEventListener("click", () => {
-  resetRentalForm();
-  $("editorHeading").textContent = "Add a rental";
-  $("rentalForm").scrollIntoView({ behavior: "smooth", block: "start" });
-});
-$("cancelEditBtn").addEventListener("click", resetRentalForm);
-$("refreshBtn").addEventListener("click", refreshAll);
-$("rentalImages").addEventListener("change", previewSelectedImages);
-$("rentalVideo").addEventListener("change", previewSelectedVideo);
-$("rentalForm").addEventListener("submit", handleRentalSubmit);
-
-$("registerForm").addEventListener("submit", async event => {
-  event.preventDefault();
-  if (busy) return;
-
-  busy = true;
-  const button = $("registerForm").querySelector('button[type="submit"]');
-  if (button) button.disabled = true;
-
-  try {
-    await apiRequest(API.register, jsonOptions({
-      name: $("registerName").value.trim(),
-      email: $("registerEmail").value.trim(),
-      password: $("registerPassword").value
-    }));
-    $("registerForm").reset();
-    showLogin();
-    setStatus($("loginStatus"), "Account created. Please sign in.", "success");
-  } catch (error) {
-    setStatus($("registerStatus"), error.message || "Registration failed.", "error");
-  } finally {
-    busy = false;
-    if (button) button.disabled = false;
-  }
-});
-
-$("loginForm").addEventListener("submit", async event => {
-  event.preventDefault();
-  if (busy) return;
-
-  busy = true;
-  const button = $("loginForm").querySelector('button[type="submit"]');
-  if (button) button.disabled = true;
-
-  try {
-    const data = await apiRequest(API.login, jsonOptions({
-      email: $("loginEmail").value.trim(),
-      password: $("loginPassword").value
-    }));
-    owner = data.owner || data.user || null;
-    if (!owner) {
-      await loadSession();
-    } else {
-      setAuthView();
-      await loadMyListings();
-    }
-    $("loginForm").reset();
-    showGlobal("Signed in successfully.", "success");
-  } catch (error) {
-    setStatus($("loginStatus"), error.message || "Sign-in failed.", "error");
-  } finally {
-    busy = false;
-    if (button) button.disabled = false;
-  }
-});
-
-$("logoutBtn").addEventListener("click", async () => {
-  try {
-    await apiRequest(API.logout, { method: "POST", credentials: "same-origin" });
-  } catch (error) {
-    showGlobal(error.message || "Sign-out request failed.", "error");
-    return;
-  }
-
-  owner = null;
-  myListings = [];
-  resetRentalForm();
-  setAuthView();
-  renderMyListings();
-  showGlobal("You have signed out.", "success");
-});
-
-async function startRentalsPage() {
-  setAuthView();
-  renderEmpty($("rentalListings"), "Loading rental listings…");
-  try {
-    await loadPublicListings();
-  } catch (error) {
-    renderEmpty($("rentalListings"), "Could not load rentals. Please refresh and try again.");
-    showGlobal(error.message || "Could not load rental listings.", "error");
-  }
-  try {
-    await loadSession();
-  } catch {
-    owner = null;
-    setAuthView();
-  }
-}
-
-startRentalsPage();
-</script>
+      filterRentals();
+    })();
+  </script>
 </body>
 </html>
