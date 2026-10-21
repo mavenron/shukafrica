@@ -196,6 +196,39 @@
       font-size: 13px;
     }
 
+.availability-options {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.availability-button {
+  width: auto;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  border: 1px solid transparent;
+  opacity: 0.55;
+}
+
+.availability-button.is-available {
+  background: #174c2c;
+  color: #b8ffc9;
+  border-color: #2b9b50;
+}
+
+.availability-button.is-unavailable {
+  background: #591f25;
+  color: #ffb5bb;
+  border-color: #c64250;
+}
+
+.availability-button.selected {
+  opacity: 1;
+  outline: 2px solid currentColor;
+}
+    
     @media (max-width: 620px) {
       .form-grid, .listing-grid { grid-template-columns: 1fr; }
       .panel { padding: 15px; }
