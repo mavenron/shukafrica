@@ -4,14 +4,25 @@ function json(data, status = 200) {
     status,
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "no-store"
+      "Cache-Control": "no-store",
+      "X-Content-Type-Options": "nosniff"
     }
   });
 }
 
 export async function onRequest({ request, env }) {
   if (request.method !== "GET") {
-    return json({ error: "Method not allowed." }, 405);
+    return json(
+      { success: false, error: "Method not allowed." },
+      405
+    );
+  }
+
+  if (!env.DB) {
+    return json(
+      { success: false, error: "Rentals database unavailable." },
+      503
+    );
   }
 
   try {
@@ -40,12 +51,16 @@ export async function onRequest({ request, env }) {
 
     return json({
       success: true,
-      listings: result.results || []
+      listings: Array.isArray(result.results)
+        ? result.results
+        : []
     });
   } catch (error) {
-    return json({
-      error: "Unable to load rental listings."
-    }, 500);
+    console.error("Rentals listings query failed:", error);
+
+    return json(
+      { success: false, error: "Unable to load rental listings." },
+      500
+    );
   }
 }
-
