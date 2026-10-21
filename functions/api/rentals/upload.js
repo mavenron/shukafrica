@@ -1,4 +1,3 @@
-
 const ALLOWED_ORIGINS = new Set([
   "https://shukafrica.com",
   "https://www.shukafrica.com",
@@ -7,6 +6,7 @@ const ALLOWED_ORIGINS = new Set([
 
 const PHOTO_LIMIT = 4 * 1024 * 1024;
 const VIDEO_LIMIT = 10 * 1024 * 1024;
+const MAX_MULTIPART_SIZE = VIDEO_LIMIT + 1024 * 1024;
 
 function json(data, status = 200, origin = "") {
   const headers = {
@@ -42,6 +42,7 @@ async function getOwner(request, env) {
   );
 
   const token = match ? match[1] : "";
+
   if (!token || token.length > 200) return null;
 
   const tokenHash = await sha256(token);
@@ -62,14 +63,12 @@ async function getOwner(request, env) {
     return null;
   }
 
-  const owner = await env.DB.prepare(`
+  return await env.DB.prepare(`
     SELECT id
     FROM rental_owners
     WHERE id = ?
     LIMIT 1
   `).bind(session.owner_id).first();
-
-  return owner || null;
 }
 
 function detectFileType(bytes) {
@@ -78,7 +77,9 @@ function detectFileType(bytes) {
     bytes[0] === 0xff &&
     bytes[1] === 0xd8 &&
     bytes[2] === 0xff
-  ) return { type: "image/jpeg", ext: "jpg", kind: "photo" };
+  ) {
+    return { type: "image/jpeg", ext: "jpg", kind: "photo" };
+  }
 
   if (
     bytes.length >= 8 &&
@@ -90,13 +91,17 @@ function detectFileType(bytes) {
     bytes[5] === 0x0a &&
     bytes[6] === 0x1a &&
     bytes[7] === 0x0a
-  ) return { type: "image/png", ext: "png", kind: "photo" };
+  ) {
+    return { type: "image/png", ext: "png", kind: "photo" };
+  }
 
   if (
     bytes.length >= 12 &&
     String.fromCharCode(...bytes.slice(0, 4)) === "RIFF" &&
     String.fromCharCode(...bytes.slice(8, 12)) === "WEBP"
-  ) return { type: "image/webp", ext: "webp", kind: "photo" };
+  ) {
+    return { type: "image/webp", ext: "webp", kind: "photo" };
+  }
 
   if (
     bytes.length >= 12 &&
@@ -104,11 +109,9 @@ function detectFileType(bytes) {
   ) {
     const brand = String.fromCharCode(...bytes.slice(8, 12));
 
-    if (["isom", "iso2", "mp41", "mp42", "avc1", "M4V ", "qt  "].includes(brand)) {
-      return { type: "video/mp4", ext: "mp4", kind: "video" };
-    }
-
-    if (brand === "M4V ") {
+    if ([
+      "isom", "iso2", "mp41", "mp42", "avc1", "M4V "
+    ].includes(brand)) {
       return { type: "video/mp4", ext: "mp4", kind: "video" };
     }
   }
@@ -117,7 +120,9 @@ function detectFileType(bytes) {
     bytes.length >= 12 &&
     String.fromCharCode(...bytes.slice(0, 4)) === "RIFF" &&
     String.fromCharCode(...bytes.slice(8, 12)) === "AVI "
-  ) return { type: "video/x-msvideo", ext: "avi", kind: "video" };
+  ) {
+    return { type: "video/x-msvideo", ext: "avi", kind: "video" };
+  }
 
   if (
     bytes.length >= 4 &&
@@ -125,7 +130,9 @@ function detectFileType(bytes) {
     bytes[1] === 0x45 &&
     bytes[2] === 0xdf &&
     bytes[3] === 0xa3
-  ) return { type: "video/webm", ext: "webm", kind: "video" };
+  ) {
+    return { type: "video/webm", ext: "webm", kind: "video" };
+  }
 
   return null;
 }
@@ -133,8 +140,8 @@ function detectFileType(bytes) {
 export async function onRequest({ request, env }) {
   const origin = request.headers.get("Origin") || "";
 
-  if (origin && !ALLOWED_ORIGINS.has(origin)) {
-    return json({ error: "Origin not allowed." }, 403);
+  if (!origin || !ALLOWED_ORIGINS.has(origin)) {
+    return json({ success: false, error: "Origin not allowed." }, 403);
   }
 
   if (request.method === "OPTIONS") {
@@ -152,11 +159,12 @@ export async function onRequest({ request, env }) {
   }
 
   if (request.method !== "POST") {
-    return json({ error: "Method not allowed." }, 405, origin);
+    return json({ success: false, error: "Method not allowed." }, 405, origin);
   }
 
   if (!env.DB || !env.RENTAL_MEDIA) {
     return json({
+      success: false,
       error: "Rentals storage is not configured."
     }, 503, origin);
   }
@@ -165,14 +173,22 @@ export async function onRequest({ request, env }) {
 
   if (!contentType.toLowerCase().startsWith("multipart/form-data;")) {
     return json({
+      success: false,
       error: "Upload must use multipart/form-data."
     }, 415, origin);
   }
 
-  const length = Number(request.headers.get("Content-Length") || 0);
+  const lengthHeader = request.headers.get("Content-Length");
+  const length = lengthHeader ? Number(lengthHeader) : null;
 
-  if (length > VIDEO_LIMIT + 1024 * 1024) {
-    return json({ error: "Upload exceeds the size limit." }, 413, origin);
+  if (
+    length !== null &&
+    (!Number.isFinite(length) || length > MAX_MULTIPART_SIZE)
+  ) {
+    return json({
+      success: false,
+      error: "Upload exceeds the request size limit."
+    }, 413, origin);
   }
 
   try {
@@ -180,32 +196,37 @@ export async function onRequest({ request, env }) {
 
     if (!owner) {
       return json({
+        success: false,
         error: "Please log in to upload rental media."
       }, 401, origin);
     }
 
+    // Check declared size when available before parsing multipart data.
+    // The per-file limit below remains the authoritative file-size check.
     const form = await request.formData();
     const file = form.get("file");
     const kind = form.get("kind");
 
     if (!(file instanceof File)) {
-      return json({ error: "Select a file to upload." }, 400, origin);
+      return json({ success: false, error: "Select a file to upload." }, 400, origin);
     }
 
     if (!["photo", "video"].includes(kind)) {
       return json({
+        success: false,
         error: "Choose photo or video as the upload type."
       }, 400, origin);
     }
 
     if (file.size === 0) {
-      return json({ error: "The selected file is empty." }, 400, origin);
+      return json({ success: false, error: "The selected file is empty." }, 400, origin);
     }
 
     const limit = kind === "photo" ? PHOTO_LIMIT : VIDEO_LIMIT;
 
     if (file.size > limit) {
       return json({
+        success: false,
         error: kind === "photo"
           ? "Each photo must be 4 MB or smaller."
           : "The video must be 10 MB or smaller."
@@ -218,6 +239,7 @@ export async function onRequest({ request, env }) {
 
     if (!detected || detected.kind !== kind) {
       return json({
+        success: false,
         error: "Unsupported file format or file contents."
       }, 415, origin);
     }
@@ -247,8 +269,9 @@ export async function onRequest({ request, env }) {
     console.error("Rental media upload failed:", error);
 
     return json({
+      success: false,
       error: "Upload failed. Please try again."
     }, 500, origin);
   }
-}
+    }
   
