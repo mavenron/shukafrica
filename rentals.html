@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -352,6 +351,7 @@ async function apiRequest(url, options = {}) {
   });
 
   let data;
+
   try {
     data = await response.json();
   } catch {
@@ -359,7 +359,9 @@ async function apiRequest(url, options = {}) {
   }
 
   if (!response.ok || data.success === false) {
-    throw new Error(data.message || data.error || `Request failed (${response.status}).`);
+    throw new Error(
+      data.message || data.error || `Request failed (${response.status}).`
+    );
   }
 
   return data;
@@ -385,8 +387,10 @@ function clearPreviewUrls() {
 
 function makeElement(tag, className, text) {
   const element = document.createElement(tag);
+
   if (className) element.className = className;
   if (text !== undefined) element.textContent = text;
+
   return element;
 }
 
@@ -400,7 +404,11 @@ function addButton(parent, label, className, callback) {
 
 function showOwnerPanel() {
   $("ownerPanel").classList.remove("hidden");
-  $("ownerPanel").scrollIntoView({ behavior: "smooth", block: "start" });
+
+  $("ownerPanel").scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
 }
 
 function setAuthView() {
@@ -416,9 +424,11 @@ function setAuthView() {
     $("loginForm").classList.remove("hidden");
     $("registerForm").classList.add("hidden");
     resetRentalForm();
+
     $("myListings").replaceChildren(
       makeElement("div", "empty", "Log in to manage your rentals.")
     );
+
     $("myCount").textContent = "0";
   }
 }
@@ -453,535 +463,28 @@ async function loadSession() {
 }
 
 function imageKeys(item) {
-  return [item.image_1, item.image_2, item.image_3].filter(Boolean);
+  return [
+    item.image_1,
+    item.image_2,
+    item.image_3
+  ].filter(Boolean);
 }
 
 function normalizePhone(value) {
   return String(value || "").replace(/[^\d+]/g, "");
 }
 
-function createMediaImage(key, alt, className) {
-  const img = makeElement("img", className || "", "");
+function createMediaImage(key, alt, className = "") {
+  const img = makeElement("img", className);
+
   img.alt = alt || "Rental photo";
   img.loading = "lazy";
   img.src = mediaUrl(key);
+
   img.addEventListener("error", () => {
     img.style.display = "none";
   });
+
   return img;
-}
-
-function createListingCard(item, isOwner = false) {
-  const card = makeElement("article", "rental-card");
-  const keys = imageKeys(item);
-
-  if (keys.length) {
-    const image = createMediaImage(keys[0], item.title, "rental-main-image");
-    image.style.cursor = "zoom-in";
-    image.addEventListener("click", () => window.open(image.src, "_blank", "noopener"));
-    card.appendChild(image);
   }
-
-  card.appendChild(makeElement("h2", "", item.title || "Rental listing"));
-
-  const availability = item.availability || "Available";
-  const available = availability.toLowerCase() === "available";
-  const availabilityText = makeElement(
-    "div",
-    "",
-    available ? "🟢 AVAILABLE" : "🔴 NOT AVAILABLE"
-  );
-  availabilityText.style.color = available ? "var(--green)" : "var(--red)";
-  availabilityText.style.fontWeight = "bold";
-  card.appendChild(availabilityText);
-
-  if (item.description) {
-    card.appendChild(makeElement("p", "", item.description));
-  }
-
-  card.appendChild(makeElement(
-    "div",
-    "price",
-    "💰 " + (item.price || "Price not provided")
-  ));
-
-  card.appendChild(makeElement(
-    "p",
-    "muted",
-    "📍 " + (item.location || "Location not provided")
-  ));
-
-  const actions = makeElement("div", "actions");
-
-  addButton(actions, "VIEW DETAILS →", "gold", () => {
-    details.classList.toggle("open");
-  });
-
-  if (isOwner) {
-    addButton(actions, "✏️ EDIT RENTAL", "secondary", () => {
-      fillForm(item);
-    });
-
-    addButton(actions, "🗑️ DELETE RENTAL", "red", async () => {
-      if (!confirm("Delete this rental listing? This action cannot be undone.")) return;
-
-      try {
-        showGlobal("Deleting rental…");
-        await apiRequest(API.manage, jsonOptions({
-          action: "delete",
-          id: item.id
-        }));
-        showGlobal("Rental deleted.", "success");
-        await loadMyListings();
-        await loadPublicListings();
-      } catch (error) {
-        showGlobal(error.message, "error");
-      }
-    });
-  }
-
-  card.appendChild(actions);
-
-  const details = makeElement("div", "details-panel");
-
-  details.appendChild(makeElement("h3", "", "PHOTOS"));
-  const gallery = makeElement("div", "image-grid");
-
-  keys.forEach((key, index) => {
-    const image = createMediaImage(key, `Rental photo ${index + 1}`);
-    image.style.cursor = "zoom-in";
-    image.addEventListener("click", () => window.open(image.src, "_blank", "noopener"));
-    gallery.appendChild(image);
-  });
-
-  if (!keys.length) {
-    gallery.appendChild(makeElement("p", "muted", "No photos available."));
-  }
-
-  details.appendChild(gallery);
-
-  if (item.video_key) {
-    details.appendChild(makeElement("h3", "", "VIDEO"));
-    const video = document.createElement("video");
-    video.controls = true;
-    video.preload = "metadata";
-    video.style.width = "100%";
-    video.style.maxHeight = "320px";
-    video.src = mediaUrl(item.video_key);
-    details.appendChild(video);
-  }
-
-  details.appendChild(makeElement("h3", "", "CONTACT"));
-  details.appendChild(makeElement("p", "", "📞 " + (item.contact || "Contact not provided")));
-
-  const phone = normalizePhone(item.contact);
-  if (phone) {
-    const contactActions = makeElement("div", "actions");
-    const call = makeElement("a", "btn green", "📞 CALL");
-    call.href = "tel:" + phone;
-    call.style.textDecoration = "none";
-    contactActions.appendChild(call);
-
-    const whatsappNumber = phone.replace(/\D/g, "");
-    if (whatsappNumber) {
-      const whatsapp = makeElement("a", "btn green", "💬 WHATSAPP");
-      whatsapp.href = "https://wa.me/" + whatsappNumber;
-      whatsapp.target = "_blank";
-      whatsapp.rel = "noopener noreferrer";
-      whatsapp.style.textDecoration = "none";
-      contactActions.appendChild(whatsapp);
-    }
-    details.appendChild(contactActions);
-  }
-
-  details.appendChild(makeElement("h3", "", "CONDITION"));
-  details.appendChild(makeElement("p", "", item.condition || "Not specified"));
-
-  details.appendChild(makeElement("h3", "", "RENTAL TERMS & REQUIREMENTS"));
-  details.appendChild(makeElement("p", "", item.terms || "No special rental terms provided."));
-
-  card.appendChild(details);
-  return card;
-}
-
-async function loadPublicListings() {
-  const container = $("rentalListings");
-  container.replaceChildren(makeElement("div", "empty", "Loading rentals…"));
-
-  try {
-    const data = await apiRequest(API.listings);
-    publicListings = Array.isArray(data.listings) ? data.listings : [];
-    renderPublicListings();
-  } catch (error) {
-    container.replaceChildren(makeElement("div", "empty", "Could not load rentals: " + error.message));
-    showGlobal(error.message, "error");
-  }
-}
-
-function renderPublicListings() {
-  const container = $("rentalListings");
-  container.replaceChildren();
-  $("publicCount").textContent = String(publicListings.length);
-
-  if (!publicListings.length) {
-    container.appendChild(makeElement("div", "empty", "No published rentals yet. Please check again later."));
-    return;
-  }
-
-  publicListings.forEach(item => {
-    container.appendChild(createListingCard(item, false));
-  });
-}
-
-async function loadMyListings() {
-  const container = $("myListings");
-  container.replaceChildren(makeElement("div", "empty", "Loading your rentals…"));
-
-  if (!owner) return;
-
-  try {
-    // This endpoint must return only the authenticated owner's listings.
-    // The public listings endpoint is not suitable for private owner data.
-    const data = await apiRequest(API.manage + "?mine=1");
-    myListings = Array.isArray(data.listings) ? data.listings : [];
-    renderMyListings();
-  } catch (error) {
-    container.replaceChildren(
-      makeElement("div", "empty", "Your owner-listings endpoint is not available yet. " + error.message)
-    );
-    $("myCount").textContent = "0";
-  }
-}
-
-function renderMyListings() {
-  const container = $("myListings");
-  container.replaceChildren();
-  $("myCount").textContent = String(myListings.length);
-
-  if (!myListings.length) {
-    container.appendChild(makeElement("div", "empty", "You have no rental listings yet."));
-    return;
-  }
-
-  myListings.forEach(item => {
-    container.appendChild(createListingCard(item, true));
-  });
-}
-
-function resetRentalForm() {
-  const form = $("rentalForm");
-  if (form) form.reset();
-
-  editingListing = null;
-  $("editingId").value = "";
-  $("editorHeading").classList.add("hidden");
-  $("rentalForm").classList.add("hidden");
-  $("editorTitle").textContent = "Create Rental Listing";
-  $("saveListingBtn").textContent = "SAVE RENTAL";
-  $("imagePreview").replaceChildren();
-  $("existingImages").replaceChildren();
-  $("videoPreview").textContent = "";
-  $("existingVideo").textContent = "";
-  clearStatus($("formStatus"));
-  clearPreviewUrls();
-}
-
-function fillForm(item) {
-  if (!owner) {
-    showOwnerPanel();
-    showGlobal("Please log in to edit your rentals.", "error");
-    return;
-  }
-
-  editingListing = item;
-  $("editingId").value = item.id || "";
-  $("rentalTitle").value = item.title || "";
-  $("rentalDescription").value = item.description || "";
-  $("rentalPrice").value = item.price || "";
-  $("rentalCondition").value = item.condition || "Good Condition";
-  $("rentalTerms").value = item.terms || "";
-  $("rentalLocation").value = item.location || "";
-  $("rentalContact").value = item.contact || "";
-
-  const radio = document.querySelector(
-    `input[name="availability"][value="${item.availability || "Available"}"]`
-  );
-  if (radio) radio.checked = true;
-
-  $("existingImages").replaceChildren();
-  imageKeys(item).forEach(key => {
-    $("existingImages").appendChild(createMediaImage(key, "Existing rental photo"));
-  });
-
-  $("existingVideo").textContent = item.video_key
-    ? "An existing video is attached. It will be kept unless you replace it."
-    : "";
-
-  $("editorTitle").textContent = "Edit Rental Listing";
-  $("saveListingBtn").textContent = "UPDATE RENTAL";
-  $("editorHeading").classList.remove("hidden");
-  $("rentalForm").classList.remove("hidden");
-  clearStatus($("formStatus"));
-  $("rentalForm").scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
-async function uploadFile(file, kind) {
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("kind", kind);
-
-  const data = await apiRequest(API.upload, {
-    method: "POST",
-    body: formData
-  });
-
-  if (!data.key) {
-    throw new Error("The upload succeeded but the server did not return a media key.");
-  }
-
-  return data.key;
-}
-
-$("openOwnerBtn").addEventListener("click", () => {
-  showOwnerPanel();
-  if (!owner) showLogin();
-});
-
-$("closeOwnerBtn").addEventListener("click", () => {
-  $("ownerPanel").classList.add("hidden");
-});
-
-$("showLoginBtn").addEventListener("click", showLogin);
-$("showRegisterBtn").addEventListener("click", showRegister);
-
-$("refreshBtn").addEventListener("click", async () => {
-  showGlobal("Refreshing rental listings…");
-  await loadPublicListings();
-  if (owner) await loadMyListings();
-});
-
-$("newListingBtn").addEventListener("click", () => {
-  resetRentalForm();
-  $("editorHeading").classList.remove("hidden");
-  $("editorTitle").textContent = "Create Rental Listing";
-  $("rentalForm").classList.remove("hidden");
-  $("rentalForm").scrollIntoView({ behavior: "smooth", block: "start" });
-});
-
-$("cancelEditBtn").addEventListener("click", resetRentalForm);
-
-$("rentalImages").addEventListener("change", () => {
-  $("imagePreview").replaceChildren();
-  clearPreviewUrls();
-
-  const files = Array.from($("rentalImages").files || []);
-  const oldCount = editingListing ? imageKeys(editingListing).length : 0;
-
-  if (files.length + (files.length ? oldCount : 0) > MAX_PHOTOS) {
-    setStatus($("formStatus"), `You can keep or upload up to ${MAX_PHOTOS} photos in total. Remove existing photos by replacing them with fewer photos when editing is supported.`, "error");
-    $("rentalImages").value = "";
-    return;
-  }
-
-  for (const file of files) {
-    if (file.size > PHOTO_LIMIT) {
-      setStatus($("formStatus"), file.name + " exceeds the 4 MB image limit.", "error");
-      $("rentalImages").value = "";
-      $("imagePreview").replaceChildren();
-      clearPreviewUrls();
-      return;
-    }
-
-    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-      setStatus($("formStatus"), "Please use JPG, PNG, or WebP images.", "error");
-      $("rentalImages").value = "";
-      $("imagePreview").replaceChildren();
-      clearPreviewUrls();
-      return;
-    }
-
-    const url = URL.createObjectURL(file);
-    previewUrls.push(url);
-    const img = makeElement("img");
-    img.src = url;
-    img.alt = file.name;
-    $("imagePreview").appendChild(img);
-  }
-
-  clearStatus($("formStatus"));
-});
-
-$("rentalVideo").addEventListener("change", () => {
-  const file = $("rentalVideo").files[0];
-  $("videoPreview").textContent = "";
-
-  if (!file) return;
-
-  if (file.size > VIDEO_LIMIT) {
-    setStatus($("formStatus"), "The video exceeds the 10 MB limit.", "error");
-    $("rentalVideo").value = "";
-    return;
-  }
-
-  if (!["video/mp4", "video/webm", "video/quicktime"].includes(file.type)) {
-    setStatus($("formStatus"), "Please use MP4, WebM, or MOV video.", "error");
-    $("rentalVideo").value = "";
-    return;
-  }
-
-  $("videoPreview").textContent = "Selected video: " + file.name;
-});
-
-$("registerForm").addEventListener("submit", async event => {
-  event.preventDefault();
-  if (busy) return;
-
-  const name = $("registerName").value.trim();
-  const email = $("registerEmail").value.trim();
-  const password = $("registerPassword").value;
-
-  busy = true;
-  const button = $("registerForm").querySelector('button[type="submit"]');
-  button.disabled = true;
-  setStatus($("registerStatus"), "Creating your owner account…");
-
-  try {
-    await apiRequest(API.register, jsonOptions({ name, email, password }));
-    setStatus($("registerStatus"), "Account created. Please log in.", "success");
-    $("loginEmail").value = email;
-    $("loginPassword").value = "";
-    showLogin();
-    setStatus($("loginStatus"), "Your account was created. Please log in.", "success");
-  } catch (error) {
-    setStatus($("registerStatus"), error.message, "error");
-  } finally {
-    busy = false;
-    button.disabled = false;
-  }
-});
-
-$("loginForm").addEventListener("submit", async event => {
-  event.preventDefault();
-  if (busy) return;
-
-  busy = true;
-  const button = $("loginForm").querySelector('button[type="submit"]');
-  button.disabled = true;
-  setStatus($("loginStatus"), "Signing in…");
-
-  try {
-    const data = await apiRequest(API.login, jsonOptions({
-      email: $("loginEmail").value.trim(),
-      password: $("loginPassword").value
-    }));
-
-    owner = data.owner || data.user || null;
-
-    if (!owner) {
-      const sessionData = await apiRequest(API.session);
-      owner = sessionData.owner || sessionData.user || null;
-    }
-
-    if (!owner) {
-      throw new Error("Login response did not include an owner session. Please try again.");
-    }
-
-    setAuthView();
-    showGlobal("You are signed in.", "success");
-    await loadMyListings();
-  } catch (error) {
-    owner = null;
-    setStatus($("loginStatus"), error.message, "error");
-  } finally {
-    busy = false;
-    button.disabled = false;
-  }
-});
-
-$("logoutBtn").addEventListener("click", async () => {
-  try {
-    await apiRequest(API.logout, { method: "POST" });
-  } catch (error) {
-    showGlobal("Logout request: " + error.message, "error");
-  }
-
-  owner = null;
-  myListings = [];
-  setAuthView();
-  showLogin();
-  showGlobal("You have been logged out.", "success");
-});
-
-$("rentalForm").addEventListener("submit", async event => {
-  event.preventDefault();
-  if (busy || !owner) return;
-
-  const files = Array.from($("rentalImages").files || []);
-  const existingKeys = editingListing ? imageKeys(editingListing) : [];
-
-  if (!editingListing && files.length === 0) {
-    setStatus($("formStatus"), "Please select at least one rental photo.", "error");
-    return;
-  }
-
-  if (files.length + existingKeys.length > MAX_PHOTOS) {
-    setStatus($("formStatus"), "You can have a maximum of three photos per listing.", "error");
-    return;
-  }
-
-  busy = true;
-  const button = $("saveListingBtn");
-  button.disabled = true;
-
-  try {
-    setStatus($("formStatus"), "Preparing your rental listing…");
-
-    const uploadedKeys = [];
-    for (const file of files) {
-      setStatus($("formStatus"), "Uploading photo " + (uploadedKeys.length + 1) + " of " + files.length + "…");
-      uploadedKeys.push(await uploadFile(file, "photo"));
-    }
-
-    // Keep existing images when editing and no new images are selected.
-    const finalKeys = files.length ? uploadedKeys : existingKeys;
-
-    let videoKey = editingListing?.video_key || "";
-    const videoFile = $("rentalVideo").files[0];
-
-    if (videoFile) {
-      setStatus($("formStatus"), "Uploading video…");
-      videoKey = await uploadFile(videoFile, "video");
-    }
-
-    const availability = document.querySelector(
-      'input[name="availability"]:checked'
-    )?.value || "Available";
-
-    const payload = {
-      action: editingListing ? "update" : "create",
-      title: $("rentalTitle").value.trim(),
-      description: $("rentalDescription").value.trim(),
-      price: $("rentalPrice").value.trim(),
-      availability,
-      condition: $("rentalCondition").value,
-      terms: $("rentalTerms").value.trim(),
-      location: $("rentalLocation").value.trim(),
-      contact: $("rentalContact").value.trim(),
-      image_1: finalKeys[0] || "",
-      image_2: finalKeys[1] || "",
-      image_3: finalKeys[2] || "",
-      video_key: videoKey
-    };
-
-    if (editingListing) payload.id = editingListing.id;
-
-    setStatus($("formStatus"), "Saving rental listing…");
-    await apiRequest(API.manage, jsonOptions(payload));
-
-    setStatus($("formStatus"), "Rental saved. Refreshing listings…", "success");
-    resetRentalForm();
-    await loadPublicListings();
-    await loadMyListings();
-    showGlobal("Rental saved successfully.", "success");
-  } catch (error) {
-    setStatus($("formStatus"), error.message, 
+  
