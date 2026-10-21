@@ -488,3 +488,170 @@ function createMediaImage(key, alt, className = "") {
   return img;
   }
   
+function formatPrice(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return String(value || "Price on request");
+  return "GH₵ " + number.toLocaleString("en-GH");
+}
+
+function formatAvailability(value) {
+  const text = String(value || "").toLowerCase();
+  if (text === "available") return "Available";
+  if (text === "rented" || text === "unavailable") return "Currently rented";
+  return value || "Availability not stated";
+}
+
+function renderEmpty(container, message) {
+  container.replaceChildren();
+  const p = makeElement("p", "empty-state", message);
+  container.appendChild(p);
+}
+
+function renderPublicListings() {
+  const container = $("rentalListings");
+  container.replaceChildren();
+  $("publicCount").textContent = String(publicListings.length);
+
+  if (!publicListings.length) {
+    renderEmpty(container, "No rental listings yet. Check back soon.");
+    return;
+  }
+
+  publicListings.forEach(item => {
+    const card = makeElement("article", "rental-card");
+    const keys = imageKeys(item);
+    if (keys.length) {
+      card.appendChild(createMediaImage(keys[0], item.title || "Rental property", "rental-card-image"));
+    }
+
+    const body = makeElement("div", "rental-card-body");
+    body.appendChild(makeElement("h3", "", item.title || "Rental listing"));
+    body.appendChild(makeElement("p", "rental-price", formatPrice(item.price)));
+    body.appendChild(makeElement("p", "", formatAvailability(item.availability)));
+
+    if (item.location) {
+      body.appendChild(makeElement("p", "", "📍 " + item.location));
+    }
+    if (item.condition) {
+      body.appendChild(makeElement("p", "", "Condition: " + item.condition));
+    }
+    if (item.description) {
+      body.appendChild(makeElement("p", "rental-description", item.description));
+    }
+    if (item.terms) {
+      body.appendChild(makeElement("p", "", "Terms: " + item.terms));
+    }
+
+    if (keys.length > 1) {
+      const gallery = makeElement("div", "rental-gallery");
+      keys.slice(1).forEach(key => {
+        gallery.appendChild(createMediaImage(key, "Additional rental photo", "rental-gallery-image"));
+      });
+      body.appendChild(gallery);
+    }
+
+    if (item.video_key) {
+      const video = document.createElement("video");
+      video.className = "rental-video";
+      video.controls = true;
+      video.preload = "metadata";
+      video.src = mediaUrl(item.video_key);
+      body.appendChild(video);
+    }
+
+    if (item.contact) {
+      const contact = makeElement("p", "", "Contact: " + item.contact);
+      body.appendChild(contact);
+    }
+
+    card.appendChild(body);
+    container.appendChild(card);
+  });
+}
+
+function renderMyListings() {
+  const container = $("myListings");
+  container.replaceChildren();
+  $("myCount").textContent = String(myListings.length);
+
+  if (!myListings.length) {
+    renderEmpty(container, "You have no rental listings yet. Select “Add rental” to create one.");
+    return;
+  }
+
+  myListings.forEach(item => {
+    const card = makeElement("article", "rental-card owner-rental-card");
+    const keys = imageKeys(item);
+
+    if (keys.length) {
+      card.appendChild(createMediaImage(keys[0], item.title || "My rental", "rental-card-image"));
+    }
+
+    const body = makeElement("div", "rental-card-body");
+    body.appendChild(makeElement("h3", "", item.title || "Rental listing"));
+    body.appendChild(makeElement("p", "rental-price", formatPrice(item.price)));
+    body.appendChild(makeElement("p", "", formatAvailability(item.availability)));
+
+    const actions = makeElement("div", "rental-actions");
+    addButton(actions, "Edit", "secondary-button", () => {
+      beginEdit(item);
+    });
+    addButton(actions, "Delete", "danger-button", async () => {
+      const confirmed = window.confirm("Delete this rental listing? This cannot be undone.");
+      if (!confirmed) return;
+
+      try {
+        await apiRequest(API.manage, jsonOptions({
+          action: "delete",
+          id: item.id
+        }));
+        showGlobal("Rental listing deleted.", "success");
+        await refreshAll();
+      } catch (error) {
+        showGlobal(error.message || "Could not delete this listing.", "error");
+      }
+    });
+
+    body.appendChild(actions);
+    card.appendChild(body);
+    container.appendChild(card);
+  });
+}
+
+async function loadPublicListings() {
+  const data = await apiRequest(API.listings);
+  publicListings = Array.isArray(data.listings) ? data.listings : [];
+  renderPublicListings();
+}
+
+async function loadMyListings() {
+  if (!owner) {
+    myListings = [];
+    renderMyListings();
+    return;
+  }
+
+  try {
+    const data = await apiRequest("/api/rentals/mine");
+    myListings = Array.isArray(data.listings) ? data.listings : [];
+    renderMyListings();
+  } catch (error) {
+    myListings = [];
+    renderMyListings();
+    showGlobal(
+      "Your account is signed in, but loading your own listings failed. We need to check the secure /api/rentals/mine endpoint.",
+      "error"
+    );
+  }
+}
+
+async function refreshAll() {
+  try {
+    await loadPublicListings();
+    if (owner) await loadMyListings();
+    showGlobal("Rental listings refreshed.", "success");
+  } catch (error) {
+    showGlobal(error.message || "Could not load rental listings.", "error");
+  }
+  }
+  
