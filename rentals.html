@@ -446,5 +446,329 @@ function createListingCard(item,isOwner) {
     wa.rel = "noopener noreferrer";
     actions.appendChild(wa);
   }
-  if (isOwner) {
-    actions.appendChild(createButton("✏️ EDIT
+
+if (isOwner) {
+    actions.appendChild(createButton("✏️ EDIT", () => {
+        fillForm(item);
+        document.getElementById("rental-form-section").scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }));
+
+    actions.appendChild(createButton("🗑️ DELETE", async () => {
+        const confirmed = confirm(
+            "Are you sure you want to remove this rental listing?"
+        );
+
+        if (!confirmed) return;
+
+        try {
+            const result = await apiRequest(API.manage, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "delete",
+                    id: item.id
+                })
+            });
+
+            if (!result.success) {
+                throw new Error(
+                    result.message || "Could not remove listing."
+                );
+            }
+
+            alert("Rental listing removed successfully.");
+            await loadMyListings();
+            await loadPublicListings();
+        } catch (error) {
+            alert(error.message || "Could not remove the listing.");
+        }
+    }));
+}
+
+card.appendChild(actions);
+container.appendChild(card);
+}
+
+async function loadPublicListings() {
+    const container = document.getElementById("public-rentals");
+    if (!container) return;
+
+    container.replaceChildren();
+
+    try {
+        const result = await apiRequest(API.listings, {
+            method: "GET"
+        });
+
+        const listings = Array.isArray(result.listings)
+            ? result.listings
+            : Array.isArray(result)
+                ? result
+                : [];
+
+        if (!listings.length) {
+            container.textContent = "No rental listings available yet.";
+            return;
+        }
+
+        listings.forEach(item => renderListing(item, false));
+    } catch (error) {
+        container.textContent = "Could not load rental listings. Please try again.";
+        console.error("Public rentals error:", error);
+    }
+}
+
+async function loadMyListings() {
+    const container = document.getElementById("my-rentals");
+    if (!container || !owner) return;
+
+    container.replaceChildren();
+
+    try {
+        const result = await apiRequest(API.listings, {
+            method: "GET"
+        });
+
+        const listings = Array.isArray(result.listings)
+            ? result.listings
+            : Array.isArray(result)
+                ? result
+                : [];
+
+        const mine = listings.filter(item =>
+            String(item.owner_id) === String(owner.id)
+        );
+
+        if (!mine.length) {
+            container.textContent =
+                "Your listings will appear here after the backend returns your rentals.";
+            return;
+        }
+
+        mine.forEach(item => renderListing(item, true));
+    } catch (error) {
+        container.textContent = "Could not load your listings. Please try again.";
+        console.error("Owner rentals error:", error);
+    }
+}
+
+async function loadSession() {
+    try {
+        const result = await apiRequest(API.session, {
+            method: "GET"
+        });
+
+        if (result.authenticated && result.owner) {
+            owner = result.owner;
+            setAuthView(true);
+            await loadMyListings();
+        } else {
+            owner = null;
+            setAuthView(false);
+        }
+    } catch (error) {
+        owner = null;
+        setAuthView(false);
+        console.error("Rental session error:", error);
+    }
+
+    await loadPublicListings();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const loginForm = document.getElementById("rental-login-form");
+    const registerForm = document.getElementById("rental-register-form");
+    const logoutButton = document.getElementById("rental-logout");
+    const listingForm = document.getElementById("rental-listing-form");
+
+    if (loginForm) {
+        loginForm.addEventListener("submit", async event => {
+            event.preventDefault();
+
+            const email = document.getElementById("login-email").value.trim();
+            const password = document.getElementById("login-password").value;
+            const status = document.getElementById("login-status");
+
+            status.textContent = "Signing in...";
+
+            try {
+                const result = await apiRequest(API.login, {
+                    method: "POST",
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (!result.success) {
+                    throw new Error(result.message || "Login failed.");
+                }
+
+                status.textContent = "Signed in successfully.";
+                await loadSession();
+            } catch (error) {
+                status.textContent = error.message || "Could not sign in.";
+            }
+        });
+    }
+
+    if (registerForm) {
+        registerForm.addEventListener("submit", async event => {
+            event.preventDefault();
+
+            const name = document.getElementById("register-name").value.trim();
+            const email = document.getElementById("register-email").value.trim();
+            const password = document.getElementById("register-password").value;
+            const status = document.getElementById("register-status");
+
+            status.textContent = "Creating account...";
+
+            try {
+                const result = await apiRequest(API.register, {
+                    method: "POST",
+                    body: JSON.stringify({ name, email, password })
+                });
+
+                if (!result.success) {
+                    throw new Error(
+                        result.message || "Account registration failed."
+                    );
+                }
+
+                status.textContent =
+                    "Account created. Please sign in using your new account.";
+
+                registerForm.reset();
+            } catch (error) {
+                status.textContent =
+                    error.message || "Could not create your account.";
+            }
+        });
+    }
+
+    if (logoutButton) {
+        logoutButton.addEventListener("click", async () => {
+            try {
+                await apiRequest(API.logout, {
+                    method: "POST",
+                    body: JSON.stringify({})
+                });
+            } catch (error) {
+                console.error("Rental logout error:", error);
+            }
+
+            owner = null;
+            setAuthView(false);
+            await loadPublicListings();
+        });
+    }
+
+    if (listingForm) {
+        listingForm.addEventListener("submit", async event => {
+            event.preventDefault();
+
+            if (!owner) {
+                alert("Please sign in before publishing a rental.");
+                return;
+            }
+
+            const status = document.getElementById("listing-status");
+            const photoInput = document.getElementById("rental-photos");
+            const videoInput = document.getElementById("rental-video");
+            const id = document.getElementById("rental-id").value.trim();
+
+            const photos = Array.from(photoInput.files || []);
+            const video = videoInput.files && videoInput.files[0];
+
+            if (photos.length > 3) {
+                status.textContent = "You can upload a maximum of 3 photos.";
+                return;
+            }
+
+            if (photos.some(file => file.size > 4 * 1024 * 1024)) {
+                status.textContent = "Each photo must be 4 MB or smaller.";
+                return;
+            }
+
+            if (video && video.size > 10 * 1024 * 1024) {
+                status.textContent = "The video must be 10 MB or smaller.";
+                return;
+            }
+
+            status.textContent = "Preparing your listing...";
+
+            try {
+                const payload = {
+                    title: document.getElementById("rental-title").value.trim(),
+                    description: document.getElementById("rental-description").value.trim(),
+                    price: document.getElementById("rental-price").value.trim(),
+                    availability: document.getElementById("rental-availability").value,
+                    condition: document.getElementById("rental-condition").value,
+                    terms: document.getElementById("rental-terms").value.trim(),
+                    location: document.getElementById("rental-location").value.trim(),
+                    contact: document.getElementById("rental-contact").value.trim()
+                };
+
+                for (let i = 0; i < photos.length; i++) {
+                    status.textContent = `Uploading photo ${i + 1} of ${photos.length}...`;
+                    const uploaded = await uploadFile(photos[i], "photo");
+                    payload[`image_${i + 1}`] = uploaded.key;
+                }
+
+                if (video) {
+                    status.textContent = "Uploading video...";
+                    const uploadedVideo = await uploadFile(video, "video");
+                    payload.video_key = uploadedVideo.key;
+                }
+
+                if (id) {
+                    payload.action = "update";
+                    payload.id = id;
+                } else {
+                    payload.action = "create";
+                }
+
+                status.textContent = "Saving rental listing...";
+
+                const result = await apiRequest(API.manage, {
+                    method: "POST",
+                    body: JSON.stringify(payload)
+                });
+
+                if (!result.success) {
+                    throw new Error(
+                        result.message || "Could not save rental listing."
+                    );
+                }
+
+                status.textContent = "Rental listing saved successfully.";
+                listingForm.reset();
+                fillForm(null);
+
+                await loadMyListings();
+                await loadPublicListings();
+            } catch (error) {
+                status.textContent =
+                    error.message || "Could not save the rental listing.";
+            }
+        });
+    }
+
+    const cancelButton = document.getElementById("cancel-rental-edit");
+
+    if (cancelButton) {
+        cancelButton.addEventListener("click", () => {
+            listingForm?.reset();
+            fillForm(null);
+
+            const status = document.getElementById("listing-status");
+            if (status) status.textContent = "";
+        });
+    }
+
+    loadSession();
+});
+</script>
+</body>
+</html>
+
+                                     
