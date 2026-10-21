@@ -282,14 +282,19 @@
             <input id="price" maxlength="100" required placeholder="e.g. GHS 150 per day">
           </div>
 
-          <div class="field">
-            <label for="availability">Availability *</label>
-            <select id="availability" required>
-              <option value="Available">Available</option>
-              <option value="Not Available">Not Available</option>
-            </select>
-          </div>
+          
+<div class="field">
+  <label>Availability *</label>
+  <input type="hidden" id="availability" value="Available" required>
 
+  <button
+    id="availabilityToggle"
+    type="button"
+    class="availability-button is-available"
+    aria-pressed="true">
+    💚 Available
+        </select>
+      </div>
           
 <div class="field">
   <label for="condition">Condition</label>
