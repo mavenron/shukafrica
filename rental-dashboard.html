@@ -555,6 +555,7 @@ async function checkSession() {
   }
 }
 
+
 function formValues() {
   return {
     title: $("title").value.trim(),
@@ -564,10 +565,10 @@ function formValues() {
     condition: $("condition").value,
     location: $("location").value.trim(),
     contact: $("contact").value.trim(),
-    terms: $("terms").value.trim(),
-    instructions: $("instructions").value.trim()
+    terms: $("terms").value.trim()
   };
 }
+
 
 async function upload(file, kind) {
   const body = new FormData();
