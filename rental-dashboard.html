@@ -665,10 +665,148 @@ function makeCard(rental) {
   heading.textContent = rental.title || "Untitled rental";
   card.appendChild(heading);
 
-  if (rental.image_1) {
+  if (rental.image_1) {             
     const image = document.createElement("img");
     image.src = mediaURL(rental.image_1);
     image.alt = rental.title || "Rental photo";
     image.loading = "lazy";
     image.className = "rental-preview";
-    card.appendChild(image
+    card.appendChild(image);
+  }
+
+  const details = document.createElement("p");
+  details.textContent = `${rental.price || ""} · ${rental.location || ""}`;
+  card.appendChild(details);
+
+  const availability = document.createElement("p");
+  availability.textContent = `Availability: ${rental.availability || "Not specified"}`;
+  card.appendChild(availability);
+
+  const status = document.createElement("p");
+  status.textContent = `Status: ${rental.status || "published"}`;
+  card.appendChild(status);
+
+  const description = document.createElement("p");
+  description.textContent = rental.description || "";
+  card.appendChild(description);
+
+  if (rental.status !== "removed") {
+    const edit = document.createElement("button");
+    edit.type = "button";
+    edit.className = "btn-dark";
+    edit.textContent = "Edit";
+    edit.addEventListener("click", () =>
+editRental(rental));
+    card.appendChild(edit);
+
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "btn-dark";
+    remove.textContent = "Remove Listing";
+    remove.addEventListener("click", () => removeRental(rental));
+    card.appendChild(remove);
+  }
+
+  return card;
+}
+
+async function loadRentals() {
+  const grid = $("listingGrid");
+  grid.replaceChildren();
+  message("listingMessage", "Loading your rentals…");
+
+  try {
+    const data = await api(`${API}/manage`);
+    currentRentals = Array.isArray(data.rentals) ? data.rentals : [];
+
+    $("listingCount").textContent =
+      `${currentRentals.length} listing${currentRentals.length === 1 ? "" : "s"}`;
+
+    if (!currentRentals.length) {
+      const empty = document.createElement("p");
+      empty.textContent = "You have not listed any rentals yet.";
+      grid.appendChild(empty);
+} else {
+      currentRentals.forEach(rental => grid.appendChild(makeCard(rental)));
+    }
+
+    message("listingMessage", "");
+  } catch (error) {
+    message("listingMessage", error.message, "error");
+  }
+}
+
+function editRental(rental) {
+  if (rental.status === "removed") return;
+
+  editingRentalId = rental.id;
+  existingMedia = {
+    image_1: rental.image_1,
+    image_2: rental.image_2 || null,
+    image_3: rental.image_3 || null,
+    video_key: rental.video_key || null
+  };
+
+  $("listingId").value = rental.id;
+  $("title").value = rental.title || "";
+  $("description").value = rental.description || "";
+  $("price").value = rental.price || "";
+  $("availability").value = rental.availability || "Available";
+  $("condition").value = rental.condition || "Good Condition";
+  $("location").value = rental.location || "";
+  $("contact").value = rental.contact || "";
+  $("terms").value = rental.terms || "";
+  $("instructions").value = rental.instructions
+|| "";
+
+  $("formHeading").textContent = "Edit Rental";
+  $("saveBtn").textContent = "Save Changes";
+  $("cancelEditBtn").classList.remove("hidden");
+  message("rentalMessage", "Leave media fields empty to keep existing media.");
+  $("editorPanel").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+$("cancelEditBtn").addEventListener("click", resetEditor);
+$("refreshBtn").addEventListener("click", loadRentals);
+
+async function removeRental(rental) {
+  if (!confirm(`Remove "${rental.title}" from your rentals?`)) return;
+
+  try {
+    message("listingMessage", "Removing listing…");
+    await api(`${API}/manage`, {
+      method: "POST",
+      body: JSON.stringify({ action: "delete", id: rental.id })
+    });
+
+    if (editingRentalId === rental.id) resetEditor();
+    await loadRentals();
+    message("listingMessage", "Listing removed.", "success");
+  } catch (error) {
+message("listingMessage", error.message, "error");
+  }
+}
+
+$("logoutButton").addEventListener("click", async () => {
+  try {
+    await api(`${API}/logout`, {
+      method: "POST",
+      body: JSON.stringify({})
+    });
+  } catch (error) {
+    message("authMessage", error.message, "error");
+    return;
+  }
+
+  currentOwner = null;
+  resetEditor();
+  showAuth();
+  setAuthMode("login");
+});
+
+setAuthMode("login");
+checkSession();
+</script>
+</body>
+</html>
+
