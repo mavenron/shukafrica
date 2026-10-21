@@ -408,7 +408,32 @@ let editingRentalId = null;
 let existingMedia = null;
 let photoObjectURLs = [];
 let videoObjectURL = null;
+  
+const availabilityInput = $("availability");
+const availabilityButtons = document.querySelectorAll(
+  ".availability-button[data-value]"
+);
 
+function updateAvailability(value) {
+  if (!availabilityInput) return;
+
+  availabilityInput.value = value;
+
+  availabilityButtons.forEach(button => {
+    const selected = button.dataset.value === value;
+
+    button.classList.toggle("selected", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+}
+
+availabilityButtons.forEach(button => {
+  button.addEventListener("click", () => {
+    updateAvailability(button.dataset.value);
+  });
+});
+
+updateAvailability(availabilityInput?.value || "Available");
 function message(id, text, type = "") {
   const el = $(id);
   if (!el) return;
