@@ -541,6 +541,51 @@ export async function onRequest({ request, env }) {
       );
     }
     
+    if (body.action === "restore") {
+      const id = cleanText(body.id, 100);
+
+      if (!id) {
+        return json(
+          { success: false, error: "Valid listing ID required." },
+          400,
+          origin
+        );
+      }
+
+      const result = await env.DB.prepare(`
+        UPDATE rentals
+        SET
+          status = 'published',
+          removed_at = NULL,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+          AND owner_id = ?
+          AND status = 'removed'
+          AND removed_at IS NOT NULL
+          AND removed_at > datetime('now', '-10 days')
+      `).bind(id, owner.id).run();
+
+      if (!result.meta || result.meta.changes === 0) {
+        return json(
+          {
+            success: false,
+            error: "Listing not found or the 10-day recovery period has expired."
+          },
+          404,
+          origin
+        );
+      }
+
+      return json(
+        {
+          success: true,
+          message: "Rental listing restored successfully."
+        },
+        200,
+        origin
+      );
+    }
+    
 
     return json(
       {
