@@ -545,7 +545,7 @@ export async function onRequest({ request, env }) {
     return json(
       {
         success: false,
-        error: "Action must be create, update, or delete."
+        error: "Action must be create, update, delete, or restore."
       },
       400,
       origin
