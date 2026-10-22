@@ -661,9 +661,7 @@ function makeCard(rental) {
   card.dataset.price = rental.price || "";
   card.dataset.location = rental.location || "";
 
-  const rawCategory = String(
-    rental.category || rental.type || "Other"
-  ).trim();
+  const rawCategory = "Rentals";
 
   const category = rawCategory.toLowerCase();
   card.dataset.category = category;
