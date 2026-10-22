@@ -351,19 +351,46 @@ function formValues() {
   };
 }
 
-async function upload(file, kind) {
-  const body = new FormData();
-  body.append("file", file, file.name);
-  body.append("kind", kind);
 
-  const result = await api(`${API}/upload`, {
+async function upload(file, kind) {
+  if (!(file instanceof File)) {
+    throw new Error("Please select a valid file.");
+  }
+
+  const allowedTypes = kind === "photo"
+    ? ["image/jpeg", "image/png", "image/webp"]
+    : ["video/mp4", "video/webm", "video/x-msvideo"];
+
+  if (!allowedTypes.includes(file.type)) {
+    throw new Error(
+      kind === "photo"
+        ? "Photos must be JPG, PNG, or WebP."
+        : "Video must be MP4, WebM, or AVI."
+    );
+  }
+
+  const response = await fetch(`${API}/upload`, {
     method: "POST",
-    body
+    credentials: "same-origin",
+    headers: {
+      "Content-Type": file.type,
+      "X-Upload-Kind": kind,
+      "Accept": "application/json"
+    },
+    body: file
   });
 
-  if (!result.key) throw new Error("The upload did not return a media key.");
+  const result = await response.json().catch(() => ({}));
+
+  if (!response.ok || !result.success || !result.key) {
+    throw new Error(
+      result.error || `Upload failed (${response.status}).`
+    );
+  }
+
   return result.key;
 }
+
 
 async function getMedia() {
   const photos = Array.from($("photos").files || []);
