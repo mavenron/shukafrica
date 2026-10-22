@@ -203,9 +203,24 @@ export async function onRequest({ request, env }) {
 
     // Check declared size when available before parsing multipart data.
     // The per-file limit below remains the authoritative file-size check.
-    const form = await request.formData();
-const entry = form.get("file");
+    
+const form = await request.formData();
 const kind = form.get("kind");
+const fields = [];
+
+for (const [name, value] of form.entries()) {
+  fields.push({
+    name,
+    type: typeof value === "string" ? "text" : "file-like",
+    size: typeof value === "string" ? value.length : value.size,
+    filename: typeof value === "string" ? null : value.name
+  });
+}
+
+console.log("Rental upload multipart fields:", JSON.stringify(fields));
+
+const entry = form.get("file");
+    
 
 
 if (!entry) {
