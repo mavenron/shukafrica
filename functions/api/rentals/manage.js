@@ -604,5 +604,5 @@ export async function onRequest({ request, env }) {
       origin
     );
   }
-    }
+}
           
