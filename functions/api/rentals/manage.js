@@ -337,9 +337,10 @@ export async function onRequest({ request, env }) {
           image_3,
           video_key,
           status,
-          created_at,
-          updated_at
-        FROM rentals
+       removed_at,
+        created_at,
+        updated_at
+      FROM rentals
         WHERE owner_id = ?
           AND status IN ('published', 'removed')
         ORDER BY created_at DESC
