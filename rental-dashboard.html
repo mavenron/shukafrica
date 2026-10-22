@@ -601,8 +601,14 @@ async function loadRentals() {
   message("listingMessage", "Loading your rentals…");
 
   try {
-    const data = await api(`${API}/manage`);
-    currentRentals = Array.isArray(data.rentals) ? data.rentals : [];
+    
+const data = await api(`${API}/manage`);
+currentRentals = Array.isArray(data.listings)
+  ? data.listings
+  : Array.isArray(data.rentals)
+    ? data.rentals
+    : [];
+    
 
          $("listingCount").textContent =
       `${currentRentals.length} listing${currentRentals.length === 1 ? "" : "s"}`;
