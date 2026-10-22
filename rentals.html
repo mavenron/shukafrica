@@ -765,9 +765,41 @@ function makeCard(rental) {
         const image = el("img");
         image.src = mediaUrl(key);
         image.alt = `${rental.title || "Rental"} photo ${index + 1}`;
-        image.loading = "lazy";
-        image.onerror = () => image.remove();
-        gallery.appendChild(image);
+        
+image.loading = "lazy";
+image.style.cursor = "zoom-in";
+
+image.addEventListener("click", () => {
+  let viewer = document.getElementById("rentalImageViewer");
+
+  if (!viewer) {
+    viewer = document.createElement("dialog");
+    viewer.id = "rentalImageViewer";
+    viewer.className = "rental-image-viewer";
+
+    const largeImage = document.createElement("img");
+    largeImage.alt = "Enlarged rental photo";
+    largeImage.style.maxWidth = "95vw";
+    largeImage.style.maxHeight = "85vh";
+    largeImage.style.objectFit = "contain";
+
+    viewer.appendChild(largeImage);
+
+    viewer.addEventListener("click", () => viewer.close());
+
+    document.body.appendChild(viewer);
+  }
+
+  const largeImage = viewer.querySelector("img");
+  largeImage.src = image.src;
+  largeImage.alt = image.alt;
+
+  viewer.showModal();
+});
+
+image.onerror = () => image.remove();
+gallery.appendChild(image);
+        
       });
 
     if (rental.video_key) {
