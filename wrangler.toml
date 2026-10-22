@@ -20,18 +20,3 @@ bucket_name = "shukafrica-delivery-private"
 binding = "RENTAL_MEDIA"
 bucket_name = "shukafrica-rentals-media"
 
-name = "shukafrica-rentals-cleanup"
-main = "src/index.js"
-compatibility_date = "2026-10-22"
-
-[[d1_databases]]
-binding = "DB"
-database_name = "shukafrica-db"
-database_id = "c40bcbf4-3006-4a2a-a106-85bea7182281"
-
-[[r2_buckets]]
-binding = "RENTAL_MEDIA"
-bucket_name = "shukafrica-rentals-media"
-
-[triggers]
-crons = ["0 3 * * *"]
