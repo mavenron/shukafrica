@@ -475,86 +475,299 @@
     </p>
   </main>
 
-  <script>
-    (() => {
-      "use strict";
+<script>
+(() => {
+  "use strict";
 
-      const rentalSearch = document.getElementById("rentalSearch");
-      const locationSearch = document.getElementById("locationSearch");
-      const rentalGrid = document.getElementById("rentalGrid");
-      const emptyState = document.getElementById("emptyState");
-      const noResults = document.getElementById("noResults");
-      const resultCount = document.getElementById("resultCount");
+  const API = "/api/rentals";
+  const rentalSearch = document.getElementById("rentalSearch");
+  const locationSearch = document.getElementById("locationSearch");
+  const rentalGrid = document.getElementById("rentalGrid");
+  const emptyState = document.getElementById("emptyState");
+  const noResults = document.getElementById("noResults");
+  const resultCount = document.getElementById("resultCount");
 
-      function filterRentals() {
-        const query = rentalSearch.value.trim().toLowerCase();
-        const locationQuery = locationSearch.value.trim().toLowerCase();
-        const cards = Array.from(
-          rentalGrid.querySelectorAll(".rental-card")
-        );
+  let allRentals = [];
 
-        let visible = 0;
+  function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
 
-        cards.forEach((card) => {
-          const title = (
-            card.dataset.title ||
-            card.querySelector(".rental-title")?.textContent ||
-            ""
-          ).toLowerCase();
+  function mediaUrl(key) {
+    return `${API}/media?key=${encodeURIComponent(key)}`;
+  }
 
-          const price = (
-            card.dataset.price ||
-            card.querySelector(".rental-price")?.textContent ||
-            ""
-          ).toLowerCase();
+  function contactNumber(value) {
+    return String(value || "").replace(/[^\d+]/g, "");
+  }
 
-          const category = (
-            card.dataset.category ||
-            card.querySelector(".rental-category")?.textContent ||
-            ""
-          ).toLowerCase();
+  function addAction(parent, label, className, action) {
+    const button = el("button", className, label);
+    button.type = "button";
+    button.addEventListener("click", action);
+    parent.appendChild(button);
+    return button;
+  }
 
-          const location = (
-            card.dataset.location ||
-            card.querySelector(".rental-location")?.textContent ||
-            ""
-          ).toLowerCase();
+  function addStyles() {
+    if (document.getElementById("rentalExtraStyles")) return;
 
-          const matchesProduct =
-            !query ||
-            title.includes(query) ||
-            price.includes(query) ||
-            category.includes(query);
+    const style = document.createElement("style");
+    style.id = "rentalExtraStyles";
+    style.textContent = `
+      .rental-card { display:flex; flex-direction:column; }
+      .rental-card-content { display:flex; flex:1; flex-direction:column; }
+      .rental-card .view-details { margin-top:auto; padding-top:12px; }
+      .rental-button {
+        display:inline-flex; justify-content:center; align-items:center;
+        min-height:42px; padding:10px 13px; border:0; border-radius:9px;
+        background:#00a86b; color:white; font-size:12px; font-weight:800;
+        text-decoration:none; cursor:pointer;
+      }
+      .rental-button.secondary { background:#263738; }
+      .rental-error { color:#ffb52e; padding:14px 4px; font-size:13px; }
+      .rental-dialog {
+        width:min(620px, calc(100% - 24px)); max-height:88vh;
+        overflow:auto; padding:0; border:1px solid #354647;
+        border-radius:16px; background:#101d1e; color:#f5f7f5;
+      }
+      .rental-dialog::backdrop { background:rgba(0,0,0,.78); }
+      .rental-dialog-inner { padding:16px; }
+      .rental-dialog-top { display:flex; justify-content:space-between; gap:12px; align-items:center; }
+      .rental-dialog h2 { font-size:21px; overflow-wrap:anywhere; }
+      .rental-dialog p { font-size:13px; line-height:1.7; overflow-wrap:anywhere; }
+      .rental-detail-label { color:#ffb52e; font-size:11px; font-weight:800; text-transform:uppercase; margin-top:16px; }
+      .rental-gallery { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin-top:14px; }
+      .rental-gallery img, .rental-gallery video {
+        width:100%; aspect-ratio:4/3; object-fit:cover; background:#071112;
+        border-radius:9px;
+      }
+      .rental-contact-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+      .rental-close { border:1px solid #354647; background:#263738; color:white; border-radius:9px; padding:9px 12px; cursor:pointer; }
+      .rental-price-detail { color:#ffb52e; font-weight:800; font-size:18px; }
+      @media(min-width:620px) { .rental-dialog-inner { padding:22px; } }
+    `;
+    document.head.appendChild(style);
+  }
 
-          const matchesLocation =
-            !locationQuery || location.includes(locationQuery);
+  function makeCard(rental) {
+    const card = el("article", "rental-card");
+    card.dataset.title = rental.title || "";
+    card.dataset.price = rental.price || "";
+    card.dataset.location = rental.location || "";
+    card.dataset.category = "rental";
 
-          const matches = matchesProduct && matchesLocation;
+    if (rental.image_1) {
+      const image = el("img", "rental-image");
+      image.src = mediaUrl(rental.image_1);
+      image.alt = rental.title || "Rental photo";
+      image.loading = "lazy";
+      image.onerror = () => {
+        image.removeAttribute("src");
+        image.alt = "Rental photo unavailable";
+      };
+      card.appendChild(image);
+    } else {
+      const placeholder = el("div", "rental-image");
+      placeholder.style.display = "grid";
+      placeholder.style.placeItems = "center";
+      placeholder.textContent = "Photo unavailable";
+      card.appendChild(placeholder);
+    }
 
-          card.hidden = !matches;
+    const content = el("div", "rental-card-content");
+    content.appendChild(el("p", "rental-category", "RENTAL"));
+    content.appendChild(el("h3", "rental-title", rental.title || "Untitled rental"));
+    content.appendChild(el("p", "rental-location", rental.location || "Location not provided"));
+    content.appendChild(el("p", "rental-price", rental.price || "Price not provided"));
 
-          if (matches) {
-            visible++;
-          }
-        });
+    const availability = el(
+      "p",
+      "rental-location",
+      rental.availability || "Contact owner for availability"
+    );
+    content.appendChild(availability);
 
-        emptyState.hidden = cards.length > 0;
-        noResults.hidden = cards.length === 0 || visible > 0;
+    const actionWrap = el("div", "view-details");
+    addAction(actionWrap, "VIEW DETAILS", "rental-button", () => showDetails(rental));
+    content.appendChild(actionWrap);
+    card.appendChild(content);
 
-        resultCount.textContent =
-          cards.length === 0
-            ? "Browse listings"
-            : `${visible} rental${visible === 1 ? "" : "s"}`;
+    return card;
+  }
+
+  function showDetails(rental) {
+    let dialog = document.getElementById("rentalDetailsDialog");
+
+    if (!dialog) {
+      dialog = document.createElement("dialog");
+      dialog.id = "rentalDetailsDialog";
+      dialog.className = "rental-dialog";
+      document.body.appendChild(dialog);
+
+      dialog.addEventListener("click", event => {
+        if (event.target === dialog) dialog.close();
+      });
+    }
+
+    dialog.replaceChildren();
+
+    const inner = el("div", "rental-dialog-inner");
+    const top = el("div", "rental-dialog-top");
+    top.appendChild(el("h2", "", rental.title || "Rental details"));
+    addAction(top, "CLOSE", "rental-close", () => dialog.close());
+    inner.appendChild(top);
+
+    inner.appendChild(el("p", "rental-price-detail", rental.price || "Price not provided"));
+
+    const gallery = el("div", "rental-gallery");
+
+    [rental.image_1, rental.image_2, rental.image_3]
+      .filter(Boolean)
+      .forEach((key, index) => {
+        const image = el("img");
+        image.src = mediaUrl(key);
+        image.alt = `${rental.title || "Rental"} photo ${index + 1}`;
+        image.loading = "lazy";
+        image.onerror = () => image.remove();
+        gallery.appendChild(image);
+      });
+
+    if (rental.video_key) {
+      const video = el("video");
+      video.src = mediaUrl(rental.video_key);
+      video.controls = true;
+      video.preload = "metadata";
+      video.setAttribute("aria-label", "Rental video");
+      gallery.appendChild(video);
+    }
+
+    if (gallery.children.length) inner.appendChild(gallery);
+
+    function detail(label, value) {
+      if (value === null || value === undefined || String(value).trim() === "") return;
+      inner.appendChild(el("div", "rental-detail-label", label));
+      inner.appendChild(el("p", "", String(value)));
+    }
+
+    detail("Availability", rental.availability);
+    detail("Condition", rental.condition);
+    detail("Location", rental.location);
+    detail("Description", rental.description);
+    detail("Rental terms and instructions", rental.terms || rental.instructions);
+
+    const phone = contactNumber(rental.contact);
+    const actions = el("div", "rental-contact-actions");
+
+    if (phone) {
+      const call = el("a", "rental-button", "CALL OWNER");
+      call.href = `tel:${phone}`;
+      actions.appendChild(call);
+
+      const whatsappPhone = phone.replace(/\D/g, "");
+      if (whatsappPhone.length >= 7) {
+        const whatsapp = el("a", "rental-button secondary", "WHATSAPP");
+        whatsapp.href = `https://wa.me/${whatsappPhone}`;
+        whatsapp.target = "_blank";
+        whatsapp.rel = "noopener noreferrer";
+        actions.appendChild(whatsapp);
+      }
+    } else {
+      actions.appendChild(el("p", "", "Contact details are not available."));
+    }
+
+    inner.appendChild(actions);
+    dialog.appendChild(inner);
+
+    if (!dialog.open) dialog.showModal();
+  }
+
+  function filterRentals() {
+    const query = rentalSearch.value.trim().toLowerCase();
+    const locationQuery = locationSearch.value.trim().toLowerCase();
+    let visible = 0;
+
+    Array.from(rentalGrid.querySelectorAll(".rental-card")).forEach(card => {
+      const title = (card.dataset.title || "").toLowerCase();
+      const price = (card.dataset.price || "").toLowerCase();
+      const location = (card.dataset.location || "").toLowerCase();
+
+      const matches =
+        (!query || title.includes(query) || price.includes(query)) &&
+        (!locationQuery || location.includes(locationQuery));
+
+      card.hidden = !matches;
+      if (matches) visible++;
+    });
+
+    emptyState.hidden = allRentals.length > 0;
+    noResults.hidden = allRentals.length === 0 || visible > 0;
+
+    resultCount.textContent = allRentals.length === 0
+      ? "No listings yet"
+      : `${visible} rental${visible === 1 ? "" : "s"}`;
+  }
+
+  async function loadRentals() {
+    rentalGrid.replaceChildren();
+    emptyState.hidden = true;
+    noResults.hidden = true;
+    resultCount.textContent = "Loading rentals…";
+
+    const loading = el("p", "rental-error", "Loading available rentals…");
+    rentalGrid.appendChild(loading);
+
+    try {
+      const response = await fetch(`${API}/listings`, {
+        method: "GET",
+        headers: { "Accept": "application/json" },
+        cache: "no-store"
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || data.success !== true || !Array.isArray(data.listings)) {
+        throw new Error(data.error || "Unable to load rentals.");
       }
 
-      rentalSearch.addEventListener("input", filterRentals);
-      locationSearch.addEventListener("input", filterRentals);
+      allRentals = data.listings.filter(item => item && item.id);
+      rentalGrid.replaceChildren();
 
-      // Run this after rental cards have been loaded from the backend.
-      window.refreshRentalSearch = filterRentals;
+      if (allRentals.length === 0) {
+        filterRentals();
+        return;
+      }
 
+      allRentals.forEach(rental => rentalGrid.appendChild(makeCard(rental)));
       filterRentals();
-    })();
+
+    } catch (error) {
+      console.error("Public rentals failed to load:", error);
+      allRentals = [];
+      rentalGrid.replaceChildren();
+
+      const message = el(
+        "p",
+        "rental-error",
+        "We couldn't load rentals right now. Please refresh the page and try again."
+      );
+      rentalGrid.appendChild(message);
+      emptyState.hidden = true;
+      noResults.hidden = true;
+      resultCount.textContent = "Loading error";
+    }
+  }
+
+  addStyles();
+  rentalSearch.addEventListener("input", filterRentals);
+  locationSearch.addEventListener("input", filterRentals);
+  window.refreshRentalSearch = filterRentals;
+
+  loadRentals();
+})();
   </script>
 </body>
 </html>
