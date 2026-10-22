@@ -499,6 +499,7 @@ export async function onRequest({ request, env }) {
       );
     }
 
+    
     if (body.action === "delete") {
       const id = cleanText(body.id, 100);
 
@@ -512,7 +513,10 @@ export async function onRequest({ request, env }) {
 
       const result = await env.DB.prepare(`
         UPDATE rentals
-        SET status = 'removed', updated_at = CURRENT_TIMESTAMP
+        SET
+          status = 'removed',
+          removed_at = CURRENT_TIMESTAMP,
+          updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
           AND owner_id = ?
           AND status = 'published'
@@ -529,12 +533,13 @@ export async function onRequest({ request, env }) {
       return json(
         {
           success: true,
-          message: "Rental listing removed."
+          message: "Rental listing removed. It can be recovered within 10 days."
         },
         200,
         origin
       );
     }
+    
 
     return json(
       {
