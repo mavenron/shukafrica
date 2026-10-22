@@ -6,7 +6,6 @@ const ALLOWED_ORIGINS = new Set([
 
 const PHOTO_LIMIT = 4 * 1024 * 1024;
 const VIDEO_LIMIT = 10 * 1024 * 1024;
-const MAX_MULTIPART_SIZE = VIDEO_LIMIT + 1024 * 1024;
 
 function json(data, status = 200, origin = "") {
   const headers = {
@@ -21,7 +20,10 @@ function json(data, status = 200, origin = "") {
     headers["Access-Control-Allow-Credentials"] = "true";
   }
 
-  return new Response(JSON.stringify(data), { status, headers });
+  return new Response(JSON.stringify(data), {
+    status,
+    headers
+  });
 }
 
 async function sha256(value) {
@@ -78,7 +80,11 @@ function detectFileType(bytes) {
     bytes[1] === 0xd8 &&
     bytes[2] === 0xff
   ) {
-    return { type: "image/jpeg", ext: "jpg", kind: "photo" };
+    return {
+      type: "image/jpeg",
+      ext: "jpg",
+      kind: "photo"
+    };
   }
 
   if (
@@ -92,7 +98,11 @@ function detectFileType(bytes) {
     bytes[6] === 0x1a &&
     bytes[7] === 0x0a
   ) {
-    return { type: "image/png", ext: "png", kind: "photo" };
+    return {
+      type: "image/png",
+      ext: "png",
+      kind: "photo"
+    };
   }
 
   if (
@@ -100,7 +110,11 @@ function detectFileType(bytes) {
     String.fromCharCode(...bytes.slice(0, 4)) === "RIFF" &&
     String.fromCharCode(...bytes.slice(8, 12)) === "WEBP"
   ) {
-    return { type: "image/webp", ext: "webp", kind: "photo" };
+    return {
+      type: "image/webp",
+      ext: "webp",
+      kind: "photo"
+    };
   }
 
   if (
@@ -112,7 +126,11 @@ function detectFileType(bytes) {
     if ([
       "isom", "iso2", "mp41", "mp42", "avc1", "M4V "
     ].includes(brand)) {
-      return { type: "video/mp4", ext: "mp4", kind: "video" };
+      return {
+        type: "video/mp4",
+        ext: "mp4",
+        kind: "video"
+      };
     }
   }
 
@@ -121,7 +139,11 @@ function detectFileType(bytes) {
     String.fromCharCode(...bytes.slice(0, 4)) === "RIFF" &&
     String.fromCharCode(...bytes.slice(8, 12)) === "AVI "
   ) {
-    return { type: "video/x-msvideo", ext: "avi", kind: "video" };
+    return {
+      type: "video/x-msvideo",
+      ext: "avi",
+      kind: "video"
+    };
   }
 
   if (
@@ -131,7 +153,11 @@ function detectFileType(bytes) {
     bytes[2] === 0xdf &&
     bytes[3] === 0xa3
   ) {
-    return { type: "video/webm", ext: "webm", kind: "video" };
+    return {
+      type: "video/webm",
+      ext: "webm",
+      kind: "video"
+    };
   }
 
   return null;
@@ -141,7 +167,10 @@ export async function onRequest({ request, env }) {
   const origin = request.headers.get("Origin") || "";
 
   if (!origin || !ALLOWED_ORIGINS.has(origin)) {
-    return json({ success: false, error: "Origin not allowed." }, 403);
+    return json({
+      success: false,
+      error: "Origin not allowed."
+    }, 403);
   }
 
   if (request.method === "OPTIONS") {
@@ -150,7 +179,8 @@ export async function onRequest({ request, env }) {
       headers: {
         "Access-Control-Allow-Origin": origin,
         "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Headers":
+          "Content-Type, X-Upload-Kind, Accept",
         "Access-Control-Allow-Credentials": "true",
         "Access-Control-Max-Age": "86400",
         "Vary": "Origin"
@@ -159,7 +189,10 @@ export async function onRequest({ request, env }) {
   }
 
   if (request.method !== "POST") {
-    return json({ success: false, error: "Method not allowed." }, 405, origin);
+    return json({
+      success: false,
+      error: "Method not allowed."
+    }, 405, origin);
   }
 
   if (!env.DB || !env.RENTAL_MEDIA) {
@@ -169,26 +202,49 @@ export async function onRequest({ request, env }) {
     }, 503, origin);
   }
 
-  const contentType = request.headers.get("Content-Type") || "";
+  const kind = request.headers.get("X-Upload-Kind");
+  const contentType = (
+    request.headers.get("Content-Type") || ""
+  ).split(";")[0].trim().toLowerCase();
 
-  if (!contentType.toLowerCase().startsWith("multipart/form-data;")) {
+  if (!["photo", "video"].includes(kind)) {
     return json({
       success: false,
-      error: "Upload must use multipart/form-data."
+      error: "Choose photo or video as the upload type."
+    }, 400, origin);
+  }
+
+  const allowedTypes = kind === "photo"
+    ? ["image/jpeg", "image/png", "image/webp"]
+    : ["video/mp4", "video/webm", "video/x-msvideo"];
+
+  if (!allowedTypes.includes(contentType)) {
+    return json({
+      success: false,
+      error: kind === "photo"
+        ? "Photos must be JPG, PNG, or WebP."
+        : "Video must be MP4, WebM, or AVI."
     }, 415, origin);
   }
 
+  const limit = kind === "photo" ? PHOTO_LIMIT : VIDEO_LIMIT;
   const lengthHeader = request.headers.get("Content-Length");
-  const length = lengthHeader ? Number(lengthHeader) : null;
 
-  if (
-    length !== null &&
-    (!Number.isFinite(length) || length > MAX_MULTIPART_SIZE)
-  ) {
-    return json({
-      success: false,
-      error: "Upload exceeds the request size limit."
-    }, 413, origin);
+  if (lengthHeader !== null) {
+    const length = Number(lengthHeader);
+
+    if (
+      !Number.isSafeInteger(length) ||
+      length < 1 ||
+      length > limit
+    ) {
+      return json({
+        success: false,
+        error: kind === "photo"
+          ? "Each photo must be 4 MB or smaller."
+          : "The video must be 10 MB or smaller."
+      }, 413, origin);
+    }
   }
 
   try {
@@ -201,73 +257,17 @@ export async function onRequest({ request, env }) {
       }, 401, origin);
     }
 
-    // Check declared size when available before parsing multipart data.
-    // The per-file limit below remains the authoritative file-size check.
-    
-const form = await request.formData();
-const kind = form.get("kind");
-const fields = [];
+    // The dashboard now sends raw file bytes, not FormData.
+    const buffer = await request.arrayBuffer();
 
-for (const [name, value] of form.entries()) {
-  fields.push({
-    name,
-    type: typeof value === "string" ? "text" : "file-like",
-    size: typeof value === "string" ? value.length : value.size,
-    filename: typeof value === "string" ? null : value.name
-  });
-}
-
-console.log("Rental upload multipart fields:", JSON.stringify(fields));
-
-const entry = form.get("file");
-    
-
-
-if (!entry) {
-  return json({
-    success: false,
-    error: "Diagnostic: the file field is missing."
-  }, 400, origin);
-}
-
-if (typeof entry === "string") {
-  return json({
-    success: false,
-    error: "Diagnostic: the file field arrived as text."
-  }, 400, origin);
-}
-
-if (typeof entry.arrayBuffer !== "function") {
-  return json({
-    success: false,
-    error: "Diagnostic: the file has no arrayBuffer method."
-  }, 400, origin);
-}
-
-if (typeof entry.size !== "number") {
-  return json({
-    success: false,
-    error: "Diagnostic: the file size is missing."
-  }, 400, origin);
-}
-    
-
-const file = entry;
-
-    if (!["photo", "video"].includes(kind)) {
+    if (buffer.byteLength === 0) {
       return json({
         success: false,
-        error: "Choose photo or video as the upload type."
+        error: "The selected file is empty."
       }, 400, origin);
     }
 
-    if (file.size === 0) {
-      return json({ success: false, error: "The selected file is empty." }, 400, origin);
-    }
-
-    const limit = kind === "photo" ? PHOTO_LIMIT : VIDEO_LIMIT;
-
-    if (file.size > limit) {
+    if (buffer.byteLength > limit) {
       return json({
         success: false,
         error: kind === "photo"
@@ -276,18 +276,22 @@ const file = entry;
       }, 413, origin);
     }
 
-    const buffer = await file.arrayBuffer();
     const bytes = new Uint8Array(buffer);
     const detected = detectFileType(bytes);
 
-    if (!detected || detected.kind !== kind) {
+    if (
+      !detected ||
+      detected.kind !== kind ||
+      detected.type !== contentType
+    ) {
       return json({
         success: false,
         error: "Unsupported file format or file contents."
       }, 415, origin);
     }
 
-    const key = `rentals/${owner.id}/${crypto.randomUUID()}.${detected.ext}`;
+    const key =
+      `rentals/${owner.id}/${crypto.randomUUID()}.${detected.ext}`;
 
     await env.RENTAL_MEDIA.put(key, buffer, {
       httpMetadata: {
@@ -295,7 +299,7 @@ const file = entry;
         cacheControl: "private, max-age=0, no-store"
       },
       customMetadata: {
-        ownerId: owner.id,
+        ownerId: String(owner.id),
         uploadKind: kind
       }
     });
@@ -305,7 +309,7 @@ const file = entry;
       key,
       kind,
       contentType: detected.type,
-      size: file.size
+      size: buffer.byteLength
     }, 201, origin);
 
   } catch (error) {
@@ -316,5 +320,4 @@ const file = entry;
       error: "Upload failed. Please try again."
     }, 500, origin);
   }
-    }
-  
+}
