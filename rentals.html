@@ -555,50 +555,85 @@
     document.head.appendChild(style);
   }
 
-  function makeCard(rental) {
-    const card = el("article", "rental-card");
-    card.dataset.title = rental.title || "";
-    card.dataset.price = rental.price || "";
-    card.dataset.location = rental.location || "";
-    card.dataset.category = "rental";
+function makeCard(rental) {
+  const card = el("article", "rental-card");
 
-    if (rental.image_1) {
-      const image = el("img", "rental-image");
-      image.src = mediaUrl(rental.image_1);
-      image.alt = rental.title || "Rental photo";
-      image.loading = "lazy";
-      image.onerror = () => {
-        image.removeAttribute("src");
-        image.alt = "Rental photo unavailable";
-      };
-      card.appendChild(image);
-    } else {
-      const placeholder = el("div", "rental-image");
-      placeholder.style.display = "grid";
-      placeholder.style.placeItems = "center";
-      placeholder.textContent = "Photo unavailable";
-      card.appendChild(placeholder);
-    }
+  card.dataset.title = rental.title || "";
+  card.dataset.price = rental.price || "";
+  card.dataset.location = rental.location || "";
 
-    const content = el("div", "rental-card-content");
-    content.appendChild(el("p", "rental-category", "RENTAL"));
-    content.appendChild(el("h3", "rental-title", rental.title || "Untitled rental"));
-    content.appendChild(el("p", "rental-location", rental.location || "Location not provided"));
-    content.appendChild(el("p", "rental-price", rental.price || "Price not provided"));
+  const rawCategory = String(
+    rental.category || rental.type || "Other"
+  ).trim();
 
-    const availability = el(
-      "p",
-      "rental-location",
-      rental.availability || "Contact owner for availability"
+  const category = rawCategory.toLowerCase();
+  card.dataset.category = category;
+
+  const categoryLabel = category
+    ? category.replace(/[-_]/g, " ").replace(/\b\w/g, c => c.toUpperCase())
+    : "Other";
+
+  if (rental.image_1) {
+    const imageFrame = el("div", "rental-image-frame");
+    const image = el("img", "rental-image");
+
+    image.src = mediaUrl(rental.image_1);
+    image.alt = rental.title || "Rental photo";
+    image.loading = "lazy";
+
+    image.onerror = () => {
+      image.removeAttribute("src");
+      image.alt = "Rental photo unavailable";
+      imageFrame.classList.add("image-unavailable");
+      imageFrame.textContent = "Photo unavailable";
+    };
+
+    imageFrame.appendChild(image);
+    imageFrame.appendChild(
+      el("span", "rental-category-badge", categoryLabel)
     );
-    content.appendChild(availability);
+    card.appendChild(imageFrame);
+  } else {
+    const imageFrame = el("div", "rental-image-frame image-unavailable");
+    imageFrame.textContent = "Photo unavailable";
+    imageFrame.appendChild(
+      el("span", "rental-category-badge", categoryLabel)
+    );
+    card.appendChild(imageFrame);
+  }
 
-    const actionWrap = el("div", "view-details");
-    addAction(actionWrap, "VIEW DETAILS", "rental-button", () => showDetails(rental));
-    content.appendChild(actionWrap);
-    card.appendChild(content);
+  const content = el("div", "rental-card-content");
 
-    return card;
+  content.appendChild(
+    el("h3", "rental-title", rental.title || "Untitled rental")
+  );
+
+  content.appendChild(
+    el("p", "rental-location", "⌖ " + (rental.location || "Location not provided"))
+  );
+
+  content.appendChild(
+    el("p", "rental-price", rental.price || "Contact owner for price")
+  );
+
+  const availability = el(
+    "span",
+    "rental-availability",
+    rental.availability || "Contact owner for availability"
+  );
+  content.appendChild(availability);
+
+  const actionWrap = el("div", "view-details");
+  addAction(
+    actionWrap,
+    "VIEW DETAILS",
+    "rental-button",
+    () => showDetails(rental)
+  );
+  content.appendChild(actionWrap);
+
+  card.appendChild(content);
+  return card;
   }
 
   function showDetails(rental) {
