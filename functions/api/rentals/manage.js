@@ -586,17 +586,6 @@ export async function onRequest({ request, env }) {
       );
     }
 
-    if (body.action === "restore") {
-      const id = cleanText(body.id, 100);
-
-      if (!id) {
-        return json(
-          { success: false, error: "Valid listing ID required." },
-          400,
-          origin
-        );
-      }
-
       const result = await env.DB.prepare(`
         UPDATE rentals
         SET
