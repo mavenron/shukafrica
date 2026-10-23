@@ -679,11 +679,21 @@ $("addRentalBtn").addEventListener("click", () => {
   });
 });
 
+
 async function removeRental(rental) {
-  if (!confirm(`Remove "${rental.title}" from your rentals?`)) return;
+  const confirmed = confirm(
+    `PERMANENTLY DELETE RENTAL?\n\n` +
+    `Listing: "${rental.title}"\n\n` +
+    `This will permanently delete your rental listing. ` +
+    `Its photos or video may also be deleted if no other listing uses them.\n\n` +
+    `This action cannot be undone.\n\n` +
+    `Press OK to permanently delete, or Cancel to keep the listing.`
+  );
+
+  if (!confirmed) return;
 
   try {
-    message("listingMessage", "Removing listing…");
+    message("listingMessage", "Permanently deleting listing…");
 
     await api(`${API}/manage`, {
       method: "POST",
@@ -692,10 +702,19 @@ async function removeRental(rental) {
         id: rental.id
       })
     });
-if (editingRentalId === rental.id) resetEditor();
+
+    if (editingRentalId === rental.id) {
+      resetEditor();
+    }
 
     await loadRentals();
-    message("listingMessage", "Listing removed.", "success");
+
+    message(
+      "listingMessage",
+      "Rental listing permanently deleted.",
+      "success"
+    );
+
   } catch (error) {
     message("listingMessage", error.message, "error");
   }
