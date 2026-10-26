@@ -1148,7 +1148,7 @@ document.getElementById("publishBtn").addEventListener("click", async function (
   publishBtn.textContent = "Publishing...";
 
   try {
-    const response = await fetch("/api/open-market/listing", {
+    const response = await fetch("/api/open-market/listings", {
       method: "POST",
       body: formData
     });
