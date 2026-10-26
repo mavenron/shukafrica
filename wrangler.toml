@@ -2,21 +2,34 @@
 name = "shukafrica"
 pages_build_output_dir = "."
 
+# Main ShukAfrica database
 [[d1_databases]]
 binding = "DB"
 database_name = "shukafrica-db"
 database_id = "c40bcbf4-3006-4a2a-a106-85bea7182281"
 
+# Open Market database
+[[d1_databases]]
+binding = "OPEN_MARKET_DB"
+database_name = "shukafrica-open-market-db"
+database_id = "a1b3bf32-43fe-4036-925a-419ba5378f5e"
+
+# Main marketplace media
 [[r2_buckets]]
 binding = "MEDIA"
 bucket_name = "shukafrica-media"
 
+# Private delivery media
 [[r2_buckets]]
 binding = "PRIVATE_MEDIA"
 bucket_name = "shukafrica-delivery-private"
 
-
+# Rentals media
 [[r2_buckets]]
 binding = "RENTAL_MEDIA"
 bucket_name = "shukafrica-rentals-media"
 
+# Open Market media
+[[r2_buckets]]
+binding = "OPEN_MARKET_MEDIA"
+bucket_name = "shukafrica-open-market-media"
