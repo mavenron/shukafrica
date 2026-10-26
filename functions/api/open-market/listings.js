@@ -1,4 +1,3 @@
-
 function json(data, status = 200) {
   return Response.json(data, {
     status,
@@ -16,6 +15,25 @@ const CATEGORIES = new Set([
   "jobs"
 ]);
 
+const MAX_IMAGES = 3;
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const MAX_VIDEO_SIZE = 30 * 1024 * 1024;
+const MAX_VIDEO_SECONDS = 15;
+
+const MEDIA_BASE_URL = "https://market-media.shukafrica.com";
+
+const IMAGE_TYPES = new Map([
+  ["image/jpeg", "jpg"],
+  ["image/png", "png"],
+  ["image/webp", "webp"]
+]);
+
+const VIDEO_TYPES = new Map([
+  ["video/mp4", "mp4"],
+  ["video/webm", "webm"],
+  ["video/quicktime", "mov"]
+]);
+
 function clean(value, maxLength = 200) {
   if (typeof value !== "string") return "";
   return value.trim().slice(0, maxLength);
@@ -25,7 +43,44 @@ function validCategory(value) {
   return typeof value === "string" && CATEGORIES.has(value);
 }
 
-/* GET: Publicly display published Open Market listings */
+function normalizeJobType(value) {
+  const job = clean(value, 40).toLowerCase();
+
+  if (
+    job === "workers-needed" ||
+    job === "workers needed"
+  ) {
+    return "workers-needed";
+  }
+
+  if (
+    job === "seeking-work" ||
+    job === "looking for work"
+  ) {
+    return "seeking-work";
+  }
+
+  return "";
+}
+
+function validFile(file) {
+  return typeof File !== "undefined" && file instanceof File;
+}
+
+function getExtension(file, allowedTypes) {
+  return allowedTypes.get(
+    (file.type || "").toLowerCase()
+  ) || "";
+}
+
+function mediaUrl(key) {
+  return `${MEDIA_BASE_URL}/${key}`;
+}
+
+/*
+ * GET
+ * Return published Open Market listings.
+ */
 export async function onRequestGet({ request, env }) {
   try {
     if (!env.OPEN_MARKET_DB) {
@@ -36,11 +91,27 @@ export async function onRequestGet({ request, env }) {
     }
 
     const url = new URL(request.url);
-    const category = clean(url.searchParams.get("category"), 30);
-    const search = clean(url.searchParams.get("q"), 100);
-    const location = clean(url.searchParams.get("location"), 100);
 
-    if (category && category !== "all" && !validCategory(category)) {
+    const category = clean(
+      url.searchParams.get("category"),
+      30
+    );
+
+    const search = clean(
+      url.searchParams.get("q"),
+      100
+    );
+
+    const location = clean(
+      url.searchParams.get("location"),
+      100
+    );
+
+    if (
+      category &&
+      category !== "all" &&
+      !validCategory(category)
+    ) {
       return json({
         success: false,
         error: "Invalid category."
@@ -49,10 +120,22 @@ export async function onRequestGet({ request, env }) {
 
     let sql = `
       SELECT
-        id, category, job_type, title, seller_name,
-        price, location, country, region, description,
-        delivery, image_1, image_2, image_3,
-        image_4, image_5, video_url, created_at
+        id,
+        category,
+        job_type,
+        title,
+        seller_name,
+        price,
+        location,
+        country,
+        region,
+        description,
+        delivery,
+        image_1,
+        image_2,
+        image_3,
+        video_url,
+        created_at
       FROM open_market_listings
       WHERE status = 'published'
     `;
@@ -74,6 +157,7 @@ export async function onRequestGet({ request, env }) {
       `;
 
       const term = `%${search.replace(/[%_\\]/g, "\\$&")}%`;
+
       params.push(term, term, term);
     }
 
@@ -87,6 +171,7 @@ export async function onRequestGet({ request, env }) {
       `;
 
       const term = `%${location.replace(/[%_\\]/g, "\\$&")}%`;
+
       params.push(term, term, term);
     }
 
@@ -102,6 +187,8 @@ export async function onRequestGet({ request, env }) {
       listings: result.results || []
     });
   } catch (error) {
+    console.error("Open Market GET error:", error);
+
     return json({
       success: false,
       error: "Unable to load Open Market listings."
@@ -109,8 +196,18 @@ export async function onRequestGet({ request, env }) {
   }
 }
 
-/* POST: Publish a listing immediately */
+/*
+ * POST
+ * Publish a listing and upload its media to R2.
+ *
+ * Expected multipart fields:
+ * category, job_type, title, seller_name, contact,
+ * price, location, country, region, description,
+ * delivery, images (repeated up to 3 times), video.
+ */
 export async function onRequestPost({ request, env }) {
+  const uploadedKeys = [];
+
   try {
     if (!env.OPEN_MARKET_DB) {
       return json({
@@ -119,40 +216,78 @@ export async function onRequestPost({ request, env }) {
       }, 500);
     }
 
-    const contentType = request.headers.get("Content-Type") || "";
-
-    if (!contentType.toLowerCase().includes("application/json")) {
+    if (!env.OPEN_MARKET_MEDIA) {
       return json({
         success: false,
-        error: "Send listing details as JSON. Media upload will be connected separately."
+        error: "Open Market media bucket binding is missing."
+      }, 500);
+    }
+
+    const contentType =
+      request.headers.get("Content-Type") || "";
+
+    if (
+      !contentType.toLowerCase().includes("multipart/form-data")
+    ) {
+      return json({
+        success: false,
+        error: "Please submit the listing using the listing form."
       }, 415);
     }
 
-    const data = await request.json();
+    const form = await request.formData();
 
-    if (!data || typeof data !== "object" || Array.isArray(data)) {
+    // Honeypot: bots filling this field receive a fake success.
+    if (clean(form.get("website"), 200)) {
+      return json({
+        success: true,
+        message: "Listing received."
+      });
+    }
+
+    const category = clean(form.get("category"), 30);
+
+    const title = clean(form.get("title"), 120);
+
+    const sellerName = clean(
+      form.get("seller_name"),
+      100
+    );
+
+    const contact = clean(form.get("contact"), 40);
+
+    const price = clean(form.get("price"), 60);
+
+    const location = clean(form.get("location"), 120);
+
+    const country = clean(form.get("country"), 80);
+
+    const region = clean(form.get("region"), 80);
+
+    const description = clean(
+      form.get("description"),
+      3000
+    );
+
+    let delivery = clean(form.get("delivery"), 20);
+
+    let jobType = "";
+
+    if (category === "jobs") {
+      jobType = normalizeJobType(form.get("job_type"));
+
+      if (!jobType) {
+        return json({
+          success: false,
+          error: "Choose Workers Needed or Looking for Work."
+        }, 400);
+      }
+    } else if (clean(form.get("job_type"), 40)) {
       return json({
         success: false,
-        error: "Invalid listing data."
+        error: "Job type is only valid for Jobs listings."
       }, 400);
     }
-
-    // Honeypot field: normal users should leave this empty.
-    if (clean(data.website, 200)) {
-      return json({ success: true, message: "Listing received." });
-    }
-
-    const category = clean(data.category, 30);
-    const jobType = clean(data.job_type, 30);
-    const title = clean(data.title, 120);
-    const sellerName = clean(data.seller_name, 100);
-    const contact = clean(data.contact, 40);
-    const price = clean(data.price, 60);
-    const location = clean(data.location, 120);
-    const country = clean(data.country, 80);
-    const region = clean(data.region, 80);
-    const description = clean(data.description, 3000);
-    const delivery = clean(data.delivery, 20);
 
     if (!validCategory(category)) {
       return json({
@@ -186,35 +321,141 @@ export async function onRequestPost({ request, env }) {
       }, 400);
     }
 
-    if (
-      category === "jobs" &&
-      !["workers-needed", "seeking-work"].includes(jobType)
-    ) {
+    if (category === "shop" || category === "store") {
+      if (!["Yes", "No", ""].includes(delivery)) {
+        return json({
+          success: false,
+          error: "Invalid delivery selection."
+        }, 400);
+      }
+
+      delivery = delivery || "No";
+    } else {
+      delivery = "";
+    }
+
+    // Collect and validate images before uploading anything.
+    const imageEntries = form.getAll("images");
+
+    const images = imageEntries.filter(file =>
+      validFile(file) && file.size > 0
+    );
+
+    if (images.length > MAX_IMAGES) {
       return json({
         success: false,
-        error: "For Jobs, choose Workers Needed or Looking for Work."
+        error: "You can upload a maximum of 3 images."
       }, 400);
     }
 
-    if (
-      category !== "jobs" &&
-      jobType
-    ) {
-      return json({
-        success: false,
-        error: "Job type is only valid for Jobs listings."
-      }, 400);
+    for (const file of images) {
+      if (file.size > MAX_IMAGE_SIZE) {
+        return json({
+          success: false,
+          error: "Each image must be 5 MB or smaller."
+        }, 400);
+      }
+
+      if (!getExtension(file, IMAGE_TYPES)) {
+        return json({
+          success: false,
+          error: "Images must be JPG, PNG or WebP."
+        }, 400);
+      }
+    }
+
+    const videoEntry = form.get("video");
+
+    const video =
+      validFile(videoEntry) && videoEntry.size > 0
+        ? videoEntry
+        : null;
+
+    if (video) {
+      if (video.size > MAX_VIDEO_SIZE) {
+        return json({
+          success: false,
+          error: "The video must be 30 MB or smaller."
+        }, 400);
+      }
+
+      if (!getExtension(video, VIDEO_TYPES)) {
+        return json({
+          success: false,
+          error: "The video must be MP4, WebM or MOV."
+        }, 400);
+      }
     }
 
     const id = crypto.randomUUID();
 
+    const imageUrls = [null, null, null];
+    let videoUrl = null;
+
+    /*
+     * Upload images to the dedicated Open Market bucket.
+     * Random keys prevent user-controlled filenames.
+     */
+    for (let i = 0; i < images.length; i++) {
+      const file = images[i];
+
+      const extension = getExtension(file, IMAGE_TYPES);
+
+      const key =
+        `listings/${id}/${crypto.randomUUID()}.${extension}`;
+
+      await env.OPEN_MARKET_MEDIA.put(key, file, {
+        httpMetadata: {
+          contentType: file.type.toLowerCase(),
+          cacheControl: "public, max-age=31536000, immutable"
+        }
+      });
+
+      uploadedKeys.push(key);
+      imageUrls[i] = mediaUrl(key);
+    }
+
+    if (video) {
+      const extension = getExtension(video, VIDEO_TYPES);
+
+      const key =
+        `listings/${id}/${crypto.randomUUID()}.${extension}`;
+
+      await env.OPEN_MARKET_MEDIA.put(key, video, {
+        httpMetadata: {
+          contentType: video.type.toLowerCase(),
+          cacheControl: "public, max-age=31536000, immutable"
+        }
+      });
+
+      uploadedKeys.push(key);
+      videoUrl = mediaUrl(key);
+    }
+
+    /*
+     * Store the listing and its public media URLs in D1.
+     */
     await env.OPEN_MARKET_DB.prepare(`
       INSERT INTO open_market_listings (
-        id, category, job_type, title, seller_name,
-        contact, price, location, country, region,
-        description, delivery, status
+        id,
+        category,
+        job_type,
+        title,
+        seller_name,
+        contact,
+        price,
+        location,
+        country,
+        region,
+        description,
+        delivery,
+        image_1,
+        image_2,
+        image_3,
+        video_url,
+        status
       ) VALUES (
-        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'published'
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'published'
       )
     `).bind(
       id,
@@ -228,7 +469,11 @@ export async function onRequestPost({ request, env }) {
       country || null,
       region || null,
       description,
-      delivery || null
+      delivery || null,
+      imageUrls[0],
+      imageUrls[1],
+      imageUrls[2],
+      videoUrl
     ).run();
 
     return json({
@@ -239,17 +484,44 @@ export async function onRequestPost({ request, env }) {
         category,
         job_type: jobType || null,
         title,
+        seller_name: sellerName,
         price: price || null,
         location,
         country: country || null,
-        region: region || null
+        region: region || null,
+        description,
+        delivery: delivery || null,
+        image_1: imageUrls[0],
+        image_2: imageUrls[1],
+        image_3: imageUrls[2],
+        video_url: videoUrl,
+        status: "published"
       }
     }, 201);
+
   } catch (error) {
+    console.error("Open Market POST error:", error);
+
+    // Best-effort cleanup if an upload succeeded but publishing failed.
+    if (env.OPEN_MARKET_MEDIA) {
+      await Promise.all(
+        uploadedKeys.map(async key => {
+          try {
+            await env.OPEN_MARKET_MEDIA.delete(key);
+          } catch (cleanupError) {
+            console.error(
+              "Open Market media cleanup failed:",
+              cleanupError
+            );
+          }
+        })
+      );
+    }
+
     return json({
       success: false,
       error: "Unable to publish the listing. Please try again."
     }, 500);
   }
-        }
-    
+  }
+        
