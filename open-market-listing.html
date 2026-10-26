@@ -1047,9 +1047,11 @@ document.getElementById("publishBtn").style.display = "block";
     document.getElementById("preview").style.display = "none";
 
   });
+
 /* PUBLISH LISTING */
 
-document.getElementById("publishBtn").addEventListener("click", function(){
+document.getElementById("publishBtn").addEventListener("click", async function () {
+  const publishBtn = this;
 
   const title = document.getElementById("listingTitle").value.trim();
   const name = document.getElementById("businessName").value.trim();
@@ -1058,65 +1060,121 @@ document.getElementById("publishBtn").addEventListener("click", function(){
   const location = document.getElementById("location").value.trim();
   const description = document.getElementById("description").value.trim();
 
-  let categoryName = categoryLabel.textContent;
+  const imageInput = document.getElementById("images");
+  const videoInput = document.getElementById("video");
 
-  if(category === "jobs"){
-    categoryName += " — " + selectedJob;
+  const images = imageInput ? Array.from(imageInput.files) : [];
+  const video = videoInput && videoInput.files.length
+    ? videoInput.files[0]
+    : null;
+
+  if (!title || !name || !contact || !location || !description) {
+    alert("Please complete all required fields.");
+    return;
+  }
+
+  if (category === "jobs" && !selectedJob) {
+    alert("Please choose Workers Needed or Looking for Work.");
+    return;
+  }
+
+  if (images.length > 3) {
+    alert("You can upload a maximum of 3 images.");
+    return;
+  }
+
+  for (const image of images) {
+    if (image.size > 5 * 1024 * 1024) {
+      alert("Each image must be 5 MB or smaller.");
+      return;
+    }
+
+    if (!["image/jpeg", "image/png", "image/webp"].includes(image.type)) {
+      alert("Images must be JPG, PNG or WebP.");
+      return;
+    }
+  }
+
+  if (video) {
+    if (video.size > 30 * 1024 * 1024) {
+      alert("The video must be 30 MB or smaller.");
+      return;
+    }
+
+    if (!["video/mp4", "video/webm", "video/quicktime"].includes(video.type)) {
+      alert("The video must be MP4, WebM or MOV.");
+      return;
+    }
   }
 
   let delivery = "";
 
-  if(category === "shop" || category === "store"){
-
+  if (category === "shop" || category === "store") {
     const deliveryOption =
       document.querySelector('input[name="delivery"]:checked');
 
     delivery = deliveryOption ? deliveryOption.value : "No";
-
   }
 
-  const listing = {
+  const formData = new FormData();
 
-    id: Date.now(),
+  formData.append("category", category);
+  formData.append("title", title);
+  formData.append("seller_name", name);
+  formData.append("contact", contact);
+  formData.append("price", price);
+  formData.append("location", location);
+  formData.append("description", description);
+  formData.append("delivery", delivery);
 
-    category: categoryName,
+  if (category === "jobs") {
+    const jobType =
+      selectedJob === "Workers Needed"
+        ? "workers-needed"
+        : "seeking-work";
 
-    title: title,
+    formData.append("job_type", jobType);
+  }
 
-    name: name,
+  images.forEach(image => {
+    formData.append("images", image);
+  });
 
-    contact: contact,
+  if (video) {
+    formData.append("video", video);
+  }
 
-    price: price,
+  publishBtn.disabled = true;
+  publishBtn.textContent = "Publishing...";
 
-    location: location,
+  try {
+    const response = await fetch("/api/open-market/listing", {
+      method: "POST",
+      body: formData
+    });
 
-    delivery: delivery,
+    const result = await response.json();
 
-    description: description,
+    if (!response.ok || !result.success) {
+      throw new Error(
+        result.error || "Unable to publish your listing."
+      );
+    }
 
-    createdAt: new Date().toISOString()
+    alert("Your listing has been published successfully!");
 
-  };
+    window.location.href = "manage-listings.html";
 
+  } catch (error) {
+    console.error("Listing publication error:", error);
 
-  const existingListings =
-    JSON.parse(localStorage.getItem("shukafricaListings") || "[]");
+    alert(error.message || "Unable to publish. Please try again.");
 
-  existingListings.push(listing);
-
-  localStorage.setItem(
-    "shukafricaListings",
-    JSON.stringify(existingListings)
-  );
-
-
-  alert("Your listing has been published successfully!");
-
-
-  window.location.href = "manage-listings.html";
-
+    publishBtn.disabled = false;
+    publishBtn.textContent = "Publish Listing";
+  }
 });
+  
 </script>
 
 </body>
