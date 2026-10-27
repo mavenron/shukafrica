@@ -1,6 +1,6 @@
 const SESSION_COOKIE = "shuk_open_market_session";
 const SESSION_SECONDS = 7 * 24 * 60 * 60;
-const ITERATIONS = 310000;
+const ITERATIONS = 100000;
 
 function json(data, status = 200, extraHeaders = {}) {
   return Response.json(data, {
