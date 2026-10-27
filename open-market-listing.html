@@ -3,664 +3,705 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>ShukAfrica Open Market Listing</title>
 
   <style>
-    :root{
-      --bg:#071112;
-      --panel:#101d1e;
-      --panel2:#142425;
-      --line:#263738;
-      --text:#f5f7f5;
-      --muted:#a8b6b3;
-      --gold:#ffb52e;
-      --gold2:#d4883a;
-      --green:#00a86b;
-      --blue:#1688db;
-      --red:#ed3e35;
-      --purple:#a34cdd;
-      --radius:18px;
+    :root {
+      --bg: #071112;
+      --panel: #101d1e;
+      --panel2: #142425;
+      --line: #263738;
+      --text: #f5f7f5;
+      --muted: #a8b6b3;
+      --gold: #ffb52e;
+      --green: #00a86b;
+      --purple: #a34cdd;
+      --radius: 18px;
     }
 
-    *{
-      box-sizing:border-box;
-      margin:0;
-      padding:0;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    body{
-      background:var(--bg);
-      color:var(--text);
-      font-family:Arial,Helvetica,sans-serif;
-      min-height:100vh;
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      min-height: 100vh;
     }
 
-    a{
-      color:inherit;
-      text-decoration:none;
+    a {
+      color: inherit;
+      text-decoration: none;
     }
 
-    .wrap{
-      width:min(850px,92%);
-      margin:auto;
+    .wrap {
+      width: min(850px, 92%);
+      margin: auto;
     }
 
-    header{
-      border-bottom:1px solid var(--line);
-      background:#081516;
+    header {
+      border-bottom: 1px solid var(--line);
+      background: #081516;
     }
 
-    .header-inner{
-      min-height:68px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:15px;
+    .header-inner {
+      min-height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
     }
 
-    .brand{
-      font-size:21px;
-      font-weight:900;
+    .brand {
+      font-size: 21px;
+      font-weight: 900;
     }
 
-    .brand span{
-      color:var(--gold);
+    .brand span {
+      color: var(--gold);
     }
 
-    .back{
-      padding:9px 13px;
-      border:1px solid var(--line);
-      border-radius:10px;
-      color:var(--muted);
-      font-size:12px;
+    .back {
+      padding: 9px 13px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 12px;
     }
 
-    .hero{
-      text-align:center;
-      padding:35px 0 25px;
+    .hero {
+      text-align: center;
+      padding: 35px 0 25px;
     }
 
-    .hero-icon{
-      font-size:42px;
-      margin-bottom:10px;
+    .hero-icon {
+      font-size: 42px;
+      margin-bottom: 10px;
     }
 
-    .hero h1{
-      font-size:30px;
-      margin-bottom:8px;
+    .hero h1 {
+      font-size: 30px;
+      margin-bottom: 8px;
     }
 
-    .hero p{
-      color:var(--muted);
-      font-size:13px;
+    .hero p {
+      color: var(--muted);
+      font-size: 13px;
+      padding: 0 12px;
+      line-height: 1.5;
     }
 
-    .form-box{
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      padding:25px;
-      margin-bottom:40px;
+    .form-box {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 25px;
+      margin-bottom: 40px;
     }
 
-    .category{
-      display:inline-block;
-      background:#1c292a;
-      color:var(--gold);
-      border:1px solid #60471f;
-      border-radius:20px;
-      padding:7px 12px;
-      font-size:12px;
-      font-weight:bold;
-      margin-bottom:20px;
+    .section-heading {
+      font-size: 16px;
+      margin: 4px 0 13px;
     }
 
-    .field{
-      margin-bottom:18px;
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 25px;
     }
 
-    label{
-      display:block;
-      font-size:13px;
-      font-weight:bold;
-      margin-bottom:7px;
+    .category-option {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      min-height: 82px;
+      padding: 15px;
+      text-align: left;
+      color: var(--text);
+      background: #0b1718;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      cursor: pointer;
     }
 
-    .required{
-      color:var(--gold);
+    .category-option:hover {
+      border-color: var(--gold);
+    }
+
+    .category-option.active {
+      border-color: var(--gold);
+      background: #29220f;
+    }
+
+    .category-option.active::after {
+      content: "✓";
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      color: var(--gold);
+      font-weight: bold;
+    }
+
+    .category-icon {
+      font-size: 27px;
+      flex-shrink: 0;
+    }
+
+    .category-name {
+      display: block;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 5px;
+      padding-right: 10px;
+    }
+
+    .category-description {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .category-badge {
+      display: inline-block;
+      background: #1c292a;
+      color: var(--gold);
+      border: 1px solid #60471f;
+      border-radius: 20px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 7px;
+    }
+
+    .required {
+      color: var(--gold);
     }
 
     input,
     textarea,
-    select{
-      width:100%;
-      background:#0b1718;
-      color:white;
-      border:1px solid var(--line);
-      border-radius:10px;
-      padding:13px;
-      font-size:14px;
-      outline:none;
+    select {
+      width: 100%;
+      background: #0b1718;
+      color: white;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 13px;
+      font-size: 14px;
+      outline: none;
     }
 
     input:focus,
     textarea:focus,
-    select:focus{
-      border-color:var(--gold);
+    select:focus {
+      border-color: var(--gold);
     }
 
-    textarea{
-      min-height:170px;
-      resize:vertical;
-      line-height:1.5;
+    select option {
+      background: #0b1718;
+      color: white;
     }
 
-    input[type="file"]{
-      padding:10px;
+    textarea {
+      min-height: 170px;
+      resize: vertical;
+      line-height: 1.5;
     }
 
-    .hint{
-      display:block;
-      color:var(--muted);
-      font-size:11px;
-      margin-top:6px;
-      line-height:1.4;
+    input[type="file"] {
+      padding: 10px;
     }
 
-    .delivery-box{
-      background:#0c191a;
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:15px;
-      margin-bottom:20px;
+    .hint {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 6px;
+      line-height: 1.5;
     }
 
-    .delivery-options{
-      display:flex;
-      gap:20px;
-      margin-top:10px;
+    .delivery-box,
+    .jobs-choice {
+      background: #0c191a;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 20px;
     }
 
-    .radio{
-      display:flex;
-      align-items:center;
-      gap:7px;
-      font-size:13px;
-      font-weight:normal;
+    .delivery-options {
+      display: flex;
+      gap: 20px;
+      margin-top: 10px;
     }
 
-    .radio input{
-      width:auto;
+    .radio {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      font-weight: normal;
     }
 
-    .jobs-choice{
-      display:none;
-      background:#0c191a;
-      border:1px solid #75408d;
-      border-radius:12px;
-      padding:15px;
-      margin-bottom:20px;
+    .radio input {
+      width: auto;
+      accent-color: var(--gold);
     }
 
-    .jobs-options{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      margin-top:10px;
+    .jobs-choice {
+      display: none;
+      border-color: #75408d;
     }
 
-    .jobs-option{
-      background:#142124;
-      border:1px solid var(--line);
-      color:white;
-      border-radius:10px;
-      padding:13px;
-      cursor:pointer;
-      text-align:left;
+    .jobs-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
     }
 
-    .jobs-option.active{
-      border-color:var(--gold);
-      background:#29220f;
+    .jobs-option {
+      background: #142124;
+      border: 1px solid var(--line);
+      color: white;
+      border-radius: 10px;
+      padding: 13px;
+      cursor: pointer;
+      text-align: left;
+      line-height: 1.4;
     }
 
-    .preview{
-      display:none;
-      margin-top:25px;
-      padding:20px;
-      background:#0b1718;
-      border:1px solid var(--line);
-      border-radius:14px;
-    }
-.media-preview{
-  margin-top:15px;
-  padding-top:15px;
-  border-top:1px solid #1c292a;
-}
-
-.media-title{
-  color:var(--muted);
-  font-size:13px;
-  font-weight:bold;
-  margin-bottom:10px;
-}
-
-.image-preview-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:8px;
-  margin-bottom:15px;
-}
-
-.image-preview-grid img{
-  width:100%;
-  height:100px;
-  object-fit:cover;
-  border-radius:8px;
-  border:1px solid var(--line);
-}
-
-.video-preview{
-  width:100%;
-  max-height:300px;
-  border-radius:10px;
-  margin-top:8px;
-  background:#000;
-}
-
-.media-status{
-  color:#a8b6b3;
-  font-size:12px;
-  margin-bottom:10px;
-}
-
-@media(max-width:600px){
-  .image-preview-grid{
-    grid-template-columns:repeat(2,1fr);
-  }
-}
-    .preview h3{
-      margin-bottom:15px;
-      color:var(--gold);
+    .jobs-option.active {
+      border-color: var(--gold);
+      background: #29220f;
     }
 
-    .preview-row{
-      padding:8px 0;
-      border-bottom:1px solid #1c292a;
-      font-size:13px;
+    .change-job {
+      display: none;
+      margin-top: 12px;
+      background: transparent;
+      color: var(--gold);
+      border: 0;
+      cursor: pointer;
+      font-size: 12px;
     }
 
-    .preview-row strong{
-      color:var(--muted);
-      display:inline-block;
-      min-width:120px;
+    .preview {
+      display: none;
+      margin-top: 25px;
+      padding: 20px;
+      background: #0b1718;
+      border: 1px solid var(--line);
+      border-radius: 14px;
     }
 
-    .actions{
-      display:flex;
-      gap:12px;
-      margin-top:25px;
+    .preview h3 {
+      margin-bottom: 15px;
+      color: var(--gold);
     }
 
-    .btn{
-      border:0;
-      border-radius:10px;
-      padding:13px 18px;
-      font-weight:bold;
-      cursor:pointer;
-      font-size:13px;
+    .preview-row {
+      padding: 9px 0;
+      border-bottom: 1px solid #1c292a;
+      font-size: 13px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
     }
 
-    .btn-gold{
-      background:var(--gold);
-      color:#111;
+    .preview-row strong {
+      color: var(--muted);
+      display: inline-block;
+      min-width: 120px;
+      vertical-align: top;
     }
 
-    .btn-outline{
-      background:transparent;
-      color:white;
-      border:1px solid var(--line);
+    .media-preview {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #1c292a;
     }
 
-    footer{
-      border-top:1px solid var(--line);
-      padding:25px;
-      text-align:center;
-      color:var(--muted);
-      font-size:11px;
+    .media-title {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: bold;
+      margin: 15px 0 10px;
     }
 
-    footer strong{
-      color:var(--gold);
+    .image-preview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 15px;
     }
 
-    @media(max-width:600px){
+    .image-preview-grid img {
+      width: 100%;
+      height: 110px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+    }
 
-      .form-box{
-        padding:18px;
+    .video-preview {
+      width: 100%;
+      max-height: 300px;
+      border-radius: 10px;
+      margin-top: 8px;
+      background: #000;
+    }
+
+    .media-status {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 10px;
+      overflow-wrap: anywhere;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 25px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 13px 18px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      color: #111;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: white;
+      border: 1px solid var(--line);
+    }
+
+    .notice {
+      display: none;
+      margin-bottom: 18px;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .notice.error {
+      display: block;
+      background: #351817;
+      border: 1px solid #79302b;
+      color: #ffd2ce;
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 25px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    footer strong {
+      color: var(--gold);
+    }
+
+    @media (max-width: 600px) {
+      .form-box {
+        padding: 18px;
       }
 
-      .hero h1{
-        font-size:25px;
+      .hero h1 {
+        font-size: 25px;
       }
 
-      .jobs-options{
-        grid-template-columns:1fr;
+      .category-grid,
+      .jobs-options {
+        grid-template-columns: 1fr;
       }
 
-      .delivery-options{
-        flex-direction:column;
-        gap:10px;
+      .delivery-options {
+        flex-direction: column;
+        gap: 10px;
       }
 
-      .actions{
-        flex-direction:column;
+      .actions {
+        flex-direction: column;
       }
 
-      .actions .btn{
-        width:100%;
+      .actions .btn {
+        width: 100%;
+      }
+
+      .image-preview-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
   </style>
 </head>
 
 <body>
-
 <header>
   <div class="wrap header-inner">
-
-    <div class="brand">
-      Shuk<span>Africa</span>
-    </div>
-
-    <a href="open-market.html" class="back">
-      ← Back
-    </a>
-
+    <div class="brand">Shuk<span>Africa</span></div>
+    <a href="open-market.html" class="back">← Back</a>
   </div>
 </header>
 
-
 <main>
-
   <section class="hero">
-
     <div class="hero-icon" id="heroIcon">🛍️</div>
-
-    <h1 id="pageTitle">
-      Create Your Listing
-    </h1>
-
-    <p id="pageSubtitle">
-      Tell people what you offer.
-    </p>
-
+    <h1 id="pageTitle">Create Your Listing</h1>
+    <p id="pageSubtitle">Choose a category and tell people what you offer.</p>
   </section>
 
-
   <section class="wrap">
-
     <div class="form-box">
 
-      <div class="category" id="categoryLabel">
-        OPEN MARKET
+      <div id="notice" class="notice" role="alert"></div>
+
+      <h2 class="section-heading">1. Choose a category</h2>
+      <p class="hint" style="margin-bottom:14px">
+        Select the category that best describes your listing.
+      </p>
+
+      <div class="category-grid" id="categoryGrid">
+        <button type="button" class="category-option" data-category="store">
+          <span class="category-icon">🛒</span>
+          <span>
+            <span class="category-name">My Store</span>
+            <span class="category-description">Sell products online.</span>
+          </span>
+        </button>
+
+        <button type="button" class="category-option" data-category="shop">
+          <span class="category-icon">🏪</span>
+          <span>
+            <span class="category-name">My Shop</span>
+            <span class="category-description">Promote your shop or business.</span>
+          </span>
+        </button>
+
+        <button type="button" class="category-option" data-category="home-service">
+          <span class="category-icon">🏠</span>
+          <span>
+            <span class="category-name">Home Service</span>
+            <span class="category-description">Offer your skills and services.</span>
+          </span>
+        </button>
+
+        <button type="button" class="category-option" data-category="jobs">
+          <span class="category-icon">💼</span>
+          <span>
+            <span class="category-name">Jobs Available</span>
+            <span class="category-description">Find workers or look for a job.</span>
+          </span>
+        </button>
       </div>
 
+      <div class="category-badge" id="categoryLabel">SELECT A CATEGORY</div>
 
       <!-- JOB TYPE -->
-      <!-- JOB TYPE -->
-<div class="jobs-choice" id="jobsChoice">
+      <div class="jobs-choice" id="jobsChoice">
+        <label>What are you posting? <span class="required">*</span></label>
 
-  <label>
-    What are you posting?
-  </label>
+        <div class="jobs-options">
+          <button type="button" class="jobs-option" data-job="workers-needed">
+            👷 Workers Needed
+          </button>
 
-  <div class="jobs-options">
+          <button type="button" class="jobs-option" data-job="seeking-work">
+            🔎 Looking for a Job
+          </button>
+        </div>
 
-    <button
-      type="button"
-      class="jobs-option"
-      data-job="Workers Needed"
-    >
-      👷 Workers Needed
-    </button>
-
-    <button
-      type="button"
-      class="jobs-option"
-      data-job="Looking for Work"
-    >
-      🔎 Looking for Work
-    </button>
-
-  </div>
-
-  <button
-    type="button"
-    id="changeJobChoice"
-    style="display:none;margin-top:12px;background:transparent;color:#ffb52e;border:0;cursor:pointer;"
-  >
-    ↔ Change choice
-  </button>
-
-</div>
-
+        <button type="button" id="changeJobChoice" class="change-job">
+          ↔ Change choice
+        </button>
+      </div>
 
       <!-- TITLE -->
       <div class="field">
-
-        <label>
+        <label for="listingTitle">
           Listing Title <span class="required">*</span>
         </label>
-
         <input
           type="text"
           id="listingTitle"
+          maxlength="150"
           placeholder="Example: Quality African Print Dresses"
+          required
         >
-
       </div>
-
 
       <!-- NAME -->
       <div class="field">
-
-        <label>
+        <label for="businessName">
           Name / Business Name <span class="required">*</span>
         </label>
-
         <input
           type="text"
           id="businessName"
+          maxlength="120"
           placeholder="Your name or business name"
+          required
         >
-
       </div>
-
 
       <!-- CONTACT -->
       <div class="field">
-
-        <label>
+        <label for="contact">
           Contact / WhatsApp <span class="required">*</span>
         </label>
-
         <input
           type="tel"
           id="contact"
+          maxlength="40"
           placeholder="Example: 024 XXX XXXX"
+          required
         >
-
       </div>
-
 
       <!-- PRICE -->
       <div class="field">
-
-        <label>
-          Price
-        </label>
-
+        <label for="price">Price / Rate / Salary</label>
         <input
           type="text"
           id="price"
+          maxlength="100"
           placeholder="Example: GH₵ 250 or Negotiable"
         >
-
         <span class="hint">
-          For jobs or services, you can write your rate, salary,
-          or simply "Negotiable".
+          For jobs or services, enter your rate, salary, or "Negotiable".
         </span>
-
       </div>
-
 
       <!-- LOCATION -->
       <div class="field">
-
-        <label>
+        <label for="location">
           Location <span class="required">*</span>
         </label>
-
         <input
           type="text"
           id="location"
+          maxlength="150"
           placeholder="Town / City / Area"
+          required
         >
-
         <span class="hint">
-          Tell customers where your shop, store, service or
-          opportunity is located.
+          Enter the location of your business, service, or job opportunity.
         </span>
-
       </div>
-
 
       <!-- DELIVERY -->
-      <div class="delivery-box" id="deliveryBox">
-
-        <label>
-          Do you offer delivery?
-        </label>
-
+      <div class="delivery-box" id="deliveryBox" style="display:none">
+        <label>Do you offer delivery?</label>
         <div class="delivery-options">
-
           <label class="radio">
-            <input
-              type="radio"
-              name="delivery"
-              value="Yes"
-            >
+            <input type="radio" name="delivery" value="Yes">
             Yes
           </label>
-
           <label class="radio">
-            <input
-              type="radio"
-              name="delivery"
-              value="No"
-              checked
-            >
+            <input type="radio" name="delivery" value="No" checked>
             No
           </label>
-
         </div>
-
       </div>
-
 
       <!-- IMAGES -->
       <div class="field">
-
-        <label>
-          Listing Images
-        </label>
-
+        <label for="images">Listing Images</label>
         <input
-  type="file"
-  id="images"
-  accept="image/jpeg,image/png,image/webp"
-  multiple
->
-
+          type="file"
+          id="images"
+          accept="image/jpeg,image/png,image/webp"
+          multiple
+        >
         <span class="hint">
-          Add up to 3 images. Maximum 5 MB per image.
+          Optional. Add up to 3 images. Maximum 5 MB per image.
+          Accepted formats: JPG, PNG, WebP.
         </span>
-
       </div>
-
 
       <!-- VIDEO -->
       <div class="field">
-
-        <label>
-          Listing Video
-        </label>
-
+        <label for="video">Listing Video</label>
         <input
           type="file"
           id="video"
-          accept="video/*"
+          accept="video/mp4,video/webm,video/quicktime"
         >
-
         <span class="hint">
-  Optional. Maximum 15 seconds and 30 MB.
-</span>
+          Optional. Maximum 15 seconds and 30 MB. Accepted formats:
+          MP4, WebM, MOV.
+        </span>
+      </div>
 
       <!-- DESCRIPTION -->
       <div class="field">
-
-        <label>
+        <label for="description">
           Describe Your Listing <span class="required">*</span>
         </label>
-
         <textarea
           id="description"
-          placeholder="Describe your product, business, service or job opportunity. Add any important information customers or applicants should know..."
+          maxlength="5000"
+          placeholder="Describe your product, business, service or job opportunity. Include important information customers or applicants should know."
+          required
         ></textarea>
-
       </div>
-
 
       <!-- ACTIONS -->
       <div class="actions">
+        <button type="button" class="btn btn-gold" id="previewBtn">
+          Preview Listing
+        </button>
 
-        <div class="actions">
+        <button
+          type="button"
+          class="btn btn-gold"
+          id="publishBtn"
+          style="display:none"
+        >
+          🚀 Publish Listing
+        </button>
 
-  <button
-    type="button"
-    class="btn btn-gold"
-    id="previewBtn"
-  >
-    Preview Listing
-  </button>
-
-  <button
-    type="button"
-    class="btn btn-gold"
-    id="publishBtn"
-    style="display:none;"
-  >
-    🚀 Publish Listing
-  </button>
-
-  <button
-    type="button"
-    class="btn btn-outline"
-    id="clearBtn"
-  >
-    Clear
-  </button>
-
-        </div>
-
+        <button type="button" class="btn btn-outline" id="clearBtn">
+          Clear Form
+        </button>
       </div>
-
 
       <!-- PREVIEW -->
       <div class="preview" id="preview">
-
         <h3>Listing Preview</h3>
 
         <div class="preview-row">
@@ -693,7 +734,7 @@
           <span id="previewLocation"></span>
         </div>
 
-        <div class="preview-row" id="previewDeliveryRow">
+        <div class="preview-row" id="previewDeliveryRow" style="display:none">
           <strong>Delivery:</strong>
           <span id="previewDelivery"></span>
         </div>
@@ -702,480 +743,546 @@
           <strong>Description:</strong>
           <span id="previewDescription"></span>
         </div>
-<div class="media-preview">
 
-  <div class="media-title">🖼️ Listing Images</div>
+        <div class="media-preview">
+          <div class="media-title">🖼️ Listing Images</div>
+          <div id="previewImagesStatus" class="media-status">
+            No images selected.
+          </div>
+          <div id="previewImages" class="image-preview-grid"></div>
 
-  <div id="previewImagesStatus" class="media-status">
-    No images selected.
-  </div>
-
-  <div id="previewImages" class="image-preview-grid"></div>
-
-
-  <div class="media-title">🎥 Listing Video</div>
-
-  <div id="previewVideoStatus" class="media-status">
-    No video selected.
-  </div>
-
-  <video
-    id="previewVideo"
-    class="video-preview"
-    controls
-    style="display:none;"
-  ></video>
-
-</div>
+          <div class="media-title">🎥 Listing Video</div>
+          <div id="previewVideoStatus" class="media-status">
+            No video selected.
+          </div>
+          <video
+            id="previewVideo"
+            class="video-preview"
+            controls
+            playsinline
+            style="display:none"
+          ></video>
+        </div>
       </div>
-
     </div>
-
   </section>
-
 </main>
-
 
 <footer>
   <strong>ShukAfrica</strong> — West Africa, connected.
 </footer>
 
-
 <script>
+(() => {
+  "use strict";
 
-  const params = new URLSearchParams(window.location.search);
-  const category = params.get("category") || "shop";
+  const API_URL = "/api/open-market/listing";
 
-  const heroIcon = document.getElementById("heroIcon");
-  const pageTitle = document.getElementById("pageTitle");
-  const pageSubtitle = document.getElementById("pageSubtitle");
-  const categoryLabel = document.getElementById("categoryLabel");
-  const deliveryBox = document.getElementById("deliveryBox");
-  const jobsChoice = document.getElementById("jobsChoice");
-
-  let selectedJob = "";
-
-
-  /* CATEGORY SETUP */
-
-  if(category === "shop"){
-
-    heroIcon.textContent = "🏪";
-    pageTitle.textContent = "Create Your Shop Listing";
-    pageSubtitle.textContent = "Promote your physical shop or business.";
-    categoryLabel.textContent = "MY SHOP";
-
-    deliveryBox.style.display = "block";
-    jobsChoice.style.display = "none";
-
-  }
-
-  else if(category === "store"){
-
-    heroIcon.textContent = "🛒";
-    pageTitle.textContent = "Create Your Store Listing";
-    pageSubtitle.textContent = "Sell your products to customers.";
-    categoryLabel.textContent = "MY STORE";
-
-    deliveryBox.style.display = "block";
-    jobsChoice.style.display = "none";
-
-  }
-
-  else if(category === "home-service"){
-
-    heroIcon.textContent = "🏠";
-    pageTitle.textContent = "Create Your Home Service Listing";
-    pageSubtitle.textContent = "Let customers know what service you provide.";
-    categoryLabel.textContent = "HOME SERVICE";
-
-    deliveryBox.style.display = "none";
-    jobsChoice.style.display = "none";
-
-  }
-
-  else if(category === "jobs"){
-
-    heroIcon.textContent = "💼";
-    pageTitle.textContent = "Jobs Available";
-    pageSubtitle.textContent = "Workers Needed • Looking for Work";
-    categoryLabel.textContent = "JOBS AVAILABLE";
-
-    deliveryBox.style.display = "none";
-    jobsChoice.style.display = "block";
-
-  }
-
-
-  /* JOB BUTTONS */
-
-  
-const changeJobChoice = document.getElementById("changeJobChoice");
-
-document.querySelectorAll(".jobs-option").forEach(button => {
-
-  button.addEventListener("click", function(){
-
-    selectedJob = this.dataset.job;
-
-    document.querySelectorAll(".jobs-option").forEach(btn => {
-      btn.style.display = "none";
-      btn.classList.remove("active");
-    });
-
-    this.style.display = "block";
-    this.classList.add("active");
-
-    changeJobChoice.style.display = "block";
-
-  });
-
-});
-
-
-changeJobChoice.addEventListener("click", function(){
-
-  document.querySelectorAll(".jobs-option").forEach(btn => {
-    btn.style.display = "block";
-    btn.classList.remove("active");
-  });
-
-  selectedJob = "";
-
-  changeJobChoice.style.display = "none";
-
-});
-
-  /* PREVIEW */
-
-  document.getElementById("previewBtn").addEventListener("click", function(){
-
-    const title = document.getElementById("listingTitle").value.trim();
-    const name = document.getElementById("businessName").value.trim();
-    const contact = document.getElementById("contact").value.trim();
-    const price = document.getElementById("price").value.trim();
-    const location = document.getElementById("location").value.trim();
-    const description = document.getElementById("description").value.trim();
-const imageFiles = document.getElementById("images").files;
-const videoFile = document.getElementById("video").files[0];
-    if(!title || !name || !contact || !location || !description){
-
-      alert("Please complete the required fields before previewing.");
-
-      return;
+  const categories = {
+    store: {
+      name: "MY STORE",
+      icon: "🛒",
+      title: "Create Your Store Listing",
+      subtitle: "Sell your products to customers."
+    },
+    shop: {
+      name: "MY SHOP",
+      icon: "🏪",
+      title: "Create Your Shop Listing",
+      subtitle: "Promote your physical shop or business."
+    },
+    "home-service": {
+      name: "HOME SERVICE",
+      icon: "🏠",
+      title: "Create Your Home Service Listing",
+      subtitle: "Let customers know what service you provide."
+    },
+    jobs: {
+      name: "JOBS AVAILABLE",
+      icon: "💼",
+      title: "Create a Job Listing",
+      subtitle: "Find workers or advertise yourself for work."
     }
-
-
-    if(category === "jobs" && !selectedJob){
-
-      alert("Please choose Workers Needed or Looking for Work.");
-
-      return;
-    }
-
-
-    let categoryName = categoryLabel.textContent;
-
-    if(category === "jobs"){
-      categoryName += " — " + selectedJob;
-    }
-
-
-    document.getElementById("previewCategory").textContent = categoryName;
-    document.getElementById("previewTitle").textContent = title;
-    document.getElementById("previewName").textContent = name;
-    document.getElementById("previewContact").textContent = contact;
-    document.getElementById("previewPrice").textContent = price || "Not specified";
-    document.getElementById("previewLocation").textContent = location;
-    document.getElementById("previewDescription").textContent = description;
-
-
-    if(category === "shop" || category === "store"){
-
-      const delivery =
-        document.querySelector('input[name="delivery"]:checked');
-
-      document.getElementById("previewDelivery").textContent =
-        delivery ? delivery.value : "No";
-
-      document.getElementById("previewDeliveryRow").style.display = "block";
-
-    }else{
-
-      document.getElementById("previewDeliveryRow").style.display = "none";
-
-    }
-
-/* MEDIA PREVIEW */
-
-const previewImages = document.getElementById("previewImages");
-const previewImagesStatus = document.getElementById("previewImagesStatus");
-const previewVideo = document.getElementById("previewVideo");
-const previewVideoStatus = document.getElementById("previewVideoStatus");
-
-previewImages.innerHTML = "";
-
-
-/* IMAGES */
-
-if(imageFiles.length > 3){
-
-  alert("You can select a maximum of 3 images.");
-
-  return;
-
-}
-
-let invalidImage = false;
-
-for(const file of imageFiles){
-
-  if(file.size > 5 * 1024 * 1024){
-
-    alert("Each image must be 5 MB or smaller.");
-
-    invalidImage = true;
-
-    break;
-
-  }
-
-}
-
-if(invalidImage){
-  return;
-}
-
-
-if(imageFiles.length > 0){
-
-  previewImagesStatus.textContent =
-    imageFiles.length + " image" +
-    (imageFiles.length > 1 ? "s" : "") +
-    " selected.";
-
-  Array.from(imageFiles).forEach(file => {
-
-    const img = document.createElement("img");
-
-    img.src = URL.createObjectURL(file);
-
-    previewImages.appendChild(img);
-
-  });
-
-}else{
-
-  previewImagesStatus.textContent = "No images selected.";
-
-}
-
-
-/* VIDEO */
-
-previewVideo.style.display = "none";
-previewVideo.removeAttribute("src");
-
-if(videoFile){
-
-  if(videoFile.size > 30 * 1024 * 1024){
-
-    alert("The video must be 30 MB or smaller.");
-
-    return;
-
-  }
-
-  previewVideoStatus.textContent = "✓ Video selected.";
-
-  const videoURL = URL.createObjectURL(videoFile);
-
-  previewVideo.src = videoURL;
-  previewVideo.style.display = "block";
-
-  previewVideo.onloadedmetadata = function(){
-
-    if(previewVideo.duration > 15){
-
-      alert("The video must be 15 seconds or shorter.");
-
-      previewVideo.pause();
-      previewVideo.style.display = "none";
-      previewVideoStatus.textContent =
-        "Video is too long. Please select a video of 15 seconds or less.";
-
-      document.getElementById("video").value = "";
-
-    }
-
   };
 
-}else{
+  const $ = id => document.getElementById(id);
 
-  previewVideoStatus.textContent = "No video selected.";
+  let category = "";
+  let selectedJob = "";
+  let imagePreviewUrls = [];
+  let videoPreviewUrl = "";
+  let previewReady = false;
+  let publishing = false;
 
-      }
-    document.getElementById("preview").style.display = "block";
-document.getElementById("publishBtn").style.display = "block";
-    document.getElementById("preview").scrollIntoView({
-      behavior:"smooth"
+  const categoryButtons = document.querySelectorAll(".category-option");
+  const jobButtons = document.querySelectorAll(".jobs-option");
+
+  function showError(message) {
+    const notice = $("notice");
+    notice.textContent = message;
+    notice.className = "notice error";
+    notice.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function clearNotice() {
+    const notice = $("notice");
+    notice.textContent = "";
+    notice.className = "notice";
+  }
+
+  function invalidatePreview() {
+    previewReady = false;
+    $("preview").style.display = "none";
+    $("publishBtn").style.display = "none";
+  }
+
+  function revokeMediaUrls() {
+    imagePreviewUrls.forEach(url => URL.revokeObjectURL(url));
+    imagePreviewUrls = [];
+
+    if (videoPreviewUrl) {
+      URL.revokeObjectURL(videoPreviewUrl);
+      videoPreviewUrl = "";
+    }
+
+    $("previewVideo").pause();
+    $("previewVideo").removeAttribute("src");
+    $("previewVideo").load();
+    $("previewVideo").style.display = "none";
+  }
+
+  function selectCategory(value) {
+    if (!categories[value]) return;
+
+    category = value;
+    selectedJob = "";
+    invalidatePreview();
+    clearNotice();
+
+    
+
+    const config = categories[category];
+
+    $("heroIcon").textContent = config.icon;
+    $("pageTitle").textContent = config.title;
+    $("pageSubtitle").textContent = config.subtitle;
+    $("categoryLabel").textContent = config.name;
+
+    categoryButtons.forEach(button => {
+      const active = button.dataset.category === category;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
     });
 
-  });
 
+const needsDelivery = category === "shop" || category === "store";
+    $("deliveryBox").style.display = needsDelivery ? "block" : "none";
+    $("jobsChoice").style.display = category === "jobs" ? "block" : "none";
 
-  /* CLEAR */
+    resetJobChoice();
+  }
 
-  document.getElementById("clearBtn").addEventListener("click", function(){
-
-    document.getElementById("listingTitle").value = "";
-    document.getElementById("businessName").value = "";
-    document.getElementById("contact").value = "";
-    document.getElementById("price").value = "";
-    document.getElementById("location").value = "";
-    document.getElementById("description").value = "";
-
-    document.getElementById("images").value = "";
-    document.getElementById("video").value = "";
-
-    document.querySelectorAll(".jobs-option").forEach(btn => {
-      btn.classList.remove("active");
-    });
-
+  function resetJobChoice() {
     selectedJob = "";
 
-    document.getElementById("preview").style.display = "none";
-
-  });
-
-/* PUBLISH LISTING */
-
-document.getElementById("publishBtn").addEventListener("click", async function () {
-  const publishBtn = this;
-
-  const title = document.getElementById("listingTitle").value.trim();
-  const name = document.getElementById("businessName").value.trim();
-  const contact = document.getElementById("contact").value.trim();
-  const price = document.getElementById("price").value.trim();
-  const location = document.getElementById("location").value.trim();
-  const description = document.getElementById("description").value.trim();
-
-  const imageInput = document.getElementById("images");
-  const videoInput = document.getElementById("video");
-
-  const images = imageInput ? Array.from(imageInput.files) : [];
-  const video = videoInput && videoInput.files.length
-    ? videoInput.files[0]
-    : null;
-
-  if (!title || !name || !contact || !location || !description) {
-    alert("Please complete all required fields.");
-    return;
-  }
-
-  if (category === "jobs" && !selectedJob) {
-    alert("Please choose Workers Needed or Looking for Work.");
-    return;
-  }
-
-  if (images.length > 3) {
-    alert("You can upload a maximum of 3 images.");
-    return;
-  }
-
-  for (const image of images) {
-    if (image.size > 5 * 1024 * 1024) {
-      alert("Each image must be 5 MB or smaller.");
-      return;
-    }
-
-    if (!["image/jpeg", "image/png", "image/webp"].includes(image.type)) {
-      alert("Images must be JPG, PNG or WebP.");
-      return;
-    }
-  }
-
-  if (video) {
-    if (video.size > 30 * 1024 * 1024) {
-      alert("The video must be 30 MB or smaller.");
-      return;
-    }
-
-    if (!["video/mp4", "video/webm", "video/quicktime"].includes(video.type)) {
-      alert("The video must be MP4, WebM or MOV.");
-      return;
-    }
-  }
-
-  let delivery = "";
-
-  if (category === "shop" || category === "store") {
-    const deliveryOption =
-      document.querySelector('input[name="delivery"]:checked');
-
-    delivery = deliveryOption ? deliveryOption.value : "No";
-  }
-
-  const formData = new FormData();
-
-  formData.append("category", category);
-  formData.append("title", title);
-  formData.append("seller_name", name);
-  formData.append("contact", contact);
-  formData.append("price", price);
-  formData.append("location", location);
-  formData.append("description", description);
-  formData.append("delivery", delivery);
-
-  if (category === "jobs") {
-    const jobType =
-      selectedJob === "Workers Needed"
-        ? "workers-needed"
-        : "seeking-work";
-
-    formData.append("job_type", jobType);
-  }
-
-  images.forEach(image => {
-    formData.append("images", image);
-  });
-
-  if (video) {
-    formData.append("video", video);
-  }
-
-  publishBtn.disabled = true;
-  publishBtn.textContent = "Publishing...";
-
-  try {
-    const response = await fetch("/api/open-market/listing", {
-      method: "POST",
-      body: formData
+    jobButtons.forEach(button => {
+      button.classList.remove("active");
+      button.style.display = "block";
+      button.setAttribute("aria-pressed", "false");
     });
 
-    const result = await response.json();
+    $("changeJobChoice").style.display = "none";
+  }
 
-    if (!response.ok || !result.success) {
-      throw new Error(
-        result.error || "Unable to publish your listing."
-      );
+  function chooseJob(button) {
+    selectedJob = button.dataset.job;
+
+
+jobButtons.forEach(other => {
+      const active = other === button;
+      other.classList.toggle("active", active);
+      other.style.display = active ? "block" : "none";
+      other.setAttribute("aria-pressed", String(active));
+    });
+
+    $("changeJobChoice").style.display = "inline-block";
+    invalidatePreview();
+    clearNotice();
+  }
+
+  categoryButtons.forEach(button => {
+    button.addEventListener("click", () => {
+      selectCategory(button.dataset.category);
+    });
+  });
+
+  jobButtons.forEach(button => {
+    button.addEventListener("click", () => chooseJob(button));
+  });
+
+  $("changeJobChoice").addEventListener("click", () => {
+    resetJobChoice();
+    invalidatePreview();
+  });
+
+function getFormValues() {
+    return {
+      title: $("listingTitle").value.trim(),
+      name: $("businessName").value.trim(),
+      contact: $("contact").value.trim(),
+      price: $("price").value.trim(),
+      location: $("location").value.trim(),
+      description: $("description").value.trim(),
+      images: Array.from($("images").files),
+      video: $("video").files[0] || null
+    };
+  }
+
+  function validateValues(values) {
+    if (!category || !categories[category]) {
+      return "Please choose a listing category.";
     }
 
-    alert("Your listing has been published successfully!");
+    if (
+      !values.title ||
+      !values.name ||
+      !values.contact ||
+      !values.location ||
+      !values.description
+    ) {
 
-    window.location.href = "manage-listings.html";
+return "Please complete all required fields.";
+    }
 
-  } catch (error) {
-    console.error("Listing publication error:", error);
+    if (category === "jobs" && !selectedJob) {
+      return "Please choose Workers Needed or Looking for a Job.";
+    }
 
-    alert(error.message || "Unable to publish. Please try again.");
+    if (values.images.length > 3) {
+      return "You can upload a maximum of 3 images.";
+    }
 
-    publishBtn.disabled = false;
-    publishBtn.textContent = "Publish Listing";
+    for (const image of values.images) {
+      if (!["image/jpeg", "image/png", "image/webp"].includes(image.type)) {
+        return "Images must be JPG, PNG or WebP.";
+      }
+
+      if (image.size > 5 * 1024 * 1024) {
+        return "Each image must be 5 MB or smaller.";
+      }
+    }
+
+    if (values.video) {
+      if (!["video/mp4", "video/webm", "video/quicktime"].includes(values.video.type)) {
+        return "The video must be MP4, WebM or MOV.";
+      }
+
+if (values.video.size > 30 * 1024 * 1024) {
+        return "The video must be 30 MB or smaller.";
+      }
+    }
+
+    return "";
   }
-});
-  
-</script>
 
+  function checkVideoDuration(file) {
+    return new Promise((resolve, reject) => {
+      if (!file) {
+        resolve(true);
+        return;
+      }
+
+      const url = URL.createObjectURL(file);
+      const video = document.createElement("video");
+      let finished = false;
+
+      function cleanup() {
+        video.removeAttribute("src");
+        video.load();
+        URL.revokeObjectURL(url);
+      }
+
+      function finish(error, valid) {
+        if (finished) return;
+        finished = true;
+        cleanup();
+
+if (error) reject(error);
+        else resolve(valid);
+      }
+
+      video.preload = "metadata";
+
+      video.onloadedmetadata = () => {
+        const duration = video.duration;
+
+        if (!Number.isFinite(duration) || duration <= 0) {
+          finish(new Error("Unable to read the video duration. Please choose another video."));
+          return;
+        }
+
+        if (duration > 15) {
+          finish(new Error("The video must be 15 seconds or shorter."));
+          return;
+        }
+
+        finish(null, true);
+      };
+
+      video.onerror = () => {
+        finish(new Error("Unable to read the video. Please choose a supported video file."));
+      };
+
+video.src = url;
+    });
+  }
+
+  function getJobLabel() {
+    if (selectedJob === "workers-needed") return "Workers Needed";
+    if (selectedJob === "seeking-work") return "Looking for a Job";
+    return "";
+  }
+
+  async function validateForm() {
+    const values = getFormValues();
+    const error = validateValues(values);
+
+    if (error) {
+      showError(error);
+      return null;
+    }
+
+    try {
+      await checkVideoDuration(values.video);
+    } catch (error) {
+      showError(error.message || "Please check your video.");
+      return null;
+    }
+return values;
+  }
+
+  async function createPreview() {
+    clearNotice();
+    invalidatePreview();
+    revokeMediaUrls();
+
+    const values = await validateForm();
+    if (!values) return;
+
+    const categoryText = categories[category].name +
+      (category === "jobs" ? " — " + getJobLabel() : "");
+
+    $("previewCategory").textContent = categoryText;
+    $("previewTitle").textContent = values.title;
+    $("previewName").textContent = values.name;
+    $("previewContact").textContent = values.contact;
+    $("previewPrice").textContent = values.price || "Not specified";
+    $("previewLocation").textContent = values.location;
+    $("previewDescription").textContent = values.description;
+const showDelivery = category === "shop" || category === "store";
+    $("previewDeliveryRow").style.display = showDelivery ? "block" : "none";
+
+    if (showDelivery) {
+      const option = document.querySelector('input[name="delivery"]:checked');
+      $("previewDelivery").textContent = option ? option.value : "No";
+    }
+
+    const previewImages = $("previewImages");
+    previewImages.replaceChildren();
+
+    if (values.images.length) {
+      $("previewImagesStatus").textContent =
+        values.images.length + " image" +
+        (values.images.length === 1 ? "" : "s") + " selected.";
+
+      values.images.forEach(file => {
+        const image = document.createElement("img");
+        const url = URL.createObjectURL(file);
+        image.src = url;
+        image.alt = "Selected listing image";
+        image.onerror = () => {
+          image.alt = "Image preview unavailable";
+        };
+imagePreviewUrls.push(url);
+        previewImages.appendChild(image);
+      });
+    } else {
+      $("previewImagesStatus").textContent = "No images selected.";
+    }
+
+    if (values.video) {
+      videoPreviewUrl = URL.createObjectURL(values.video);
+      $("previewVideo").src = videoPreviewUrl;
+      $("previewVideo").style.display = "block";
+      $("previewVideoStatus").textContent = "Video selected: " + values.video.name;
+    } else {
+      $("previewVideoStatus").textContent = "No video selected.";
+    }
+
+    previewReady = true;
+    $("preview").style.display = "block";
+    $("publishBtn").style.display = "inline-block";
+
+   $("preview").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }
+
+  $("previewBtn").addEventListener("click", createPreview);
+
+  // Any change to listing information requires a fresh preview.
+  [
+    "listingTitle",
+    "businessName",
+    "contact",
+    "price",
+    "location",
+    "description",
+    "images",
+    "video"
+  ].forEach(id => {
+    $(id).addEventListener("input", invalidatePreview);
+    $(id).addEventListener("change", invalidatePreview);
+  });
+
+  document.querySelectorAll('input[name="delivery"]').forEach(input => {
+    input.addEventListener("change", invalidatePreview);
+  });
+
+async function publishListing() {
+    if (publishing) return;
+
+    clearNotice();
+
+    // Do not publish information that has changed since the preview.
+    if (!previewReady) {
+      showError("Please preview your listing again before publishing.");
+      return;
+    }
+
+    const values = await validateForm();
+    if (!values) return;
+
+    const formData = new FormData();
+
+    formData.append("category", category);
+    formData.append("title", values.title);
+    formData.append("seller_name", values.name);
+    formData.append("contact", values.contact);
+    formData.append("price", values.price);
+    formData.append("location", values.location);
+    formData.append("description", values.description);
+
+let delivery = "";
+
+    if (category === "shop" || category === "store") {
+      const deliveryOption = document.querySelector('input[name="delivery"]:checked');
+      delivery = deliveryOption ? deliveryOption.value : "No";
+    }
+
+    formData.append("delivery", delivery);
+
+    if (category === "jobs") {
+      formData.append("job_type", selectedJob);
+    }
+
+    values.images.forEach(image => {
+      formData.append("images", image);
+    });
+
+    if (values.video) {
+      formData.append("video", values.video);
+    }
+
+    publishing = true;
+
+    const publishBtn = $("publishBtn");
+    publishBtn.disabled = true;
+    publishBtn.textContent = "Publishing...";
+
+try {
+const response = await fetch(API_URL, {
+        method: "POST",
+        body: formData,
+        credentials: "include"
+      });
+
+      let result;
+
+      try {
+        result = await response.json();
+      } catch {
+        throw new Error("The server returned an invalid response. Please try again.");
+      }
+
+      if (!response.ok || !result || !result.success) {
+        throw new Error(
+          result && result.error
+            ? result.error
+            : "Unable to publish your listing."
+        );
+      }
+
+      alert("Your listing has been published successfully!");
+      window.location.href = "manage-listings.html";
+
+    } catch (error) {
+      console.error("Open Market publication error:", error);
+      showError(error.message || "Unable to publish. Please try again.");
+} finally {
+      publishing = false;
+      publishBtn.disabled = false;
+      publishBtn.textContent = "🚀 Publish Listing";
+    }
+  }
+
+  $("publishBtn").addEventListener("click", publishListing);
+
+  $("clearBtn").addEventListener("click", () => {
+    if (publishing) return;
+
+    $("listingTitle").value = "";
+    $("businessName").value = "";
+    $("contact").value = "";
+    $("price").value = "";
+    $("location").value = "";
+    $("description").value = "";
+    $("images").value = "";
+    $("video").value = "";
+
+    document.querySelector('input[name="delivery"][value="No"]').checked = true;
+
+    resetJobChoice();
+    revokeMediaUrls();
+    invalidatePreview();
+    clearNotice();
+
+
+selectCategory("");
+    $("categoryLabel").textContent = "SELECT A CATEGORY";
+    $("heroIcon").textContent = "🛍️";
+    $("pageTitle").textContent = "Create Your Listing";
+    $("pageSubtitle").textContent = "Choose a category and tell people what you offer.";
+
+    categoryButtons.forEach(button => {
+      button.classList.remove("active");
+      button.setAttribute("aria-pressed", "false");
+    });
+
+    $("deliveryBox").style.display = "none";
+    $("jobsChoice").style.display = "none";
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  // Start without a preselected category.
+  selectCategory("");
+  $("categoryLabel").textContent = "SELECT A CATEGORY";
+  $("heroIcon").textContent = "🛍️";
+  $("pageTitle").textContent = "Create Your Listing";
+  $("pageSubtitle").textContent = "Choose a category and tell people what you offer.";
+})();
+</script>
 </body>
-            </html>
+</html>
