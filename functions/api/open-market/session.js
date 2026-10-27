@@ -1,8 +1,7 @@
-
 const SESSION_COOKIE = "shuk_open_market_session";
 
 function json(data, status = 200) {
-  return Response.json(data, {
+  return new Response(JSON.stringify(data), {
     status,
     headers: {
       "Content-Type": "application/json; charset=utf-8",
@@ -11,37 +10,48 @@ function json(data, status = 200) {
   });
 }
 
-function base64urlDecode(value) {
-  const base64 = value
-    .replace(/-/g, "+")
-    .replace(/_/g, "/");
-
-  const padded =
-    base64 + "=".repeat((4 - base64.length % 4) % 4);
-
-  const binary = atob(padded);
-
-  return Uint8Array.from(
-    binary,
-    character => character.charCodeAt(0)
-  );
-}
-
 function getCookie(request, name) {
   const cookieHeader = request.headers.get("Cookie") || "";
 
   for (const part of cookieHeader.split(";")) {
-    const separator = part.indexOf("=");
+    const trimmed = part.trim();
+    const separator = trimmed.indexOf("=");
 
     if (separator === -1) continue;
 
-    const key = part.slice(0, separator).trim();
-    const value = part.slice(separator + 1).trim();
+    const cookieName = trimmed.slice(0, separator);
+    const cookieValue = trimmed.slice(separator + 1);
 
-    if (key === name) return value;
+    if (cookieName === name) {
+      return cookieValue;
+    }
   }
 
-  return "";
+  return null;
+}
+
+function decodeBase64Url(value) {
+  const base64 = value
+    .replace(/-/g, "+")
+    .replace(/_/g, "/");
+
+  const padded = base64 + "=".repeat((4 - base64.length % 4) % 4);
+  const binary = atob(padded);
+
+  return Uint8Array.from(binary, char => char.charCodeAt(0));
+}
+
+function encodeBase64Url(bytes) {
+  let binary = "";
+
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+
+  return btoa(binary)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
 }
 
 async function verifySession(token, secret) {
@@ -50,9 +60,7 @@ async function verifySession(token, secret) {
 
     if (parts.length !== 2) return null;
 
-    const [payload, signature] = parts;
-
-    if (!payload || !signature) return null;
+    const [encodedPayload, encodedSignature] = parts;
 
     const key = await crypto.subtle.importKey(
       "raw",
@@ -62,17 +70,17 @@ async function verifySession(token, secret) {
       ["verify"]
     );
 
-    const validSignature = await crypto.subtle.verify(
+    const valid = await crypto.subtle.verify(
       "HMAC",
       key,
-      base64urlDecode(signature),
-      new TextEncoder().encode(payload)
+      decodeBase64Url(encodedSignature),
+      new TextEncoder().encode(encodedPayload)
     );
 
-    if (!validSignature) return null;
+    if (!valid) return null;
 
     const decodedPayload = new TextDecoder().decode(
-      base64urlDecode(payload)
+      decodeBase64Url(encodedPayload)
     );
 
     const session = JSON.parse(decodedPayload);
@@ -102,30 +110,19 @@ export async function onRequestGet({ request, env }) {
       return json({
         success: false,
         authenticated: false,
+        diagnostic: {
+          databaseBindingAvailable: Boolean(env.OPEN_MARKET_DB),
+          secretIsString:
+            typeof env.OPEN_MARKET_SESSION_SECRET === "string",
+          secretLength:
+            typeof env.OPEN_MARKET_SESSION_SECRET === "string"
+              ? env.OPEN_MARKET_SESSION_SECRET.length
+              : 0,
+          secretLengthValid:
+            typeof env.OPEN_MARKET_SESSION_SECRET === "string" &&
+            env.OPEN_MARKET_SESSION_SECRET.length >= 32
+        },
         error: "Open Market authentication is not configured."
-        if (
-  !env.OPEN_MARKET_DB ||
-  typeof env.OPEN_MARKET_SESSION_SECRET !== "string" ||
-  env.OPEN_MARKET_SESSION_SECRET.length < 32
-) {
-  return json({
-    success: false,
-    authenticated: false,
-    diagnostic: {
-      databaseBindingAvailable: Boolean(env.OPEN_MARKET_DB),
-      secretIsString:
-        typeof env.OPEN_MARKET_SESSION_SECRET === "string",
-      secretLength:
-        typeof env.OPEN_MARKET_SESSION_SECRET === "string"
-          ? env.OPEN_MARKET_SESSION_SECRET.length
-          : 0,
-      secretLengthValid:
-        typeof env.OPEN_MARKET_SESSION_SECRET === "string" &&
-        env.OPEN_MARKET_SESSION_SECRET.length >= 32
-    },
-    error: "Open Market authentication is not configured."
-  }, 500);
-      }
       }, 500);
     }
 
@@ -175,7 +172,6 @@ export async function onRequestGet({ request, env }) {
       authenticated: true,
       user
     });
-
   } catch (error) {
     console.error("Open Market session error:", error);
 
@@ -185,4 +181,4 @@ export async function onRequestGet({ request, env }) {
       error: "Unable to verify the Open Market session."
     }, 500);
   }
-}
+                }
