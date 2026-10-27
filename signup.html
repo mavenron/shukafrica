@@ -215,101 +215,121 @@
     </div>
   </main>
 
-  <script>
-    const registerTab = document.getElementById("registerTab");
-    const loginTab = document.getElementById("loginTab");
-    const registerForm = document.getElementById("registerForm");
-    const loginForm = document.getElementById("loginForm");
-    const message = document.getElementById("message");
+    <script>
+  const registerTab = document.getElementById("registerTab");
+  const loginTab = document.getElementById("loginTab");
+  const registerForm = document.getElementById("registerForm");
+  const loginForm = document.getElementById("loginForm");
+  const message = document.getElementById("message");
 
-    function showMessage(text, type) {
-      message.textContent = text;
-      message.className = type;
+  function showMessage(text, type) {
+    message.textContent = text;
+    message.className = type;
+  }
+
+  function switchMode(mode) {
+    const registering = mode === "register";
+
+    registerForm.classList.toggle("hidden", !registering);
+    loginForm.classList.toggle("hidden", registering);
+    registerTab.classList.toggle("active", registering);
+    loginTab.classList.toggle("active", !registering);
+
+    registerTab.setAttribute("aria-selected", String(registering));
+    loginTab.setAttribute("aria-selected", String(!registering));
+
+    message.className = "";
+    message.textContent = "";
+  }
+
+  registerTab.addEventListener("click", () => switchMode("register"));
+  loginTab.addEventListener("click", () => switchMode("login"));
+
+  // Open the login tab when requested by the URL.
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("mode") === "login") {
+    switchMode("login");
+  }
+
+  async function submitAccountForm(form, endpoint, buttonText) {
+    const button = form.querySelector('button[type="submit"]');
+    const originalText = button.textContent;
+
+    button.disabled = true;
+    button.textContent = "Please wait…";
+    message.className = "";
+    message.textContent = "";
+
+    const formData = new FormData(form);
+    const payload = Object.fromEntries(formData.entries());
+
+    // Open Market registration API expects full_name.
+    if (form === registerForm) {
+      payload.full_name = payload.name;
+      delete payload.name;
     }
 
-    function switchMode(mode) {
-      const registering = mode === "register";
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify(payload),
+        cache: "no-store"
+      });
 
-      registerForm.classList.toggle("hidden", !registering);
-      loginForm.classList.toggle("hidden", registering);
-      registerTab.classList.toggle("active", registering);
-      loginTab.classList.toggle("active", !registering);
+      const data = await response.json().catch(() => ({}));
 
-      registerTab.setAttribute("aria-selected", String(registering));
-      loginTab.setAttribute("aria-selected", String(!registering));
-
-      message.className = "";
-      message.textContent = "";
-    }
-
-    registerTab.addEventListener("click", () => switchMode("register"));
-    loginTab.addEventListener("click", () => switchMode("login"));
-
-    async function submitAccountForm(form, endpoint, buttonText) {
-      const button = form.querySelector('button[type="submit"]');
-      const originalText = button.textContent;
-
-      button.disabled = true;
-      button.textContent = "Please wait…";
-      message.className = "";
-      message.textContent = "";
-
-      const formData = new FormData(form);
-      const payload = Object.fromEntries(formData.entries());
-
-      try {
-        const response = await fetch(endpoint, {
-          method: "POST",
-          credentials: "same-origin",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          body: JSON.stringify(payload),
-          cache: "no-store"
-        });
-
-        const data = await response.json().catch(() => ({}));
-
-        if (!response.ok || !data.success) {
-          throw new Error(
-            data.error || "We couldn't complete your request. Please try again."
-          );
-        }
-
-        showMessage("Success! Opening your seller dashboard…", "success");
-        location.href = "seller-dashboard.html";
-      } catch (error) {
-        showMessage(
-          error.message || "Connection problem. Please try again.",
-          "error"
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.error || "We couldn't complete your request. Please try again."
         );
-        button.disabled = false;
-        button.textContent = originalText || buttonText;
       }
+
+      showMessage("Success! Opening your account…", "success");
+
+      const returnTo = params.get("return");
+      const destination =
+        returnTo === "open-market-listing.html"
+          ? "open-market-listing.html"
+          : "seller-dashboard.html";
+
+      window.location.href = destination;
+    } catch (error) {
+      showMessage(
+        error.message || "Connection problem. Please try again.",
+        "error"
+      );
+      button.disabled = false;
+      button.textContent = originalText || buttonText;
     }
+  }
 
-    registerForm.addEventListener("submit", event => {
-      event.preventDefault();
-      if (!registerForm.reportValidity()) return;
+  registerForm.addEventListener("submit", event => {
+    event.preventDefault();
+    if (!registerForm.reportValidity()) return;
 
-      submitAccountForm(
-        registerForm,
-        "/api/auth/register",
-        "Create seller account"
-      );
-    });
+    submitAccountForm(
+      registerForm,
+      "/api/open-market/register",
+      "Create seller account"
+    );
+  });
 
-    loginForm.addEventListener("submit", event => {
-      event.preventDefault();
-      if (!loginForm.reportValidity()) return;
+  loginForm.addEventListener("submit", event => {
+    event.preventDefault();
+    if (!loginForm.reportValidity()) return;
 
-      submitAccountForm(
-        loginForm,
-        "/api/auth/login",
-        "Log in to your account"
-      );
-    });
-  </script>
+    submitAccountForm(
+      loginForm,
+      "/api/open-market/login",
+      "Log in to your account"
+    );
+  });
+    
+</script>
 </body>
 </html>
