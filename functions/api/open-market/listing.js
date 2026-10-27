@@ -337,9 +337,19 @@ export async function onRequestPost({ request, env }) {
     // Collect and validate images before uploading anything.
     const imageEntries = form.getAll("images");
 
-    const images = imageEntries.filter(file =>
-      validFile(file) && file.size > 0
-    );
+console.log("Open Market image diagnostic:", {
+  count: imageEntries.length,
+  files: imageEntries.map(file => ({
+    isFile: validFile(file),
+    name: file && file.name,
+    type: file && file.type,
+    size: file && file.size
+  }))
+});
+
+const images = imageEntries.filter(file =>
+  validFile(file) && file.size > 0
+);
 
     if (images.length > MAX_IMAGES) {
       return json({
