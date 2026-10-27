@@ -283,12 +283,14 @@
 
       const data = await response.json().catch(() => ({}));
 
-      if (!response.ok || !data.success) {
-        throw new Error(
-          data.error || "We couldn't complete your request. Please try again."
-        );
-      }
+      
+if (!response.ok || !data.success) {
+  const details = data.diagnostic
+    ? `${data.error || "Registration failed."} Details: ${data.diagnostic}`
+    : data.error || "We couldn't complete your request. Please try again.";
 
+  throw new Error(details);
+}
       showMessage("Success! Opening your account…", "success");
 
       const returnTo = params.get("return");
