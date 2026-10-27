@@ -1,5 +1,6 @@
 const SESSION_COOKIE = "shuk_open_market_session";
 const SESSION_SECONDS = 7 * 24 * 60 * 60;
+const ITERATIONS = 310000;
 
 function json(data, status = 200, extraHeaders = {}) {
   return Response.json(data, {
@@ -29,75 +30,29 @@ function base64url(bytes) {
     .replace(/=+$/g, "");
 }
 
-function fromBase64url(value) {
-  const base64 = value
-    .replace(/-/g, "+")
-    .replace(/_/g, "/");
+async function hashPassword(password) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
 
-  const padded =
-    base64 + "=".repeat((4 - base64.length % 4) % 4);
-
-  const binary = atob(padded);
-
-  return Uint8Array.from(
-    binary,
-    character => character.charCodeAt(0)
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(password),
+    "PBKDF2",
+    false,
+    ["deriveBits"]
   );
-}
 
-async function verifyPassword(password, storedHash) {
-  const parts = storedHash.split("$");
+  const result = await crypto.subtle.deriveBits(
+    {
+      name: "PBKDF2",
+      salt,
+      iterations: ITERATIONS,
+      hash: "SHA-256"
+    },
+    key,
+    256
+  );
 
-  if (parts.length !== 4 || parts[0] !== "pbkdf2") {
-    return false;
-  }
-
-  const iterations = Number(parts[1]);
-
-  // Accept only the iteration count used by register.js.
-  if (iterations !== 310000) {
-    return false;
-  }
-
-  try {
-    const salt = fromBase64url(parts[2]);
-    const expected = fromBase64url(parts[3]);
-
-    if (salt.length !== 16 || expected.length !== 32) {
-      return false;
-    }
-
-    const key = await crypto.subtle.importKey(
-      "raw",
-      new TextEncoder().encode(password),
-      "PBKDF2",
-      false,
-      ["deriveBits"]
-    );
-
-    const result = await crypto.subtle.deriveBits(
-      {
-        name: "PBKDF2",
-        salt,
-        iterations,
-        hash: "SHA-256"
-      },
-      key,
-      256
-    );
-
-    const actual = new Uint8Array(result);
-
-    let difference = 0;
-
-    for (let i = 0; i < expected.length; i++) {
-      difference |= actual[i] ^ expected[i];
-    }
-
-    return difference === 0;
-  } catch {
-    return false;
-  }
+  return `pbkdf2$${ITERATIONS}$${base64url(salt)}$${base64url(new Uint8Array(result))}`;
 }
 
 async function createSession(userId, secret) {
@@ -149,7 +104,7 @@ export async function onRequestPost({ request, env }) {
     if (!contentType.toLowerCase().includes("application/json")) {
       return json({
         success: false,
-        error: "Send login details as JSON."
+        error: "Send registration details as JSON."
       }, 415);
     }
 
@@ -164,25 +119,38 @@ export async function onRequestPost({ request, env }) {
       }, 400);
     }
 
+    const fullName = clean(body.full_name, 100);
     const email = clean(body.email).toLowerCase();
     const password =
       typeof body.password === "string" ? body.password : "";
 
-    if (
-      !email ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
-      password.length === 0 ||
-      password.length > 128
-    ) {
+    if (fullName.length < 2) {
       return json({
         success: false,
-        error: "Invalid email or password."
+        error: "Enter your full name."
       }, 400);
     }
 
-    const user = await env.OPEN_MARKET_DB
+    if (
+      !email ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    ) {
+      return json({
+        success: false,
+        error: "Enter a valid email address."
+      }, 400);
+    }
+
+    if (password.length < 8 || password.length > 128) {
+      return json({
+        success: false,
+        error: "Password must be between 8 and 128 characters."
+      }, 400);
+    }
+
+    const existing = await env.OPEN_MARKET_DB
       .prepare(`
-        SELECT id, full_name, email, password_hash
+        SELECT id
         FROM open_market_users
         WHERE email = ?
         LIMIT 1
@@ -190,18 +158,27 @@ export async function onRequestPost({ request, env }) {
       .bind(email)
       .first();
 
-    if (
-      !user ||
-      !(await verifyPassword(password, user.password_hash))
-    ) {
+    if (existing) {
       return json({
         success: false,
-        error: "Incorrect email or password."
-      }, 401);
+        error: "An account with this email already exists. Please log in."
+      }, 409);
     }
 
+    const userId = crypto.randomUUID();
+    const passwordHash = await hashPassword(password);
+
+    await env.OPEN_MARKET_DB
+      .prepare(`
+        INSERT INTO open_market_users
+          (id, full_name, email, password_hash)
+        VALUES (?, ?, ?, ?)
+      `)
+      .bind(userId, fullName, email, passwordHash)
+      .run();
+
     const session = await createSession(
-      user.id,
+      userId,
       env.OPEN_MARKET_SESSION_SECRET
     );
 
@@ -216,23 +193,22 @@ export async function onRequestPost({ request, env }) {
 
     return json({
       success: true,
-      message: "Login successful.",
+      message: "Account created successfully.",
       user: {
-        id: user.id,
-        full_name: user.full_name,
-        email: user.email
+        id: userId,
+        full_name: fullName,
+        email
       }
-    }, 200, {
+    }, 201, {
       "Set-Cookie": cookie
     });
 
   } catch (error) {
-    console.error("Open Market login error:", error);
+    console.error("Open Market registration error:", error);
 
     return json({
       success: false,
-      error: "Unable to log in. Please try again."
+      error: "Unable to create your account. Please try again."
     }, 500);
   }
-      }
-      
+}
