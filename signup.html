@@ -292,12 +292,18 @@
       showMessage("Success! Opening your account…", "success");
 
       const returnTo = params.get("return");
-      const destination =
-        returnTo === "open-market-listing.html"
-          ? "open-market-listing.html"
-          : "seller-dashboard.html";
 
-      window.location.href = destination;
+const allowedDestinations = [
+  "open-market-dashboard.html",
+  "open-market-listing.html"
+];
+
+const destination = allowedDestinations.includes(returnTo)
+  ? returnTo
+  : "open-market-dashboard.html";
+
+window.location.href = destination;
+
     } catch (error) {
       showMessage(
         error.message || "Connection problem. Please try again.",
