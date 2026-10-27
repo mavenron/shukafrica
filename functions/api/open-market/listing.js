@@ -347,6 +347,16 @@ console.log("Open Market image diagnostic:", {
   }))
 });
 
+console.log("Open Market image diagnostic:", {
+  count: imageEntries.length,
+  files: imageEntries.map(file => ({
+    isFile: validFile(file),
+    name: file?.name ?? null,
+    type: file?.type ?? null,
+    size: file?.size ?? null
+  }))
+});
+
 const images = imageEntries.filter(file =>
   validFile(file) && file.size > 0
 );
