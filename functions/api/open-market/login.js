@@ -57,7 +57,7 @@ async function verifyPassword(password, storedHash) {
 
   const iterations = Number(parts[1]);
 
-  if (iterations !== 310000) {
+  if (iterations !== 100000) {
     return false;
   }
 
