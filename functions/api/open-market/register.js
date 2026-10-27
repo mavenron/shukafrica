@@ -204,11 +204,12 @@ export async function onRequestPost({ request, env }) {
     });
 
   } catch (error) {
-    console.error("Open Market registration error:", error);
+  console.error("Open Market registration error:", error);
 
-    return json({
-      success: false,
-      error: "Unable to create your account. Please try again."
-    }, 500);
+  return json({
+    success: false,
+    error: "Registration failed.",
+    diagnostic: String(error?.message || error)
+  }, 500);
   }
 }
