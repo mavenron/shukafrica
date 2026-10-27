@@ -1,1 +1,307 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Seller Dashboard | ShukAfrica</title>
+  <style>
+    :root {
+      --gold: #d9a441;
+      --gold-light: #f5d58a;
+      --bg: #0b1118;
+      --panel: #141e29;
+      --panel2: #1b2936;
+      --text: #f5f7fa;
+      --muted: #a9b5c2;
+      --border: #334353;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.5;
+    }
+
+    .page {
+      width: min(1050px, 100%);
+      margin: auto;
+      padding: 22px 16px 45px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .brand {
+      color: var(--gold-light);
+      font-size: 23px;
+      font-weight: 800;
+    }
+
+    .brand span { color: white; }
+
+    a { color: var(--gold-light); }
+
+    .nav-link, .primary-btn {
+      display: inline-block;
+      padding: 11px 15px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .nav-link {
+      border: 1px solid var(--border);
+    }
+
+    .primary-btn {
+      color: #17120a;
+      background: var(--gold);
+      border: 0;
+    }
+
+    h1 {
+      margin: 8px 0;
+      font-size: clamp(26px, 5vw, 36px);
+    }
+
+    .muted { color: var(--muted); }
+
+    .top-panel, .listing-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+
+    .top-panel {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    #notice {
+      display: none;
+      padding: 13px;
+      margin: 16px 0;
+      border-radius: 10px;
+      background: var(--panel2);
+      overflow-wrap: anywhere;
+    }
+
+    #notice.show { display: block; }
+
+    .listing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .listing-card { min-width: 0; }
+
+    .listing-card img {
+      width: 100%;
+      height: 190px;
+      object-fit: cover;
+      border-radius: 10px;
+      background: var(--panel2);
+    }
+
+    .listing-card h3 { margin: 14px 0 6px; }
+
+    .price {
+      color: var(--gold-light);
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 5px 9px;
+      margin: 5px 0 12px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 12px;
+    }
+
+    .details {
+      color: var(--muted);
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    .empty {
+      padding: 30px 15px;
+      text-align: center;
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      color: var(--muted);
+    }
+
+    button:disabled { opacity: .6; }
+
+    @media (max-width: 500px) {
+      .page { padding: 16px 12px 35px; }
+      .top-panel, .listing-card { padding: 15px; }
+      .primary-btn { text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <div class="brand">Shuk<span>Africa</span></div>
+      <a class="nav-link" href="open-market.html">← Open Market</a>
+    </header>
+
+    <section class="top-panel">
+      <div>
+        <h1>My Seller Dashboard</h1>
+        <p class="muted">Manage your Open Market listings in one place.</p>
+      </div>
+      <a class="primary-btn" href="open-market-listing.html">
+        + Add New Listing
+      </a>
+    </section>
+
+    <div id="notice" role="status" aria-live="polite"></div>
+
+    <h2>My Listings</h2>
+    <p class="muted">Your listings will appear here when you are logged in.</p>
+
+    <section id="listings" class="listing-grid">
+      <div class="empty">Loading your listings…</div>
+    </section>
+  </main>
+
+  <script>
+    const notice = document.getElementById("notice");
+    const listingsContainer = document.getElementById("listings");
+
+    function showNotice(message) {
+      notice.textContent = message;
+      notice.classList.add("show");
+    }
+
+    function addText(parent, tag, text, className) {
+      const element = document.createElement(tag);
+      element.textContent = text || "";
+      if (className) element.className = className;
+      parent.appendChild(element);
+      return element;
+    }
+
+    function renderListings(listings) {
+      listingsContainer.replaceChildren();
+
+      if (!listings.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent =
+          "You have no listings yet. Select “Add New Listing” to get started.";
+        listingsContainer.appendChild(empty);
+        return;
+      }
+
+      listings.forEach(listing => {
+        const card = document.createElement("article");
+        card.className = "listing-card";
+
+        if (listing.image_1) {
+          const image = document.createElement("img");
+          image.src = listing.image_1;
+          image.alt = listing.title || "Listing photo";
+          image.loading = "lazy";
+          image.onerror = () => image.remove();
+          card.appendChild(image);
+        }
+
+        addText(card, "h3", listing.title || "Untitled listing");
+        addText(card, "p", listing.price || "Price not specified", "price");
+
+        const status = String(listing.status || "unknown");
+        addText(card, "span", "Status: " + status, "status");
+
+        addText(card, "p", listing.category || "", "details");
+        addText(card, "p", listing.location || "", "details");
+
+        addText(
+          card,
+          "p",
+          listing.description || "No description provided.",
+          "details"
+        );
+
+        addText(
+          card,
+          "p",
+          "Contact: " + (listing.contact || "Not provided"),
+          "details"
+        );
+
+        listingsContainer.appendChild(card);
+      });
+    }
+
+    async function loadListings() {
+      try {
+        const response = await fetch(
+          "/api/open-market/my-listings",
+          {
+            method: "GET",
+            credentials: "include",
+            cache: "no-store"
+          }
+        );
+
+        const result = await response.json().catch(() => ({}));
+
+        if (response.status === 401 || response.status === 403) {
+          showNotice("Please log in to your Open Market account first.");
+          listingsContainer.replaceChildren();
+
+          const login = document.createElement("a");
+          login.className = "primary-btn";
+          login.href =
+            "signup.html?mode=login&return=open-market-dashboard.html";
+          login.textContent = "Log in to your account";
+          listingsContainer.appendChild(login);
+          return;
+        }
+
+        if (!response.ok || result.success !== true) {
+          throw new Error(
+            result.error || "Unable to load your listings."
+          );
+        }
+
+        renderListings(
+          Array.isArray(result.listings) ? result.listings : []
+        );
+      } catch (error) {
+        listingsContainer.replaceChildren();
+        showNotice(
+          error.message ||
+          "Unable to connect. Please try again later."
+        );
+      }
+    }
+
+    loadListings();
+  </script>
+</body>
+  </html>
+
