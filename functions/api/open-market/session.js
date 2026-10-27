@@ -103,6 +103,29 @@ export async function onRequestGet({ request, env }) {
         success: false,
         authenticated: false,
         error: "Open Market authentication is not configured."
+        if (
+  !env.OPEN_MARKET_DB ||
+  typeof env.OPEN_MARKET_SESSION_SECRET !== "string" ||
+  env.OPEN_MARKET_SESSION_SECRET.length < 32
+) {
+  return json({
+    success: false,
+    authenticated: false,
+    diagnostic: {
+      databaseBindingAvailable: Boolean(env.OPEN_MARKET_DB),
+      secretIsString:
+        typeof env.OPEN_MARKET_SESSION_SECRET === "string",
+      secretLength:
+        typeof env.OPEN_MARKET_SESSION_SECRET === "string"
+          ? env.OPEN_MARKET_SESSION_SECRET.length
+          : 0,
+      secretLengthValid:
+        typeof env.OPEN_MARKET_SESSION_SECRET === "string" &&
+        env.OPEN_MARKET_SESSION_SECRET.length >= 32
+    },
+    error: "Open Market authentication is not configured."
+  }, 500);
+      }
       }, 500);
     }
 
