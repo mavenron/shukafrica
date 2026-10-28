@@ -389,9 +389,12 @@ export async function onRequestPost({ request, env }) {
       await removeUploaded(env.OPEN_MARKET_MEDIA, uploadedKeys);
     }
 
-    return json({
-      success: false,
-      error: "Unable to publish the listing. Please try again."
-    }, 500);
+  
+return json({
+  success: false,
+  error: "Unable to publish the listing.",
+  diagnostic: String(error?.message || error)
+}, 500);
+
   }
       }
