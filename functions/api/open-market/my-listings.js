@@ -1,4 +1,3 @@
-
 const SESSION_COOKIE = "shuk_open_market_session";
 
 function json(data, status = 200) {
@@ -85,7 +84,8 @@ async function getSellerId(request, secret) {
     }
 
     return payload.sub;
-  } catch {
+  } catch (error) {
+    console.error("Open Market session verification failed:", error);
     return null;
   }
 }
@@ -93,10 +93,10 @@ async function getSellerId(request, secret) {
 export async function onRequestGet({ request, env }) {
   try {
     if (!env.OPEN_MARKET_DB) {
-  return json({
-    success: false,
-    error: "Open Market database is not configured."
-  }, 500);
+      return json({
+        success: false,
+        error: "Open Market database is not configured."
+      }, 500);
     }
 
     const sellerId = await getSellerId(
@@ -150,4 +150,5 @@ export async function onRequestGet({ request, env }) {
       error: "Unable to load your listings."
     }, 500);
   }
-  }
+}
+  
