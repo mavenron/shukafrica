@@ -93,10 +93,12 @@ async function getSellerId(request, secret) {
 export async function onRequestGet({ request, env }) {
   try {
     if (!env.OPEN_MARKET_DB) {
-      return json({
-        success: false,
-        error: "Open Market database is not configured."
-      }, 500);
+      
+return json({
+  success: false,
+  error: "Unable to publish the listing.",
+  diagnostic: String(error?.message || error)
+}, 500);
     }
 
     const sellerId = await getSellerId(
