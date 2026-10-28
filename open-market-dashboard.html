@@ -1393,8 +1393,14 @@
     const validationError = validateListingForm();
 
     if (validationError) {
-      showNotice(dashboardNotice, validationError, "error");
-      return;
+  showNotice(dashboardNotice, validationError, "error");
+
+  dashboardNotice.scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+  });
+
+  return;
     }
 
     const category = getSelectedCategory();
@@ -1473,12 +1479,18 @@
       });
 
     } catch (error) {
-      showNotice(
-        dashboardNotice,
-        error.message || "Unable to publish your listing.",
-        "error"
-      );
-    } finally {
+  showNotice(
+    dashboardNotice,
+    error.message || "Unable to publish your listing.",
+    "error"
+  );
+
+  dashboardNotice.scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+  });
+    }
+    finally {
       publishBtn.disabled = false;
       publishBtn.textContent = originalText;
     }
