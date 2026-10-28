@@ -829,10 +829,11 @@
           }
 
           throw new Error(
-            result.error ||
-            result.message ||
-            "Your listing could not be published."
-          );
+  [
+    result.error || result.message || "Your listing could not be published.",
+    result.diagnostic ? "Details: " + result.diagnostic : ""
+  ].filter(Boolean).join(" ")
+);
         }
 
         showNotice(
