@@ -1,1 +1,631 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#071112">
+<title>ShukAfrica Open Market</title>
+
+<style>
+:root {
+  --bg: #071112;
+  --panel: #101d1e;
+  --border: #263738;
+  --gold: #ffb52e;
+  --muted: #a8b6b3;
+  --green: #00a875;
+  --white: #ffffff;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--white);
+  font-family: Arial, sans-serif;
+}
+
+a { color: inherit; text-decoration: none; }
+
+.topbar {
+  border-bottom: 1px solid var(--border);
+  padding: 16px 4%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.brand {
+  font-size: clamp(19px, 4vw, 28px);
+  font-weight: 900;
+  letter-spacing: -.7px;
+}
+
+.brand span { color: var(--gold); }
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.home-link {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.add-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 44px;
+  border: 0;
+  border-radius: 13px;
+  background: var(--green);
+  color: white;
+  font-size: 29px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.container {
+  width: 92%;
+  max-width: 1000px;
+  margin: auto;
+  padding: 20px 0 35px;
+}
+
+h1 {
+  font-size: clamp(29px, 6vw, 42px);
+  margin: 4px 0 14px;
+  line-height: 1.1;
+}
+
+.tagline {
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 18px;
+  margin: 0 0 12px;
+}
+
+.intro {
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0 0 23px;
+}
+
+.search-panel {
+  background: #0d1a1a;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  min-height: 54px;
+  border: 1px solid #344544;
+  border-radius: 15px;
+  padding: 0 14px;
+  background: #091515;
+}
+
+.search-icon {
+  color: var(--gold);
+  font-size: 23px;
+  flex-shrink: 0;
+}
+
+.search-field input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: white;
+  font-size: 15px;
+}
+
+.search-field input::placeholder { color: var(--muted); }
+
+.categories {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 7px;
+  margin: 0 0 30px;
+}
+
+.category-button {
+  min-width: 0;
+  min-height: 64px;
+  padding: 9px 3px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.category-icon { font-size: 21px; }
+
+.category-name {
+  font-size: clamp(10px, 2.6vw, 13px);
+  line-height: 1.15;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.category-button.active {
+  border-color: var(--gold);
+  background: #20251d;
+  color: var(--gold);
+}
+
+/* Published listing section */
+.listings-section {
+  margin-top: 10px;
+}
+
+.listings-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.listings-heading h2 {
+  font-size: clamp(21px, 4vw, 27px);
+  margin: 0;
+}
+
+.listing-count {
+  color: var(--muted);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.listing-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.listing-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--panel);
+}
+
+.listing-photo {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #142425;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.listing-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.photo-placeholder {
+  font-size: 52px;
+  color: var(--muted);
+}
+
+.listing-category {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  max-width: calc(100% - 20px);
+  padding: 6px 9px;
+  border-radius: 8px;
+  background: rgba(7, 17, 18, .88);
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.listing-info {
+  padding: 13px;
+}
+
+.listing-title {
+  font-size: 16px;
+  line-height: 1.35;
+  margin: 0 0 9px;
+  overflow-wrap: anywhere;
+}
+
+.listing-price {
+  color: var(--gold);
+  font-size: 18px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+  margin-bottom: 9px;
+}
+
+.listing-location {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+  margin-bottom: 10px;
+  overflow-wrap: anywhere;
+}
+
+.listing-description {
+  color: #d1d9d7;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+  margin: 0;
+}
+
+.listing-contact {
+  display: inline-flex;
+  margin-top: 13px;
+  padding: 10px 12px;
+  background: var(--green);
+  color: white;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.listing-message {
+  grid-column: 1 / -1;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--panel);
+  color: var(--muted);
+  padding: 25px 16px;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.listing-message.error {
+  color: #ffb3ad;
+}
+
+@media (max-width: 360px) {
+  .topbar { padding-left: 3%; padding-right: 3%; }
+  .brand { font-size: 18px; }
+  .top-actions { gap: 8px; }
+  .home-link { font-size: 12px; }
+  .add-button { width: 40px; height: 40px; }
+  .categories { gap: 4px; }
+  .category-name { font-size: 9px; }
+  .listing-grid { gap: 9px; }
+  .listing-info { padding: 9px; }
+  .listing-title { font-size: 14px; }
+  .listing-price { font-size: 15px; }
+}
+
+@media (min-width: 700px) {
+  .search-panel { padding: 18px; }
+  .listing-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+</style>
+</head>
+
+<body>
+<header class="topbar">
+  <a class="brand" href="index.html">
+    SHUK<span>AFRICA</span>
+  </a>
+
+  <div class="top-actions">
+    <a class="home-link" href="index.html">← Home</a>
+    <a class="add-button"
+       href="open-market-dashboard.html"
+       aria-label="Create a listing"
+       title="Create a listing">+</a>
+  </div>
+</header>
+
+<main class="container">
+  <h1>OPEN MARKET</h1>
+  <p class="tagline">Discover it. Buy it. Sell it.</p>
+  <p class="intro">
+    Products, shops, home services and job opportunities across Africa.
+  </p>
+
+  <section class="search-panel" aria-label="Search Open Market">
+    <label class="search-field">
+      <span class="search-icon" aria-hidden="true">⌕</span>
+      <input id="itemSearch" type="search"
+        placeholder="Search by item name or price..."
+        aria-label="Search by item name or price">
+    </label>
+
+    <label class="search-field">
+      <span class="search-icon" aria-hidden="true">⌖</span>
+      <input id="locationSearch" type="search"
+        placeholder="Search by city, town or country..."
+        aria-label="Search by area, region or country">
+    </label>
+  </section>
+
+  <nav class="categories" aria-label="Listing categories">
+    <button class="category-button active" type="button"
+      data-category="all" aria-pressed="true">
+      <span class="category-icon">🛍️</span>
+      <span class="category-name">All</span>
+    </button>
+
+    <button class="category-button" type="button"
+      data-category="shop" aria-pressed="false">
+      <span class="category-icon">🏪</span>
+      <span class="category-name">Shop</span>
+    </button>
+
+    <button class="category-button" type="button"
+      data-category="store" aria-pressed="false">
+      <span class="category-icon">🛒</span>
+      <span class="category-name">Store</span>
+    </button>
+
+    <button class="category-button" type="button"
+      data-category="home-service" aria-pressed="false">
+      <span class="category-icon">🏠</span>
+      <span class="category-name">Home Service</span>
+    </button>
+
+    <button class="category-button" type="button"
+      data-category="jobs" aria-pressed="false">
+      <span class="category-icon">💼</span>
+      <span class="category-name">Jobs</span>
+    </button>
+  </nav>
+
+  <section class="listings-section" aria-labelledby="listingsTitle">
+    <div class="listings-heading">
+      <h2 id="listingsTitle">Latest Listings</h2>
+      <span class="listing-count" id="listingCount">Loading...</span>
+    </div>
+
+    <div class="listing-grid" id="listingGrid" aria-live="polite">
+      <div class="listing-message">Loading published listings...</div>
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+  const API_URL = "/api/open-market/listing";
+
+  const categoryButtons = [
+    ...document.querySelectorAll("[data-category]")
+  ];
+  const itemSearch = document.getElementById("itemSearch");
+  const locationSearch = document.getElementById("locationSearch");
+  const listingGrid = document.getElementById("listingGrid");
+  const listingCount = document.getElementById("listingCount");
+
+  let allListings = [];
+  let selectedCategory = "all";
+
+  function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[char]);
+  }
+
+  function categoryLabel(category) {
+    const labels = {
+      shop: "Shop",
+      store: "Store",
+      "home-service": "Home Service",
+      "home service": "Home Service",
+      jobs: "Jobs"
+    };
+
+    const key = String(category || "").toLowerCase().trim();
+    return labels[key] || (key ? key.replace(/-/g, " ") : "Listing");
+  }
+
+  function locationLabel(item) {
+    return [
+      item.location,
+      item.region,
+      item.country
+    ].filter(value => String(value || "").trim()).filter(
+      (value, index, values) =>
+        values.findIndex(other =>
+          String(other).toLowerCase() === String(value).toLowerCase()
+        ) === index
+    ).join(", ");
+  }
+
+  function formatPrice(price) {
+    if (price === null || price === undefined || String(price).trim() === "") {
+      return "Price on request";
+    }
+
+    const value = String(price).trim();
+
+    // Preserve prices that already contain a currency or descriptive text.
+    if (/[₵$€£]|GHS|GH₵|CFA|FCFA|XOF|XAF|USD|EUR|per month|per day|negotiable/i.test(value)) {
+      return value;
+    }
+
+    return "GH₵ " + value;
+  }
+
+  function renderListings() {
+    const searchTerm = itemSearch.value.trim().toLowerCase();
+    const locationTerm = locationSearch.value.trim().toLowerCase();
+
+    const filtered = allListings.filter(item => {
+      const category = String(item.category || "").toLowerCase().trim();
+
+      const categoryMatch =
+        selectedCategory === "all" ||
+        category === selectedCategory ||
+        (selectedCategory === "home-service" && category === "home service");
+
+      const searchableText = [
+        item.title,
+        item.price,
+        item.description,
+        item.seller_name,
+        item.category,
+        item.job_type
+      ].join(" ").toLowerCase();
+
+      const place = locationLabel(item).toLowerCase();
+
+      return categoryMatch &&
+        searchableText.includes(searchTerm) &&
+        place.includes(locationTerm);
+    });
+
+    listingCount.textContent =
+      filtered.length + (filtered.length === 1 ? " listing" : " listings");
+
+    if (filtered.length === 0) {
+      listingGrid.innerHTML = `
+        <div class="listing-message">
+          ${allListings.length === 0
+            ? "No published listings are available yet."
+            : "No listings match your search. Try another search or category."}
+        </div>`;
+      return;
+    }
+
+    listingGrid.innerHTML = filtered.map(item => {
+      const title = escapeHTML(item.title || "Untitled listing");
+      const category = escapeHTML(categoryLabel(item.category));
+      const price = escapeHTML(formatPrice(item.price));
+      const place = escapeHTML(locationLabel(item) || "Location not provided");
+      const description = escapeHTML(item.description || "");
+      const image = [item.image_1, item.image_2, item.image_3,
+        item.image_4, item.image_5].find(url =>
+          typeof url === "string" && /^https?:\/\//i.test(url)
+        );
+
+      const contact = String(item.contact || "").trim();
+      const safeContact = escapeHTML(contact);
+
+      const imageHTML = image
+        ? `<img src="${escapeHTML(image)}" alt="${title}" loading="lazy"
+             onerror="this.remove();this.parentElement.querySelector('.photo-placeholder').hidden=false;">
+           <span class="photo-placeholder" hidden aria-hidden="true">🛍️</span>`
+        : `<span class="photo-placeholder" aria-hidden="true">🛍️</span>`;
+
+      const contactHTML = contact
+        ? `<a class="listing-contact"
+             href="https://wa.me/${contact.replace(/\D/g, "")}"
+             target="_blank" rel="noopener noreferrer"
+             aria-label="Contact seller about ${title}">
+             Contact Seller
+           </a>`
+        : "";
+
+      return `
+        <article class="listing-card">
+          <div class="listing-photo">
+            ${imageHTML}
+            <span class="listing-category">${category}</span>
+          </div>
+          <div class="listing-info">
+            <h3 class="listing-title">${title}</h3>
+            <div class="listing-price">${price}</div>
+            <div class="listing-location">⌖ ${place}</div>
+            ${description
+              ? `<p class="listing-description">${description}</p>`
+              : ""}
+            ${contactHTML}
+          </div>
+        </article>`;
+    }).join("");
+  }
+
+  categoryButtons.forEach(button => {
+    button.addEventListener("click", () => {
+      selectedCategory = button.dataset.category;
+
+      categoryButtons.forEach(item => {
+        const active = item === button;
+        item.classList.toggle("active", active);
+        item.setAttribute("aria-pressed", String(active));
+      });
+
+      renderListings();
+    });
+  });
+
+  itemSearch.addEventListener("input", renderListings);
+  locationSearch.addEventListener("input", renderListings);
+
+  async function loadListings() {
+    listingGrid.innerHTML =
+      '<div class="listing-message">Loading published listings...</div>';
+
+    try {
+      const response = await fetch(API_URL + "?limit=100", {
+        method: "GET",
+        headers: { "Accept": "application/json" },
+        cache: "no-store"
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || data.success === false) {
+        throw new Error("The listings could not be loaded.");
+      }
+
+      if (!Array.isArray(data.listings)) {
+        throw new Error("The listings response was not in the expected format.");
+      }
+
+      allListings = data.listings;
+      renderListings();
+    } catch (error) {
+      console.error("Open Market listings error:", error);
+      listingCount.textContent = "Unavailable";
+      listingGrid.innerHTML = `
+        <div class="listing-message error">
+          We couldn't load listings right now. Please refresh the page and try again.
+        </div>`;
+    }
+  }
+
+  loadListings();
+})();
+</script>
+</body>
+        </html>
+
