@@ -1,1 +1,286 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#071112">
+<title>ShukAfrica Open Market</title>
+
+<style>
+:root {
+  --bg: #071112;
+  --panel: #101d1e;
+  --border: #263738;
+  --gold: #ffb52e;
+  --muted: #a8b6b3;
+  --green: #00a875;
+  --white: #ffffff;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--white);
+  font-family: Arial, sans-serif;
+}
+
+a { color: inherit; text-decoration: none; }
+
+.topbar {
+  border-bottom: 1px solid var(--border);
+  padding: 16px 4%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.brand {
+  font-size: clamp(19px, 4vw, 28px);
+  font-weight: 900;
+  letter-spacing: -.7px;
+}
+
+.brand span { color: var(--gold); }
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.home-link {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.add-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 44px;
+  border: 0;
+  border-radius: 13px;
+  background: var(--green);
+  color: white;
+  font-size: 29px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.container {
+  width: 92%;
+  max-width: 1000px;
+  margin: auto;
+  padding: 20px 0 35px;
+}
+
+h1 {
+  font-size: clamp(29px, 6vw, 42px);
+  margin: 4px 0 14px;
+  line-height: 1.1;
+}
+
+.tagline {
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 18px;
+  margin: 0 0 12px;
+}
+
+.intro {
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0 0 23px;
+}
+
+.search-panel {
+  background: #0d1a1a;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  min-height: 54px;
+  border: 1px solid #344544;
+  border-radius: 15px;
+  padding: 0 14px;
+  background: #091515;
+}
+
+.search-icon {
+  color: var(--gold);
+  font-size: 23px;
+  flex-shrink: 0;
+}
+
+.search-field input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: white;
+  font-size: 15px;
+}
+
+.search-field input::placeholder { color: var(--muted); }
+
+.categories {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+  margin: 0 0 27px;
+}
+
+.category-button {
+  min-width: 0;
+  min-height: 64px;
+  padding: 9px 3px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.category-icon { font-size: 21px; }
+
+.category-name {
+  font-size: clamp(10px, 2.6vw, 13px);
+  line-height: 1.15;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.category-button.active {
+  border-color: var(--gold);
+  background: #20251d;
+  color: var(--gold);
+}
+
+@media (max-width: 360px) {
+  .topbar { padding-left: 3%; padding-right: 3%; }
+  .brand { font-size: 18px; }
+  .top-actions { gap: 8px; }
+  .home-link { font-size: 12px; }
+  .add-button { width: 40px; height: 40px; }
+  .categories { gap: 4px; }
+}
+
+@media (min-width: 700px) {
+  .search-panel { padding: 18px; }
+}
+</style>
+</head>
+
+<body>
+<header class="topbar">
+  <a class="brand" href="index.html">
+    SHUK<span>AFRICA</span>
+  </a>
+
+  <div class="top-actions">
+    <a class="home-link" href="index.html">← Home</a>
+
+    <a class="add-button"
+       href="open-market-dashboard.html"
+       aria-label="Create a listing"
+       title="Create a listing">+</a>
+  </div>
+</header>
+
+<main class="container">
+  <h1>OPEN MARKET</h1>
+  <p class="tagline">Discover it. Buy it. Sell it.</p>
+  <p class="intro">
+    Products, shops, home services and job opportunities across Africa.
+  </p>
+
+  <section class="search-panel" aria-label="Search Open Market">
+    <label class="search-field">
+      <span class="search-icon" aria-hidden="true">⌕</span>
+      <input
+        id="itemSearch"
+        type="search"
+        placeholder="Search by item name or price..."
+        aria-label="Search by item name or price">
+    </label>
+
+    <label class="search-field">
+      <span class="search-icon" aria-hidden="true">⌖</span>
+      <input
+        id="locationSearch"
+        type="search"
+        placeholder="Search by city, town or country..."
+        aria-label="Search by area, region or country">
+    </label>
+  </section>
+
+  <nav class="categories" aria-label="Listing categories">
+    <button class="category-button active" type="button"
+            data-category="all" aria-pressed="true">
+      <span class="category-icon" aria-hidden="true">🛍️</span>
+      <span class="category-name">All</span>
+    </button>
+
+    <button class="category-button" type="button"
+            data-category="shop" aria-pressed="false">
+      <span class="category-icon" aria-hidden="true">🏪</span>
+      <span class="category-name">Shop</span>
+    </button>
+
+    <button class="category-button" type="button"
+            data-category="store" aria-pressed="false">
+      <span class="category-icon" aria-hidden="true">🛒</span>
+      <span class="category-name">Store</span>
+    </button>
+
+    <button class="category-button" type="button"
+            data-category="home-service" aria-pressed="false">
+      <span class="category-icon" aria-hidden="true">🏠</span>
+      <span class="category-name">Home Service</span>
+    </button>
+
+    <button class="category-button" type="button"
+            data-category="jobs" aria-pressed="false">
+      <span class="category-icon" aria-hidden="true">💼</span>
+      <span class="category-name">Jobs</span>
+    </button>
+  </nav>
+</main>
+
+<script>
+(() => {
+  const categoryButtons = document.querySelectorAll("[data-category]");
+
+  categoryButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      categoryButtons.forEach((item) => {
+        const active = item === button;
+        item.classList.toggle("active", active);
+        item.setAttribute("aria-pressed", String(active));
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>
