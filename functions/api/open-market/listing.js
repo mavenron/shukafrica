@@ -1,9 +1,8 @@
-
 const SESSION_COOKIE = "shuk_open_market_session";
 const MEDIA_BASE_URL = "https://market-media.shukafrica.com";
 
 const MAX_LISTINGS = 5;
-const MAX_IMAGES = 5;
+const MAX_IMAGES = 3;
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const MAX_VIDEO_SIZE = 10 * 1024 * 1024;
 
@@ -55,7 +54,10 @@ function base64UrlToBytes(value) {
   const padded = base64 + "=".repeat((4 - base64.length % 4) % 4);
   const binary = atob(padded);
 
-  return Uint8Array.from(binary, character => character.charCodeAt(0));
+  return Uint8Array.from(
+    binary,
+    character => character.charCodeAt(0)
+  );
 }
 
 async function verifySession(request, secret) {
@@ -122,7 +124,14 @@ function normalizeJobType(value) {
 
   if (!jobType) return null;
 
-  const allowed = ["full-time", "part-time", "contract", "temporary", "other"];
+  const allowed = [
+    "full-time",
+    "part-time",
+    "contract",
+    "temporary",
+    "other"
+  ];
+
   return allowed.includes(jobType) ? jobType : null;
 }
 
@@ -174,6 +183,7 @@ export async function onRequestGet({ request, env }) {
       url.searchParams.get("limit") || "100",
       10
     );
+
     const limit = Number.isFinite(requestedLimit)
       ? Math.min(Math.max(requestedLimit, 1), 100)
       : 100;
@@ -196,7 +206,14 @@ export async function onRequestGet({ request, env }) {
     }
 
     if (search) {
-      sql += " AND (title LIKE ? OR description LIKE ? OR seller_name LIKE ?)";
+      sql += `
+        AND (
+          title LIKE ?
+          OR description LIKE ?
+          OR seller_name LIKE ?
+        )
+      `;
+
       const term = `%${search}%`;
       params.push(term, term, term);
     }
@@ -312,28 +329,42 @@ export async function onRequestPost({ request, env }) {
       jobType = null;
     }
 
+    // The dashboard sends every selected photo under the same
+    // FormData field name: "images".
+    const selectedImages = form.getAll("images").filter(
+      file => isFile(file) && file.size > 0
+    );
+
+    if (selectedImages.length > MAX_IMAGES) {
+      return json({
+        success: false,
+        error: `You can upload a maximum of ${MAX_IMAGES} photos.`
+      }, 400);
+    }
+
     const imageFiles = [];
 
-    for (let i = 1; i <= MAX_IMAGES; i++) {
-      const file = form.get(`image_${i}`);
-
-      if (!isFile(file) || file.size === 0) continue;
+    for (let i = 0; i < selectedImages.length; i++) {
+      const file = selectedImages[i];
 
       if (!Object.prototype.hasOwnProperty.call(IMAGE_TYPES, file.type)) {
         return json({
           success: false,
-          error: `Image ${i} must be JPG, PNG, or WebP.`
+          error: `Photo ${i + 1} must be JPG, PNG, or WebP.`
         }, 400);
       }
 
       if (file.size > MAX_IMAGE_SIZE) {
         return json({
           success: false,
-          error: `Image ${i} exceeds the 5 MB limit.`
+          error: `Photo ${i + 1} exceeds the 5 MB limit.`
         }, 400);
       }
 
-      imageFiles.push({ file, slot: i });
+      imageFiles.push({
+        file,
+        slot: i + 1
+      });
     }
 
     const videoFile = form.get("video");
@@ -358,33 +389,50 @@ export async function onRequestPost({ request, env }) {
     }
 
     const id = crypto.randomUUID();
-    const imageUrls = ["", "", "", "", ""];
+    const imageUrls = ["", "", ""];
     let videoUrl = "";
 
+    // Upload photos to R2 and save their public URLs.
     for (const item of imageFiles) {
       const extension = IMAGE_TYPES[item.file.type];
-      const key = `open-market/${seller.id}/${id}/image-${item.slot}.${extension}`;
+      const key =
+        `open-market/${seller.id}/${id}/image-${item.slot}.${extension}`;
 
-      await env.OPEN_MARKET_MEDIA.put(key, item.file.stream(), {
-        httpMetadata: { contentType: item.file.type }
-      });
+      await env.OPEN_MARKET_MEDIA.put(
+        key,
+        item.file.stream(),
+        {
+          httpMetadata: {
+            contentType: item.file.type
+          }
+        }
+      );
 
       uploadedKeys.push(key);
       imageUrls[item.slot - 1] = mediaUrl(key);
     }
 
+    // Keep video upload support unchanged.
     if (video) {
       const extension = VIDEO_TYPES[video.type];
       const key = `open-market/${seller.id}/${id}/video.${extension}`;
 
-      await env.OPEN_MARKET_MEDIA.put(key, video.stream(), {
-        httpMetadata: { contentType: video.type }
-      });
+      await env.OPEN_MARKET_MEDIA.put(
+        key,
+        video.stream(),
+        {
+          httpMetadata: {
+            contentType: video.type
+          }
+        }
+      );
 
       uploadedKeys.push(key);
       videoUrl = mediaUrl(key);
     }
 
+    // Keep all five existing database columns.
+    // Only the first three are used for uploaded photos.
     await env.OPEN_MARKET_DB.prepare(`
       INSERT INTO open_market_listings (
         id, category, job_type, title, seller_name, contact, price,
@@ -392,7 +440,8 @@ export async function onRequestPost({ request, env }) {
         image_1, image_2, image_3, image_4, image_5,
         video_url, status, seller_id, created_at
       ) VALUES (
-        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'published', ?, CURRENT_TIMESTAMP
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, 'published', ?, CURRENT_TIMESTAMP
       )
     `).bind(
       id,
@@ -410,8 +459,8 @@ export async function onRequestPost({ request, env }) {
       imageUrls[0],
       imageUrls[1],
       imageUrls[2],
-      imageUrls[3],
-      imageUrls[4],
+      "",
+      "",
       videoUrl,
       seller.id
     ).run();
@@ -435,8 +484,8 @@ export async function onRequestPost({ request, env }) {
         image_1: imageUrls[0],
         image_2: imageUrls[1],
         image_3: imageUrls[2],
-        image_4: imageUrls[3],
-        image_5: imageUrls[4],
+        image_4: "",
+        image_5: "",
         video_url: videoUrl,
         status: "published"
       }
@@ -452,5 +501,5 @@ export async function onRequestPost({ request, env }) {
       diagnostic: String(error?.message || error)
     }, 500);
   }
-        }
-                        
+    }
+  
