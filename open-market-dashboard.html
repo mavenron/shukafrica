@@ -1415,6 +1415,9 @@
      */
     const formData = new FormData(listingForm);
 
+    if (editingListingId) {
+  formData.set("id", editingListingId);
+}
     formData.delete("images");
     formData.delete("video");
 
