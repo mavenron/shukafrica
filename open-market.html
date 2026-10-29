@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,6 +10,7 @@
 :root {
   --bg: #071112;
   --panel: #101d1e;
+  --panel2: #0b1919;
   --border: #263738;
   --gold: #ffb52e;
   --muted: #a8b6b3;
@@ -24,14 +24,19 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--white);
-  font-family: Arial, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.5;
 }
 
+body.modal-open { overflow: hidden; }
+
 a { color: inherit; text-decoration: none; }
+button, input { font: inherit; }
+button { cursor: pointer; }
 
 .topbar {
   border-bottom: 1px solid var(--border);
-  padding: 16px 4%;
+  padding: 15px 4%;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -55,20 +60,20 @@ a { color: inherit; text-decoration: none; }
 .home-link {
   color: var(--gold);
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .add-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
+  width: 46px;
   height: 44px;
   border: 0;
-  border-radius: 13px;
+  border-radius: 12px;
   background: var(--green);
   color: white;
-  font-size: 29px;
-  line-height: 1;
+  font-size: 28px;
   flex-shrink: 0;
 }
 
@@ -99,13 +104,13 @@ h1 {
 }
 
 .search-panel {
-  background: #0d1a1a;
+  background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 22px;
   padding: 14px;
   display: grid;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .search-field {
@@ -113,11 +118,11 @@ h1 {
   align-items: center;
   gap: 12px;
   min-width: 0;
-  min-height: 54px;
+  min-height: 56px;
   border: 1px solid #344544;
   border-radius: 15px;
   padding: 0 14px;
-  background: #091515;
+  background: var(--panel2);
 }
 
 .search-icon {
@@ -141,19 +146,18 @@ h1 {
 .categories {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 7px;
+  gap: 8px;
   margin: 0 0 30px;
 }
 
 .category-button {
   min-width: 0;
-  min-height: 64px;
+  min-height: 78px;
   padding: 9px 3px;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 13px;
   background: var(--panel);
   color: white;
-  cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -161,11 +165,11 @@ h1 {
   gap: 5px;
 }
 
-.category-icon { font-size: 21px; }
+.category-icon { font-size: 22px; }
 
 .category-name {
   font-size: clamp(10px, 2.6vw, 13px);
-  line-height: 1.15;
+  line-height: 1.2;
   text-align: center;
   overflow-wrap: anywhere;
 }
@@ -176,10 +180,7 @@ h1 {
   color: var(--gold);
 }
 
-/* Published listing section */
-.listings-section {
-  margin-top: 10px;
-}
+.listings-section { margin-top: 10px; }
 
 .listings-heading {
   display: flex;
@@ -196,13 +197,14 @@ h1 {
 
 .listing-count {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 14px;
   white-space: nowrap;
 }
 
 .listing-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
   gap: 15px;
 }
 
@@ -210,8 +212,10 @@ h1 {
   min-width: 0;
   overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 18px;
   background: var(--panel);
+  display: flex;
+  flex-direction: column;
 }
 
 .listing-photo {
@@ -244,7 +248,7 @@ h1 {
   max-width: calc(100% - 20px);
   padding: 6px 9px;
   border-radius: 8px;
-  background: rgba(7, 17, 18, .88);
+  background: rgba(7,17,18,.9);
   color: var(--gold);
   font-size: 11px;
   font-weight: 700;
@@ -253,11 +257,15 @@ h1 {
 }
 
 .listing-info {
-  padding: 13px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  align-items: stretch;
 }
 
 .listing-title {
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1.35;
   margin: 0 0 9px;
   overflow-wrap: anywhere;
@@ -273,7 +281,7 @@ h1 {
 
 .listing-location {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
   margin-bottom: 10px;
   overflow-wrap: anywhere;
@@ -281,23 +289,45 @@ h1 {
 
 .listing-description {
   color: #d1d9d7;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
   overflow-wrap: anywhere;
   white-space: pre-line;
-  margin: 0;
+  margin: 0 0 12px;
 }
 
-.listing-contact {
+.listing-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 6px;
+}
+
+.action-button {
   display: inline-flex;
-  margin-top: 13px;
-  padding: 10px 12px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-width: 0;
+  padding: 10px 8px;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  font-size: 12px;
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+.view-button {
+  flex: 1;
+  background: #203332;
+  color: white;
+  border-color: #314746;
+}
+
+.contact-button {
+  flex: 1.3;
   background: var(--green);
   color: white;
-  border-radius: 9px;
-  font-size: 13px;
-  font-weight: 700;
-  overflow-wrap: anywhere;
 }
 
 .listing-message {
@@ -311,11 +341,148 @@ h1 {
   line-height: 1.6;
 }
 
-.listing-message.error {
-  color: #ffb3ad;
+.listing-message.error { color: #ffb3ad; }
+
+/* Listing details modal */
+.details-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0,0,0,.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
 }
 
-@media (max-width: 360px) {
+.details-overlay[hidden] { display: none; }
+
+.details-modal {
+  width: 100%;
+  max-width: 620px;
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--panel);
+  border: 1px solid #344544;
+  border-radius: 25px;
+  padding: 20px;
+  box-shadow: 0 18px 60px rgba(0,0,0,.45);
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: clamp(23px, 5vw, 30px);
+  overflow-wrap: anywhere;
+}
+
+.modal-close {
+  flex-shrink: 0;
+  padding: 11px 15px;
+  border: 1px solid #394b4a;
+  border-radius: 12px;
+  background: #243635;
+  color: white;
+}
+
+.modal-price {
+  color: var(--gold);
+  font-size: 21px;
+  font-weight: 800;
+  margin: 0 0 17px;
+  overflow-wrap: anywhere;
+}
+
+.media-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 23px;
+}
+
+.gallery-item {
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #071112;
+  border: 1px solid var(--border);
+  aspect-ratio: 4 / 3;
+}
+
+.gallery-item img,
+.gallery-item video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #071112;
+}
+
+.no-media {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  text-align: center;
+  padding: 22px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+}
+
+.detail-field { margin: 0 0 20px; }
+
+.detail-label {
+  display: block;
+  color: var(--gold);
+  font-weight: 800;
+  font-size: 14px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.detail-value {
+  color: #e5eae8;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 0;
+}
+
+.modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.modal-contact {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 13px 16px;
+  border-radius: 11px;
+  font-weight: 800;
+  background: var(--green);
+  color: white;
+}
+
+.modal-whatsapp {
+  background: #203332;
+  border: 1px solid #314746;
+}
+
+.modal-footer-note {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 20px;
+}
+
+@media (max-width: 380px) {
   .topbar { padding-left: 3%; padding-right: 3%; }
   .brand { font-size: 18px; }
   .top-actions { gap: 8px; }
@@ -324,23 +491,30 @@ h1 {
   .categories { gap: 4px; }
   .category-name { font-size: 9px; }
   .listing-grid { gap: 9px; }
-  .listing-info { padding: 9px; }
-  .listing-title { font-size: 14px; }
-  .listing-price { font-size: 15px; }
+  .listing-info { padding: 10px; }
+  .listing-title { font-size: 15px; }
+  .listing-price { font-size: 16px; }
+  .action-button { padding: 9px 5px; font-size: 11px; }
+  .details-modal { padding: 15px; border-radius: 19px; }
 }
 
 @media (min-width: 700px) {
   .search-panel { padding: 18px; }
   .listing-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .details-modal { padding: 26px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+  }
 }
 </style>
 </head>
 
 <body>
 <header class="topbar">
-  <a class="brand" href="index.html">
-    SHUK<span>AFRICA</span>
-  </a>
+  <a class="brand" href="index.html">SHUK<span>AFRICA</span></a>
 
   <div class="top-actions">
     <a class="home-link" href="index.html">← Home</a>
@@ -418,20 +592,60 @@ h1 {
   </section>
 </main>
 
+<!-- View Details modal -->
+<div id="detailsOverlay" class="details-overlay" hidden>
+  <section class="details-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modalTitle">
+
+    <div class="modal-header">
+      <h2 class="modal-title" id="modalTitle">Listing details</h2>
+      <button class="modal-close" id="closeDetails" type="button">
+        CLOSE
+      </button>
+    </div>
+
+    <p class="modal-price" id="modalPrice"></p>
+
+    <div class="media-gallery" id="modalGallery"></div>
+
+    <div id="modalFields"></div>
+
+    <div class="modal-actions" id="modalActions"></div>
+
+    <p class="modal-footer-note">
+      Confirm details directly with the seller before making payments.
+    </p>
+  </section>
+</div>
+
 <script>
 (() => {
+  "use strict";
+
   const API_URL = "/api/open-market/listing";
 
   const categoryButtons = [
     ...document.querySelectorAll("[data-category]")
   ];
+
   const itemSearch = document.getElementById("itemSearch");
   const locationSearch = document.getElementById("locationSearch");
   const listingGrid = document.getElementById("listingGrid");
   const listingCount = document.getElementById("listingCount");
 
+  const detailsOverlay = document.getElementById("detailsOverlay");
+  const closeDetailsButton = document.getElementById("closeDetails");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalPrice = document.getElementById("modalPrice");
+  const modalGallery = document.getElementById("modalGallery");
+  const modalFields = document.getElementById("modalFields");
+  const modalActions = document.getElementById("modalActions");
+
   let allListings = [];
   let selectedCategory = "all";
+  let lastFocusedElement = null;
 
   function escapeHTML(value) {
     return String(value ?? "").replace(/[&<>"']/g, char => ({
@@ -443,7 +657,25 @@ h1 {
     })[char]);
   }
 
+  function safeMediaURL(value) {
+    if (typeof value !== "string" || !value.trim()) return "";
+
+    try {
+      const url = new URL(value.trim(), window.location.origin);
+
+      if (url.protocol !== "https:" && url.protocol !== "http:") {
+        return "";
+      }
+
+      return url.href;
+    } catch {
+      return "";
+    }
+  }
+
   function categoryLabel(category) {
+    const key = String(category || "").toLowerCase().trim();
+
     const labels = {
       shop: "Shop",
       store: "Store",
@@ -452,20 +684,20 @@ h1 {
       jobs: "Jobs"
     };
 
-    const key = String(category || "").toLowerCase().trim();
     return labels[key] || (key ? key.replace(/-/g, " ") : "Listing");
   }
 
   function locationLabel(item) {
-    return [
+    const values = [
       item.location,
       item.region,
       item.country
-    ].filter(value => String(value || "").trim()).filter(
-      (value, index, values) =>
-        values.findIndex(other =>
-          String(other).toLowerCase() === String(value).toLowerCase()
-        ) === index
+    ].filter(value => String(value || "").trim());
+
+    return values.filter((value, index) =>
+      values.findIndex(other =>
+        String(other).toLowerCase() === String(value).toLowerCase()
+      ) === index
     ).join(", ");
   }
 
@@ -476,156 +708,194 @@ h1 {
 
     const value = String(price).trim();
 
-    // Preserve prices that already contain a currency or descriptive text.
-    if (/[₵$€£]|GHS|GH₵|CFA|FCFA|XOF|XAF|USD|EUR|per month|per day|negotiable/i.test(value)) {
+    if (/[₵$€£]|GHS|GH₵|CFA|FCFA|XOF|XAF|USD|EUR|negotiable|per month|per day/i.test(value)) {
       return value;
     }
 
     return "GH₵ " + value;
   }
 
-  function renderListings() {
-    const searchTerm = itemSearch.value.trim().toLowerCase();
-    const locationTerm = locationSearch.value.trim().toLowerCase();
+  function getListingMedia(item) {
+    const photos = [
+      item.image_1,
+      item.image_2,
+      item.image_3,
+      item.image_4,
+      item.image_5
+    ]
+      .map(safeMediaURL)
+      .filter(Boolean);
 
-    const filtered = allListings.filter(item => {
-      const category = String(item.category || "").toLowerCase().trim();
+    const video = safeMediaURL(item.video_url);
 
-      const categoryMatch =
-        selectedCategory === "all" ||
-        category === selectedCategory ||
-        (selectedCategory === "home-service" && category === "home service");
+    return { photos, video };
+  }
 
-      const searchableText = [
-        item.title,
-        item.price,
-        item.description,
-        item.seller_name,
-        item.category,
-        item.job_type
-      ].join(" ").toLowerCase();
+  function normalisePhone(value) {
+    let phone = String(value || "").trim();
 
-      const place = locationLabel(item).toLowerCase();
+    // Remove common display separators but preserve a leading plus sign.
+    phone = phone.replace(/[\s().-]/g, "");
 
-      return categoryMatch &&
-        searchableText.includes(searchTerm) &&
-        place.includes(locationTerm);
-    });
+    if (phone.startsWith("00")) {
+      phone = "+" + phone.slice(2);
+    }
 
-    listingCount.textContent =
-      filtered.length + (filtered.length === 1 ? " listing" : " listings");
+    if (phone.startsWith("+")) {
+      return phone.slice(1).replace(/\D/g, "");
+    }
 
-    if (filtered.length === 0) {
-      listingGrid.innerHTML = `
-        <div class="listing-message">
-          ${allListings.length === 0
-            ? "No published listings are available yet."
-            : "No listings match your search. Try another search or category."}
-        </div>`;
+    // Ghanaian local numbers: 0XXXXXXXXX -> 233XXXXXXXXX.
+    if (/^0\d{9}$/.test(phone)) {
+      return "233" + phone.slice(1);
+    }
+
+    // A 9-digit Ghanaian number without the leading zero.
+    if (/^\d{9}$/.test(phone)) {
+      return "233" + phone;
+    }
+
+    // For other international numbers, use the digits supplied.
+    return phone.replace(/\D/g, "");
+  }
+
+  function contactURLs(phone) {
+    const digits = normalisePhone(phone);
+
+    if (!digits || digits.length < 7) {
+      return { call: "", whatsapp: "" };
+    }
+
+    return {
+      call: "tel:+" + digits,
+      whatsapp: "https://wa.me/" + digits
+    };
+  }
+
+  function makeContactLink(label, href, className) {
+    if (!href) return null;
+
+    const link = document.createElement("a");
+    link.className = "modal-contact " + className;
+    link.href = href;
+    link.textContent = label;
+
+    if (href.startsWith("https://")) {
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+    }
+
+    return link;
+  }
+
+  function appendDetail(label, value) {
+    if (value === null || value === undefined || String(value).trim() === "") {
       return;
     }
 
-    listingGrid.innerHTML = filtered.map(item => {
-      const title = escapeHTML(item.title || "Untitled listing");
-      const category = escapeHTML(categoryLabel(item.category));
-      const price = escapeHTML(formatPrice(item.price));
-      const place = escapeHTML(locationLabel(item) || "Location not provided");
-      const description = escapeHTML(item.description || "");
-      const image = [item.image_1, item.image_2, item.image_3,
-        item.image_4, item.image_5].find(url =>
-          typeof url === "string" && /^https?:\/\//i.test(url)
-        );
+    const field = document.createElement("div");
+    field.className = "detail-field";
 
-      const contact = String(item.contact || "").trim();
-      const safeContact = escapeHTML(contact);
+    const heading = document.createElement("span");
+    heading.className = "detail-label";
+    heading.textContent = label;
 
-      const imageHTML = image
-        ? `<img src="${escapeHTML(image)}" alt="${title}" loading="lazy"
-             onerror="this.remove();this.parentElement.querySelector('.photo-placeholder').hidden=false;">
-           <span class="photo-placeholder" hidden aria-hidden="true">🛍️</span>`
-        : `<span class="photo-placeholder" aria-hidden="true">🛍️</span>`;
+    const text = document.createElement("p");
+    text.className = "detail-value";
+    text.textContent = String(value);
 
-      const contactHTML = contact
-        ? `<a class="listing-contact"
-             href="https://wa.me/${contact.replace(/\D/g, "")}"
-             target="_blank" rel="noopener noreferrer"
-             aria-label="Contact seller about ${title}">
-             Contact Seller
-           </a>`
-        : "";
-
-      return `
-        <article class="listing-card">
-          <div class="listing-photo">
-            ${imageHTML}
-            <span class="listing-category">${category}</span>
-          </div>
-          <div class="listing-info">
-            <h3 class="listing-title">${title}</h3>
-            <div class="listing-price">${price}</div>
-            <div class="listing-location">⌖ ${place}</div>
-            ${description
-              ? `<p class="listing-description">${description}</p>`
-              : ""}
-            ${contactHTML}
-          </div>
-        </article>`;
-    }).join("");
+    field.append(heading, text);
+    modalFields.appendChild(field);
   }
 
-  categoryButtons.forEach(button => {
-    button.addEventListener("click", () => {
-      selectedCategory = button.dataset.category;
+  function openDetails(item) {
+    lastFocusedElement = document.activeElement;
 
-      categoryButtons.forEach(item => {
-        const active = item === button;
-        item.classList.toggle("active", active);
-        item.setAttribute("aria-pressed", String(active));
+    modalTitle.textContent = item.title || "Listing details";
+    modalPrice.textContent = formatPrice(item.price);
+
+    modalGallery.replaceChildren();
+    modalFields.replaceChildren();
+    modalActions.replaceChildren();
+
+    const media = getListingMedia(item);
+    let mediaCount = 0;
+
+    media.photos.forEach((url, index) => {
+      const figure = document.createElement("div");
+      figure.className = "gallery-item";
+
+      const image = document.createElement("img");
+      image.src = url;
+      image.alt = (item.title || "Listing") + " photo " + (index + 1);
+      image.loading = "lazy";
+
+      image.addEventListener("error", () => {
+        figure.remove();
+        if (!modalGallery.querySelector(".gallery-item")) {
+          showNoMedia();
+        }
       });
 
-      renderListings();
+      figure.appendChild(image);
+      modalGallery.appendChild(figure);
+      mediaCount++;
     });
-  });
 
-  itemSearch.addEventListener("input", renderListings);
-  locationSearch.addEventListener("input", renderListings);
+    if (media.video) {
+      const figure = document.createElement("div");
+      figure.className = "gallery-item";
 
-  async function loadListings() {
-    listingGrid.innerHTML =
-      '<div class="listing-message">Loading published listings...</div>';
+      const video = document.createElement("video");
+      video.src = media.video;
+      video.controls = true;
+      video.preload = "metadata";
+      video.playsInline = true;
 
-    try {
-      const response = await fetch(API_URL + "?limit=100", {
-        method: "GET",
-        headers: { "Accept": "application/json" },
-        cache: "no-store"
-      });
-
-      const data = await response.json();
-
-      if (!response.ok || data.success === false) {
-        throw new Error("The listings could not be loaded.");
-      }
-
-      if (!Array.isArray(data.listings)) {
-        throw new Error("The listings response was not in the expected format.");
-      }
-
-      allListings = data.listings;
-      renderListings();
-    } catch (error) {
-      console.error("Open Market listings error:", error);
-      listingCount.textContent = "Unavailable";
-      listingGrid.innerHTML = `
-        <div class="listing-message error">
-          We couldn't load listings right now. Please refresh the page and try again.
-        </div>`;
+      figure.appendChild(video);
+      modalGallery.appendChild(figure);
+      mediaCount++;
     }
-  }
 
-  loadListings();
-})();
-</script>
-</body>
-        </html>
+    function showNoMedia() {
+      if (modalGallery.querySelector(".no-media")) return;
 
+      const message = document.createElement("div");
+      message.className = "no-media";
+      message.textContent =
+        "No additional photos or video are available for this listing.";
+      modalGallery.appendChild(message);
+    }
+
+    if (!mediaCount) showNoMedia();
+
+    appendDetail("Category", categoryLabel(item.category));
+    appendDetail("Job type", item.job_type);
+    appendDetail("Availability", item.availability || item.status || "Published");
+    appendDetail("Condition", item.condition);
+    appendDetail("Location", locationLabel(item) || "Location not provided");
+    appendDetail("Description", item.description);
+    appendDetail("Seller", item.seller_name);
+    appendDetail("Contact", item.contact);
+    appendDetail("Delivery", item.delivery);
+
+    if (item.terms) {
+      appendDetail("Terms and instructions", item.terms);
+    }
+
+    const contacts = contactURLs(item.contact);
+
+    const callLink = makeContactLink("CALL SELLER", contacts.call, "");
+    const whatsappLink = makeContactLink(
+      "WHATSAPP",
+      contacts.whatsapp,
+      "modal-whatsapp"
+    );
+
+    if (callLink) modalActions.appendChild(callLink);
+    if (whatsappLink) modalActions.appendChild(whatsappLink);
+
+    if (!callLink && !whatsappLink) {
+      const message = document.createElement("p");
+      message.className = "detail-value";
+      message.textContent = "Seller contact details are unava
