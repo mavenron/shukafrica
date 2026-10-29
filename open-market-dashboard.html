@@ -1079,6 +1079,381 @@
     }
   }
 
+  // Login and registration.
+  authForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    clearNotice(authNotice);
 
+    const fullName = $("authFullName").value.trim();
+    const email = $("authEmail").value.trim();
+    const password = $("authPassword").value;
+
+    if (authMode === "register" && !fullName) {
+      showNotice(authNotice, "Please enter your full name.", "error");
+      return;
+    }
+
+    if (!email || !password) {
+      showNotice(
+        authNotice,
+        "Please enter your email address and password.",
+        "error"
+      );
+      return;
+    }
+
+    const originalText = authSubmitBtn.textContent;
+    authSubmitBtn.disabled = true;
+    authSubmitBtn.textContent = "Please wait...";
+
+    try {
+      const endpoint = authMode === "register" ? "/register" : "/login";
+
+      const payload = authMode === "register"
+        ? { full_name: fullName, email, password }
+        : { email, password };
+
+      const data = await apiJSON(endpoint, {
+        method: "POST",
+        body: payload
+      });
+
+      if (data.success === false) {
+        throw new Error(data.message || "Authentication failed.");
+      }
+
+      $("authPassword").value = "";
+
+      showNotice(
+        globalNotice,
+        data.message || (
+          authMode === "register"
+            ? "Account created successfully."
+            : "Login successful."
+        ),
+        "success"
+      );
+
+      await checkSession();
+
+    } catch (error) {
+      showNotice(authNotice, error.message, "error");
+    } finally {
+      authSubmitBtn.disabled = false;
+      authSubmitBtn.textContent = originalText;
+    }
+  });
+
+  // Media preview cleanup.
+  function revokePreviewUrls() {
+    previewUrls.forEach((url) => URL.revokeObjectURL(url));
+    previewUrls = [];
+  }
+
+  function clearPreviews() {
+    revokePreviewUrls();
+    imagePreview.replaceChildren();
+    videoPreview.replaceChildren();
+  }
+
+  function validateImages() {
+    const files = Array.from(imageInput.files || []);
+
+    if (files.length > MAX_IMAGES) {
+      return "You can upload a maximum of 3 photos.";
+    }
+
+    for (const file of files) {
+      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        return "Photos must be JPEG, PNG or WebP files.";
+      }
+
+      if (file.size === 0) {
+        return `${file.name} is empty. Please choose another file.`;
+      }
+
+      if (file.size > MAX_IMAGE_SIZE) {
+        return `${file.name} exceeds the 5 MB photo limit.`;
+      }
+    }
+
+    return "";
+  }
+
+  function validateVideo() {
+    const file = videoInput.files?.[0];
+
+    if (!file) return "";
+
+    if (!ALLOWED_VIDEO_TYPES.includes(file.type)) {
+      return "The video must be MP4, WebM or MOV.";
+    }
+
+    if (file.size === 0) {
+      return "The selected video is empty.";
+    }
+
+    if (file.size > MAX_VIDEO_SIZE) {
+      return "The video exceeds the 10 MB limit.";
+    }
+
+    return "";
+  }
+
+  function makePreviewElement(file, isVideo = false) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "preview-item";
+
+    const url = URL.createObjectURL(file);
+    previewUrls.push(url);
+
+    const media = document.createElement(isVideo ? "video" : "img");
+
+    if (isVideo) {
+      media.controls = true;
+      media.preload = "metadata";
+    } else {
+      media.alt = file.name;
+    }
+
+    media.src = url;
+
+    const caption = document.createElement("div");
+    caption.className = "preview-caption";
+    caption.textContent =
+      file.name + " · " + (file.size / (1024 * 1024)).toFixed(2) + " MB";
+
+    wrapper.append(media, caption);
+    return wrapper;
+  }
+
+  function updateImagePreview() {
+    revokePreviewUrls();
+    imagePreview.replaceChildren();
+    videoPreview.replaceChildren();
+
+    Array.from(imageInput.files || []).forEach((file) => {
+      imagePreview.appendChild(makePreviewElement(file));
+    });
+
+    const videoFile = videoInput.files?.[0];
+
+    if (videoFile) {
+      videoPreview.appendChild(makePreviewElement(videoFile, true));
+    }
+  }
+
+  imageInput.addEventListener("change", () => {
+    updateImagePreview();
+
+    const error = validateImages();
+
+    if (error) {
+      showNotice(dashboardNotice, error, "error");
+    } else {
+      clearNotice(dashboardNotice);
+    }
+  });
+
+  videoInput.addEventListener("change", () => {
+    updateImagePreview();
+
+    const error = validateVideo();
+
+    if (error) {
+      showNotice(dashboardNotice, error, "error");
+    } else {
+      clearNotice(dashboardNotice);
+    }
+  });
+
+  function validateListingForm() {
+    const category = getSelectedCategory();
+
+    if (!category) {
+      return "Please select a listing category.";
+    }
+
+    if (category === "jobs") {
+      const jobType = document.querySelector(
+        'input[name="job_type"]:checked'
+      );
+
+      if (!jobType) {
+        return "For Jobs, choose Workers Needed or Looking for Work.";
+      }
+    }
+
+    const requiredFields = [
+      ["listingTitle", "listing title"],
+      ["sellerName", "seller name"],
+      ["contact", "contact number"],
+      ["location", "location"],
+      ["description", "description"]
+    ];
+
+    for (const [id, label] of requiredFields) {
+      if (!$(id).value.trim()) {
+        return `Please enter the ${label}.`;
+      }
+    }
+
+    if ($("listingTitle").value.trim().length > 120) {
+      return "The listing title cannot exceed 120 characters.";
+    }
+
+    if ($("sellerName").value.trim().length > 100) {
+      return "The seller name cannot exceed 100 characters.";
+    }
+
+    if ($("contact").value.trim().length > 30) {
+      return "The contact number cannot exceed 30 characters.";
+    }
+
+    if ($("location").value.trim().length > 160) {
+      return "The location cannot exceed 160 characters.";
+    }
+
+    if ($("description").value.trim().length > 5000) {
+      return "The description cannot exceed 5,000 characters.";
+    }
+
+    return validateImages() || validateVideo();
+  }
+
+  // Clear the form and leave edit mode.
+  clearBtn.addEventListener("click", () => {
+    if (!window.confirm("Clear all fields and selected media?")) {
+      return;
+    }
+
+    listingForm.reset();
+    editingListingId = null;
+    publishBtn.textContent = "Publish Listing";
+    publishBtn.disabled = false;
+
+    updateCategory("shop");
+    clearPreviews();
+    clearNotice(dashboardNotice);
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  // Publish a new listing or update an existing one.
+  listingForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    clearNotice(dashboardNotice);
+
+    const validationError = validateListingForm();
+
+    if (validationError) {
+      showNotice(dashboardNotice, validationError, "error");
+      dashboardNotice.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+      return;
+    }
+
+    const category = getSelectedCategory();
+    const isEditing = Boolean(editingListingId);
+    const formData = new FormData(listingForm);
+
+    if (isEditing) {
+      formData.set("id", String(editingListingId));
+    } else {
+      formData.delete("id");
+    }
+
+    // Send actual File objects, not Base64 or JSON.
+    formData.delete("images");
+    formData.delete("video");
+
+    if (category !== "jobs") {
+      formData.delete("job_type");
+    }
+
+    for (const file of Array.from(imageInput.files || [])) {
+      formData.append("images", file, file.name);
+    }
+
+    const videoFile = videoInput.files?.[0];
+
+    if (videoFile) {
+      formData.append("video", videoFile, videoFile.name);
+    }
+
+    publishBtn.disabled = true;
+    publishBtn.textContent = isEditing ? "Saving..." : "Publishing...";
+
+    try {
+      const endpoint = isEditing ? "/update" : "/listing";
+
+      const response = await fetch(API + endpoint, {
+        method: "POST",
+        credentials: "include",
+        cache: "no-store",
+        headers: { "Accept": "application/json" },
+        body: formData
+      });
+
+      if (response.status === 401 || response.status === 403) {
+        showAuthentication(
+          "Your seller session has expired. Please log in again."
+        );
+
+        throw new Error("Please log in before saving your listing.");
+      }
+
+      const data = await readResponse(response);
+
+      if (data.success === false) {
+        throw new Error(data.message || "The listing could not be saved.");
+      }
+
+      // Exit edit mode only after the server confirms success.
+      editingListingId = null;
+      listingForm.reset();
+      updateCategory("shop");
+      clearPreviews();
+
+      publishBtn.textContent = "Publish Listing";
+
+      showNotice(
+        dashboardNotice,
+        data.message || (
+          isEditing
+            ? "Your listing was updated successfully."
+            : "Your listing was published successfully."
+        ),
+        "success"
+      );
+
+      await loadListings();
+
+      $("myListingsSection").scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+
+    } catch (error) {
+      showNotice(
+        dashboardNotice,
+        error.message || "Unable to save your listing.",
+        "error"
+      );
+
+      dashboardNotice.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+
+    } finally {
+      publishBtn.disabled = false;
+      publishBtn.textContent = editingListingId
+        ? "Save Changes"
+        : "Publish Listing";
+    }
+  });
   
   
