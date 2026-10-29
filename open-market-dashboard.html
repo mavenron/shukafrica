@@ -1643,7 +1643,65 @@ body.appendChild(actions);
 }
 
 function editListing(listing) {
-  // Paste the complete editListing function here
+  if (!listing || !listing.id) {
+    showNotice(
+      listingsNotice,
+      "Unable to edit this listing because its ID is missing.",
+      "error"
+    );
+    return;
+  }
+
+  editingListingId = listing.id;
+
+  const fields = [
+    "category",
+    "job_type",
+    "title",
+    "seller_name",
+    "contact",
+    "price",
+    "location",
+    "country",
+    "region",
+    "description",
+    "delivery"
+  ];
+
+  for (const name of fields) {
+    const value = listing[name] ?? "";
+    const field = listingForm.elements.namedItem(name);
+
+    if (!field) continue;
+
+    if (field instanceof RadioNodeList) {
+      for (const radio of field) {
+        radio.checked = radio.value === String(value);
+      }
+    } else if (field.type === "radio") {
+      field.checked = field.value === String(value);
+    } else {
+      field.value = value;
+    }
+  }
+
+  updateCategory(listing.category || "shop");
+  clearPreviews();
+
+  publishBtn.textContent = "Save Changes";
+  publishBtn.disabled = false;
+
+  showNotice(
+    dashboardNotice,
+    "Editing: " + (listing.title || "Untitled listing") +
+      ". Make your changes, then tap Save Changes.",
+    "success"
+  );
+
+  listingForm.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
 }
 
 async function deleteListing(listingId, listingTitle, button) {
