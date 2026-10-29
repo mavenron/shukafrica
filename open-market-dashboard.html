@@ -1620,6 +1620,9 @@ const editButton = document.createElement("button");
 editButton.type = "button";
 editButton.textContent = "Edit Listing";
 editButton.className = "edit-listing-btn";
+editButton.addEventListener("click", () => {
+  editListing(listing);
+});
 
 const deleteButton = document.createElement("button");
 deleteButton.type = "button";
