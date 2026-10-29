@@ -510,41 +510,45 @@ h1 {
   }
 }
  
-/* Open Market listing card improvements */
+
+/* Extra-compact Open Market cards */
 .listing-photo {
-  min-height: 230px;
+  min-height: 105px;
+  height: 125px;
   overflow: hidden;
 }
 
 .listing-photo img {
   width: 100%;
-  height: 260px;
+  height: 125px;
   object-fit: cover;
   display: block;
 }
 
 .listing-info {
-  padding: 14px;
-  gap: 8px;
+  padding: 8px;
+  gap: 4px;
 }
 
 .listing-seller-name {
-  margin: 0 0 3px;
-  color: #C58A12;
-  font-size: 21px;
-  line-height: 1.25;
+  margin: 0;
+  color: #F6C453;
+  font-size: 15px;
+  line-height: 1.2;
   font-weight: 900;
   overflow-wrap: anywhere;
 }
 
 .listing-title {
-  font-size: 16px;
+  font-size: 13px;
+  line-height: 1.25;
   font-weight: 600;
   margin: 0;
 }
 
 .listing-price {
-  font-size: 21px;
+  font-size: 16px;
+  line-height: 1.2;
   font-weight: 800;
 }
 
@@ -554,24 +558,35 @@ h1 {
   color: #176B45;
   background: #E4F5EA;
   border-radius: 20px;
-  padding: 5px 10px;
-  font-size: 12px;
+  padding: 3px 7px;
+  font-size: 10px;
   font-weight: 800;
 }
 
 .listing-location {
+  font-size: 11px;
+  line-height: 1.2;
   overflow-wrap: anywhere;
 }
 
 .listing-actions {
   display: flex;
   width: 100%;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 .listing-actions .view-button {
   width: 100%;
+  padding: 7px 4px;
+  font-size: 11px;
+  min-height: 34px;
 }
+
+.listing-category {
+  font-size: 11px;
+  padding: 5px 8px;
+}
+  
   
 </style>
 </head>
