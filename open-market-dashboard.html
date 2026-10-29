@@ -1605,10 +1605,31 @@ function renderListings(listings) {
       }
     }
 
-    const actions = document.createElement("div");
-    actions.className = "listing-actions";
+    
+const actions = document.createElement("div");
+actions.className = "listing-actions";
 
-    const deleteButton = document.createElement("button");
+const editButton = document.createElement("button");
+editButton.type = "button";
+editButton.textContent = "Edit Listing";
+editButton.className = "edit-listing-btn";
+
+editButton.addEventListener("click", () => {
+  editListing(listing);
+});
+
+const deleteButton = document.createElement("button");
+deleteButton.type = "button";
+deleteButton.textContent = "Delete Listing";
+deleteButton.className = "delete-listing-btn";
+
+deleteButton.addEventListener("click", () => {
+  deleteListing(listing.id, listing.title, deleteButton);
+});
+
+actions.append(editButton, deleteButton);
+body.appendChild(actions);
+    
     deleteButton.type = "button";
     deleteButton.textContent = "Delete Listing";
     deleteButton.className = "delete-listing-btn";
