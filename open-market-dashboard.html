@@ -1625,6 +1625,63 @@ function renderListings(listings) {
   });
 }
 
+  
+async function deleteListing(listingId, listingTitle, button) {
+  if (!listingId) {
+    showNotice(
+      listingsNotice,
+      "This listing has no ID and cannot be deleted.",
+      "error"
+    );
+    return;
+  }
+
+  const confirmed = window.confirm(
+    `Are you sure you want to delete "${listingTitle || "this listing"}"? This cannot be undone.`
+  );
+
+  if (!confirmed) return;
+
+  button.disabled = true;
+  button.textContent = "Deleting...";
+
+  try {
+    const response = await fetch("/api/open-market/delete", {
+      method: "DELETE",
+      credentials: "include",
+      cache: "no-store",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ id: listingId })
+    });
+
+    const data = await readResponse(response);
+
+    if (data.success !== true) {
+      throw new Error(data.error || data.message || "Deletion failed.");
+    }
+
+    showNotice(
+      listingsNotice,
+      data.message || "Listing deleted successfully.",
+      "success"
+    );
+
+    await loadListings();
+  } catch (error) {
+    showNotice(
+      listingsNotice,
+      "Could not delete listing: " + error.message,
+      "error"
+    );
+
+    button.disabled = false;
+    button.textContent = "Delete Listing";
+  }
+}
+  
   async function loadListings() {
     clearNotice(listingsNotice);
     refreshListingsBtn.disabled = true;
