@@ -1,1 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#10100e">
+  <title>Open Market Seller Dashboard | ShukAfrica</title>
 
+  <style>
+    :root {
+      --bg: #10100e;
+      --panel: #1a1a17;
+      --panel2: #22221e;
+      --gold: #d8ad52;
+      --gold-light: #f0ce7d;
+      --text: #f6f3eb;
+      --muted: #b9b5a9;
+      --border: #39382f;
+      --green: #78d6a0;
+      --red: #ff9696;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+    }
+
+    a {
+      color: var(--gold-light);
+    }
+
+    button, input, textarea, select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .header {
+      background: #171713;
+      border-bottom: 1px solid var(--border);
+      padding: 15px 18px;
+    }
+
+    .header-inner {
+      width: min(1100px, 100%);
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      color: var(--gold-light);
+      font-size: 21px;
+      font-weight: 800;
+      text-decoration: none;
+      letter-spacing: .3px;
+    }
+
+    .header-link {
+      color: var(--text);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 8px 12px;
+    }
+
+    .container {
+      width: min(1000px, 100%);
+      margin: 0 auto;
+      padding: 22px 15px 55px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    h1, h2, h3 {
+      line-height: 1.25;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(25px, 5vw, 34px);
+    }
+
+    h2 {
+      font-size: 22px;
+      margin: 0 0 12px;
+    }
+
+    h3 {
+      font-size: 17px;
+      margin: 0 0 8px;
+    }
+
+    p {
+      color: var(--muted);
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .gold {
+      color: var(--gold-light);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .notice {
+      display: none;
+      padding: 12px 14px;
+      border-radius: 9px;
+      margin: 14px 0;
+      overflow-wrap: anywhere;
+    }
+
+    .notice.show {
+      display: block;
+    }
+
+    .notice.info {
+      color: var(--gold-light);
+      background: #302816;
+      border: 1px solid #66512b;
+    }
+
+    .notice.success {
+      color: var(--green);
+      background: #14281c;
+      border: 1px solid #2f6645;
+    }
+
+    .notice.error {
+      color: var(--red);
+      background: #301818;
+      border: 1px solid #704040;
+    }
+
+    .auth-tabs {
+      display: flex;
+      gap: 8px;
+      margin: 16px 0;
+    }
+
+    .tab-button {
+      flex: 1;
+      padding: 11px;
+      background: var(--panel2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+    }
+
+    .tab-button.active {
+      color: #18140b;
+      background: var(--gold);
+      border-color: var(--gold);
+      font-weight: 700;
+    }
+
+    .field {
+      margin-bottom: 15px;
+    }
+
+    label, .field-label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      min-width: 0;
+      color: var(--text);
+      background: #11110f;
+      border: 1px solid #49483e;
+      border-radius: 9px;
+      padding: 12px;
+      outline: none;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--gold);
+    }
+
+    input[type="file"] {
+      padding: 10px;
+    }
+
+    input[type="radio"], input[type="checkbox"] {
+      width: auto;
+      accent-color: var(--gold);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 110px;
+    }
+
+    select option {
+      background: #171713;
+      color: var(--text);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 12px 0 17px;
+    }
+
+    .category-card {
+      background: var(--panel2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      text-align: left;
+    }
+
+    .category-card strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .category-card span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .category-card.active {
+      border-color: var(--gold);
+      background: #302816;
+      box-shadow: inset 0 0 0 1px var(--gold);
+    }
+
+    .radio-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 8px 0 15px;
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 11px;
+      font-size: 14px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 12px 16px;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--gold);
+      color: #18140b;
+    }
+
+    .btn-primary:hover {
+      background: var(--gold-light);
+    }
+
+    .btn-secondary {
+      background: var(--panel2);
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .btn-danger {
+      background: #301818;
+      color: #ffbaba;
+      border-color: #704040;
+    }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: .6;
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .preview-item {
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      overflow: hidden;
+      background: #11110f;
+    }
+
+    .preview-item img,
+    .preview-item video {
+      display: block;
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+      background: #080808;
+    }
+
+    .preview-caption {
+      padding: 6px;
+      font-size: 11px;
+      overflow-wrap: anywhere;
+      color: var(--muted);
+    }
+
+    .listing-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .listing-card {
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--panel2);
+    }
+
+    .listing-image {
+      display: block;
+      width: 100%;
+      height: 190px;
+      object-fit: cover;
+      background: #11110f;
+    }
+
+    .listing-body {
+      padding: 14px;
+    }
+
+    .listing-title {
+      overflow-wrap: anywhere;
+    }
+
+    .listing-price {
+      color: var(--gold-light);
+      font-weight: 800;
+      font-size: 18px;
+    }
+
+    .listing-description {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .status {
+      display: inline-block;
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 3px 9px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .empty-state {
+      padding: 22px;
+      text-align: center;
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      color: var(--muted);
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 20px 0;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 15px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 15px 10px 35px;
+      }
+
+      .panel {
+        padding: 15px;
+      }
+
+      .grid, .listing-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .category-grid {
+        gap: 8px;
+      }
+
+      .category-card {
+        padding: 11px;
+      }
+
+      .listing-image {
+        height: 210px;
+      }
+
+      .actions .btn {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a class="brand" href="open-market.html">ShukAfrica</a>
+      <a class="header-link" href="open-market.html">← Back to Open Market</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="panel">
+      <h1>Open Market Seller Dashboard</h1>
+      <p>
+        Manage your seller account, publish products and services,
+        and view your listings in one place.
+      </p>
+      <div id="globalNotice" class="notice" role="status" aria-live="polite"></div>
+    </section>
+
+    <!-- LOGIN AND REGISTRATION -->
+    <section id="authSection" class="panel">
+      <h2 id="authHeading">Welcome back</h2>
+      <p id="authDescription">Log in to manage your Open Market listings.</p>
+
+      <div class="auth-tabs">
+        <button type="button" id="loginTab" class="tab-button active">
+          Log in
+        </button>
+        <button type="button" id="registerTab" class="tab-button">
+          Create account
+        </button>
+      </div>
+
+      <div id="authNotice" class="notice" role="status" aria-live="polite"></div>
+
+      <form id="authForm">
+        <div id="fullNameField" class="field hidden">
+          <label for="authFullName">Full name</label>
+          <input
+            id="authFullName"
+            name="full_name"
+            type="text"
+            maxlength="100"
+            autocomplete="name"
+            placeholder="Enter your full name"
+          >
+        </div>
+
+        <div class="field">
+          <label for="authEmail">Email address</label>
+          <input
+            id="authEmail"
+            name="email"
+            type="email"
+            maxlength="254"
+            autocomplete="email"
+            required
+            placeholder="Enter your email"
+          >
+        </div>
+
+        <div class="field">
+          <label for="authPassword">Password</label>
+          <input
+            id="authPassword"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            required
+            placeholder="Enter your password"
+          >
+        </div>
+
+        <button id="authSubmitBtn" class="btn btn-primary" type="submit">
+          Log in
+        </button>
+      </form>
+
+      <p class="muted">
+        Your seller account lets you publish and manage your own listings.
+      </p>
+    </section>
+
+    <!-- AUTHENTICATED DASHBOARD -->
+    <section id="dashboardSection" class="hidden">
+      <section class="panel">
+        <div class="section-heading">
+          <div>
+            <h2>My Seller Dashboard</h2>
+            <p class="muted">Publish a listing or review your existing listings.</p>
+          </div>
+          <button type="button" id="logoutBtn" class="btn btn-secondary">
+            Log out
+          </button>
+        </div>
+
+        <div id="dashboardNotice" class="notice" role="status" aria-live="polite"></div>
+      </section>
+
+      <!-- ADD LISTING -->
+      <section class="panel" id="addListingSection">
+        <h2>Add a New Listing</h2>
+        <p class="muted">
+          Your listing is published directly without admin approval.
+          Complete the required fields and check your photos before publishing.
+        </p>
+
+        <form id="listingForm" enctype="multipart/form-data" novalidate>
+          <input type="hidden" id="category" name="category" value="shop">
+
+          <div class="field">
+            <span class="field-label">Choose a category *</span>
+
+            <div class="category-grid">
+              <button type="button" class="category-card active" data-category="shop">
+                <strong>🛍️ Shop</strong>
+                <span>Products for sale</span>
+              </button>
+
+              <button type="button" class="category-card" data-category="store">
+                <strong>🏪 Store</strong>
+                <span>Business and store listings</span>
+              </button>
+
+              <button type="button" class="category-card" data-category="home-service">
+                <strong>🧰 Home Services</strong>
+                <span>Services offered to customers</span>
+              </button>
+
+              <button type="button" class="category-card" data-category="jobs">
+                <strong>💼 Jobs</strong>
+                <span>Workers needed or seeking work</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="jobsOptions" class="field hidden">
+            <span class="field-label">Job type *</span>
+            <div class="radio-row">
+              <label class="radio-option">
+                <input type="radio" name="job_type" value="workers-needed">
+                Workers Needed
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="job_type" value="seeking-work">
+                Looking for Work
+              </label>
+            </div>
+          </div>
+
+          <div class="grid">
+            <div class="field">
+              <label for="listingTitle">Listing title *</label>
+              <input
+                id="listingTitle"
+                name="title"
+                type="text"
+                maxlength="120"
+                required
+                placeholder="What are you selling or offering?"
+              >
+            </div>
+
+            <div class="field">
+              <label for="sellerName">Business or seller name *</label>
+              <input
+                id="sellerName"
+                name="seller_name"
+                type="text"
+                maxlength="100"
+                required
+                placeholder="Enter your seller or business name"
+              >
+            </div>
+          </div>
+
+          <div class="grid">
+            <div class="field">
+              <label for="contact">Contact / WhatsApp number *</label>
+              <input
+                id="contact"
+                name="contact"
+                type="tel"
+                maxlength="30"
+                required
+                placeholder="Enter your contact number"
+              >
+            </div>
+
+            <div class="field">
+              <label for="price">Price</label>
+              <input
+                id="price"
+                name="price"
+                type="text"
+                maxlength="50"
+                placeholder="e.g. GHS 250 or Negotiable"
+              >
+            </div>
+          </div>
+
+          <div class="grid">
+            <div class="field">
+              <label for="country">Country</label>
+              <select id="country" name="country">
+                <option value="Ghana">Ghana</option>
+                <option value="Côte d’Ivoire">Côte d’Ivoire</option>
+                <option value="Burkina Faso">Burkina Faso</option>
+                <option value="Togo">Togo</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="region">Region / State</label>
+              <input
+                id="region"
+                name="region"
+                type="text"
+                maxlength="100"
+                placeholder="Enter region or state"
+              >
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="location">Town, city or specific location *</label>
+            <input
+              id="location"
+              name="location"
+              type="text"
+              maxlength="160"
+              required
+              placeholder="Where is the item or service located?"
+            >
+          </div>
+
+          <div class="field">
+            <label for="delivery">Delivery option</label>
+            <select id="delivery" name="delivery">
+              <option value="pickup">Pickup</option>
+              <option value="delivery">Delivery available</option>
+              <option value="both">Pickup and delivery</option>
+              <option value="not-applicable">Not applicable</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="description">Description *</label>
+            <textarea
+              id="description"
+              name="description"
+              maxlength="5000"
+              required
+              placeholder="Describe the item, service or job. Include useful details for customers."
+            ></textarea>
+            <div class="muted">Maximum 5,000 characters.</div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- PHOTO UPLOAD -->
+          <div class="field">
+            <label for="images">Product or service photos (up to 5)</label>
+            <input
+              id="images"
+              name="images"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+            >
+            
+<p class="muted">
+  JPEG, PNG or WebP. Maximum 3 photos, 5 MB per photo.
+</p>
+<div id="imagePreview" class="preview-grid"></div>
+            
+          </div>
+
+          <!-- VIDEO UPLOAD -->
+          <div class="field">
+            <label for="video">Optional video (1 video maximum)</label>
+            <input
+              id="video"
+              name="video"
+              type="file"
+              accept="video/mp4,video/webm,video/quicktime"
+            >
+            <p class="muted">
+              MP4, WebM or MOV. Maximum 10 MB.
+            </p>
+            <div id="videoPreview" class="preview-grid"></div>
+          </div>
+
+          <div class="divider"></div>
+
+          <p class="muted">
+            Your selected photos and video will be sent as actual files using
+            multipart FormData. They will not be converted to text or Base64.
+          </p>
+
+          <div class="actions">
+            <button id="publishBtn" type="submit" class="btn btn-primary">
+              Publish Listing
+            </button>
+            <button id="clearBtn" type="button" class="btn btn-secondary">
+              Clear Form
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- MY LISTINGS -->
+      <section class="panel" id="myListingsSection">
+        <div class="section-heading">
+          <div>
+            <h2>My Listings</h2>
+            <p class="muted">Listings associated with your seller account.</p>
+          </div>
+          <button type="button" id="refreshListingsBtn" class="btn btn-secondary">
+            Refresh
+          </button>
+        </div>
+
+        <div id="listingsNotice" class="notice" role="status" aria-live="polite"></div>
+        <div id="listings" class="listing-grid"></div>
+      </section>
+    </section>
+  </main>
+
+  <footer>
+    ShukAfrica · Open Market Seller Dashboard
+  </footer>
+
+<script>
+(() => {
+  "use strict";
+
+  const API = "/api/open-market";
+
+  const MAX_IMAGES = 3;
+  const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+  const MAX_VIDEO_SIZE = 10 * 1024 * 1024;
+
+  const ALLOWED_IMAGE_TYPES = [
+    "image/jpeg",
+    "image/png",
+    "image/webp"
+  ];
+
+  const ALLOWED_VIDEO_TYPES = [
+    "video/mp4",
+    "video/webm",
+    "video/quicktime"
+  ];
+
+  let authMode = "login";
+  let currentListings = [];
+  let editingListingId = null;
+  let previewUrls = [];
+
+  const $ = (id) => document.getElementById(id);
+
+  const authSection = $("authSection");
+  const dashboardSection = $("dashboardSection");
+  const authForm = $("authForm");
+  const listingForm = $("listingForm");
+
+  const globalNotice = $("globalNotice");
+  const authNotice = $("authNotice");
+  const dashboardNotice = $("dashboardNotice");
+  const listingsNotice = $("listingsNotice");
+
+  const authSubmitBtn = $("authSubmitBtn");
+  const publishBtn = $("publishBtn");
+  const clearBtn = $("clearBtn");
+  const logoutBtn = $("logoutBtn");
+  const refreshListingsBtn = $("refreshListingsBtn");
+
+  const categoryInput = $("category");
+  const categoryCards = document.querySelectorAll(".category-card");
+  const jobsOptions = $("jobsOptions");
+
+  const imageInput = $("images");
+  const videoInput = $("video");
+  const imagePreview = $("imagePreview");
+  const videoPreview = $("videoPreview");
+
+  function showNotice(element, message, type = "info") {
+    element.textContent = message;
+    element.className = "notice show " + type;
+  }
+
+  function clearNotice(element) {
+    element.textContent = "";
+    element.className = "notice";
+  }
+
+  function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[character]);
+  }
+
+  function safeMediaURL(value) {
+    if (typeof value !== "string" || !value.trim()) {
+      return "";
+    }
+
+    try {
+      const url = new URL(value.trim(), window.location.origin);
+
+      if (url.protocol !== "https:" && url.protocol !== "http:") {
+        return "";
+      }
+
+      return url.href;
+    } catch {
+      return "";
+    }
+  }
+
+  async function readResponse(response) {
+    let data = {};
+
+    try {
+      data = await response.json();
+    } catch {
+      // Keep an empty response object if the server returns non-JSON.
+    }
+
+    if (!response.ok) {
+      const error = new Error(
+        data.message ||
+        data.error ||
+        `Request failed (${response.status}).`
+      );
+
+      error.status = response.status;
+      throw error;
+    }
+
+    return data;
+  }
+
+  async function apiJSON(path, options = {}) {
+    const response = await fetch(API + path, {
+      method: options.method || "GET",
+      credentials: "include",
+      cache: "no-store",
+      headers: {
+        "Accept": "application/json",
+        ...(options.body !== undefined
+          ? { "Content-Type": "application/json" }
+          : {})
+      },
+      ...(options.body !== undefined
+        ? { body: JSON.stringify(options.body) }
+        : {})
+    });
+
+    return readResponse(response);
+  }
+
+  function setAuthMode(mode) {
+    authMode = mode === "register" ? "register" : "login";
+    const registering = authMode === "register";
+
+    $("loginTab").classList.toggle("active", !registering);
+    $("registerTab").classList.toggle("active", registering);
+
+    $("authHeading").textContent = registering
+      ? "Create your seller account"
+      : "Welcome back";
+
+    $("authDescription").textContent = registering
+      ? "Register to publish and manage Open Market listings."
+      : "Log in to manage your Open Market listings.";
+
+    $("fullNameField").classList.toggle("hidden", !registering);
+    $("authFullName").required = registering;
+
+    $("authPassword").autocomplete = registering
+      ? "new-password"
+      : "current-password";
+
+    authSubmitBtn.textContent = registering
+      ? "Create account"
+      : "Log in";
+
+    clearNotice(authNotice);
+  }
+
+  function showAuthentication(message = "") {
+    authSection.classList.remove("hidden");
+    dashboardSection.classList.add("hidden");
+
+    if (message) {
+      showNotice(authNotice, message, "info");
+    }
+  }
+
+  function showDashboard() {
+    authSection.classList.add("hidden");
+    dashboardSection.classList.remove("hidden");
+    clearNotice(authNotice);
+  }
+
+  function getSelectedCategory() {
+    return categoryInput.value;
+  }
+
+  function updateCategory(category) {
+    const validCategories = [
+      "shop",
+      "store",
+      "home-service",
+      "jobs"
+    ];
+
+    if (!validCategories.includes(category)) {
+      category = "shop";
+    }
+
+    categoryInput.value = category;
+
+    categoryCards.forEach((card) => {
+      card.classList.toggle(
+        "active",
+        card.dataset.category === category
+      );
+    });
+
+    const isJobs = category === "jobs";
+    jobsOptions.classList.toggle("hidden", !isJobs);
+
+    if (!isJobs) {
+      document
+        .querySelectorAll('input[name="job_type"]')
+        .forEach((radio) => {
+          radio.checked = false;
+        });
+    }
+  }
+
+  categoryCards.forEach((card) => {
+    card.addEventListener("click", () => {
+      updateCategory(card.dataset.category);
+    });
+  });
+
+  $("loginTab").addEventListener("click", () => {
+    setAuthMode("login");
+  });
+
+  $("registerTab").addEventListener("click", () => {
+    setAuthMode("register");
+  });
+
+  // Verify the seller session through the existing My Listings API.
+  async function checkSession() {
+    showNotice(globalNotice, "Checking your seller session...", "info");
+
+    try {
+      const response = await fetch(API + "/my-listings", {
+        method: "GET",
+        credentials: "include",
+        cache: "no-store",
+        headers: { "Accept": "application/json" }
+      });
+
+      if (response.status === 401 || response.status === 403) {
+        currentListings = [];
+        renderListings([]);
+        showAuthentication();
+        clearNotice(globalNotice);
+        return;
+      }
+
+      const data = await readResponse(response);
+
+      if (!Array.isArray(data.listings)) {
+        throw new Error(
+          "The My Listings API did not return a listings array."
+        );
+      }
+
+      currentListings = data.listings;
+      showDashboard();
+      renderListings(currentListings);
+      clearNotice(globalNotice);
+
+    } catch (error) {
+      showAuthentication();
+
+      showNotice(
+        globalNotice,
+        "We couldn't load your seller session. Please try again. " +
+          error.message,
+        "error"
+      );
+    }
+  }
+
+
+  
+  
