@@ -1115,22 +1115,27 @@ function renderListings() {
     const title = document.createElement("div");
     title.className = "listing-title";
     title.textContent = item.title || "Untitled listing";
+    
+const priceRow = document.createElement("div");
+priceRow.className = "listing-price-row";
 
-    const price = document.createElement("div");
-    price.className = "listing-price";
-    price.textContent = formatPrice(item.price);
+const price = document.createElement("div");
+price.className = "listing-price";
+price.textContent = formatPrice(item.price);
 
-    const availability = document.createElement("span");
-    availability.className = "listing-availability";
-    availability.textContent = "● Available";
+const availability = document.createElement("span");
+availability.className = "listing-availability";
+availability.textContent = "● Available";
 
-    const location = document.createElement("div");
-    location.className = "listing-location";
-    location.textContent =
-      "⌖ " + (String(item.location || "").trim() || "Location not provided");
+priceRow.append(price, availability);
 
-    const actions = document.createElement("div");
-    actions.className = "listing-actions";
+const location = document.createElement("div");
+location.className = "listing-location";
+location.textContent =
+  "⌖ " + (String(item.location || "").trim() || "Location not provided");
+
+const actions = document.createElement("div");
+actions.className = "listing-actions";
 
     const viewButton = document.createElement("button");
     viewButton.type = "button";
