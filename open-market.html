@@ -545,28 +545,42 @@ h1 {
   font-weight: 600;
 }
 
+
 .listing-price {
   font-size: 15px;
   line-height: 1.2;
   font-weight: 800;
-  margin: 2px 0;
+  margin: 0;
 }
 
-/* Price left, Available right */
-.listing-info .listing-price {
-  display: inline-block;
+/* Keep price and Available neatly separated */
+.listing-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px;
+  width: 100%;
+}
+
+.listing-price-row .listing-price {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .listing-availability {
   display: inline-block;
+  flex: 0 0 auto;
   width: fit-content;
   color: #176B45;
   background: #E4F5EA;
   border-radius: 12px;
-  padding: 3px 6px;
+  padding: 3px 5px;
   font-size: 9px;
   line-height: 1.2;
   font-weight: 700;
+  margin: 0;
 }
 
 .listing-location {
