@@ -1054,7 +1054,9 @@
     showNotice(globalNotice, "Checking your seller session...", "info");
 
     try {
-      const response = await fetch(API + "/my-listings", {
+      const response = await fetch(
+  API + (editingListingId ? "/update" : "/listing"),
+        {
         method: "GET",
         credentials: "include",
         cache: "no-store",
