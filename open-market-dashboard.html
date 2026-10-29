@@ -1581,15 +1581,6 @@
         button.style.flex = "0 1 auto";
       }
 
-      const viewButton = document.createElement("button");
-      viewButton.textContent = "View Details";
-      styleActionButton(
-        viewButton,
-        "#22221e",
-        "#f0ce7d",
-        "#49483e"
-      );
-
       viewButton.addEventListener("click", () => {
         const isHidden = extraDetails.classList.contains("hidden");
         extraDetails.classList.toggle("hidden", !isHidden);
