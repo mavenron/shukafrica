@@ -898,4 +898,249 @@ h1 {
     if (!callLink && !whatsappLink) {
       const message = document.createElement("p");
       message.className = "detail-value";
-      message.textContent = "Seller contact details are unava
+    message.textContent = "Seller contact details are unavailable.";
+      modalActions.appendChild(message);
+    }
+
+    detailsOverlay.hidden = false;
+    document.body.classList.add("modal-open");
+    closeDetailsButton.focus();
+  }
+
+  function closeDetails() {
+    // Stop any playing video when closing the modal.
+    modalGallery.querySelectorAll("video").forEach(video => {
+      video.pause();
+      video.removeAttribute("src");
+      video.load();
+    });
+
+    detailsOverlay.hidden = true;
+    document.body.classList.remove("modal-open");
+if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {
+      lastFocusedElement.focus();
+    }
+  }
+
+  closeDetailsButton.addEventListener("click", closeDetails);
+
+  detailsOverlay.addEventListener("click", event => {
+    if (event.target === detailsOverlay) closeDetails();
+  });
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && !detailsOverlay.hidden) {
+      closeDetails();
+    }
+  });
+
+  function renderListings() {
+    const searchTerm = itemSearch.value.trim().toLowerCase();
+    const locationTerm = locationSearch.value.trim().toLowerCase();
+
+    const filtered = allListings.filter(item => {
+      const category = String(item.category || "").toLowerCase().trim();
+
+const categoryMatch =
+        selectedCategory === "all" ||
+        category === selectedCategory ||
+        (selectedCategory === "home-service" && category === "home service");
+
+      const searchableText = [
+        item.title,
+        item.price,
+        item.description,
+        item.seller_name,
+        item.category,
+        item.job_type
+      ].join(" ").toLowerCase();
+
+      const place = locationLabel(item).toLowerCase();
+
+      return categoryMatch &&
+        searchableText.includes(searchTerm) &&
+        place.includes(locationTerm);
+    });
+
+    listingCount.textContent =
+      filtered.length + (filtered.length === 1 ? " listing" : " listings");
+
+    if (filtered.length === 0) {
+      listingGrid.replaceChildren();
+const message = document.createElement("div");
+      message.className = "listing-message";
+      message.textContent = allListings.length === 0
+        ? "No published listings are available yet."
+        : "No listings match your search. Try another search or category.";
+
+      listingGrid.appendChild(message);
+      return;
+    }
+
+    listingGrid.replaceChildren();
+
+    filtered.forEach(item => {
+      const card = document.createElement("article");
+      card.className = "listing-card";
+
+      const photoBox = document.createElement("div");
+      photoBox.className = "listing-photo";
+
+      const media = getListingMedia(item);
+
+      if (media.photos.length) {
+        const image = document.createElement("img");
+        image.src = media.photos[0];
+        image.alt = item.title || "Listing photo";
+        image.loading = "lazy";
+image.addEventListener("error", () => {
+          image.remove();
+          const placeholder = document.createElement("span");
+          placeholder.className = "photo-placeholder";
+          placeholder.textContent = "🛍️";
+          placeholder.setAttribute("aria-label", "Image unavailable");
+          photoBox.insertBefore(placeholder, categoryBadge);
+        });
+
+        photoBox.appendChild(image);
+      } else {
+        const placeholder = document.createElement("span");
+        placeholder.className = "photo-placeholder";
+        placeholder.textContent = "🛍️";
+        placeholder.setAttribute("aria-label", "No listing photo");
+        photoBox.appendChild(placeholder);
+      }
+
+      const categoryBadge = document.createElement("span");
+      categoryBadge.className = "listing-category";
+      categoryBadge.textContent = categoryLabel(item.category);
+      photoBox.appendChild(categoryBadge);
+const info = document.createElement("div");
+      info.className = "listing-info";
+
+      const title = document.createElement("h3");
+      title.className = "listing-title";
+      title.textContent = item.title || "Untitled listing";
+
+      const price = document.createElement("div");
+      price.className = "listing-price";
+      price.textContent = formatPrice(item.price);
+
+      const location = document.createElement("div");
+      location.className = "listing-location";
+      location.textContent = "⌖ " + (locationLabel(item) || "Location not provided");
+
+      const description = document.createElement("p");
+      description.className = "listing-description";
+      const fullDescription = String(item.description || "");
+      description.textContent = fullDescription.length > 100
+        ? fullDescription.slice(0, 100).trimEnd() + "…"
+        : fullDescription;
+
+info.append(title, price, location);
+
+      if (fullDescription) info.appendChild(description);
+
+      const actions = document.createElement("div");
+      actions.className = "listing-actions";
+
+      const viewButton = document.createElement("button");
+      viewButton.type = "button";
+      viewButton.className = "action-button view-button";
+      viewButton.textContent = "VIEW DETAILS";
+      viewButton.addEventListener("click", () => openDetails(item));
+
+      const contact = document.createElement("a");
+      contact.className = "action-button contact-button";
+      contact.textContent = "CONTACT SELLER";
+
+      const contacts = contactURLs(item.contact);
+if (contacts.whatsapp) {
+        contact.href = contacts.whatsapp;
+        contact.target = "_blank";
+        contact.rel = "noopener noreferrer";
+      } else if (contacts.call) {
+        contact.href = contacts.call;
+      } else {
+        contact.href = "#";
+        contact.addEventListener("click", event => {
+          event.preventDefault();
+          openDetails(item);
+        });
+      }
+
+      actions.append(viewButton, contact);
+      info.appendChild(actions);
+
+      card.append(photoBox, info);
+      listingGrid.appendChild(card);
+    });
+  }
+
+  categoryButtons.forEach(button => {
+    button.addEventListener("click", () => {
+      selectedCategory = button.dataset.category;
+categoryButtons.forEach(other => {
+        const active = other === button;
+        other.classList.toggle("active", active);
+        other.setAttribute("aria-pressed", String(active));
+      });
+
+      renderListings();
+    });
+  });
+
+  itemSearch.addEventListener("input", renderListings);
+  locationSearch.addEventListener("input", renderListings);
+
+  async function loadListings() {
+    listingGrid.innerHTML =
+      '<div class="listing-message">Loading published listings...</div>';
+
+    try {
+      const response = await fetch(API_URL + "?limit=100", {
+        method: "GET",
+        headers: { "Accept": "application/json" },
+        cache: "no-store"
+      });
+
+      let data = {};
+try {
+        data = await response.json();
+      } catch {
+        throw new Error("The server returned an invalid response.");
+      }
+
+      if (!response.ok || data.success === false) {
+        throw new Error(
+          data.message || data.error || "The listings could not be loaded."
+        );
+      }
+
+      if (!Array.isArray(data.listings)) {
+        throw new Error("The listings response was not in the expected format.");
+      }
+
+      allListings = data.listings;
+      renderListings();
+
+    } catch (error) {
+      console.error("Open Market listings error:", error);
+
+      listingCount.textContent = "Unavailable";
+      listingGrid.innerHTML = "";
+const message = document.createElement("div");
+      message.className = "listing-message error";
+      message.textContent =
+        "We couldn't load listings right now. Please refresh the page and try again.";
+
+      listingGrid.appendChild(message);
+    }
+  }
+
+  loadListings();
+})();
+</script>
+</body>
+</html>
+
