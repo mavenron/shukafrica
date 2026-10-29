@@ -742,10 +742,12 @@
               accept="image/jpeg,image/png,image/webp"
               multiple
             >
-            <p class="muted">
-              JPEG, PNG or WebP. Maximum 5 photos, 5 MB per photo.
-            </p>
-            <div id="imagePreview" class="preview-grid"></div>
+            
+<p class="muted">
+  JPEG, PNG or WebP. Maximum 3 photos, 5 MB per photo.
+</p>
+<div id="imagePreview" class="preview-grid"></div>
+            
           </div>
 
           <!-- VIDEO UPLOAD -->
@@ -1191,7 +1193,7 @@
     const files = Array.from(imageInput.files || []);
 
     if (files.length > MAX_IMAGES) {
-      return "You can upload a maximum of 5 photos.";
+      return "You can upload a maximum of 3 photos.";
     }
 
     for (const file of files) {
