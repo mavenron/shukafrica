@@ -1377,8 +1377,10 @@
     }
 
     listingForm.reset();
-    updateCategory("shop");
-    clearPreviews();
+editingListingId = null;
+publishBtn.textContent = "Publish Listing";
+updateCategory("shop");
+clearPreviews();
     clearNotice(dashboardNotice);
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
