@@ -1456,4 +1456,414 @@
     }
   });
   
-  
+    // Render the seller's listings and compact action buttons.
+  function renderListings(listings) {
+    const container = $("listings");
+    container.replaceChildren();
+
+    if (!Array.isArray(listings) || listings.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "empty-state";
+      empty.textContent =
+        "You haven't published any listings yet. Use the form above to add your first listing.";
+      container.appendChild(empty);
+      return;
+    }
+
+    listings.forEach((listing) => {
+      const card = document.createElement("article");
+      card.className = "listing-card";
+
+      const imageURL = safeMediaURL(listing.image_1);
+
+      if (imageURL) {
+        const image = document.createElement("img");
+        image.className = "listing-image";
+        image.src = imageURL;
+        image.alt = listing.title || "Listing photo";
+        image.loading = "lazy";
+        image.referrerPolicy = "no-referrer";
+
+        image.addEventListener("error", () => {
+          image.removeAttribute("src");
+          image.alt = "Image unavailable";
+        });
+
+        card.appendChild(image);
+      }
+
+      const body = document.createElement("div");
+      body.className = "listing-body";
+
+      const title = document.createElement("h3");
+      title.className = "listing-title";
+      title.textContent = listing.title || "Untitled listing";
+
+      const price = document.createElement("div");
+      price.className = "listing-price";
+      price.textContent = listing.price || "Price not specified";
+
+      const status = document.createElement("span");
+      status.className = "status";
+      status.textContent = listing.status || "Published";
+
+      const details = document.createElement("p");
+      details.className = "muted";
+      details.textContent = [
+        listing.category,
+        listing.job_type,
+        listing.location,
+        listing.region,
+        listing.country
+      ].filter(Boolean).join(" · ");
+
+      const description = document.createElement("p");
+      description.className = "listing-description";
+      description.textContent = listing.description || "";
+
+      const seller = document.createElement("p");
+      seller.className = "muted";
+      seller.textContent =
+        "Seller: " + (listing.seller_name || "Not specified");
+
+      body.append(title, price, status, details, description, seller);
+
+      // Additional information is revealed by View Details.
+      const extraDetails = document.createElement("div");
+      extraDetails.className = "listing-extra-details hidden";
+
+      const extraFields = [
+        ["Contact", listing.contact],
+        ["Delivery", listing.delivery],
+        ["Country", listing.country],
+        ["Region", listing.region],
+        ["Listing ID", listing.id]
+      ];
+
+      extraFields.forEach(([label, value]) => {
+        if (value === undefined || value === null || value === "") return;
+
+        const line = document.createElement("p");
+        line.className = "muted";
+        line.textContent = label + ": " + String(value);
+        extraDetails.appendChild(line);
+      });
+
+      const mediaLinks = [
+        ["Photo 2", listing.image_2],
+        ["Photo 3", listing.image_3],
+        ["Photo 4", listing.image_4],
+        ["Photo 5", listing.image_5],
+        ["View listing video", listing.video_url]
+      ];
+
+      mediaLinks.forEach(([label, value]) => {
+        const url = safeMediaURL(value);
+        if (!url) return;
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = label;
+        link.style.display = "inline-block";
+        link.style.marginRight = "10px";
+        extraDetails.appendChild(link);
+      });
+
+      body.appendChild(extraDetails);
+
+      const actions = document.createElement("div");
+      actions.className = "listing-actions";
+      actions.style.display = "flex";
+      actions.style.flexWrap = "wrap";
+      actions.style.gap = "6px";
+      actions.style.marginTop = "14px";
+
+      function styleActionButton(button, background, color, border) {
+        button.type = "button";
+        button.style.padding = "7px 10px";
+        button.style.fontSize = "12px";
+        button.style.lineHeight = "1.3";
+        button.style.borderRadius = "7px";
+        button.style.border = "1px solid " + border;
+        button.style.background = background;
+        button.style.color = color;
+        button.style.cursor = "pointer";
+        button.style.flex = "0 1 auto";
+      }
+
+      const viewButton = document.createElement("button");
+      viewButton.textContent = "View Details";
+      styleActionButton(
+        viewButton,
+        "#22221e",
+        "#f0ce7d",
+        "#49483e"
+      );
+
+      viewButton.addEventListener("click", () => {
+        const isHidden = extraDetails.classList.contains("hidden");
+        extraDetails.classList.toggle("hidden", !isHidden);
+        viewButton.textContent = isHidden ? "Hide Details" : "View Details";
+      });
+
+      const editButton = document.createElement("button");
+      editButton.textContent = "Edit";
+      styleActionButton(
+        editButton,
+        "#302816",
+        "#f0ce7d",
+        "#66512b"
+      );
+
+      editButton.addEventListener("click", () => {
+        editListing(listing);
+      });
+
+      const deleteButton = document.createElement("button");
+      deleteButton.textContent = "Delete";
+      styleActionButton(
+        deleteButton,
+        "#301818",
+        "#ffbaba",
+        "#704040"
+      );
+
+      deleteButton.addEventListener("click", () => {
+        deleteListing(listing.id, listing.title, deleteButton);
+      });
+
+      actions.append(viewButton, editButton, deleteButton);
+      body.appendChild(actions);
+
+      card.appendChild(body);
+      container.appendChild(card);
+    });
+  }
+
+  // Load a listing into the form for editing.
+  function editListing(listing) {
+    if (!listing || !listing.id) {
+      showNotice(
+        listingsNotice,
+        "This listing has no ID and cannot be edited.",
+        "error"
+      );
+      return;
+    }
+
+    editingListingId = listing.id;
+
+    const fields = [
+      "category",
+      "job_type",
+      "title",
+      "seller_name",
+      "contact",
+      "price",
+      "location",
+      "country",
+      "region",
+      "description",
+      "delivery"
+    ];
+
+    fields.forEach((name) => {
+      const value = listing[name] ?? "";
+      const field = listingForm.elements.namedItem(name);
+
+      if (!field) return;
+
+      if (field instanceof RadioNodeList) {
+        Array.from(field).forEach((radio) => {
+          radio.checked = radio.value === String(value);
+        });
+      } else if (field.type === "radio") {
+        field.checked = field.value === String(value);
+      } else {
+        field.value = value;
+      }
+    });
+
+    updateCategory(listing.category || "shop");
+
+    // File inputs cannot be prefilled by JavaScript.
+    // The update API must retain existing media when no replacement is selected.
+    clearPreviews();
+
+    publishBtn.textContent = "Save Changes";
+    publishBtn.disabled = false;
+
+    showNotice(
+      dashboardNotice,
+      "Editing: " + (listing.title || "Untitled listing") +
+        ". Change the fields, then tap Save Changes.",
+      "success"
+    );
+
+    $("addListingSection").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }
+
+  // Keep the existing working Delete Listing API.
+  async function deleteListing(listingId, listingTitle, button) {
+    if (!listingId) {
+      showNotice(
+        listingsNotice,
+        "This listing has no ID and cannot be deleted.",
+        "error"
+      );
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${listingTitle || "this listing"}"? This cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    button.disabled = true;
+    button.textContent = "Deleting...";
+
+    try {
+      const response = await fetch(API + "/delete", {
+        method: "DELETE",
+        credentials: "include",
+        cache: "no-store",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ id: listingId })
+      });
+
+      const data = await readResponse(response);
+
+      if (data.success !== true) {
+        throw new Error(data.error || data.message || "Deletion failed.");
+      }
+
+      showNotice(
+        listingsNotice,
+        data.message || "Listing deleted successfully.",
+        "success"
+      );
+
+      await loadListings();
+
+    } catch (error) {
+      showNotice(
+        listingsNotice,
+        "Could not delete listing: " + error.message,
+        "error"
+      );
+
+      button.disabled = false;
+      button.textContent = "Delete";
+    }
+  }
+
+  async function loadListings() {
+    clearNotice(listingsNotice);
+    refreshListingsBtn.disabled = true;
+
+    try {
+      const response = await fetch(API + "/my-listings", {
+        method: "GET",
+        credentials: "include",
+        cache: "no-store",
+        headers: { "Accept": "application/json" }
+      });
+
+      if (response.status === 401 || response.status === 403) {
+        currentListings = [];
+        renderListings([]);
+        showAuthentication("Your session has expired. Please log in again.");
+        return;
+      }
+
+      const data = await readResponse(response);
+
+      if (!Array.isArray(data.listings)) {
+        throw new Error(
+          "The listings API response did not contain a listings array."
+        );
+      }
+
+      currentListings = data.listings;
+      renderListings(currentListings);
+
+      showNotice(
+        listingsNotice,
+        `${currentListings.length} listing(s) loaded.`,
+        "success"
+      );
+
+    } catch (error) {
+      showNotice(
+        listingsNotice,
+        "Could not load your listings: " + error.message,
+        "error"
+      );
+    } finally {
+      refreshListingsBtn.disabled = false;
+    }
+  }
+
+  refreshListingsBtn.addEventListener("click", loadListings);
+
+  logoutBtn.addEventListener("click", async () => {
+    if (!window.confirm("Are you sure you want to log out?")) {
+      return;
+    }
+
+    logoutBtn.disabled = true;
+
+    try {
+      const data = await apiJSON("/logout", {
+        method: "POST",
+        body: {}
+      });
+
+      currentListings = [];
+      editingListingId = null;
+      renderListings([]);
+
+      listingForm.reset();
+      updateCategory("shop");
+      clearPreviews();
+
+      publishBtn.textContent = "Publish Listing";
+
+      authForm.reset();
+      setAuthMode("login");
+      showAuthentication();
+
+      showNotice(
+        globalNotice,
+        data.message || "You have been logged out.",
+        "success"
+      );
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+    } catch (error) {
+      showNotice(
+        dashboardNotice,
+        "Logout request failed: " + error.message,
+        "error"
+      );
+    } finally {
+      logoutBtn.disabled = false;
+    }
+  });
+
+  // Initialize the dashboard.
+  updateCategory("shop");
+  setAuthMode("login");
+  checkSession();
+})();
+</script>
