@@ -244,20 +244,11 @@ export async function onRequestGet({ request, env }) {
  * Publishes a listing directly without admin approval.
  */
 export async function onRequestPost({ request, env }) {
-  const uploadedKeys = [];
-
   try {
-    if (!env.OPEN_MARKET_DB) {
+    if (!env.OPEN_MARKET_DB || !env.OPEN_MARKET_MEDIA) {
       return json({
         success: false,
-        error: "Open Market database is not configured."
-      }, 500);
-    }
-
-    if (!env.OPEN_MARKET_MEDIA) {
-      return json({
-        success: false,
-        error: "Open Market media storage is not configured."
+        error: "Open Market database or media storage is not configured."
       }, 500);
     }
 
@@ -270,32 +261,30 @@ export async function onRequestPost({ request, env }) {
       }, 401);
     }
 
-    const countResult = await env.OPEN_MARKET_DB.prepare(`
-      SELECT COUNT(*) AS total
-      FROM open_market_listings
-      WHERE seller_id = ?
-    `).bind(seller.id).first();
+    const data = await request.json();
 
-    if (Number(countResult?.total || 0) >= MAX_LISTINGS) {
+    const id = clean(data.id, 100);
+
+    if (
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)
+    ) {
       return json({
         success: false,
-        error: `You can publish a maximum of ${MAX_LISTINGS} listings.`
+        error: "A valid listing ID is required."
       }, 400);
     }
 
-    const form = await request.formData();
-
-    const category = clean(form.get("category"), 40).toLowerCase();
-    const title = clean(form.get("title"), 180);
-    const sellerName = clean(form.get("seller_name"), 120);
-    const contact = clean(form.get("contact"), 60);
-    const price = clean(form.get("price"), 100);
-    const location = clean(form.get("location"), 150);
-    const country = clean(form.get("country"), 100);
-    const region = clean(form.get("region"), 100);
-    const description = clean(form.get("description"), 5000);
-    const delivery = clean(form.get("delivery"), 100);
-    let jobType = clean(form.get("job_type"), 40);
+    const category = clean(data.category, 40).toLowerCase();
+    const title = clean(data.title, 180);
+    const sellerName = clean(data.seller_name, 120);
+    const contact = clean(data.contact, 60);
+    const price = clean(data.price, 100);
+    const location = clean(data.location, 150);
+    const country = clean(data.country, 100);
+    const region = clean(data.region, 100);
+    const description = clean(data.description, 5000);
+    const delivery = clean(data.delivery, 100);
+    let jobType = clean(data.job_type, 40).toLowerCase();
 
     if (!CATEGORIES.includes(category)) {
       return json({
@@ -312,9 +301,12 @@ export async function onRequestPost({ request, env }) {
     }
 
     if (category === "jobs") {
-      jobType = normalizeJobType(jobType);
+      const allowedJobTypes = [
+        "workers-needed",
+        "seeking-work"
+      ];
 
-      if (!jobType) {
+      if (!allowedJobTypes.includes(jobType)) {
         return json({
           success: false,
           error: "Please select a valid job type."
@@ -324,110 +316,88 @@ export async function onRequestPost({ request, env }) {
       jobType = null;
     }
 
-    // The dashboard sends every selected photo under the same
-    // FormData field name: "images".
-    const selectedImages = form.getAll("images").filter(
-      file => isFile(file) && file.size > 0
-    );
+    // Accept only URLs uploaded into this seller's listing folder.
+    function validateMediaUrl(value) {
+      if (!value) return "";
 
-    if (selectedImages.length > MAX_IMAGES) {
+      try {
+        const url = new URL(value);
+        const expectedPrefix =
+          `/open-market/${seller.id}/${id}/`;
+
+        if (
+          url.origin !== "https://market-media.shukafrica.com" ||
+          !url.pathname.startsWith(expectedPrefix) ||
+          url.pathname.length <= expectedPrefix.length
+        ) {
+          return null;
+        }
+
+        return url.href;
+      } catch {
+        return null;
+      }
+    }
+
+    const submittedImages = Array.isArray(data.images)
+      ? data.images
+      : [];
+
+    if (submittedImages.length > MAX_IMAGES) {
       return json({
         success: false,
         error: `You can upload a maximum of ${MAX_IMAGES} photos.`
       }, 400);
     }
 
-    const imageFiles = [];
-
-    for (let i = 0; i < selectedImages.length; i++) {
-      const file = selectedImages[i];
-
-      if (!Object.prototype.hasOwnProperty.call(IMAGE_TYPES, file.type)) {
-        return json({
-          success: false,
-          error: `Photo ${i + 1} must be JPG, PNG, or WebP.`
-        }, 400);
-      }
-
-      if (file.size > MAX_IMAGE_SIZE) {
-        return json({
-          success: false,
-          error: `Photo ${i + 1} exceeds the 5 MB limit.`
-        }, 400);
-      }
-
-      imageFiles.push({
-        file,
-        slot: i + 1
-      });
-    }
-
-    const videoFile = form.get("video");
-    let video = null;
-
-    if (isFile(videoFile) && videoFile.size > 0) {
-      if (!Object.prototype.hasOwnProperty.call(VIDEO_TYPES, videoFile.type)) {
-        return json({
-          success: false,
-          error: "Video must be MP4, WebM, or MOV."
-        }, 400);
-      }
-
-      if (videoFile.size > MAX_VIDEO_SIZE) {
-        return json({
-          success: false,
-          error: "Video exceeds the 10 MB limit."
-        }, 400);
-      }
-
-      video = videoFile;
-    }
-
-    const id = crypto.randomUUID();
     const imageUrls = ["", "", ""];
-    let videoUrl = "";
 
-    // Upload photos to R2 and save their public URLs.
-    for (const item of imageFiles) {
-      const extension = IMAGE_TYPES[item.file.type];
-      const key =
-        `open-market/${seller.id}/${id}/image-${item.slot}.${extension}`;
+    for (let i = 0; i < submittedImages.length; i++) {
+      const imageUrl = validateMediaUrl(submittedImages[i]);
 
-      await env.OPEN_MARKET_MEDIA.put(
-        key,
-        item.file.stream(),
-        {
-          httpMetadata: {
-            contentType: item.file.type
-          }
-        }
-      );
+      if (imageUrl === null) {
+        return json({
+          success: false,
+          error: `Photo ${i + 1} has an invalid upload URL.`
+        }, 400);
+      }
 
-      uploadedKeys.push(key);
-      imageUrls[item.slot - 1] = mediaUrl(key);
+      imageUrls[i] = imageUrl;
     }
 
-    // Keep video upload support unchanged.
-    if (video) {
-      const extension = VIDEO_TYPES[video.type];
-      const key = `open-market/${seller.id}/${id}/video.${extension}`;
+    const videoUrl = validateMediaUrl(data.video_url || "");
 
-      await env.OPEN_MARKET_MEDIA.put(
-        key,
-        video.stream(),
-        {
-          httpMetadata: {
-            contentType: video.type
-          }
-        }
-      );
-
-      uploadedKeys.push(key);
-      videoUrl = mediaUrl(key);
+    if (videoUrl === null) {
+      return json({
+        success: false,
+        error: "The video has an invalid upload URL."
+      }, 400);
     }
 
-    // Keep all five existing database columns.
-    // Only the first three are used for uploaded photos.
+    const existing = await env.OPEN_MARKET_DB.prepare(
+      "SELECT id FROM open_market_listings WHERE id = ?"
+    ).bind(id).first();
+
+    if (existing) {
+      return json({
+        success: false,
+        error: "This listing ID already exists. Please try again."
+      }, 409);
+    }
+
+    const countResult = await env.OPEN_MARKET_DB.prepare(`
+      SELECT COUNT(*) AS total
+      FROM open_market_listings
+      WHERE seller_id = ?
+    `).bind(seller.id).first();
+
+    if (Number(countResult?.total || 0) >= MAX_LISTINGS) {
+      return json({
+        success: false,
+        error: `You can publish a maximum of ${MAX_LISTINGS} listings.`
+      }, 400);
+    }
+
     await env.OPEN_MARKET_DB.prepare(`
       INSERT INTO open_market_listings (
         id, category, job_type, title, seller_name, contact, price,
@@ -436,7 +406,7 @@ export async function onRequestPost({ request, env }) {
         video_url, status, seller_id, created_at
       ) VALUES (
         ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-        ?, ?, ?, ?, ?, ?, 'published', ?, CURRENT_TIMESTAMP
+        ?, ?, ?, '', '', ?, 'published', ?, CURRENT_TIMESTAMP
       )
     `).bind(
       id,
@@ -454,8 +424,6 @@ export async function onRequestPost({ request, env }) {
       imageUrls[0],
       imageUrls[1],
       imageUrls[2],
-      "",
-      "",
       videoUrl,
       seller.id
     ).run();
@@ -485,10 +453,9 @@ export async function onRequestPost({ request, env }) {
         status: "published"
       }
     }, 201);
+
   } catch (error) {
     console.error("Open Market publishing error:", error);
-
-    await removeUploaded(env, uploadedKeys);
 
     return json({
       success: false,
@@ -496,5 +463,4 @@ export async function onRequestPost({ request, env }) {
       diagnostic: String(error?.message || error)
     }, 500);
   }
-    }
-  
+}
