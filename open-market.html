@@ -1105,7 +1105,20 @@ mediaViewer.addEventListener("click", event => {
     modalActions.replaceChildren();
 
     const media = getListingMedia(item);
-    let mediaCount = 0;
+
+viewerMedia = media.photos.map(url => ({
+  type: "image",
+  url
+}));
+
+if (media.video) {
+  viewerMedia.push({
+    type: "video",
+    url: media.video
+  });
+}
+
+let mediaCount = 0;
 
     media.photos.forEach((url, index) => {
       const figure = document.createElement("div");
@@ -1123,9 +1136,14 @@ mediaViewer.addEventListener("click", event => {
         }
       });
 
-      figure.appendChild(image);
-      modalGallery.appendChild(figure);
-      mediaCount++;
+      image.addEventListener("click", () => {
+  const index = media.photos.indexOf(url);
+  openMediaViewer(index);
+});
+
+figure.appendChild(image);
+modalGallery.appendChild(figure);
+mediaCount++;
     });
 
     if (media.video) {
@@ -1138,9 +1156,13 @@ mediaViewer.addEventListener("click", event => {
       video.preload = "metadata";
       video.playsInline = true;
 
-      figure.appendChild(video);
-      modalGallery.appendChild(figure);
-      mediaCount++;
+      video.addEventListener("click", () => {
+  openMediaViewer(media.photos.length);
+});
+
+figure.appendChild(video);
+modalGallery.appendChild(figure);
+mediaCount++;
     }
 
     function showNoMedia() {
