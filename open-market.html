@@ -715,6 +715,24 @@ h1 {
     </p>
   </section>
 </div>
+  <!-- Fullscreen media viewer -->
+<div id="mediaViewer" class="media-viewer" hidden>
+  <button id="closeMediaViewer" class="media-viewer-close" type="button">
+    ✕
+  </button>
+
+  <button id="previousMedia" class="media-viewer-nav" type="button">
+    &#10094;
+  </button>
+
+  <div id="mediaViewerContent" class="media-viewer-content"></div>
+
+  <button id="nextMedia" class="media-viewer-nav" type="button">
+    &#10095;
+  </button>
+
+  <p id="mediaViewerCounter" class="media-viewer-counter"></p>
+</div>
 
 <script>
 (() => {
