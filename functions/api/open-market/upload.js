@@ -1,4 +1,3 @@
-
 const SESSION_COOKIE = "shuk_open_market_session";
 const MEDIA_BASE_URL = "https://market-media.shukafrica.com";
 
@@ -351,4 +350,3 @@ export async function onRequestPost({ request, env }) {
     }, 500);
   }
 }
-
