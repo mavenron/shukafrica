@@ -1,4 +1,3 @@
-
 const SESSION_COOKIE = "shuk_open_market_session";
 const MEDIA_BASE_URL = "https://market-media.shukafrica.com";
 
@@ -44,13 +43,8 @@ function getCookie(request, name) {
 }
 
 function base64UrlToBytes(value) {
-  const base64 = value
-    .replace(/-/g, "+")
-    .replace(/_/g, "/");
-
-  const padded =
-    base64 + "=".repeat((4 - base64.length % 4) % 4);
-
+  const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = base64 + "=".repeat((4 - base64.length % 4) % 4);
   const binary = atob(padded);
 
   return Uint8Array.from(
@@ -64,11 +58,9 @@ async function verifySession(request, secret) {
     if (!secret) return null;
 
     const token = getCookie(request, SESSION_COOKIE);
-
     if (!token) return null;
 
     const parts = token.split(".");
-
     if (parts.length !== 2) return null;
 
     const key = await crypto.subtle.importKey(
@@ -89,9 +81,7 @@ async function verifySession(request, secret) {
     if (!valid) return null;
 
     const payload = JSON.parse(
-      new TextDecoder().decode(
-        base64UrlToBytes(parts[0])
-      )
+      new TextDecoder().decode(base64UrlToBytes(parts[0]))
     );
 
     if (
@@ -122,19 +112,16 @@ async function getSeller(request, env) {
   ).bind(sellerId).first();
 }
 
-function hasImageSignature(bytes, type) {
+function validImageSignature(bytes, type) {
   if (type === "image/jpeg") {
-    return (
-      bytes.length >= 3 &&
+    return bytes.length >= 3 &&
       bytes[0] === 0xFF &&
       bytes[1] === 0xD8 &&
-      bytes[2] === 0xFF
-    );
+      bytes[2] === 0xFF;
   }
 
   if (type === "image/png") {
-    return (
-      bytes.length >= 8 &&
+    return bytes.length >= 8 &&
       bytes[0] === 0x89 &&
       bytes[1] === 0x50 &&
       bytes[2] === 0x4E &&
@@ -142,37 +129,30 @@ function hasImageSignature(bytes, type) {
       bytes[4] === 0x0D &&
       bytes[5] === 0x0A &&
       bytes[6] === 0x1A &&
-      bytes[7] === 0x0A
-    );
+      bytes[7] === 0x0A;
   }
 
   if (type === "image/webp") {
-    return (
-      bytes.length >= 12 &&
+    return bytes.length >= 12 &&
       String.fromCharCode(...bytes.slice(0, 4)) === "RIFF" &&
-      String.fromCharCode(...bytes.slice(8, 12)) === "WEBP"
-    );
+      String.fromCharCode(...bytes.slice(8, 12)) === "WEBP";
   }
 
   return false;
 }
 
-function hasVideoSignature(bytes, type) {
+function validVideoSignature(bytes, type) {
   if (type === "video/mp4" || type === "video/quicktime") {
-    return (
-      bytes.length >= 12 &&
-      String.fromCharCode(...bytes.slice(4, 8)) === "ftyp"
-    );
+    return bytes.length >= 12 &&
+      String.fromCharCode(...bytes.slice(4, 8)) === "ftyp";
   }
 
   if (type === "video/webm") {
-    return (
-      bytes.length >= 4 &&
+    return bytes.length >= 4 &&
       bytes[0] === 0x1A &&
       bytes[1] === 0x45 &&
       bytes[2] === 0xDF &&
-      bytes[3] === 0xA3
-    );
+      bytes[3] === 0xA3;
   }
 
   return false;
@@ -196,32 +176,75 @@ export async function onRequestPost({ request, env }) {
       }, 401);
     }
 
-    const type = (request.headers.get("Content-Type") || "")
-      .split(";")[0]
-      .trim()
-      .toLowerCase();
+    const listingId = (
+      request.headers.get("X-Listing-ID") || ""
+    ).trim();
+
+    const slot = (
+      request.headers.get("X-Upload-Slot") || ""
+    ).trim().toLowerCase();
 
     const kind = (
       request.headers.get("X-Upload-Kind") || ""
     ).trim().toLowerCase();
 
-    const isImage = kind === "image";
-    const isVideo = kind === "video";
+    if (
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(listingId)
+    ) {
+      return json({
+        success: false,
+        error: "A valid listing ID is required."
+      }, 400);
+    }
 
-    if (!isImage && !isVideo) {
+    if (kind === "image") {
+      if (!["1", "2", "3"].includes(slot)) {
+        return json({
+          success: false,
+          error: "Invalid photo slot."
+        }, 400);
+      }
+    } else if (kind === "video") {
+      if (slot !== "video") {
+        return json({
+          success: false,
+          error: "Invalid video slot."
+        }, 400);
+      }
+    } else {
       return json({
         success: false,
         error: "Invalid upload type."
       }, 400);
     }
 
-    const allowedTypes = isImage ? IMAGE_TYPES : VIDEO_TYPES;
-    const maxSize = isImage ? MAX_IMAGE_SIZE : MAX_VIDEO_SIZE;
+    // If this listing already exists, it must belong to this seller.
+    const existing = await env.OPEN_MARKET_DB.prepare(
+      "SELECT id FROM open_market_listings WHERE id = ? AND seller_id = ?"
+    ).bind(listingId, seller.id).first();
+
+    const otherListing = await env.OPEN_MARKET_DB.prepare(
+      "SELECT id FROM open_market_listings WHERE id = ?"
+    ).bind(listingId).first();
+
+    if (otherListing && !existing) {
+      return json({
+        success: false,
+        error: "You do not own this listing."
+      }, 403);
+    }
+
+    const type = (
+      request.headers.get("Content-Type") || ""
+    ).split(";")[0].trim().toLowerCase();
+
+    const allowedTypes = kind === "image" ? IMAGE_TYPES : VIDEO_TYPES;
+    const maxSize = kind === "image" ? MAX_IMAGE_SIZE : MAX_VIDEO_SIZE;
 
     if (!Object.prototype.hasOwnProperty.call(allowedTypes, type)) {
       return json({
         success: false,
-        error: isImage
+        error: kind === "image"
           ? "Photo must be JPG, PNG, or WebP."
           : "Video must be MP4, WebM, or MOV."
       }, 400);
@@ -234,29 +257,22 @@ export async function onRequestPost({ request, env }) {
     if (declaredLength > maxSize) {
       return json({
         success: false,
-        error: `File exceeds the ${isImage ? "5 MB" : "10 MB"} limit.`
+        error: "File exceeds the permitted size."
       }, 413);
     }
 
     const bytes = new Uint8Array(await request.arrayBuffer());
 
-    if (!bytes.length) {
+    if (!bytes.length || bytes.length > maxSize) {
       return json({
         success: false,
-        error: "No file was received."
-      }, 400);
+        error: "The file is empty or exceeds the permitted size."
+      }, bytes.length > maxSize ? 413 : 400);
     }
 
-    if (bytes.length > maxSize) {
-      return json({
-        success: false,
-        error: `File exceeds the ${isImage ? "5 MB" : "10 MB"} limit.`
-      }, 413);
-    }
-
-    const validSignature = isImage
-      ? hasImageSignature(bytes, type)
-      : hasVideoSignature(bytes, type);
+    const validSignature = kind === "image"
+      ? validImageSignature(bytes, type)
+      : validVideoSignature(bytes, type);
 
     if (!validSignature) {
       return json({
@@ -266,9 +282,13 @@ export async function onRequestPost({ request, env }) {
     }
 
     const extension = allowedTypes[type];
-    const id = crypto.randomUUID();
+    const uniquePart = crypto.randomUUID();
 
-    const key = `open-market/${seller.id}/${id}.${extension}`;
+    const fileName = kind === "image"
+      ? `image-${slot}-${uniquePart}.${extension}`
+      : `video-${uniquePart}.${extension}`;
+
+    const key = `open-market/${seller.id}/${listingId}/${fileName}`;
 
     await env.OPEN_MARKET_MEDIA.put(key, bytes, {
       httpMetadata: {
@@ -280,9 +300,11 @@ export async function onRequestPost({ request, env }) {
     return json({
       success: true,
       message: "File uploaded successfully.",
+      listing_id: listingId,
       key,
       url: `${MEDIA_BASE_URL}/${key}`,
       type: kind,
+      slot,
       content_type: type
     }, 201);
 
