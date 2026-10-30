@@ -1257,9 +1257,15 @@ function renderListings() {
     const category = String(item.category || "").toLowerCase().trim();
 
     const categoryMatch =
-      selectedCategory === "all" ||
-      category === selectedCategory ||
-      (selectedCategory === "home-service" && category === "home service");
+  selectedCategory === "all" ||
+  category === selectedCategory ||
+  (selectedCategory === "home-service" && category === "home service") ||
+  (selectedCategory === "workers-needed" &&
+    category === "jobs" &&
+    item.job_type === "workers-needed") ||
+  (selectedCategory === "seeking-work" &&
+    category === "jobs" &&
+    item.job_type === "seeking-work");
 
     const searchableText = [
       item.title,
