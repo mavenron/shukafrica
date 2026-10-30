@@ -122,14 +122,9 @@ async function getSeller(request, env) {
 function normalizeJobType(value) {
   const jobType = clean(value, 40).toLowerCase();
 
-  if (!jobType) return null;
-
   const allowed = [
-    "full-time",
-    "part-time",
-    "contract",
-    "temporary",
-    "other"
+    "workers-needed",
+    "seeking-work"
   ];
 
   return allowed.includes(jobType) ? jobType : null;
