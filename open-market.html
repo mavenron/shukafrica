@@ -1399,17 +1399,18 @@ actions.className = "listing-actions";
 }
 
   categoryButtons.forEach(button => {
-    button.addEventListener("click", () => {
-      selectedCategory = button.dataset.category;
-categoryButtons.forEach(other => {
-        const active = other === button;
-        other.classList.toggle("active", active);
-        other.setAttribute("aria-pressed", String(active));
-      });
+  button.addEventListener("click", () => {
+    selectedCategory = button.dataset.category;
 
-      renderListings();
+    categoryButtons.forEach(other => {
+      const active = other === button;
+      other.classList.toggle("active", active);
+      other.setAttribute("aria-pressed", String(active));
     });
+
+    renderListings();
   });
+});
 
   itemSearch.addEventListener("input", renderListings);
   locationSearch.addEventListener("input", renderListings);
