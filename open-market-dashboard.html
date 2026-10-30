@@ -1343,104 +1343,218 @@
       return;
     }
 
-    const category = getSelectedCategory();
-    const isEditing = Boolean(editingListingId);
-    const formData = new FormData(listingForm);
+    
+const category = getSelectedCategory();
+const isEditing = Boolean(editingListingId);
+const formData = new FormData(listingForm);
 
-    if (isEditing) {
-      formData.set("id", String(editingListingId));
-    } else {
-      formData.delete("id");
-    }
+const listingId = isEditing
+  ? String(editingListingId)
+  : crypto.randomUUID();
 
-    // Send actual File objects, not Base64 or JSON.
-    formData.delete("images");
-    formData.delete("video");
+formData.set("id", listingId);
+formData.set("category", category);
 
-    if (category !== "jobs") {
-      formData.delete("job_type");
-    }
+if (category !== "jobs") {
+  formData.delete("job_type");
+}
 
-    for (const file of Array.from(imageInput.files || [])) {
-      formData.append("images", file, file.name);
-    }
+// Convert listing fields to JSON.
+const listingData = Object.fromEntries(formData.entries());
 
-    const videoFile = videoInput.files?.[0];
+// Do not send local file objects as JSON.
+delete listingData.images;
+delete listingData.video;
 
-    if (videoFile) {
-      formData.append("video", videoFile, videoFile.name);
-    }
+// Store uploaded image URLs here.
+const imageUrls = [];
 
-    publishBtn.disabled = true;
-    publishBtn.textContent = isEditing ? "Saving..." : "Publishing...";
+const selectedImages = Array.from(imageInput.files || []);
 
-    try {
-      const endpoint = isEditing ? "/update" : "/listing";
+if (selectedImages.length > 3) {
+  showNotice(
+    dashboardNotice,
+    "You can upload a maximum of 3 photos.",
+    "error"
+  );
+  return;
+}
 
-      const response = await fetch(API + endpoint, {
-        method: "POST",
-        credentials: "include",
-        cache: "no-store",
-        headers: { "Accept": "application/json" },
-        body: formData
-      });
+const videoFile = videoInput.files?.[0] || null;
 
-      if (response.status === 401 || response.status === 403) {
-        showAuthentication(
-          "Your seller session has expired. Please log in again."
-        );
+publishBtn.disabled = true;
+publishBtn.textContent = "Preparing uploads...";
 
-        throw new Error("Please log in before saving your listing.");
-      }
+try {
+  // Upload each selected photo individually.
+  for (let i = 0; i < selectedImages.length; i++) {
+    const file = selectedImages[i];
 
-      const data = await readResponse(response);
+    publishBtn.textContent = `Uploading photo ${i + 1} of ${selectedImages.length}...`;
 
-      if (data.success === false) {
-        throw new Error(data.message || "The listing could not be saved.");
-      }
+    const uploadResponse = await fetch(API + "/upload", {
+      method: "POST",
+      credentials: "include",
+      cache: "no-store",
+      headers: {
+        "Content-Type": file.type,
+        "X-Upload-Kind": "image",
+        "X-Upload-Slot": String(i + 1),
+        "X-Listing-ID": listingId
+      },
+      body: file
+    });
 
-      // Exit edit mode only after the server confirms success.
-      editingListingId = null;
-      listingForm.reset();
-      updateCategory("shop");
-      clearPreviews();
-
-      publishBtn.textContent = "Publish Listing";
-
-      showNotice(
-        dashboardNotice,
-        data.message || (
-          isEditing
-            ? "Your listing was updated successfully."
-            : "Your listing was published successfully."
-        ),
-        "success"
+    if (uploadResponse.status === 401 || uploadResponse.status === 403) {
+      showAuthentication(
+        "Your seller session has expired. Please log in again."
       );
 
-      await loadListings();
+      throw new Error("Please log in before uploading photos.");
+    }
 
-      $("myListingsSection").scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
+    const uploadData = await readResponse(uploadResponse);
 
-    } catch (error) {
-      showNotice(
-        dashboardNotice,
-        error.message || "Unable to save your listing.",
-        "error"
+    if (!uploadResponse.ok || uploadData.success !== true) {
+      throw new Error(
+        uploadData.error ||
+        uploadData.message ||
+        `Photo ${i + 1} could not be uploaded.`
+      );
+    }
+
+    imageUrls.push(uploadData.url);
+  }
+
+  // Upload video only when a new video is selected.
+  let uploadedVideoUrl;
+
+  if (videoFile) {
+    publishBtn.textContent = "Uploading video...";
+
+    const uploadResponse = await fetch(API + "/upload", {
+      method: "POST",
+      credentials: "include",
+      cache: "no-store",
+      headers: {
+        "Content-Type": videoFile.type,
+        "X-Upload-Kind": "video",
+        "X-Upload-Slot": "video",
+        "X-Listing-ID": listingId
+      },
+      body: videoFile
+    });
+
+    if (uploadResponse.status === 401 || uploadResponse.status === 403) {
+      showAuthentication(
+        "Your seller session has expired. Please log in again."
       );
 
-      dashboardNotice.scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-      });
+      throw new Error("Please log in before uploading video.");
+    }
 
-    } finally {
-      publishBtn.disabled = false;
-      publishBtn.textContent = editingListingId
-        ? "Save Changes"
-        : "Publish Listing";
+    const uploadData = await readResponse(uploadResponse);
+
+    if (!uploadResponse.ok || uploadData.success !== true) {
+      throw new Error(
+        uploadData.error ||
+        uploadData.message ||
+        "Video upload failed."
+      );
+    }
+
+    uploadedVideoUrl = uploadData.url;
+  }
+
+  // Include new media only when replacements were selected.
+  // This preserves existing media during editing.
+  if (selectedImages.length > 0 || !isEditing) {
+    listingData.images = imageUrls;
+  }
+
+  if (uploadedVideoUrl !== undefined) {
+    listingData.video_url = uploadedVideoUrl;
+  } else if (!isEditing) {
+    listingData.video_url = "";
+  }
+
+  publishBtn.textContent = isEditing
+    ? "Saving listing..."
+    : "Publishing listing...";
+
+  const endpoint = isEditing ? "/update" : "/listing";
+
+  const response = await fetch(API + endpoint, {
+    method: "POST",
+    credentials: "include",
+    cache: "no-store",
+    headers: {
+      "Accept": "application/json",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(listingData)
+  });
+
+  if (response.status === 401 || response.status === 403) {
+    showAuthentication(
+      "Your seller session has expired. Please log in again."
+    );
+
+    throw new Error("Please log in before saving your listing.");
+  }
+
+  const data = await readResponse(response);
+
+  if (!response.ok || data.success !== true) {
+    throw new Error(
+      data.error ||
+      data.message ||
+      "The listing could not be saved."
+    );
+  }
+
+  // Exit edit mode only after the server confirms success.
+  editingListingId = null;
+  listingForm.reset();
+  updateCategory("shop");
+  clearPreviews();
+
+  publishBtn.textContent = "Publish Listing";
+
+  showNotice(
+    dashboardNotice,
+    data.message || (
+      isEditing
+        ? "Your listing was updated successfully."
+        : "Your listing was published successfully."
+    ),
+    "success"
+  );
+
+  await loadListings();
+
+  $("myListingsSection").scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+
+} catch (error) {
+  showNotice(
+    dashboardNotice,
+    error.message || "Unable to save your listing.",
+    "error"
+  );
+
+  dashboardNotice.scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+  });
+
+} finally {
+  publishBtn.disabled = false;
+  publishBtn.textContent = editingListingId
+    ? "Save Changes"
+    : "Publish Listing";
     }
   });
   
