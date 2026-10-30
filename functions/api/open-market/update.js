@@ -168,8 +168,238 @@ async function deleteMedia(env, values, sellerId, listingId) {
  * POST /api/open-market/update
  * Updates an existing listing owned by the logged-in seller.
  */
-export async function onRequestPost({ request, env }) {
-  const newlyUploadedKeys = [];
 
+export async function onRequestPost({ request, env }) {
   try {
-    if 
+    if (!env.OPEN_MARKET_DB || !env.OPEN_MARKET_MEDIA) {
+      return json({
+        success: false,
+        error: "Open Market database or media storage is not configured."
+      }, 500);
+    }
+
+    const sellerId = await verifySession(
+      request,
+      env.OPEN_MARKET_SESSION_SECRET
+    );
+
+    if (!sellerId) {
+      return json({
+        success: false,
+        error: "Please log in again before editing a listing."
+      }, 401);
+    }
+
+    // The dashboard now sends JSON, not multipart form data.
+    const data = await request.json();
+
+    const id = clean(data.id, 100);
+
+    if (!id) {
+      return json({
+        success: false,
+        error: "The listing ID is required."
+      }, 400);
+    }
+
+    const existing = await getOwnedListing(env, id, sellerId);
+
+    if (!existing) {
+      return json({
+        success: false,
+        error: "Listing not found, or it does not belong to your account."
+      }, 404);
+    }
+
+    const category = clean(data.category, 40).toLowerCase();
+    const title = clean(data.title, 180);
+    const sellerName = clean(data.seller_name, 120);
+    const contact = clean(data.contact, 60);
+    const price = clean(data.price, 100);
+    const location = clean(data.location, 150);
+    const country = clean(data.country, 100);
+    const region = clean(data.region, 100);
+    const description = clean(data.description, 5000);
+    const delivery = clean(data.delivery, 100);
+
+    let jobType = clean(data.job_type, 40).toLowerCase();
+
+    if (!CATEGORIES.includes(category)) {
+      return json({
+        success: false,
+        error: "Please select a valid listing category."
+      }, 400);
+    }
+
+    if (!title || !sellerName || !contact || !location || !description) {
+      return json({
+        success: false,
+        error: "Please complete the title, seller name, contact, location, and description."
+      }, 400);
+    }
+
+    if (category === "jobs") {
+      const allowed = ["workers-needed", "seeking-work"];
+
+      if (!allowed.includes(jobType)) {
+        return json({
+          success: false,
+          error: "Please select a valid job type."
+        }, 400);
+      }
+    } else {
+      jobType = null;
+    }
+
+    // Only accept media uploaded to this seller's listing folder.
+    function validMediaUrl(value) {
+      if (typeof value !== "string" || !value.trim()) {
+        return false;
+      }
+
+      try {
+        const url = new URL(value);
+        const expectedPrefix =
+          `/open-market/${sellerId}/${id}/`;
+
+        return (
+          url.origin === MEDIA_BASE_URL &&
+          url.pathname.startsWith(expectedPrefix)
+        );
+      } catch {
+        return false;
+      }
+    }
+
+    // Start with the existing photos.
+    const imageUrls = [
+      existing.image_1 || "",
+      existing.image_2 || "",
+      existing.image_3 || ""
+    ];
+
+    const replacedMedia = [];
+
+    // Replace photos only when new photo URLs are supplied.
+    if (Object.prototype.hasOwnProperty.call(data, "images")) {
+      if (!Array.isArray(data.images) || data.images.length > MAX_IMAGES) {
+        return json({
+          success: false,
+          error: "Invalid photo upload information."
+        }, 400);
+      }
+
+      for (let i = 0; i < data.images.length; i++) {
+        const newUrl = data.images[i];
+
+        if (!validMediaUrl(newUrl)) {
+          return json({
+            success: false,
+            error: `Photo ${i + 1} has an invalid media URL.`
+          }, 400);
+        }
+
+        replacedMedia.push(imageUrls[i]);
+        imageUrls[i] = newUrl;
+      }
+    }
+
+    // Preserve the existing video unless a new value is supplied.
+    let videoUrl = existing.video_url || "";
+
+    if (Object.prototype.hasOwnProperty.call(data, "video_url")) {
+      if (data.video_url === "") {
+        replacedMedia.push(videoUrl);
+        videoUrl = "";
+      } else if (validMediaUrl(data.video_url)) {
+        replacedMedia.push(videoUrl);
+        videoUrl = data.video_url;
+      } else {
+        return json({
+          success: false,
+          error: "The video has an invalid media URL."
+        }, 400);
+      }
+    }
+
+    await env.OPEN_MARKET_DB.prepare(`
+      UPDATE open_market_listings
+      SET
+        category = ?,
+        job_type = ?,
+        title = ?,
+        seller_name = ?,
+        contact = ?,
+        price = ?,
+        location = ?,
+        country = ?,
+        region = ?,
+        description = ?,
+        delivery = ?,
+        image_1 = ?,
+        image_2 = ?,
+        image_3 = ?,
+        image_4 = '',
+        image_5 = '',
+        video_url = ?
+      WHERE id = ? AND seller_id = ?
+    `).bind(
+      category,
+      jobType,
+      title,
+      sellerName,
+      contact,
+      price,
+      location,
+      country,
+      region,
+      description,
+      delivery,
+      imageUrls[0],
+      imageUrls[1],
+      imageUrls[2],
+      videoUrl,
+      id,
+      sellerId
+    ).run();
+
+    // Delete old media only after the database update succeeds.
+    await deleteMedia(env, replacedMedia, sellerId, id);
+
+    return json({
+      success: true,
+      message: "Listing updated successfully.",
+      listing: {
+        id,
+        category,
+        job_type: jobType,
+        title,
+        seller_name: sellerName,
+        contact,
+        price,
+        location,
+        country,
+        region,
+        description,
+        delivery,
+        image_1: imageUrls[0],
+        image_2: imageUrls[1],
+        image_3: imageUrls[2],
+        image_4: "",
+        image_5: "",
+        video_url: videoUrl,
+        status: "published"
+      }
+    });
+
+  } catch (error) {
+    console.error("Open Market listing update error:", error);
+
+    return json({
+      success: false,
+      error: "Unable to update the listing.",
+      diagnostic: String(error?.message || error)
+    }, 500);
+  }
+}
+
