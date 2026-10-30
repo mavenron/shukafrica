@@ -1003,6 +1003,97 @@ h1 {
     modalFields.appendChild(field);
   }
 
+  const mediaViewer = document.getElementById("mediaViewer");
+const mediaViewerContent = document.getElementById("mediaViewerContent");
+const mediaViewerCounter = document.getElementById("mediaViewerCounter");
+const closeMediaViewerButton = document.getElementById("closeMediaViewer");
+const previousMediaButton = document.getElementById("previousMedia");
+const nextMediaButton = document.getElementById("nextMedia");
+
+let viewerMedia = [];
+let viewerIndex = 0;
+let lastTapTime = 0;
+
+function showViewerMedia() {
+  mediaViewerContent.replaceChildren();
+
+  const current = viewerMedia[viewerIndex];
+
+  if (current.type === "video") {
+    const video = document.createElement("video");
+    video.src = current.url;
+    video.controls = true;
+    video.autoplay = true;
+    video.playsInline = true;
+    video.preload = "metadata";
+    mediaViewerContent.appendChild(video);
+  } else {
+    const image = document.createElement("img");
+    image.src = current.url;
+    image.alt = "Enlarged listing photo";
+
+    image.addEventListener("click", () => {
+      const now = Date.now();
+
+      if (now - lastTapTime < 300) {
+        image.classList.toggle("zoomed");
+      }
+
+      lastTapTime = now;
+    });
+
+    image.addEventListener("dblclick", () => {
+      image.classList.toggle("zoomed");
+    });
+
+    mediaViewerContent.appendChild(image);
+  }
+
+  mediaViewerCounter.textContent =
+    (viewerIndex + 1) + " / " + viewerMedia.length;
+
+  previousMediaButton.hidden = viewerMedia.length < 2;
+  nextMediaButton.hidden = viewerMedia.length < 2;
+}
+
+function openMediaViewer(index) {
+  viewerIndex = index;
+  showViewerMedia();
+  mediaViewer.hidden = false;
+}
+
+function closeMediaViewer() {
+  const video = mediaViewerContent.querySelector("video");
+
+  if (video) {
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
+  }
+
+  mediaViewer.hidden = true;
+  mediaViewerContent.replaceChildren();
+}
+
+closeMediaViewerButton.addEventListener("click", closeMediaViewer);
+
+previousMediaButton.addEventListener("click", () => {
+  viewerIndex =
+    (viewerIndex - 1 + viewerMedia.length) % viewerMedia.length;
+  showViewerMedia();
+});
+
+nextMediaButton.addEventListener("click", () => {
+  viewerIndex = (viewerIndex + 1) % viewerMedia.length;
+  showViewerMedia();
+});
+
+mediaViewer.addEventListener("click", event => {
+  if (event.target === mediaViewer) {
+    closeMediaViewer();
+  }
+});
+  
   function openDetails(item) {
     lastFocusedElement = document.activeElement;
 
