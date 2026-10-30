@@ -1334,7 +1334,14 @@ function renderListings() {
 
     const categoryBadge = document.createElement("span");
     categoryBadge.className = "listing-category";
-    categoryBadge.textContent = categoryLabel(item.category);
+    categoryBadge.textContent =
+  item.category === "jobs"
+    ? (item.job_type === "workers-needed"
+        ? "WORKERS NEEDED"
+        : item.job_type === "seeking-work"
+          ? "SEEKING WORK"
+          : "JOBS")
+    : categoryLabel(item.category);
     photoBox.appendChild(categoryBadge);
 
     const info = document.createElement("div");
