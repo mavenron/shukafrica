@@ -1581,12 +1581,6 @@
         button.style.flex = "0 1 auto";
       }
 
-      viewButton.addEventListener("click", () => {
-        const isHidden = extraDetails.classList.contains("hidden");
-        extraDetails.classList.toggle("hidden", !isHidden);
-        viewButton.textContent = isHidden ? "Hide Details" : "View Details";
-      });
-
       const editButton = document.createElement("button");
       editButton.textContent = "Edit";
       styleActionButton(
