@@ -873,12 +873,14 @@ h1 {
     const key = String(category || "").toLowerCase().trim();
 
     const labels = {
-      shop: "Shop",
-      store: "Store",
-      "home-service": "Home Service",
-      "home service": "Home Service",
-      jobs: "Jobs"
-    };
+  shop: "Shop",
+  store: "Store",
+  "home-service": "Home Service",
+  "home service": "Home Service",
+  jobs: "Jobs",
+  "workers-needed": "Workers Needed",
+  "seeking-work": "Seeking Work"
+};
 
     return labels[key] || (key ? key.replace(/-/g, " ") : "Listing");
   }
