@@ -356,6 +356,23 @@ function editAd(id){
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
+  
+function reorderAd(id, direction){
+  const index = advertisements.findIndex(a => a.id === id);
+  if(index < 0) return;
+
+  const newIndex = index + direction;
+
+  if(newIndex < 0 || newIndex >= advertisements.length) return;
+
+  const current = advertisements[index];
+
+  advertisements[index] = advertisements[newIndex];
+  advertisements[newIndex] = current;
+
+  render();
+}
+  
 function toggleAd(id){
   const ad=advertisements.find(a=>a.id===id);
   if(!ad) return;
@@ -425,12 +442,16 @@ function render(){
     const buttons=document.createElement("div");
     buttons.className="actions";
 
-    const actions=[
-      ["Edit","secondary",()=>editAd(ad.id)],
-      [ad.published?"Unpublish":"Publish","primary",()=>toggleAd(ad.id)],
-      ["Extend","secondary",()=>renewAd(ad.id)],
-      ["Delete","danger",()=>deleteAd(ad.id)]
-    ];
+    
+const actions=[
+  ["↑ Move Up","secondary",()=>reorderAd(ad.id,-1)],
+  ["↓ Move Down","secondary",()=>reorderAd(ad.id,1)],
+  ["Edit","secondary",()=>editAd(ad.id)],
+  [ad.published?"Unpublish":"Publish","primary",()=>toggleAd(ad.id)],
+  ["Extend","secondary",()=>renewAd(ad.id)],
+  ["Delete","danger",()=>deleteAd(ad.id)]
+];
+    
 
     actions.forEach(([label,cls,callback])=>{
       const button=document.createElement("button");
