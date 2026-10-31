@@ -1,1 +1,491 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShukAfrica | Sponsored Ads Manager</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#f3f5f7;
+  color:#17212b;
+}
+header{
+  background:#102d25;
+  color:white;
+  padding:20px;
+}
+header h2{margin:0 0 6px}
+header p{margin:0;color:#c6d8ce;font-size:13px}
+.container{max-width:1050px;margin:auto;padding:18px}
+.panel{
+  background:white;
+  border-radius:12px;
+  padding:18px;
+  margin-bottom:18px;
+  box-shadow:0 2px 10px #00000008;
+}
+h3{margin-top:0}
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+.stat{
+  background:#edf3f0;
+  padding:14px;
+  border-radius:9px;
+}
+.stat strong{display:block;font-size:23px;margin-top:7px}
+label{
+  display:block;
+  font-size:13px;
+  font-weight:bold;
+  margin:14px 0 6px;
+}
+input,textarea,select{
+  width:100%;
+  padding:12px;
+  border:1px solid #d6dce0;
+  border-radius:7px;
+  font-size:14px;
+  background:white;
+}
+textarea{min-height:85px;resize:vertical}
+button{
+  border:0;
+  border-radius:7px;
+  padding:11px 15px;
+  cursor:pointer;
+  font-weight:bold;
+}
+.primary{background:#126b4c;color:white}
+.secondary{background:#e8efeb;color:#174d39}
+.danger{background:#fee9e9;color:#a32b2b}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.ad{
+  border:1px solid #e2e6e9;
+  border-radius:9px;
+  padding:14px;
+  margin-top:12px;
+}
+.ad h4{margin:0 0 6px}
+.muted{color:#697780;font-size:13px}
+.status{font-size:12px;font-weight:bold}
+.active{color:#16804e}
+.inactive{color:#a36b15}
+.preview{
+  background:#f3f6f5;
+  padding:13px;
+  border-radius:8px;
+  margin-top:10px;
+}
+.media-preview{
+  max-width:100%;
+  max-height:190px;
+  display:none;
+  margin-top:10px;
+  border-radius:8px;
+}
+.hidden{display:none!important}
+.note{
+  background:#fff5dc;
+  color:#745313;
+  padding:12px;
+  border-radius:8px;
+  font-size:13px;
+  line-height:1.5;
+}
+@media(max-width:550px){
+  .stats{grid-template-columns:1fr 1fr}
+  .container{padding:12px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>ShukAfrica</h2>
+  <p>Sponsored Advertising Control Centre</p>
+</header>
+
+<div class="container">
+
+  <div class="note">
+    DEVELOPMENT PREVIEW — This dashboard is not yet protected by
+    server authentication. Do not enter real customer information
+    or publish it as a private admin system until backend security
+    is connected.
+  </div>
+
+  <section class="panel">
+    <h3>Advertising Overview</h3>
+    <div class="stats">
+      <div class="stat">
+        <span class="muted">Total Ads</span>
+        <strong id="totalAds">0</strong>
+      </div>
+      <div class="stat">
+        <span class="muted">Published</span>
+        <strong id="activeAds">0</strong>
+      </div>
+      <div class="stat">
+        <span class="muted">Expired</span>
+        <strong id="expiredAds">0</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h3>Advertisement Manager</h3>
+
+    <form id="adForm">
+
+      <input type="hidden" id="adId">
+
+      <label>Advertisement Placement</label>
+      <select id="placement" required>
+        <option value="card">Sponsored Card</option>
+        <option value="video">Top Sponsored Video</option>
+      </select>
+
+      <label>Advertisement Title</label>
+      <input id="title" maxlength="70" required
+        placeholder="Enter advertisement title">
+
+      <label>Short Description (one line)</label>
+      <input id="shortDescription" maxlength="120" required
+        placeholder="Short description for public display">
+
+      <label>Full Description</label>
+      <textarea id="fullDescription"
+        placeholder="Full advertisement description"></textarea>
+
+      <label>Main Picture or Video</label>
+      <input id="mainMedia" type="file"
+        accept="image/*,video/mp4,video/webm">
+
+      <img id="imagePreview" class="media-preview">
+      <video id="videoPreview" class="media-preview" controls></video>
+
+      <label>Additional Picture or Video</label>
+      <input id="extraMedia" type="file"
+        accept="image/*,video/mp4,video/webm">
+
+      <label>Advertising Start Date</label>
+      <input id="startDate" type="date" required>
+
+      <label>Advertising Expiry Date</label>
+      <input id="endDate" type="date" required>
+
+      <div class="actions">
+        <button class="primary" type="submit" id="saveButton">
+          Save Advertisement
+        </button>
+        <button class="secondary" type="button" id="clearButton">
+          Clear Form
+        </button>
+      </div>
+
+    </form>
+  </section>
+
+  <section class="panel">
+    <h3>Manage Advertisements</h3>
+    <p class="muted">
+      Edit, publish, unpublish or remove advertisements.
+    </p>
+    <div id="adList">
+      <p class="muted">No advertisements added yet.</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h3>Public Sponsored Display Preview</h3>
+    <div class="preview">
+      <strong>Top Sponsored Video</strong>
+      <div id="publicVideo" class="muted">
+        No published video.
+      </div>
+    </div>
+
+    <div class="preview">
+      <strong>Sponsored Cards</strong>
+      <div id="publicCards" class="muted">
+        No published cards.
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+let advertisements = [];
+let editingId = null;
+let nextId = 1;
+let mainFile = null;
+let extraFile = null;
+let mainUrl = null;
+let extraUrl = null;
+
+const form = document.getElementById("adForm");
+
+const $ = id => document.getElementById(id);
+
+function clearForm(){
+  form.reset();
+  editingId = null;
+  mainFile = null;
+  extraFile = null;
+
+  if(mainUrl) URL.revokeObjectURL(mainUrl);
+  if(extraUrl) URL.revokeObjectURL(extraUrl);
+
+  mainUrl = null;
+  extraUrl = null;
+
+  $("adId").value = "";
+  $("imagePreview").style.display = "none";
+  $("videoPreview").style.display = "none";
+  $("saveButton").textContent = "Save Advertisement";
+}
+
+function previewFile(file, image, video){
+  if(!file) return;
+
+  if(image.src.startsWith("blob:"))
+    URL.revokeObjectURL(image.src);
+
+  if(video.src.startsWith("blob:"))
+    URL.revokeObjectURL(video.src);
+
+  image.style.display = "none";
+  video.style.display = "none";
+
+  const url = URL.createObjectURL(file);
+
+  if(file.type.startsWith("image/")){
+    image.src = url;
+    image.style.display = "block";
+  }else if(file.type.startsWith("video/")){
+    video.src = url;
+    video.style.display = "block";
+  }
+}
+
+$("mainMedia").addEventListener("change", e=>{
+  mainFile = e.target.files[0] || null;
+  if(mainFile)
+    previewFile(mainFile,$("imagePreview"),$("videoPreview"));
+});
+
+$("extraMedia").addEventListener("change", e=>{
+  extraFile = e.target.files[0] || null;
+});
+
+function isExpired(ad){
+  return ad.endDate < new Date().toISOString().slice(0,10);
+}
+
+form.addEventListener("submit",e=>{
+  e.preventDefault();
+
+  const start = $("startDate").value;
+  const end = $("endDate").value;
+
+  if(end < start){
+    alert("Expiry date cannot be before the start date.");
+    return;
+  }
+
+  const ad = {
+    id: editingId || nextId++,
+    placement:$("placement").value,
+    title:$("title").value.trim(),
+    shortDescription:$("shortDescription").value.trim(),
+    fullDescription:$("fullDescription").value.trim(),
+    startDate:start,
+    endDate:end,
+    mainFile:mainFile,
+    extraFile:extraFile,
+    mainUrl:mainUrl,
+    extraUrl:extraUrl,
+    published:false
+  };
+
+  const existing = advertisements.findIndex(a=>a.id===editingId);
+
+  if(existing >= 0){
+    const old = advertisements[existing];
+
+    ad.mainFile = mainFile || old.mainFile;
+    ad.extraFile = extraFile || old.extraFile;
+    ad.mainUrl = mainUrl || old.mainUrl;
+    ad.extraUrl = extraUrl || old.extraUrl;
+    ad.published = old.published;
+
+    advertisements[existing] = ad;
+  }else{
+    advertisements.push(ad);
+  }
+
+  clearForm();
+  render();
+});
+
+function editAd(id){
+  const ad = advertisements.find(a=>a.id===id);
+  if(!ad) return;
+
+  editingId=id;
+
+  $("placement").value=ad.placement;
+  $("title").value=ad.title;
+  $("shortDescription").value=ad.shortDescription;
+  $("fullDescription").value=ad.fullDescription;
+  $("startDate").value=ad.startDate;
+  $("endDate").value=ad.endDate;
+
+  $("saveButton").textContent="Update Advertisement";
+
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function toggleAd(id){
+  const ad=advertisements.find(a=>a.id===id);
+  if(!ad) return;
+
+  if(isExpired(ad)){
+    alert("This advertisement has expired. Extend its expiry date first.");
+    return;
+  }
+
+  ad.published=!ad.published;
+  render();
+}
+
+function deleteAd(id){
+  if(!confirm("Delete this advertisement?")) return;
+
+  advertisements=advertisements.filter(a=>a.id!==id);
+  render();
+}
+
+function renewAd(id){
+  const ad=advertisements.find(a=>a.id===id);
+  if(!ad) return;
+
+  const date=prompt("Enter new expiry date (YYYY-MM-DD):",ad.endDate);
+  if(!date) return;
+
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)){
+    alert("Enter a valid date.");
+    return;
+  }
+
+  ad.endDate=date;
+  render();
+}
+
+function render(){
+  $("totalAds").textContent=advertisements.length;
+
+  $("activeAds").textContent=
+    advertisements.filter(a=>a.published && !isExpired(a)).length;
+
+  $("expiredAds").textContent=
+    advertisements.filter(isExpired).length;
+
+  const list=$("adList");
+  list.innerHTML="";
+
+  advertisements.forEach(ad=>{
+    const item=document.createElement("div");
+    item.className="ad";
+
+    const heading=document.createElement("h4");
+    heading.textContent=ad.title;
+
+    const info=document.createElement("p");
+    info.className="muted";
+    info.textContent=ad.placement+" | "+ad.startDate+" to "+ad.endDate;
+
+    const status=document.createElement("p");
+    status.className="status";
+    status.textContent=isExpired(ad)?"EXPIRED":
+      ad.published?"PUBLISHED":"UNPUBLISHED";
+    status.classList.add(isExpired(ad)?"inactive":
+      ad.published?"active":"inactive");
+
+    const buttons=document.createElement("div");
+    buttons.className="actions";
+
+    const actions=[
+      ["Edit","secondary",()=>editAd(ad.id)],
+      [ad.published?"Unpublish":"Publish","primary",()=>toggleAd(ad.id)],
+      ["Extend","secondary",()=>renewAd(ad.id)],
+      ["Delete","danger",()=>deleteAd(ad.id)]
+    ];
+
+    actions.forEach(([label,cls,callback])=>{
+      const button=document.createElement("button");
+      button.className=cls;
+      button.textContent=label;
+      button.onclick=callback;
+      buttons.appendChild(button);
+    });
+
+    item.append(heading,info,status,buttons);
+    list.appendChild(item);
+  });
+
+  const valid=advertisements.filter(a=>
+    a.published && !isExpired(a) &&
+    a.startDate<=new Date().toISOString().slice(0,10)
+  );
+
+  const video=valid.find(a=>a.placement==="video");
+  const cards=valid.filter(a=>a.placement==="card").slice(0,2);
+
+  $("publicVideo").textContent=video?
+    video.title:"No published video.";
+
+  $("publicCards").innerHTML="";
+
+  if(cards.length===0){
+    $("publicCards").textContent="No published cards.";
+  }else{
+    cards.forEach(ad=>{
+      const card=document.createElement("div");
+      card.style.marginTop="12px";
+
+      const title=document.createElement("strong");
+      title.textContent=ad.title;
+
+      const description=document.createElement("p");
+      description.className="muted";
+      description.textContent=ad.shortDescription;
+
+      const details=document.createElement("span");
+      details.className="muted";
+      details.textContent="View Details";
+
+      card.append(title,description,details);
+      $("publicCards").appendChild(card);
+    });
+  }
+}
+
+$("clearButton").addEventListener("click",clearForm);
+
+render();
+</script>
+
+</body>
+</html>
+
