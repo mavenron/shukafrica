@@ -38,7 +38,11 @@ bucket_name = "shukafrica-open-market-media"
 [[d1_databases]]
 binding = "SPONSORED_DB"
 database_name = "shukafrica-sponsored-db"
-database_id = "PASTE_THE_REAL_ID_HERE"
+# Sponsored Advertising Database
+[[d1_databases]]
+binding = "SPONSORED_DB"
+database_name = "shukafrica-sponsored-db"
+database_id = "59dedd5b-19ef-4d51-8c6c-d412e4ebed03"
 
 # Sponsored Advertising Media
 [[r2_buckets]]
