@@ -33,3 +33,14 @@ bucket_name = "shukafrica-rentals-media"
 [[r2_buckets]]
 binding = "OPEN_MARKET_MEDIA"
 bucket_name = "shukafrica-open-market-media"
+
+# Sponsored Advertising Database
+[[d1_databases]]
+binding = "SPONSORED_DB"
+database_name = "shukafrica-sponsored-db"
+database_id = "YOUR_ACTUAL_D1_DATABASE_ID"
+
+# Sponsored Advertising Media
+[[r2_buckets]]
+binding = "SPONSORED_MEDIA"
+bucket_name = "shukafrica-sponsored-media"
