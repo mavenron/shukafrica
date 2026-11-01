@@ -7,6 +7,23 @@ const json = (data, status = 200) =>
 
 const today = () => new Date().toISOString().slice(0, 10);
 
+function validAdData(data) {
+  return (
+    typeof data.title === "string" &&
+    data.title.trim().length >= 1 &&
+    data.title.trim().length <= 70 &&
+    typeof data.shortDescription === "string" &&
+    data.shortDescription.trim().length >= 1 &&
+    data.shortDescription.trim().length <= 120 &&
+    (data.fullDescription === undefined ||
+      (typeof data.fullDescription === "string" &&
+       data.fullDescription.length <= 3000)) &&
+    ["card", "video"].includes(data.placement) &&
+    /^\d{4}-\d{2}-\d{2}$/.test(data.startDate) &&
+    /^\d{4}-\d{2}-\d{2}$/.test(data.endDate) &&
+    data.endDate >= data.startDate
+  );
+}
 
 const ACCESS_TEAM_DOMAIN = "fancy-hat-29f2.cloudflareaccess.com";
 const ACCESS_AUD = "0fd0b431-dd59-4d58-a460-215742885ea4";
