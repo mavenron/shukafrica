@@ -190,6 +190,13 @@ export async function onRequest({ request, env }) {
         return json({ success: false, message: "Valid advertisement ID required." }, 400);
       }
 
+            if (!validAdData(data)) {
+        return json({
+          success: false,
+          message: "Invalid advertisement details. Check all fields and dates."
+        }, 400);
+            }
+
       const allowed = ["title", "shortDescription", "fullDescription",
         "placement", "startDate", "endDate", "mainMediaKey", "extraMediaKey"];
 
