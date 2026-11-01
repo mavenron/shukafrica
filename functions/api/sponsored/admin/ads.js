@@ -139,8 +139,10 @@ async function verifyAccessToken(request) {
       : [payload.aud];
 
     if (!audiences.includes(audience)) {
+  return false;
+}
 
-    const now = Math.floor(Date.now() / 1000);
+const now = Math.floor(Date.now() / 1000);
 
     if (
       typeof payload.exp !== "number" ||
