@@ -561,12 +561,7 @@
     document.getElementById('menuBtn').addEventListener('click',()=>document.getElementById('services').scrollIntoView({behavior:'smooth'}));
   </script>
       <script>
-(async function loadSponsoredVideo() {
-  const section = document.getElementById("sponsoredSection");
-  const container = document.getElementById("sponsoredVideo");
-
-  if (!section || !container) return;
-
+(async function loadSponsoredVideos() {
   try {
     const response = await fetch("/api/sponsored/");
     if (!response.ok) return;
@@ -574,36 +569,43 @@
     const data = await response.json();
     if (!data.success || !Array.isArray(data.ads)) return;
 
-    const ad = data.ads.find(item =>
-      item.placement === "video" &&
-      item.main_media_url
+    const videos = data.ads.filter(ad =>
+      ad.placement === "video" && ad.main_media_url
     );
 
-    if (!ad) return;
+    function displayVideo(ad, sectionId, containerId) {
+      const section = document.getElementById(sectionId);
+      const container = document.getElementById(containerId);
 
-    const title = document.createElement("h3");
-    title.textContent = ad.title;
+      if (!section || !container || !ad) return;
 
-    const video = document.createElement("video");
-    video.src = ad.main_media_url;
-    video.controls = true;
-    video.playsInline = true;
-    video.preload = "metadata";
+      const title = document.createElement("h3");
+      title.textContent = ad.title;
 
-    const description = document.createElement("p");
-    description.textContent = ad.short_description || "";
+      const video = document.createElement("video");
+      video.src = ad.main_media_url;
+      video.controls = true;
+      video.playsInline = true;
+      video.preload = "metadata";
 
-    container.appendChild(title);
-    container.appendChild(video);
+      const description = document.createElement("p");
+      description.textContent = ad.short_description || "";
 
-    if (ad.short_description) {
-      container.appendChild(description);
+      container.appendChild(title);
+      container.appendChild(video);
+
+      if (ad.short_description) {
+        container.appendChild(description);
+      }
+
+      section.hidden = false;
     }
 
-    section.hidden = false;
+    displayVideo(videos[0], "sponsoredSection", "sponsoredVideo");
+    displayVideo(videos[1], "sponsoredSection2", "sponsoredVideo2");
 
   } catch (error) {
-    console.error("Sponsored video could not load:", error);
+    console.error("Sponsored videos could not load:", error);
   }
 })();
       </script>
