@@ -9,8 +9,7 @@ const today = () => new Date().toISOString().slice(0, 10);
 const ACCESS_TEAM_DOMAIN =
   "fancy-hat-29f2.cloudflareaccess.com";
 
-const ACCESS_AUD =
-  "0fd0b431-dd59-4d58-a460-215742885ea4";
+const audience = "a593424efda69151151cac5d734c32169cf878de0a55d0555649d20a48531bc3";
 
 // ------------------------------
 // DATE VALIDATION
