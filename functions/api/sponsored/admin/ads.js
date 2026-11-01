@@ -138,6 +138,13 @@ export async function onRequest({ request, env }) {
     if (request.method === "POST") {
       const data = await request.json();
 
+            if (!validAdData(data)) {
+        return json({
+          success: false,
+          message: "Invalid advertisement details. Check the title, descriptions, placement and dates."
+        }, 400);
+            }
+
       const required = [
         "title", "shortDescription", "placement",
         "startDate", "endDate"
