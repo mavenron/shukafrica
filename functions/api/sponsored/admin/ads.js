@@ -53,7 +53,8 @@ async function verifyAccessToken(request) {
     const now = Math.floor(Date.now() / 1000);
 
     if (!payload.exp || payload.exp <= now) return false;
-    if (payload.nbf && payload.nbf > now) return false;
+if (!payload.iat || payload.iat > now + 60) return false;
+if (payload.nbf && payload.nbf > now + 60) return false;
 
     const response = await fetch(
       `${issuer}/cdn-cgi/access/certs`
