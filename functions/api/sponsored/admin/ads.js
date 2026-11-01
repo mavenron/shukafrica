@@ -7,6 +7,91 @@ const json = (data, status = 200) =>
 
 const today = () => new Date().toISOString().slice(0, 10);
 
+
+const ACCESS_TEAM_DOMAIN = "fancy-hat-29f2.cloudflareaccess.com";
+const ACCESS_AUD = "0fd0b431-dd59-4d58-a460-215742885ea4";
+
+async function verifyAccessToken(request) {
+  try {
+    const token = request.headers.get("Cf-Access-Jwt-Assertion");
+
+    if (!token) return false;
+
+    const parts = token.split(".");
+    if (parts.length !== 3) return false;
+
+    const decode = (value) => {
+      const base64 = value
+        .replace(/-/g, "+")
+        .replace(/_/g, "/");
+      return Uint8Array.from(
+        atob(base64 + "=".repeat((4 - base64.length % 4) % 4)),
+        c => c.charCodeAt(0)
+      );
+    };
+
+    const header = JSON.parse(
+      new TextDecoder().decode(decode(parts[0]))
+    );
+
+    const payload = JSON.parse(
+      new TextDecoder().decode(decode(parts[1]))
+    );
+
+    if (header.alg !== "RS256" || !header.kid) return false;
+
+    const issuer = `https://${ACCESS_TEAM_DOMAIN}`;
+
+    if (payload.iss !== issuer) return false;
+
+    const audiences = Array.isArray(payload.aud)
+      ? payload.aud
+      : [payload.aud];
+
+    if (!audiences.includes(ACCESS_AUD)) return false;
+
+    const now = Math.floor(Date.now() / 1000);
+
+    if (!payload.exp || payload.exp <= now) return false;
+    if (payload.nbf && payload.nbf > now) return false;
+
+    const response = await fetch(
+      `${issuer}/cdn-cgi/access/certs`
+    );
+
+    if (!response.ok) return false;
+
+    const jwks = await response.json();
+
+    const jwk = jwks.keys.find(
+      key => key.kid === header.kid
+    );
+
+    if (!jwk) return false;
+
+    const publicKey = await crypto.subtle.importKey(
+      "jwk",
+      jwk,
+      {
+        name: "RSASSA-PKCS1-v1_5",
+        hash: "SHA-256"
+      },
+      false,
+      ["verify"]
+    );
+
+    return await crypto.subtle.verify(
+      "RSASSA-PKCS1-v1_5",
+      publicKey,
+      decode(parts[2]),
+      new TextEncoder().encode(`${parts[0]}.${parts[1]}`)
+    );
+
+  } catch (error) {
+    return false;
+  }
+}
+
 export async function onRequest({ request, env }) {
   try {
     const db = env.SPONSORED_DB;
