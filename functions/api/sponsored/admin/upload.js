@@ -27,7 +27,7 @@ async function verifyAccessToken(request) {
     const payload = decode(parts[1]);
 
     const issuer = "https://fancy-hat-29f2.cloudflareaccess.com";
-    const audience = "0fd0b431-dd59-4d58-a460-215742885ea4";
+    const audience = "a593424efda69151151cac5d734c32169cf878de0a55d0555649d20a48531bc3";
 
     if (header.alg !== "RS256" || !header.kid) return false;
     if (payload.iss !== issuer) return false;
