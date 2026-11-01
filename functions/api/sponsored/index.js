@@ -20,9 +20,25 @@ export async function onRequestGet({ env }) {
       `)
       .all();
 
+    const ads = results.map(ad => ({
+      id: ad.id,
+      title: ad.title,
+      short_description: ad.short_description,
+      full_description: ad.full_description,
+      placement: ad.placement,
+      main_media_url: ad.main_media_key
+        ? `/api/sponsored/media?key=${encodeURIComponent(ad.main_media_key)}`
+        : null,
+      extra_media_url: ad.extra_media_key
+        ? `/api/sponsored/media?key=${encodeURIComponent(ad.extra_media_key)}`
+        : null,
+      start_date: ad.start_date,
+      end_date: ad.end_date
+    }));
+
     return Response.json({
       success: true,
-      ads: results
+      ads
     });
 
   } catch (error) {
