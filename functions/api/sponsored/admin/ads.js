@@ -138,9 +138,7 @@ async function verifyAccessToken(request) {
       ? payload.aud
       : [payload.aud];
 
-    if (!audiences.includes(ACCESS_AUD)) {
-      return false;
-    }
+    if (!audiences.includes(audience)) {
 
     const now = Math.floor(Date.now() / 1000);
 
