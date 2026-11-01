@@ -535,7 +535,6 @@
     document.getElementById('searchForm').addEventListener('submit',e=>{e.preventDefault();filterProducts();document.getElementById('market').scrollIntoView({behavior:'smooth'});if(searchInput.value.trim())showNotice('Showing demo listings for “'+searchInput.value.trim()+'”.')});
     searchInput.addEventListener('input',filterProducts);
     document.querySelectorAll('[data-mode="Rentals"]').forEach(el=>el.addEventListener('click',()=>{searchInput.value='Rentals';filterProducts()}));
-    document.getElementById('viewAll').addEventListener('click',e=>{e.preventDefault();searchInput.value='';filterProducts();showNotice('Showing all demo listings.')});
     document.querySelectorAll('[data-emergency]').forEach(btn=>btn.addEventListener('click',()=>showNotice(btn.dataset.emergency+' services: this preview does not contact responders. Emergency directory coming after local verification.')));
     document.getElementById('newsletter').addEventListener('submit',e=>{e.preventDefault();showNotice('Thanks! Newsletter signup will be connected in a later build.');e.target.reset()});
     document.getElementById('menuBtn').addEventListener('click',()=>document.getElementById('services').scrollIntoView({behavior:'smooth'}));
