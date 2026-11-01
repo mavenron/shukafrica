@@ -93,6 +93,15 @@ async function verifyAccessToken(request) {
 }
 
 export async function onRequest({ request, env }) {
+  const authenticated = await verifyAccessToken(request);
+
+  if (!authenticated) {
+    return Response.json({
+      success: false,
+      message: "Unauthorized access."
+    }, { status: 401 });
+  }
+
   try {
     const db = env.SPONSORED_DB;
 
