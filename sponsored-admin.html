@@ -225,7 +225,508 @@ button{
 </div>
 
 <script>
-  $(    
+const API = "/api/sponsored/admin/ads";
+const UPLOAD_API = "/api/sponsored/admin/upload";
+
+let advertisements = [];
+let editingId = null;
+let editingAd = null;
+let mainFile = null;
+let extraFile = null;
+let mainUrl = null;
+let extraUrl = null;
+
+const form = document.getElementById("adForm");
+const $ = id => document.getElementById(id);
+
+async function apiRequest(url, options = {}) {
+  const response = await fetch(url, {
+    ...options,
+    credentials: "same-origin"
+  });
+
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error("The server returned an unexpected response.");
+  }
+
+  if (!response.ok || !data.success) {
+    throw new Error(data.message || "The request could not be completed.");
+  }
+
+  return data;
+}
+
+function mediaUrl(key) {
+  return key
+    ? `/api/sponsored/media?key=${encodeURIComponent(key)}`
+    : "";
+}
+
+function isExpired(ad) {
+  return ad.endDate < new Date().toISOString().slice(0, 10);
+}
+
+function isStarted(ad) {
+  return ad.startDate <= new Date().toISOString().slice(0, 10);
+}
+
+function clearForm() {
+  form.reset();
+  editingId = null;
+  editingAd = null;
+  mainFile = null;
+  extraFile = null;
+
+  if (mainUrl) URL.revokeObjectURL(mainUrl);
+  if (extraUrl) URL.revokeObjectURL(extraUrl);
+
+  mainUrl = null;
+  extraUrl = null;
+
+  $("adId").value = "";
+  $("imagePreview").style.display = "none";
+  $("videoPreview").style.display = "none";
+  $("saveButton").textContent = "Save Advertisement";
+}
+
+function previewFile(file, image, video) {
+  if (!file) return;
+
+  image.style.display = "none";
+  video.style.display = "none";
+
+  const url = URL.createObjectURL(file);
+
+  if (file.type.startsWith("image/")) {
+    image.src = url;
+    image.style.display = "block";
+  } else if (file.type.startsWith("video/")) {
+    video.src = url;
+    video.style.display = "block";
+  }
+}
+
+$("mainMedia").addEventListener("change", e => {
+  mainFile = e.target.files[0] || null;
+
+  if (mainFile) {
+    if (mainUrl) URL.revokeObjectURL(mainUrl);
+    mainUrl = URL.createObjectURL(mainFile);
+
+    const image = $("imagePreview");
+    const video = $("videoPreview");
+
+    image.style.display = "none";
+    video.style.display = "none";
+
+    if (mainFile.type.startsWith("image/")) {
+      image.src = mainUrl;
+      image.style.display = "block";
+    } else if (mainFile.type.startsWith("video/")) {
+      video.src = mainUrl;
+      video.style.display = "block";
+    }
+  }
+});
+
+$("extraMedia").addEventListener("change", e => {
+  extraFile = e.target.files[0] || null;
+
+  if (extraFile) {
+    if (extraUrl) URL.revokeObjectURL(extraUrl);
+    extraUrl = URL.createObjectURL(extraFile);
+  }
+});
+
+async function uploadMedia(file, role) {
+  if (!file) return null;
+
+  const isVideo = file.type.startsWith("video/");
+  const maxSize = isVideo
+    ? 30 * 1024 * 1024
+    : 5 * 1024 * 1024;
+
+  if (file.size > maxSize) {
+    throw new Error(
+      isVideo
+        ? "Video must not exceed 30 MB."
+        : "Image must not exceed 5 MB."
+    );
+  }
+
+  const data = new FormData();
+  data.append("file", file);
+  data.append("role", role);
+
+  const result = await apiRequest(UPLOAD_API, {
+    method: "POST",
+    body: data
+  });
+
+  return result.key;
+}
+
+async function loadAdvertisements() {
+  try {
+    const data = await apiRequest(API);
+    advertisements = data.ads.map(ad => ({
+      id: ad.id,
+      title: ad.title,
+      shortDescription: ad.short_description,
+      fullDescription: ad.full_description || "",
+      placement: ad.placement,
+      startDate: ad.start_date,
+      endDate: ad.end_date,
+      mainMediaKey: ad.main_media_key || "",
+      extraMediaKey: ad.extra_media_key || "",
+      published: Number(ad.published) === 1
+    }));
+
+    render();
+  } catch (error) {
+    $("adList").textContent = error.message;
+    alert("Unable to load advertisements: " + error.message);
+  }
+}
+
+form.addEventListener("submit", async e => {
+  e.preventDefault();
+
+  const start = $("startDate").value;
+  const end = $("endDate").value;
+
+  if (end < start) {
+    alert("Expiry date cannot be before the start date.");
+    return;
+  }
+
+  const saveButton = $("saveButton");
+  saveButton.disabled = true;
+  saveButton.textContent = "Saving...";
+
+  try {
+    let mainMediaKey = editingAd?.mainMediaKey || "";
+    let extraMediaKey = editingAd?.extraMediaKey || "";
+
+    if (mainFile) {
+      mainMediaKey = await uploadMedia(mainFile, "main");
+    }
+
+    if (extraFile) {
+      extraMediaKey = await uploadMedia(extraFile, "extra");
+    }
+
+    const payload = {
+      title: $("title").value.trim(),
+      shortDescription: $("shortDescription").value.trim(),
+      fullDescription: $("fullDescription").value.trim(),
+      placement: $("placement").value,
+      startDate: start,
+      endDate: end,
+      mainMediaKey,
+      extraMediaKey
+    };
+
+    if (editingId !== null) {
+      await apiRequest(API, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editingId,
+          ...payload
+        })
+      });
+    } else {
+      await apiRequest(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    }
+
+    clearForm();
+    await loadAdvertisements();
+    alert("Advertisement saved successfully.");
+
+  } catch (error) {
+    alert("Unable to save advertisement: " + error.message);
+  } finally {
+    saveButton.disabled = false;
+    saveButton.textContent =
+      editingId !== null
+        ? "Update Advertisement"
+        : "Save Advertisement";
+  }
+});
+
+function editAd(id) {
+  const ad = advertisements.find(a => a.id === id);
+  if (!ad) return;
+
+  editingId = id;
+  editingAd = { ...ad };
+
+  $("adId").value = id;
+  $("placement").value = ad.placement;
+  $("title").value = ad.title;
+  $("shortDescription").value = ad.shortDescription;
+  $("fullDescription").value = ad.fullDescription;
+  $("startDate").value = ad.startDate;
+  $("endDate").value = ad.endDate;
+
+  $("saveButton").textContent = "Update Advertisement";
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+async function updateAction(id, action, extra = {}) {
+  await apiRequest(API, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, action, ...extra })
+  });
+
+  await loadAdvertisements();
+}
+
+async function reorderAd(id, direction) {
+  try {
+    await updateAction(id, "reorder", { direction });
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+async function toggleAd(id) {
+  const ad = advertisements.find(a => a.id === id);
+  if (!ad) return;
+
+  if (!ad.published && (isExpired(ad) || !isStarted(ad))) {
+    alert("This advertisement is outside its advertising dates.");
+    return;
+  }
+
+  try {
+    await updateAction(id, ad.published ? "unpublish" : "publish");
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+async function deleteAd(id) {
+  if (!confirm("Delete this advertisement?")) return;
+
+  try {
+    await apiRequest(`${API}?id=${encodeURIComponent(id)}`, {
+      method: "DELETE"
+    });
+
+    await loadAdvertisements();
+  } catch (error) {
+    alert("Unable to delete advertisement: " + error.message);
+  }
+}
+
+async function renewAd(id) {
+  const ad = advertisements.find(a => a.id === id);
+  if (!ad) return;
+
+  const date = prompt(
+    "Enter new expiry date (YYYY-MM-DD):",
+    ad.endDate
+  );
+
+  if (!date) return;
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) ||
+      Number.isNaN(Date.parse(date)) ||
+      new Date(date).toISOString().slice(0, 10) !== date) {
+    alert("Enter a valid date.");
+    return;
+  }
+
+  if (date < ad.startDate) {
+    alert("Expiry date cannot be before the start date.");
+    return;
+  }
+
+  try {
+    await updateAction(id, "extend", { endDate: date });
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+function makeMediaElement(key) {
+  if (!key) return null;
+
+  const url = mediaUrl(key);
+  const extension = key.split(".").pop().toLowerCase();
+
+  if (["mp4", "webm"].includes(extension)) {
+    const video = document.createElement("video");
+    video.src = url;
+    video.controls = true;
+    video.preload = "metadata";
+    video.style.maxWidth = "100%";
+    video.style.maxHeight = "190px";
+    return video;
+  }
+
+  const image = document.createElement("img");
+  image.src = url;
+  image.alt = "Advertisement media";
+  image.style.maxWidth = "100%";
+  image.style.maxHeight = "190px";
+  image.style.objectFit = "contain";
+  return image;
+}
+
+function render() {
+  $("totalAds").textContent = advertisements.length;
+
+  $("activeAds").textContent = advertisements.filter(
+    a => a.published && !isExpired(a) && isStarted(a)
+  ).length;
+
+  $("expiredAds").textContent =
+    advertisements.filter(isExpired).length;
+
+  const list = $("adList");
+  list.innerHTML = "";
+
+  if (advertisements.length === 0) {
+    list.textContent = "No advertisements added yet.";
+  }
+
+  advertisements.forEach(ad => {
+    const item = document.createElement("div");
+    item.className = "ad";
+
+    const heading = document.createElement("h4");
+    heading.textContent = ad.title;
+
+    const info = document.createElement("p");
+    info.className = "muted";
+    info.textContent =
+      ad.placement + " | " + ad.startDate + " to " + ad.endDate;
+
+    const status = document.createElement("p");
+    status.className = "status";
+    status.textContent = isExpired(ad)
+      ? "EXPIRED"
+      : ad.published
+        ? "PUBLISHED"
+        : "UNPUBLISHED";
+
+    status.classList.add(
+      isExpired(ad) ? "inactive" :
+      ad.published ? "active" : "inactive"
+    );
+
+    const buttons = document.createElement("div");
+    buttons.className = "actions";
+
+    const actions = [
+      ["↑ Move Up", "secondary", () => reorderAd(ad.id, -1)],
+      ["↓ Move Down", "secondary", () => reorderAd(ad.id, 1)],
+      ["Edit", "secondary", () => editAd(ad.id)],
+      [ad.published ? "Unpublish" : "Publish", "primary",
+        () => toggleAd(ad.id)],
+      ["Extend", "secondary", () => renewAd(ad.id)],
+      ["Delete", "danger", () => deleteAd(ad.id)]
+    ];
+
+    actions.forEach(([label, cls, callback]) => {
+      const button = document.createElement("button");
+      button.className = cls;
+      button.textContent = label;
+      button.onclick = callback;
+      buttons.appendChild(button);
+    });
+
+    item.append(heading, info, status);
+
+    const media = makeMediaElement(ad.mainMediaKey);
+    if (media) item.appendChild(media);
+
+    item.appendChild(buttons);
+    list.appendChild(item);
+  });
+
+  const valid = advertisements.filter(a =>
+    a.published && !isExpired(a) && isStarted(a)
+  );
+
+  const video = valid.find(a => a.placement === "video");
+  const cards = valid
+    .filter(a => a.placement === "card")
+    .slice(0, 2);
+
+  $("publicVideo").innerHTML = "";
+
+  if (video) {
+    const media = makeMediaElement(video.mainMediaKey);
+    if (media) $("publicVideo").appendChild(media);
+
+    const title = document.createElement("p");
+    title.textContent = video.title;
+    $("publicVideo").appendChild(title);
+  } else {
+    $("publicVideo").textContent = "No published video.";
+  }
+
+  $("publicCards").innerHTML = "";
+
+  if (cards.length === 0) {
+    $("publicCards").textContent = "No published cards.";
+  }
+
+  cards.forEach(ad => {
+    const card = document.createElement("div");
+    card.style.marginTop = "12px";
+
+    const title = document.createElement("strong");
+    title.textContent = ad.title;
+
+    const description = document.createElement("p");
+    description.className = "muted";
+    description.textContent = ad.shortDescription;
+
+    const details = document.createElement("button");
+    details.className = "secondary";
+    details.textContent = "View Details";
+
+    const detailContent = document.createElement("div");
+    detailContent.className = "hidden";
+
+    const fullDescription = document.createElement("p");
+    fullDescription.textContent = ad.fullDescription;
+
+    detailContent.appendChild(fullDescription);
+
+    const extraMedia = makeMediaElement(ad.extraMediaKey);
+    if (extraMedia) detailContent.appendChild(extraMedia);
+
+    details.onclick = () => {
+      detailContent.classList.toggle("hidden");
+      details.textContent = detailContent.classList.contains("hidden")
+        ? "View Details"
+        : "Hide Details";
+    };
+
+    card.append(title, description, details, detailContent);
+    $("publicCards").appendChild(card);
+  });
+}
+
+$("clearButton").addEventListener("click", clearForm);
+
+loadAdvertisements();
+  
 </script>
 
 </body>
