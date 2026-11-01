@@ -555,5 +555,52 @@
     document.getElementById('newsletter').addEventListener('submit',e=>{e.preventDefault();showNotice('Thanks! Newsletter signup will be connected in a later build.');e.target.reset()});
     document.getElementById('menuBtn').addEventListener('click',()=>document.getElementById('services').scrollIntoView({behavior:'smooth'}));
   </script>
+      <script>
+(async function loadSponsoredVideo() {
+  const section = document.getElementById("sponsoredSection");
+  const container = document.getElementById("sponsoredVideo");
+
+  if (!section || !container) return;
+
+  try {
+    const response = await fetch("/api/sponsored/");
+    if (!response.ok) return;
+
+    const data = await response.json();
+    if (!data.success || !Array.isArray(data.ads)) return;
+
+    const ad = data.ads.find(item =>
+      item.placement === "video" &&
+      item.main_media_url
+    );
+
+    if (!ad) return;
+
+    const title = document.createElement("h3");
+    title.textContent = ad.title;
+
+    const video = document.createElement("video");
+    video.src = ad.main_media_url;
+    video.controls = true;
+    video.playsInline = true;
+    video.preload = "metadata";
+
+    const description = document.createElement("p");
+    description.textContent = ad.short_description || "";
+
+    container.appendChild(title);
+    container.appendChild(video);
+
+    if (ad.short_description) {
+      container.appendChild(description);
+    }
+
+    section.hidden = false;
+
+  } catch (error) {
+    console.error("Sponsored video could not load:", error);
+  }
+})();
+      </script>
 </body>
       </html>
