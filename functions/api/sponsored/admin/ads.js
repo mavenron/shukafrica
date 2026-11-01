@@ -264,14 +264,36 @@ export async function onRequest({ request, env }) {
         ).bind(id).run();
       }
 
-      if (data.action === "extend") {
+            if (data.action === "extend") {
         if (!/^\d{4}-\d{2}-\d{2}$/.test(data.endDate || "")) {
-          return json({ success: false, message: "Valid expiry date required." }, 400);
+          return json({
+            success: false,
+            message: "Valid expiry date required."
+          }, 400);
         }
+
+        const ad = await db.prepare(
+          "SELECT start_date FROM sponsored_ads WHERE id = ?"
+        ).bind(id).first();
+
+        if (!ad) {
+          return json({
+            success: false,
+            message: "Advertisement not found."
+          }, 404);
+        }
+
+        if (data.endDate < ad.start_date || data.endDate <= today()) {
+          return json({
+            success: false,
+            message: "Expiry date must be after today and not before the start date."
+          }, 400);
+        }
+
         await db.prepare(
           "UPDATE sponsored_ads SET end_date = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?"
         ).bind(data.endDate, id).run();
-      }
+            }
 
       if (data.action === "reorder") {
         const direction = Number(data.direction);
