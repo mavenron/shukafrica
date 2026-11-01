@@ -538,9 +538,6 @@
     function showNotice(message){notice.textContent=message;notice.classList.add('show');clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>notice.classList.remove('show'),4200)}
     document.querySelectorAll('[data-notice]').forEach(el=>el.addEventListener('click',e=>{e.preventDefault();showNotice(el.dataset.notice)}));
     document.querySelectorAll('.heart').forEach(btn=>btn.addEventListener('click',()=>{btn.textContent=btn.textContent==='♡'?'♥':'♡';showNotice(btn.textContent==='♥'?'Saved to your demo favourites.':'Removed from demo favourites.')}));
-    const chips=[...document.querySelectorAll('.country-chip')], topCountry=document.getElementById('topCountry');
-    chips.forEach(chip=>chip.addEventListener('click',()=>{chips.forEach(c=>c.classList.remove('active'));chip.classList.add('active');const idx=['Ghana','Côte d’Ivoire','Burkina Faso','Togo'].indexOf(chip.dataset.country);topCountry.selectedIndex=idx;showNotice('Country set to '+chip.dataset.country+' for this preview.')}));
-    topCountry.addEventListener('change',()=>{const country=topCountry.value.replace(/^\S+\s*/,'');chips.forEach(c=>c.classList.toggle('active',c.dataset.country===country));showNotice('Country set to '+country+' for this preview.')});
     const searchInput=document.getElementById('searchInput'), products=[...document.querySelectorAll('.product')], empty=document.getElementById('searchEmpty');
     function filterProducts(){const q=searchInput.value.trim().toLowerCase();let visible=0;products.forEach(p=>{const match=(p.dataset.name+' '+p.dataset.category).toLowerCase().includes(q);p.hidden=!match;if(match)visible++});empty.hidden=visible!==0}
     document.getElementById('searchForm').addEventListener('submit',e=>{e.preventDefault();filterProducts();document.getElementById('market').scrollIntoView({behavior:'smooth'});if(searchInput.value.trim())showNotice('Showing demo listings for “'+searchInput.value.trim()+'”.')});
