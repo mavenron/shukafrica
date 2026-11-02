@@ -247,9 +247,11 @@
 
   // Open the login tab when requested by the URL.
   const params = new URLSearchParams(window.location.search);
-  if (params.get("mode") === "login") {
-    switchMode("login");
-  }
+const isBuySell = params.get("account") === "buy-sell";
+
+if (params.get("mode") === "login") {
+  switchMode("login");
+}
 
   async function submitAccountForm(form, endpoint, buttonText) {
     const button = form.querySelector('button[type="submit"]');
