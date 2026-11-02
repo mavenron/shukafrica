@@ -244,7 +244,10 @@ async function getSession(){
 async function startDashboard(){
   try{
     const data=await getSession();
-if(!data){location.href="seller-signup.html?mode=login";return;}
+if(!data){
+  location.href="/signup.html?account=buy-sell&mode=login";
+  return;
+}
 sessionSeller=data.seller;
     sellerAccountType=data.account_type||"";
     $("sellerGreeting").textContent="Welcome, "+(sessionSeller.name||"Seller")+". Manage your products here.";
