@@ -265,11 +265,11 @@ if (params.get("mode") === "login") {
     const formData = new FormData(form);
     const payload = Object.fromEntries(formData.entries());
 
-    // Open Market registration API expects full_name.
-    if (form === registerForm) {
-      payload.full_name = payload.name;
-      delete payload.name;
-    }
+    // Only Open Market registration expects full_name.
+if (form === registerForm && !isBuySell) {
+  payload.full_name = payload.name;
+  delete payload.name;
+}
 
     try {
       const response = await fetch(endpoint, {
