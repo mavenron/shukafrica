@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -127,15 +126,16 @@ main {
   width:100%;
   margin-bottom:12px;
 }
+
 .search-hint {
-  color: var(--muted);
-  font-size: 12px;
-  margin-top: 2px;
-  line-height: 1.6;
+  color:var(--muted);
+  font-size:12px;
+  margin-top:2px;
+  line-height:1.6;
 }
 
 .location-search {
-  margin-top: 12px;
+  margin-top:12px;
 }
 
 .filter-row {
@@ -388,32 +388,29 @@ footer {
     <p>Discover products, compare prices and connect with sellers.</p>
   </section>
 
-  
+  <section class="filters" aria-label="Search products and locations">
+    <input
+      id="search"
+      class="search"
+      type="search"
+      placeholder="Search products or affordable prices..."
+      aria-label="Search products or prices"
+      autocomplete="off"
+    >
 
-<section class="filters" aria-label="Search products and locations">
-  <input
-    id="search"
-    class="search"
-    type="search"
-    placeholder="Search products or affordable prices..."
-    aria-label="Search products or prices"
-    autocomplete="off"
-  >
+    <input
+      id="locationSearch"
+      class="search location-search"
+      type="search"
+      placeholder="Search location, region or country..."
+      aria-label="Search by location, region or country"
+      autocomplete="off"
+    >
 
-  <input
-    id="locationSearch"
-    class="search location-search"
-    type="search"
-    placeholder="Search location, region or country..."
-    aria-label="Search by location, region or country"
-    autocomplete="off"
-  >
-
-  <p class="search-hint">
-    Products: Nokia · Prices: under 500 · Locations: Anomabo, Bono, Accra, Lomé or Togo
-  </p>
-</section>
-  
+    <p class="search-hint">
+      Products: Nokia · Prices: under 500 · Locations: Anomabo, Bono, Accra, Lomé or Togo
+    </p>
+  </section>
 
   <section id="products">
     <div class="section-title">
@@ -440,7 +437,6 @@ footer {
 </footer>
 
 <script>
-
 const search = document.getElementById("search");
 const locationSearch = document.getElementById("locationSearch");
 const productGrid = document.getElementById("productGrid");
@@ -540,8 +536,6 @@ function renderListing(item) {
   return card;
 }
 
-  
-
 function filterProducts() {
   const query = search.value.trim().toLowerCase();
   const requestedLocation = locationSearch.value.trim().toLowerCase();
@@ -639,7 +633,8 @@ async function loadPublishedListings() {
 }
 
 search.addEventListener("input", filterProducts);
-  locationSearch.addEventListener("input", filterProducts);
+locationSearch.addEventListener("input", filterProducts);
+
 document.getElementById("retry").addEventListener(
   "click",
   loadPublishedListings
@@ -665,11 +660,11 @@ addButton.addEventListener("click", async () => {
     ) {
       window.location.href = "seller-dashboard.html";
     } else {
-    window.location.href = "signup.html?account=buy-sell";
+      window.location.href = "seller-signup.html";
     }
   } catch (error) {
     console.error("Session check failed:", error);
-    window.location.href = "signup.html?account=buy-sell";
+    window.location.href = "seller-signup.html";
   }
 });
 
