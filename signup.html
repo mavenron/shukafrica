@@ -295,18 +295,22 @@ if (!response.ok || !data.success) {
 }
       showMessage("Success! Opening your account…", "success");
 
-      const returnTo = params.get("return");
+      if (isBuySell) {
+  window.location.href = "seller-dashboard.html";
+} else {
+  const returnTo = params.get("return");
 
-const allowedDestinations = [
-  "open-market-dashboard.html",
-  "open-market-listing.html"
-];
+  const allowedDestinations = [
+    "open-market-dashboard.html",
+    "open-market-listing.html"
+  ];
 
-const destination = allowedDestinations.includes(returnTo)
-  ? returnTo
-  : "open-market-dashboard.html";
+  const destination = allowedDestinations.includes(returnTo)
+    ? returnTo
+    : "open-market-dashboard.html";
 
-window.location.href = destination;
+  window.location.href = destination;
+      }
 
     } catch (error) {
       showMessage(
