@@ -304,9 +304,9 @@ async function loadListings(){
       headers:{"Accept":"application/json"},cache:"no-store"
     });
     const data=await response.json().catch(()=>({}));
-    if(response.status===401){location.href="signup.html";return;}
-    if(!response.ok||!data.success)throw new Error(data.error||"Unable to load your listings.");
-    loading.hidden=true;
+if(response.status===401){location.href="signup.html?account=buy-sell&mode=login";return;}
+if(!response.ok||!data.success)throw new Error(data.error||"Unable to load your listings.");
+loading.hidden=true;
     renderListings(Array.isArray(data.listings)?data.listings:[]);
   }catch(error){
     loading.hidden=false;loading.textContent="We couldn't load your listings.";
