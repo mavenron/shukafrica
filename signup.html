@@ -323,10 +323,10 @@ window.location.href = destination;
     if (!registerForm.reportValidity()) return;
 
     submitAccountForm(
-      registerForm,
-      "/api/open-market/register",
-      "Create seller account"
-    );
+  registerForm,
+  isBuySell ? "/api/seller/register" : "/api/open-market/register",
+  "Create seller account"
+);
   });
 
   loginForm.addEventListener("submit", event => {
