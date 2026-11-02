@@ -526,7 +526,7 @@ $("logoutButton").addEventListener("click", async event => {
       throw new Error("Logout failed. Please try again.");
     }
 
-    location.href = "seller-signup.html?mode=login";
+    location.href = "/signup.html?mode=login";
 
   } catch (error) {
     showMessage(error.message || "Unable to log out.", "error");
