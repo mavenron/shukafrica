@@ -334,10 +334,10 @@ window.location.href = destination;
     if (!loginForm.reportValidity()) return;
 
     submitAccountForm(
-      loginForm,
-      "/api/open-market/login",
-      "Log in to your account"
-    );
+  loginForm,
+  isBuySell ? "/api/seller/login" : "/api/open-market/login",
+  "Log in to your account"
+);
   });
     
 </script>
