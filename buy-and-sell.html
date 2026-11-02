@@ -665,11 +665,11 @@ addButton.addEventListener("click", async () => {
     ) {
       window.location.href = "seller-dashboard.html";
     } else {
-      window.location.href = "signup.html";
+    window.location.href = "signup.html?account=buy-sell";
     }
   } catch (error) {
     console.error("Session check failed:", error);
-    window.location.href = "signup.html";
+    window.location.href = "signup.html?account=buy-sell";
   }
 });
 
