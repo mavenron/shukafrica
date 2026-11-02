@@ -529,7 +529,7 @@ $("logoutButton").addEventListener("click", async event => {
       throw new Error("Logout failed. Please try again.");
     }
 
-    location.href = "/signup.html?mode=login";
+    location.href = "/signup.html?account=buy-sell&mode=login";
 
   } catch (error) {
     showMessage(error.message || "Unable to log out.", "error");
