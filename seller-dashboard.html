@@ -304,7 +304,11 @@ async function loadListings(){
       headers:{"Accept":"application/json"},cache:"no-store"
     });
     const data=await response.json().catch(()=>({}));
-if(response.status===401){location.href="seller-signup.html?mode=login";return;}
+if(!data){
+  location.href="/signup.html?mode=login";
+  return;
+}
+sessionSeller=data.seller;
 if(!response.ok||!data.success)throw new Error(data.error||"Unable to load your listings.");
 loading.hidden=true;
     renderListings(Array.isArray(data.listings)?data.listings:[]);
