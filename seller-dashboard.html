@@ -512,8 +512,7 @@ $("logoutButton").addEventListener("click",async event=>{
       body:"{}"
     });
     if(!response.ok)throw new Error("Logout failed. Please try again.");
-    location.href="signup.html";
-  }catch(error){
+location.href="signup.html?account=buy-sell&mode=login";
     showMessage(error.message||"Unable to log out.","error");
     button.disabled=false;
   }
