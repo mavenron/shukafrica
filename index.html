@@ -585,8 +585,14 @@
       const video = document.createElement("video");
       video.src = ad.main_media_url;
       video.controls = true;
-      video.playsInline = true;
-      video.preload = "metadata";
+video.autoplay = true;
+video.muted = true;
+video.playsInline = true;
+video.preload = "auto";
+
+video.play().catch(() => {
+  console.log("Autoplay blocked by browser.");
+});
 
       const bar = document.createElement("div");
       bar.style.cssText = `
