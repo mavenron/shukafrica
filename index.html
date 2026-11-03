@@ -545,69 +545,51 @@
   </script>
       <script>
 (async function loadSponsoredVideos() {
-  try {
-    const response = await fetch("/api/sponsored/");
-    if (!response.ok) {
-      console.error("Sponsored API error:", response.status);
-      return;
-    }
+try {
+const response = await fetch("/api/sponsored/");
+if (!response.ok) return;
 
-    const data = await response.json();
-    if (!data.success || !Array.isArray(data.ads)) return;
+const data = await response.json();  
+if (!data.success || !Array.isArray(data.ads)) return;  
 
-    const videos = data.ads.filter(ad =>
-      ad.placement === "video" && ad.main_media_url
-    );
+const videos = data.ads.filter(ad =>  
+  ad.placement === "video" && ad.main_media_url  
+);  
 
-    function displayVideo(ad, sectionId, containerId) {
-      const section = document.getElementById(sectionId);
-      const container = document.getElementById(containerId);
+function displayVideo(ad, sectionId, containerId) {  
+  const section = document.getElementById(sectionId);  
+  const container = document.getElementById(containerId);  
 
-      if (!section || !container || !ad) return;
+  if (!section || !container || !ad) return;  
 
-      const title = document.createElement("h3");
-      title.textContent = ad.title;
+  const title = document.createElement("h3");  
+  title.textContent = ad.title;  
 
-      const video = document.createElement("video");
-      video.controls = true;
-      video.playsInline = true;
-      video.preload = "metadata";
-      video.style.width = "100%";
-      video.style.maxWidth = "100%";
-      video.style.background = "#222";
-      video.src = ad.main_media_url;
+  const video = document.createElement("video");  
+  video.src = ad.main_media_url;  
+  video.controls = true;  
+  video.playsInline = true;  
+  video.preload = "metadata";  
 
-      video.addEventListener("loadedmetadata", () => {
-        console.log("Sponsored video loaded:", video.duration);
-      });
+  const description = document.createElement("p");  
+  description.textContent = ad.short_description || "";  
 
-      video.addEventListener("error", () => {
-        console.error("Sponsored video playback error:", {
-          url: video.currentSrc,
-          code: video.error?.code,
-          message: video.error?.message
-        });
-      });
+  container.appendChild(title);  
+  container.appendChild(video);  
 
-      const description = document.createElement("p");
-      description.textContent = ad.short_description || "";
+  if (ad.short_description) {  
+    container.appendChild(description);  
+  }  
 
-      container.appendChild(title);
-      container.appendChild(video);
+  section.hidden = false;  
+}  
 
-      if (ad.short_description) {
-        container.appendChild(description);
-      }
+displayVideo(videos[0], "sponsoredSection", "sponsoredVideo");  
+displayVideo(videos[1], "sponsoredSection2", "sponsoredVideo2");
 
-      section.hidden = false;
-    }
-
-    displayVideo(videos[0], "sponsoredSection", "sponsoredVideo");
-    displayVideo(videos[1], "sponsoredSection2", "sponsoredVideo2");
-
-  } catch (error) {
-    console.error("Sponsored videos could not load:", error);
-  }
+} catch (error) {
+console.error("Sponsored videos could not load:", error);
+}
 })();
       </script>
 </body>
