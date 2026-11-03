@@ -284,23 +284,6 @@ function clearForm() {
   $("saveButton").textContent = "Save Advertisement";
 }
 
-function previewFile(file, image, video) {
-  if (!file) return;
-
-  image.style.display = "none";
-  video.style.display = "none";
-
-  const url = URL.createObjectURL(file);
-
-  if (file.type.startsWith("image/")) {
-    image.src = url;
-    image.style.display = "block";
-  } else if (file.type.startsWith("video/")) {
-    video.src = url;
-    video.style.display = "block";
-  }
-}
-
 $("mainMedia").addEventListener("change", e => {
   mainFile = e.target.files[0] || null;
 
@@ -364,7 +347,6 @@ async function loadAdvertisements() {
       startDate: ad.start_date,
       endDate: ad.end_date,
       mainMediaKey: ad.main_media_key || "",
-      extraMediaKey: ad.extra_media_key || "",
       published: Number(ad.published) === 1
     }));
 
