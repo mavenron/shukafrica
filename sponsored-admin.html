@@ -655,47 +655,60 @@ function render() {
   $("publicVideo").innerHTML = "";
 
   if (video) {
-    const media = makeMediaElement(video.mainMediaKey);
-    if (media) $("publicVideo").appendChild(media);
+  const media = makeMediaElement(video.mainMediaKey);
+  if (media) $("publicVideo").appendChild(media);
 
-    const title = document.createElement("p");
-    title.textContent = video.title;
-    $("publicVideo").appendChild(title);
-  } else {
-    $("publicVideo").textContent = "No published video.";
+  const title = document.createElement("p");
+  title.textContent = video.title;
+  $("publicVideo").appendChild(title);
+
+  const description = document.createElement("p");
+  description.className = "muted";
+  description.textContent = video.shortDescription;
+  $("publicVideo").appendChild(description);
+
+  if (video.redirectUrl) {
+    const link = document.createElement("a");
+    link.href = video.redirectUrl;
+    link.textContent = "↗ Visit advertiser";
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    $("publicVideo").appendChild(link);
+  }
+} else {
+  $("publicVideo").textContent = "No published video.";
+}
+
+$("publicCards").innerHTML = "";
+
+if (cards.length === 0) {
+  $("publicCards").textContent = "No published cards.";
+}
+
+cards.forEach(ad => {
+  const card = document.createElement("div");
+  card.style.marginTop = "12px";
+
+  const title = document.createElement("strong");
+  title.textContent = ad.title;
+
+  const description = document.createElement("p");
+  description.className = "muted";
+  description.textContent = ad.shortDescription;
+
+  card.append(title, description);
+
+  if (ad.redirectUrl) {
+    const link = document.createElement("a");
+    link.href = ad.redirectUrl;
+    link.textContent = "↗ Visit advertiser";
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    card.appendChild(link);
   }
 
-  $("publicCards").innerHTML = "";
-
-  if (cards.length === 0) {
-    $("publicCards").textContent = "No published cards.";
-  }
-
-  cards.forEach(ad => {
-    const card = document.createElement("div");
-    card.style.marginTop = "12px";
-
-    const title = document.createElement("strong");
-    title.textContent = ad.title;
-
-    const description = document.createElement("p");
-    description.className = "muted";
-    description.textContent = ad.shortDescription;
-
-    const details = document.createElement("button");
-    details.className = "secondary";
-    details.textContent = "View Details";
-
-    const detailContent = document.createElement("div");
-    detailContent.className = "hidden";
-
-    const fullDescription = document.createElement("p");
-    fullDescription.textContent = ad.fullDescription;
-
-    detailContent.appendChild(fullDescription);
-
-    const extraMedia = makeMediaElement(ad.extraMediaKey);
-    if (extraMedia) detailContent.appendChild(extraMedia);
+  $("publicCards").appendChild(card);
+});
 
     details.onclick = () => {
       detailContent.classList.toggle("hidden");
