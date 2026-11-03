@@ -582,7 +582,19 @@
     document.querySelectorAll('.heart').forEach(btn=>btn.addEventListener('click',()=>{btn.textContent=btn.textContent==='♡'?'♥':'♡';showNotice(btn.textContent==='♥'?'Saved to your demo favourites.':'Removed from demo favourites.')}));
     const searchInput=document.getElementById('searchInput'),
       empty=document.getElementById('searchEmpty');
-    function filterProducts(){const q=searchInput.value.trim().toLowerCase();let visible=0;products.forEach(p=>{const match=(p.dataset.name+' '+p.dataset.category).toLowerCase().includes(q);p.hidden=!match;if(match)visible++});empty.hidden=visible!==0}
+    function filterProducts(){
+  const q=searchInput.value.trim().toLowerCase();
+  const products=[...document.querySelectorAll('#productGrid .product')];
+  let visible=0;
+
+  products.forEach(p=>{
+    const match=((p.dataset.name||'')+' '+(p.dataset.category||'')).toLowerCase().includes(q);
+    p.hidden=!match;
+    if(match) visible++;
+  });
+
+  empty.hidden=visible!==0;
+}
     document.getElementById('searchForm').addEventListener('submit',e=>{e.preventDefault();filterProducts();document.getElementById('market').scrollIntoView({behavior:'smooth'});if(searchInput.value.trim())showNotice('Showing demo listings for “'+searchInput.value.trim()+'”.')});
     searchInput.addEventListener('input',filterProducts);
     document.querySelectorAll('[data-mode="Rentals"]').forEach(el=>el.addEventListener('click',()=>{searchInput.value='Rentals';filterProducts()}));
