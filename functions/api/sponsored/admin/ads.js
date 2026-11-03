@@ -319,7 +319,8 @@ export async function onRequest({ request, env }) {
         data.mainMediaKey || null,
         data.extraMediaKey || null,
         data.startDate,
-        data.endDate
+        data.endDate,
+        data.redirectUrl || null
       ).run();
 
       return json({
