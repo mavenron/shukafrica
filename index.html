@@ -587,63 +587,71 @@
   </script>
       <script>
 (async function loadSponsoredVideos() {
-try {
-const response = await fetch("/api/sponsored/");
-if (!response.ok) return;
+  try {
+    const response = await fetch("/api/sponsored/");
+    if (!response.ok) return;
 
-const data = await response.json();  
-if (!data.success || !Array.isArray(data.ads)) return;  
+    const data = await response.json();
+    if (!data.success || !Array.isArray(data.ads)) return;
 
-const videos = data.ads.filter(ad =>  
-  ad.placement === "video" && ad.main_media_url  
-);  
+    const videos = data.ads.filter(ad =>
+      ad.placement === "video" && ad.main_media_url
+    );
 
-function displayVideo(ad, sectionId, containerId) {  
-  const section = document.getElementById(sectionId);  
-  const container = document.getElementById(containerId);  
+    function displayVideo(ad, sectionId, containerId) {
+      const section = document.getElementById(sectionId);
+      const container = document.getElementById(containerId);
 
-  if (!section || !container || !ad) return;  
+      if (!section || !container || !ad) return;
 
-  const title = document.createElement("h3");  
-  title.textContent = ad.title;  
+      const video = document.createElement("video");
+      video.src = ad.main_media_url;
+      video.controls = true;
+      video.playsInline = true;
+      video.preload = "metadata";
 
-  const video = document.createElement("video");  
-  video.src = ad.main_media_url;  
-  video.controls = true;  
-  video.playsInline = true;  
-  video.preload = "metadata";  
+      const bar = document.createElement("div");
+      bar.style.cssText = `
+        background:#102d25;
+        color:white;
+        padding:9px 12px;
+        border-radius:7px;
+        margin-bottom:8px;
+        font-size:13px;
+        line-height:1.5;
+      `;
 
-  const description = document.createElement("p");  
-  description.textContent = ad.short_description || "";  
+      const title = document.createElement("strong");
+      title.textContent = ad.title || "";
 
-  container.appendChild(title);  
-  container.appendChild(video);  
+      const description = document.createElement("span");
+      description.textContent = ad.short_description
+        ? " — " + ad.short_description
+        : "";
 
-  if (ad.short_description) {  
-    container.appendChild(description);  
-  }  
+      bar.append(title, description);
 
-  if (ad.redirect_url) {
-  const link = document.createElement("a");
-  link.href = ad.redirect_url;
-  link.textContent = "↗ Visit advertiser";
-  link.target = "_blank";
-  link.rel = "noopener noreferrer";
-  link.style.display = "inline-block";
-  link.style.marginTop = "8px";
-
-  container.appendChild(link);
+      if (ad.redirect_url) {
+        const link = document.createElement("a");
+        link.href = ad.redirect_url;
+        link.textContent = " ↗ Visit advertiser";
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.style.cssText =
+          "color:#ffcf70;text-decoration:none;font-weight:bold;";
+        bar.appendChild(link);
       }
-  
-  section.hidden = false;  
-}  
 
-displayVideo(videos[0], "sponsoredSection", "sponsoredVideo");  
-displayVideo(videos[1], "sponsoredSection2", "sponsoredVideo2");
+      container.replaceChildren(bar, video);
+      section.hidden = false;
+    }
 
-} catch (error) {
-console.error("Sponsored videos could not load:", error);
-}
+    displayVideo(videos[0], "sponsoredSection", "sponsoredVideo");
+    displayVideo(videos[1], "sponsoredSection2", "sponsoredVideo2");
+
+  } catch (error) {
+    console.error("Sponsored videos could not load:", error);
+  }
 })();
       </script>
 </body>
