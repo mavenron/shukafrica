@@ -376,6 +376,7 @@ export async function onRequest({ request, env }) {
         data.endDate,
         data.mainMediaKey || null,
         data.extraMediaKey || null,
+        data.redirectUrl || null,
         Number(data.id)
       ).run();
 
