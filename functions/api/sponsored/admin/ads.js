@@ -364,6 +364,7 @@ export async function onRequest({ request, env }) {
           end_date = ?,
           main_media_key = ?,
           extra_media_key = ?,
+          redirect_url = ?,
           updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `).bind(
