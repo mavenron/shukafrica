@@ -90,6 +90,7 @@ function validAdData(data) {
 
     validMediaKey(data.mainMediaKey) &&
     validMediaKey(data.extraMediaKey)
+    && isValidRedirectUrl(data.redirectUrl)
   );
 }
 
