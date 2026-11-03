@@ -709,17 +709,7 @@ cards.forEach(ad => {
 
   $("publicCards").appendChild(card);
 });
-
-    details.onclick = () => {
-      detailContent.classList.toggle("hidden");
-      details.textContent = detailContent.classList.contains("hidden")
-        ? "View Details"
-        : "Hide Details";
-    };
-
-    card.append(title, description, details, detailContent);
-    $("publicCards").appendChild(card);
-  });
+  
 }
 
 $("clearButton").addEventListener("click", clearForm);
