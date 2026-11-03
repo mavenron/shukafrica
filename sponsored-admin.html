@@ -374,7 +374,6 @@ form.addEventListener("submit", async e => {
 
   try {
     let mainMediaKey = editingAd?.mainMediaKey || "";
-    let extraMediaKey = editingAd?.extraMediaKey || "";
 
     if (mainFile) {
       mainMediaKey = await uploadMedia(mainFile, "main");
