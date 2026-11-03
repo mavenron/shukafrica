@@ -305,7 +305,7 @@ export async function onRequest({ request, env }) {
           published,
           display_order
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0,
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0,
           COALESCE(
             (SELECT MAX(display_order) + 1 FROM sponsored_ads),
             0
