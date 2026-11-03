@@ -89,8 +89,8 @@ function validAdData(data) {
     data.endDate >= data.startDate &&
 
     validMediaKey(data.mainMediaKey) &&
-    validMediaKey(data.extraMediaKey)
-    && isValidRedirectUrl(data.redirectUrl)
+    validMediaKey(data.extraMediaKey) && 
+    isValidRedirectUrl(data.redirectUrl)
   );
 }
 
