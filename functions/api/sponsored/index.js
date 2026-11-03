@@ -11,8 +11,9 @@ export async function onRequestGet({ env }) {
           main_media_key,
           extra_media_key,
           start_date,
-          end_date
-        FROM sponsored_ads
+          end_date,
+         redirect_url
+         FROM sponsored_ads
         WHERE published = 1
           AND date(start_date) <= date('now')
           AND date(end_date) >= date('now')
@@ -33,7 +34,8 @@ export async function onRequestGet({ env }) {
         ? `/api/sponsored/media?key=${encodeURIComponent(ad.extra_media_key)}`
         : null,
       start_date: ad.start_date,
-      end_date: ad.end_date
+end_date: ad.end_date,
+redirect_url: ad.redirect_url
     }));
 
     return Response.json({
