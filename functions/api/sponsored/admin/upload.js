@@ -205,4 +205,9 @@ export async function onRequestPost({ request, env }) {
     }, 500);
   }
       }
-        
+        export async function onRequestGet() {
+  return json({
+    success: true,
+    message: "Sponsored upload endpoint is reachable."
+  });
+        }
