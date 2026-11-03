@@ -301,6 +301,7 @@ export async function onRequest({ request, env }) {
           extra_media_key,
           start_date,
           end_date,
+          redirect_url,
           published,
           display_order
         )
