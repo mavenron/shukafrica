@@ -31,6 +31,23 @@ function isValidDate(value) {
   );
 }
 
+function isValidRedirectUrl(value) {
+  if (value === undefined || value === null || value === "") {
+    return true;
+  }
+
+  if (typeof value !== "string" || value.length > 2000) {
+    return false;
+  }
+
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
 // ------------------------------
 // ADVERTISEMENT VALIDATION
 // ------------------------------
