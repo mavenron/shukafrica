@@ -636,6 +636,98 @@ video.play().catch(() => {
     console.error("Sponsored videos could not load:", error);
   }
 })();
+
+        
+(async function loadSponsoredCards() {
+  try {
+    const response = await fetch("/api/sponsored/");
+    if (!response.ok) return;
+
+    const data = await response.json();
+    if (!data.success || !Array.isArray(data.ads)) return;
+
+    const grid = document.getElementById("productGrid");
+    if (!grid) return;
+
+    const ads = data.ads
+      .filter(ad => ad.placement === "card" && ad.main_media_url)
+      .slice(0, 4);
+
+    ads.forEach(ad => {
+      const card = document.createElement("article");
+      card.className = "product sponsored-card";
+      card.dataset.name = ad.title || "Sponsored";
+      card.dataset.category = "Sponsored";
+      card.dataset.type = "Market";
+
+      const media = document.createElement("div");
+      media.className = "product-photo";
+
+      const isVideo = /\.(mp4|webm|ogg)(\?|$)/i.test(ad.main_media_url);
+
+      if (isVideo) {
+        const video = document.createElement("video");
+        video.src = ad.main_media_url;
+        video.autoplay = true;
+        video.muted = true;
+        video.loop = true;
+        video.playsInline = true;
+        video.controls = true;
+        video.preload = "metadata";
+        media.appendChild(video);
+        video.play().catch(() => {});
+      } else {
+        const img = document.createElement("img");
+        img.src = ad.main_media_url;
+        img.alt = ad.title || "Sponsored advertisement";
+        img.loading = "lazy";
+        media.appendChild(img);
+      }
+
+      const info = document.createElement("div");
+      info.className = "product-info";
+
+      const bar = document.createElement("div");
+      bar.style.cssText = `
+        background:#102d25;
+        color:white;
+        padding:9px 11px;
+        border-radius:7px;
+        font-size:13px;
+        line-height:1.5;
+      `;
+
+      const title = document.createElement("strong");
+      title.textContent = ad.title || "";
+
+      const description = document.createElement("span");
+      description.textContent = ad.short_description
+        ? " — " + ad.short_description
+        : "";
+
+      bar.append(title, description);
+
+      if (ad.redirect_url) {
+        const link = document.createElement("a");
+        link.href = ad.redirect_url;
+        link.textContent = " ↗ Visit advertiser";
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.style.cssText =
+          "color:#ffcf70;text-decoration:none;font-weight:bold;";
+        bar.appendChild(link);
+      }
+
+      info.appendChild(bar);
+      card.append(media, info);
+      grid.appendChild(card);
+    });
+
+  } catch (error) {
+    console.error("Sponsored cards could not load:", error);
+  }
+})();
+        
       </script>
 </body>
       </html>
