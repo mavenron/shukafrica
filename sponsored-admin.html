@@ -330,15 +330,6 @@ $("mainMedia").addEventListener("change", e => {
   }
 });
 
-$("extraMedia").addEventListener("change", e => {
-  extraFile = e.target.files[0] || null;
-
-  if (extraFile) {
-    if (extraUrl) URL.revokeObjectURL(extraUrl);
-    extraUrl = URL.createObjectURL(extraFile);
-  }
-});
-
 async function uploadMedia(file, role) {
   if (!file) return null;
 
