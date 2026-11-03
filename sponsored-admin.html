@@ -276,13 +276,9 @@ function clearForm() {
   editingId = null;
   editingAd = null;
   mainFile = null;
-  extraFile = null;
 
   if (mainUrl) URL.revokeObjectURL(mainUrl);
-  if (extraUrl) URL.revokeObjectURL(extraUrl);
-
   mainUrl = null;
-  extraUrl = null;
 
   $("adId").value = "";
   $("imagePreview").style.display = "none";
