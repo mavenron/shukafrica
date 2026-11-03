@@ -349,7 +349,7 @@ async function uploadMedia(file, role) {
     ? 30 * 1024 * 1024
     : 5 * 1024 * 1024;
 
-  if (file.size > maxSize) {
+  if (file.size <= 0 || file.size > maxSize) {
     throw new Error(
       isVideo
         ? "Video must not exceed 30 MB."
@@ -357,13 +357,13 @@ async function uploadMedia(file, role) {
     );
   }
 
-  const data = new FormData();
-  data.append("file", file);
-  data.append("role", role);
-
   const result = await apiRequest(UPLOAD_API, {
     method: "POST",
-    body: data
+    headers: {
+      "Content-Type": file.type,
+      "X-Upload-Role": role
+    },
+    body: file
   });
 
   return result.key;
