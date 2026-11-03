@@ -365,7 +365,7 @@ async function loadAdvertisements() {
       id: ad.id,
       title: ad.title,
       shortDescription: ad.short_description,
-      fullDescription: ad.full_description || "",
+      redirectUrl: ad.redirect_url || "",
       placement: ad.placement,
       startDate: ad.start_date,
       endDate: ad.end_date,
@@ -402,10 +402,6 @@ form.addEventListener("submit", async e => {
 
     if (mainFile) {
       mainMediaKey = await uploadMedia(mainFile, "main");
-    }
-
-    if (extraFile) {
-      extraMediaKey = await uploadMedia(extraFile, "extra");
     }
 
     const payload = {
