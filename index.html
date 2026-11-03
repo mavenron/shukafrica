@@ -581,6 +581,18 @@ function displayVideo(ad, sectionId, containerId) {
     container.appendChild(description);  
   }  
 
+  if (ad.redirect_url) {
+  const link = document.createElement("a");
+  link.href = ad.redirect_url;
+  link.textContent = "↗ Visit advertiser";
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.style.display = "inline-block";
+  link.style.marginTop = "8px";
+
+  container.appendChild(link);
+      }
+  
   section.hidden = false;  
 }  
 
