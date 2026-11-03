@@ -405,15 +405,16 @@ form.addEventListener("submit", async e => {
     }
 
     const payload = {
-      title: $("title").value.trim(),
-      shortDescription: $("shortDescription").value.trim(),
-      fullDescription: $("fullDescription").value.trim(),
-      placement: $("placement").value,
-      startDate: start,
-      endDate: end,
-      mainMediaKey,
-      extraMediaKey
-    };
+  title: $("title").value.trim(),
+  shortDescription: $("shortDescription").value.trim(),
+  fullDescription: "",
+  placement: $("placement").value,
+  startDate: start,
+  endDate: end,
+  mainMediaKey,
+  extraMediaKey: "",
+  redirectUrl: $("redirectUrl").value.trim()
+};
 
     if (editingId !== null) {
       await apiRequest(API, {
