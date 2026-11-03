@@ -547,7 +547,10 @@
 (async function loadSponsoredVideos() {
   try {
     const response = await fetch("/api/sponsored/");
-    if (!response.ok) return;
+    if (!response.ok) {
+      console.error("Sponsored API error:", response.status);
+      return;
+    }
 
     const data = await response.json();
     if (!data.success || !Array.isArray(data.ads)) return;
@@ -566,10 +569,25 @@
       title.textContent = ad.title;
 
       const video = document.createElement("video");
-      video.src = ad.main_media_url;
       video.controls = true;
       video.playsInline = true;
       video.preload = "metadata";
+      video.style.width = "100%";
+      video.style.maxWidth = "100%";
+      video.style.background = "#222";
+      video.src = ad.main_media_url;
+
+      video.addEventListener("loadedmetadata", () => {
+        console.log("Sponsored video loaded:", video.duration);
+      });
+
+      video.addEventListener("error", () => {
+        console.error("Sponsored video playback error:", {
+          url: video.currentSrc,
+          code: video.error?.code,
+          message: video.error?.message
+        });
+      });
 
       const description = document.createElement("p");
       description.textContent = ad.short_description || "";
