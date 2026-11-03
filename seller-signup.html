@@ -316,12 +316,11 @@
     loginForm.addEventListener("submit", event => {
       event.preventDefault();
       if (!loginForm.reportValidity()) return;
-
-      submitSellerForm(
-        loginForm,
-        "/api/seller/login",
-        "Log in to your account"
-      );
+submitSellerForm(
+  loginForm,
+  "/api/auth/login",
+  "Log in to your account"
+);
     });
   </script>
 </body>
