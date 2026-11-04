@@ -595,7 +595,7 @@
 
   empty.hidden=visible!==0;
 }
-    document.getElementById('searchForm').addEventListener('submit',e=>{e.preventDefault();filterProducts();document.getElementById('market').scrollIntoView({behavior:'smooth'});if(searchInput.value.trim())showNotice('Showing demo listings for “'+searchInput.value.trim()+'”.')});
+    document.getElementById('searchForm').addEventListener('submit',e=>{e.preventDefault();filterProducts();document.getElementById('market').scrollIntoView({behavior:'smooth'});if(searchInput.value.trim())showNotice('Showing listings for “'+searchInput.value.trim()+'”.')
     searchInput.addEventListener('input',filterProducts);
     document.querySelectorAll('[data-mode="Rentals"]').forEach(el=>el.addEventListener('click',()=>{searchInput.value='Rentals';filterProducts()}));
     document.querySelectorAll('[data-emergency]').forEach(btn=>btn.addEventListener('click',()=>showNotice(btn.dataset.emergency+' services: this preview does not contact responders. Emergency directory coming after local verification.')));
@@ -760,9 +760,11 @@ video.play().catch(() => {
       }
 
       info.appendChild(bar);
-      card.append(media, info);
+            card.append(media, info);
       grid.appendChild(card);
     });
+
+    filterProducts();
 
   } catch (error) {
     console.error("Sponsored cards could not load:", error);
