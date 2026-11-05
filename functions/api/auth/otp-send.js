@@ -13,7 +13,7 @@ const COUNTRY_RULES = {
   TG: { prefix: "+228", digits: 8 }
 };
 
-function json(data, status, origin) {
+function json(data, status = 200, origin = "") {
   const headers = {
     "Content-Type": "application/json; charset=utf-8",
     "Cache-Control": "no-store",
@@ -70,7 +70,6 @@ function normalizePhone(country, input) {
 
   let number = input.trim().replace(/[\s()-]/g, "");
 
-  // Accept local numbers beginning with 0.
   if (number.startsWith("0")) {
     number = rule.prefix + number.slice(1);
   } else if (/^\d+$/.test(number)) {
@@ -138,16 +137,6 @@ export async function onRequestPost({ request, env }) {
     const phoneKey = await hashKey("phone:" + phone);
     const ipKey = await hashKey("ip:" + ip);
 
-    const phoneAllowed = await consumeLimit(
-      env.DB, phoneKey, 3, now
-    );
-
-    if (!phoneAllowed) {
-      return json({
-        error: "Too many verification requests for this number. Try again later."
-      }, 429, origin);
-    }
-
     const ipAllowed = await consumeLimit(
       env.DB, ipKey, 10, now
     );
@@ -155,6 +144,16 @@ export async function onRequestPost({ request, env }) {
     if (!ipAllowed) {
       return json({
         error: "Too many verification requests. Try again later."
+      }, 429, origin);
+    }
+
+    const phoneAllowed = await consumeLimit(
+      env.DB, phoneKey, 3, now
+    );
+
+    if (!phoneAllowed) {
+      return json({
+        error: "Too many verification requests for this number. Try again later."
       }, 429, origin);
     }
 
@@ -193,11 +192,21 @@ export async function onRequestPost({ request, env }) {
     const id = crypto.randomUUID();
     const expiresAt = new Date((now + 300) * 1000).toISOString();
 
-    await env.DB.prepare(`
-      INSERT INTO phone_verifications
-        (id, phone, otp_id, verified, expires_at)
-      VALUES (?, ?, ?, 0, ?)
-    `).bind(id, phone, result.otp_id, expiresAt).run();
+    // Invalidate earlier pending and verified codes, then save the new code.
+    await env.DB.batch([
+      env.DB.prepare(`
+        UPDATE phone_verifications
+        SET verified = 2
+        WHERE phone = ?
+          AND verified IN (0, 1)
+      `).bind(phone),
+
+      env.DB.prepare(`
+        INSERT INTO phone_verifications
+          (id, phone, otp_id, verified, expires_at)
+        VALUES (?, ?, ?, 0, ?)
+      `).bind(id, phone, result.otp_id, expiresAt)
+    ]);
 
     return json({
       success: true,
@@ -233,4 +242,4 @@ export async function onRequestOptions({ request }) {
       "Vary": "Origin"
     }
   });
-  }
+      }
