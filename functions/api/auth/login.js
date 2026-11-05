@@ -176,27 +176,20 @@ FROM sellers
       expiresAt
     ).run();
 
-    return json({
-  success: true,
-  seller: {
-    id: seller.id,
-    name: seller.name,
-    email: seller.email,
-    country: seller.country,
-    phone: seller.phone || null
+    return json(
+  {
+    success: true,
+    seller: {
+      id: seller.id,
+      name: seller.name,
+      email: seller.email,
+      country: seller.country,
+      phone: seller.phone || null
+    },
+    expires_at: expiresAt
   },
-  expires_at: expiresAt
-}, 200, {
-  "Set-Cookie":
-    `shuk_seller_session=${token}; Path=/; Max-Age=${SESSION_SECONDS}; HttpOnly; Secure; SameSite=Lax`
-});
-
-} catch (error) {
-  console.error("Login failed:", error);
-
-  return json({
-    success: false,
-    error: "Unable to log in right now."
-  }, 500);
-}
-}
+  200,
+  {
+    "Set-Cookie": `shuk_seller_session=${token}; Path=/; Max-Age=${SESSION_SECONDS}; HttpOnly; Secure; SameSite=Lax`
+  }
+);
