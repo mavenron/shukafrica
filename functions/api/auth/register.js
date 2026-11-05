@@ -77,7 +77,7 @@ export async function onRequestPost({ request, env }) {
     }, 503);
   }
 
-  const origin = request.headers.get("Origin");
+  const origin = request.headers.get("Origin") || "";
 
   if (origin && !ALLOWED_ORIGINS.has(origin)) {
     return json({
@@ -215,7 +215,7 @@ export async function onRequestPost({ request, env }) {
       }, 409);
     }
 
-    // Check whether the phone number already belongs to a seller.
+    // Check whether the phone already belongs to a seller.
     const existingPhone = await env.DB.prepare(`
       SELECT id
       FROM sellers
@@ -230,7 +230,9 @@ export async function onRequestPost({ request, env }) {
       }, 409);
     }
 
-    // Confirm that this exact OTP was verified and has not expired.
+    const now = new Date().toISOString();
+
+    // Confirm this exact OTP was verified and has not expired.
     const verification = await env.DB.prepare(`
       SELECT id
       FROM phone_verifications
@@ -242,7 +244,7 @@ export async function onRequestPost({ request, env }) {
     `).bind(
       otpId,
       phone,
-      new Date().toISOString()
+      now
     ).first();
 
     if (!verification) {
@@ -264,10 +266,7 @@ export async function onRequestPost({ request, env }) {
       Date.now() + SESSION_SECONDS * 1000
     ).toISOString();
 
-    const now = new Date().toISOString();
-
-    // Consume the OTP for this specific seller registration.
-    // Create the seller and login session in the same D1 batch.
+    // Consume OTP, create seller and create session together.
     const results = await env.DB.batch([
       env.DB.prepare(`
         UPDATE phone_verifications
@@ -298,6 +297,7 @@ export async function onRequestPost({ request, env }) {
             AND phone = ?
             AND verified = 2
             AND consumed_by = ?
+            AND expires_at > ?
         )
       `).bind(
         sellerId,
@@ -309,7 +309,8 @@ export async function onRequestPost({ request, env }) {
         verification.id,
         otpId,
         phone,
-        sellerId
+        sellerId,
+        now
       ),
 
       env.DB.prepare(`
@@ -330,12 +331,17 @@ export async function onRequestPost({ request, env }) {
       )
     ]);
 
+    // Confirm all three database operations succeeded.
     if (
-      results[0].meta.changes !== 1 ||
-      results[1].meta.changes !== 1 ||
-      results[2].meta.changes !== 1
+      !Array.isArray(results) ||
+      results.length !== 3 ||
+      results[0]?.meta?.changes !== 1 ||
+      results[1]?.meta?.changes !== 1 ||
+      results[2]?.meta?.changes !== 1
     ) {
-      throw new Error("Registration transaction did not complete.");
+      throw new Error(
+        "Registration transaction did not complete."
+      );
     }
 
     return json({
@@ -370,4 +376,4 @@ export async function onRequestPost({ request, env }) {
       error: "Could not create account. Please try again."
     }, 500);
   }
-                }
+        }
