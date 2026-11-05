@@ -212,41 +212,72 @@ export async function onRequestPost({ request, env }) {
       Date.now() + SESSION_SECONDS * 1000
     ).toISOString();
 
-    // Consume this verified OTP so it cannot register another account.
-    const consumed = await env.DB.prepare(`
-      UPDATE phone_verifications
-      SET verified = 2
+    // Consume OTP, create seller and create session as one batch.
+const now = new Date().toISOString();
+
+const results = await env.DB.batch([
+  env.DB.prepare(`
+    UPDATE phone_verifications
+    SET verified = 2
+    WHERE id = ?
+      AND otp_id = ?
+      AND phone = ?
+      AND verified = 1
+      AND expires_at > ?
+  `).bind(
+    verification.id,
+    otpId,
+    phone,
+    now
+  ),
+
+  env.DB.prepare(`
+    INSERT INTO sellers
+      (id, name, email, password_hash, country, phone)
+    SELECT ?, ?, ?, ?, ?, ?
+    WHERE EXISTS (
+      SELECT 1
+      FROM phone_verifications
       WHERE id = ?
         AND otp_id = ?
         AND phone = ?
-        AND verified = 1
-        AND expires_at > ?
-    `).bind(
-      verification.id,
-      otpId,
-      phone,
-      new Date().toISOString()
-    ).run();
+        AND verified = 2
+    )
+  `).bind(
+    sellerId,
+    name,
+    email,
+    passwordHash,
+    country,
+    phone,
+    verification.id,
+    otpId,
+    phone
+  ),
 
-    if (consumed.meta.changes !== 1) {
-      return json({
-        success: false,
-        error: "Phone verification has expired or already been used. Please verify again."
-      }, 409);
-    }
+  env.DB.prepare(`
+    INSERT INTO seller_sessions
+      (id, phone, token_hash, expires_at)
+    SELECT ?, ?, ?, ?
+    WHERE EXISTS (
+      SELECT 1 FROM sellers WHERE id = ?
+    )
+  `).bind(
+    sessionId,
+    "email:" + sellerId,
+    tokenHash,
+    expiresAt,
+    sellerId
+  )
+]);
 
-    await env.DB.batch([
-      env.DB.prepare(`
-        INSERT INTO sellers
-          (id, name, email, password_hash, country, phone)
-        VALUES (?, ?, ?, ?, ?, ?)
-      `).bind(sellerId, name, email, passwordHash, country, phone),
-
-      env.DB.prepare(`
-        INSERT INTO seller_sessions
-          (id, phone, token_hash, expires_at)
-        VALUES (?, ?, ?, ?)
-      `).bind(sessionId, "email:" + sellerId, tokenHash, expiresAt)
+if (
+  results[0].meta.changes !== 1 ||
+  results[1].meta.changes !== 1 ||
+  results[2].meta.changes !== 1
+) {
+  throw new Error("Registration transaction did not complete.");
+}
     ]);
 
     return json({
