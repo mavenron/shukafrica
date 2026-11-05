@@ -180,11 +180,11 @@ FROM sellers
 
     return json({
       success: true,
-      seller: {
+            seller: {
         id: seller.id,
         name: seller.name,
         email: seller.email,
-        country: seller.country
+        country: seller.country,
         phone: seller.phone || null
       },
       expires_at: expiresAt
