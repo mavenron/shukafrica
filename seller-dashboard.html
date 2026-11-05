@@ -1101,7 +1101,34 @@ container.addEventListener("click", async event => {
 /* Logout */
 
 $("logoutButton").addEventListener("click", async event => {
-  cons
+  const button = event.currentTarget;
+
+  button.disabled = true;
+  button.textContent = "Logging out…";
+
+  try {
+    await fetch("/api/seller/logout", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "Accept": "application/json"
+      },
+      cache: "no-store"
+    });
+
+  } catch (error) {
+    console.error("Logout request failed:", error);
+
+  } finally {
+    location.href = "/signup.html?account=buy-sell&mode=login";
+  }
+});
+
+/* Start dashboard */
+
+startDashboard();
+
+})();
 </script>
 </body>
 </html>
