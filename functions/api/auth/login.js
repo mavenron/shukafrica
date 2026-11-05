@@ -193,3 +193,4 @@ FROM sellers
     "Set-Cookie": `shuk_seller_session=${token}; Path=/; Max-Age=${SESSION_SECONDS}; HttpOnly; Secure; SameSite=Lax`
   }
 );
+    
