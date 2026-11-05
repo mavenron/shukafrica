@@ -43,7 +43,19 @@ export async function onRequestPost({ request, env }) {
   };
 
   if (token) {
-    const tokenHash = await sha256Hex(decodeURIComponent(token));
+    if (!env.DB) {
+      return json({ error: "Database unavailable." }, 503, headers);
+    }
+
+    let decodedToken;
+
+    try {
+      decodedToken = decodeURIComponent(token);
+    } catch {
+      return json({ error: "Invalid session cookie." }, 400, headers);
+    }
+
+    const tokenHash = await sha256Hex(decodedToken);
 
     await env.DB.prepare(
       "DELETE FROM seller_sessions WHERE token_hash = ?"
