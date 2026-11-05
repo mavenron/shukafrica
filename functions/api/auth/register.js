@@ -278,7 +278,6 @@ if (
 ) {
   throw new Error("Registration transaction did not complete.");
 }
-    ]);
 
     return json({
       success: true,
