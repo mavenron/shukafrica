@@ -495,5 +495,5 @@ export async function onRequestPost({ request, env }) {
       error: "Unable to submit your listing."
     }, 500);
   }
-                               }
+}
         
