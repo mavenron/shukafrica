@@ -1,4 +1,3 @@
-
 const ALLOWED_ORIGINS = new Set([
   "https://shukafrica.com",
   "https://www.shukafrica.com",
@@ -119,6 +118,21 @@ export async function onRequestPost({ request, env }) {
   const now = Math.floor(Date.now() / 1000);
 
   try {
+    const attemptKey = await hashKey("otp:" + otpId);
+    const ipKey = await hashKey("verify-ip:" + ip);
+
+    if (!await consumeLimit(env.DB, ipKey, 20, now)) {
+      return json({
+        error: "Too many verification attempts. Try again later."
+      }, 429, origin);
+    }
+
+    if (!await consumeLimit(env.DB, attemptKey, 5, now)) {
+      return json({
+        error: "Too many attempts for this verification code."
+      }, 429, origin);
+    }
+
     const record = await env.DB.prepare(`
       SELECT id, phone, verified, expires_at
       FROM phone_verifications
@@ -134,7 +148,7 @@ export async function onRequestPost({ request, env }) {
 
     if (record.verified !== 0) {
       return json({
-        error: "This verification code has already been used."
+        error: "This verification code has already been used or invalidated."
       }, 409, origin);
     }
 
@@ -144,21 +158,6 @@ export async function onRequestPost({ request, env }) {
       return json({
         error: "Verification code has expired. Request a new code."
       }, 400, origin);
-    }
-
-    const attemptKey = await hashKey("otp:" + otpId);
-    const ipKey = await hashKey("verify-ip:" + ip);
-
-    if (!await consumeLimit(env.DB, attemptKey, 5, now)) {
-      return json({
-        error: "Too many attempts for this verification code."
-      }, 429, origin);
-    }
-
-    if (!await consumeLimit(env.DB, ipKey, 20, now)) {
-      return json({
-        error: "Too many verification attempts. Try again later."
-      }, 429, origin);
     }
 
     const upstream = await fetch(
@@ -193,11 +192,13 @@ export async function onRequestPost({ request, env }) {
       UPDATE phone_verifications
       SET verified = 1
       WHERE id = ?
+        AND otp_id = ?
         AND phone = ?
         AND verified = 0
         AND expires_at > ?
     `).bind(
       record.id,
+      otpId,
       phone,
       new Date().toISOString()
     ).run();
@@ -241,4 +242,4 @@ export async function onRequestOptions({ request }) {
       "Vary": "Origin"
     }
   });
-        }
+}
