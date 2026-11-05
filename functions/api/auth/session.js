@@ -80,7 +80,7 @@ export async function onRequestGet({ request, env }) {
       const sellerId = session.phone.slice(6);
 
       const seller = await env.DB.prepare(`
-        SELECT id, name, email, country
+        SELECT id, name, email, country, phone
         FROM sellers
         WHERE id = ?
         LIMIT 1
@@ -97,7 +97,8 @@ export async function onRequestGet({ request, env }) {
           id: seller.id,
           name: seller.name,
           email: seller.email,
-          country: seller.country
+          country: seller.country,
+          phone: seller.phone || null
         },
         expires_at: session.expires_at
       }, 200, origin);
