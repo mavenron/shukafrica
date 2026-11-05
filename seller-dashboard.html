@@ -152,16 +152,44 @@ h1{font-size:23px}.stats{gap:8px}.stat{padding:12px 9px}
       </div>
 
       <div id="sellerOtpSection" hidden>
-        <h3>Verify your phone</h3>
-        <p class="muted">Phone verification is required for legacy SMS-based accounts.</p>
-        <button class="button secondary" id="sendSellerOtp" type="button">Send verification code</button>
-        <div class="field" style="margin-top:12px">
-          <label for="sellerOtpCode">Six-digit SMS code</label>
-          <input id="sellerOtpCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}">
-        </div>
-        <button class="button secondary" id="verifySellerOtp" type="button" style="margin-top:10px">Verify code</button>
-        <p id="sellerOtpStatus" class="help" role="status" aria-live="polite">Phone verification required.</p>
-      </div>
+  <h3>Verify your phone</h3>
+  <p class="muted">
+    Verify your phone number before publishing your next listing.
+  </p>
+
+  <div class="field" style="margin-top:12px">
+    <label for="sellerOtpCountry">Country</label>
+    <select id="sellerOtpCountry">
+      <option value="GH">Ghana (+233)</option>
+      <option value="BF">Burkina Faso (+226)</option>
+      <option value="TG">Togo (+228)</option>
+    </select>
+  </div>
+
+  <button class="button secondary" id="sendSellerOtp" type="button">
+    Send verification code
+  </button>
+
+  <div class="field" style="margin-top:12px">
+    <label for="sellerOtpCode">Six-digit SMS code</label>
+    <input
+      id="sellerOtpCode"
+      type="text"
+      inputmode="numeric"
+      autocomplete="one-time-code"
+      maxlength="6"
+      pattern="[0-9]{6}"
+    >
+  </div>
+
+  <button class="button secondary" id="verifySellerOtp" type="button" style="margin-top:10px">
+    Verify code
+  </button>
+
+  <p id="sellerOtpStatus" class="help" role="status" aria-live="polite">
+    Phone verification required.
+  </p>
+</div>
 
       <div class="form-actions">
         <button class="button primary" id="submitListingButton" type="submit">Submit for approval</button>
