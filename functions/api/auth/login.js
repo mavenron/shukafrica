@@ -144,8 +144,8 @@ export async function onRequestPost({ request, env }) {
 
   try {
     const seller = await env.DB.prepare(`
-      SELECT id, name, email, country, password_hash
-      FROM sellers
+      SELECT id, name, email, country, phone, password_hash
+FROM sellers
       WHERE email = ?
       LIMIT 1
     `).bind(email).first();
@@ -185,6 +185,7 @@ export async function onRequestPost({ request, env }) {
         name: seller.name,
         email: seller.email,
         country: seller.country
+        phone: seller.phone || null
       },
       expires_at: expiresAt
     }, 200, {
