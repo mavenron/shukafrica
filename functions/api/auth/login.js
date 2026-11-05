@@ -1,5 +1,3 @@
-
-
 const SESSION_SECONDS = 7 * 24 * 60 * 60;
 const ITERATIONS = 100000;
 function json(data, status = 200, extra = {}) {
