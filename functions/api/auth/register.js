@@ -27,6 +27,7 @@ function json(data, status = 200, extra = {}) {
 
 function makeToken() {
   const bytes = crypto.getRandomValues(new Uint8Array(32));
+
   return btoa(String.fromCharCode(...bytes))
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
@@ -70,18 +71,27 @@ async function hashPassword(password) {
 
 export async function onRequestPost({ request, env }) {
   if (!env.DB) {
-    return json({ success: false, error: "Database unavailable." }, 503);
+    return json({
+      success: false,
+      error: "Database unavailable."
+    }, 503);
   }
 
   const origin = request.headers.get("Origin");
 
   if (origin && !ALLOWED_ORIGINS.has(origin)) {
-    return json({ success: false, error: "Origin not allowed." }, 403);
+    return json({
+      success: false,
+      error: "Origin not allowed."
+    }, 403);
   }
 
   if (!(request.headers.get("Content-Type") || "")
     .toLowerCase().includes("application/json")) {
-    return json({ success: false, error: "JSON required." }, 415);
+    return json({
+      success: false,
+      error: "JSON required."
+    }, 415);
   }
 
   let body;
@@ -90,40 +100,66 @@ export async function onRequestPost({ request, env }) {
     const raw = await request.text();
 
     if (raw.length > 10000) {
-      return json({ success: false, error: "Request too large." }, 413);
+      return json({
+        success: false,
+        error: "Request too large."
+      }, 413);
     }
 
     body = JSON.parse(raw);
   } catch {
-    return json({ success: false, error: "Invalid JSON." }, 400);
+    return json({
+      success: false,
+      error: "Invalid JSON."
+    }, 400);
   }
 
   if (!body || typeof body !== "object" || Array.isArray(body)) {
-    return json({ success: false, error: "Invalid registration data." }, 400);
+    return json({
+      success: false,
+      error: "Invalid registration data."
+    }, 400);
   }
 
-  const name = typeof body.name === "string" ? body.name.trim() : "";
+  const name = typeof body.name === "string"
+    ? body.name.trim()
+    : "";
+
   const email = typeof body.email === "string"
     ? body.email.trim().toLowerCase()
     : "";
+
   const password = body.password;
+
   const country = typeof body.country === "string"
     ? body.country.trim().toUpperCase()
     : "";
-  const phone = typeof body.phone === "string" ? body.phone.trim() : "";
-  const otpId = typeof body.otp_id === "string" ? body.otp_id.trim() : "";
+
+  const phone = typeof body.phone === "string"
+    ? body.phone.trim()
+    : "";
+
+  const otpId = typeof body.otp_id === "string"
+    ? body.otp_id.trim()
+    : "";
 
   const countryInfo = COUNTRY_PREFIXES[country];
 
   if (name.length < 2 || name.length > 100) {
-    return json({ success: false, error: "Enter a valid name." }, 400);
+    return json({
+      success: false,
+      error: "Enter a valid name."
+    }, 400);
   }
 
   if (
     email.length > 254 ||
     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
   ) {
-    return json({ success: false, error: "Enter a valid email." }, 400);
+    return json({
+      success: false,
+      error: "Enter a valid email."
+    }, 400);
   }
 
   if (
@@ -164,9 +200,13 @@ export async function onRequestPost({ request, env }) {
   }
 
   try {
-    const existingEmail = await env.DB.prepare(
-      "SELECT id FROM sellers WHERE email = ? LIMIT 1"
-    ).bind(email).first();
+    // Check whether the email already belongs to a seller.
+    const existingEmail = await env.DB.prepare(`
+      SELECT id
+      FROM sellers
+      WHERE email = ?
+      LIMIT 1
+    `).bind(email).first();
 
     if (existingEmail) {
       return json({
@@ -175,9 +215,13 @@ export async function onRequestPost({ request, env }) {
       }, 409);
     }
 
-    const existingPhone = await env.DB.prepare(
-      "SELECT id FROM sellers WHERE phone = ? LIMIT 1"
-    ).bind(phone).first();
+    // Check whether the phone number already belongs to a seller.
+    const existingPhone = await env.DB.prepare(`
+      SELECT id
+      FROM sellers
+      WHERE phone = ?
+      LIMIT 1
+    `).bind(phone).first();
 
     if (existingPhone) {
       return json({
@@ -186,6 +230,7 @@ export async function onRequestPost({ request, env }) {
       }, 409);
     }
 
+    // Confirm that this exact OTP was verified and has not expired.
     const verification = await env.DB.prepare(`
       SELECT id
       FROM phone_verifications
@@ -194,7 +239,11 @@ export async function onRequestPost({ request, env }) {
         AND verified = 1
         AND expires_at > ?
       LIMIT 1
-    `).bind(otpId, phone, new Date().toISOString()).first();
+    `).bind(
+      otpId,
+      phone,
+      new Date().toISOString()
+    ).first();
 
     if (!verification) {
       return json({
@@ -205,79 +254,89 @@ export async function onRequestPost({ request, env }) {
 
     const sellerId = crypto.randomUUID();
     const passwordHash = await hashPassword(password);
+
     const token = makeToken();
     const tokenHash = await sha256(token);
+
     const sessionId = crypto.randomUUID();
+
     const expiresAt = new Date(
       Date.now() + SESSION_SECONDS * 1000
     ).toISOString();
 
-    // Consume OTP, create seller and create session as one batch.
-const now = new Date().toISOString();
+    const now = new Date().toISOString();
 
-const results = await env.DB.batch([
-  env.DB.prepare(`
-    UPDATE phone_verifications
-    SET verified = 2
-    WHERE id = ?
-      AND otp_id = ?
-      AND phone = ?
-      AND verified = 1
-      AND expires_at > ?
-  `).bind(
-    verification.id,
-    otpId,
-    phone,
-    now
-  ),
+    // Consume the OTP for this specific seller registration.
+    // Create the seller and login session in the same D1 batch.
+    const results = await env.DB.batch([
+      env.DB.prepare(`
+        UPDATE phone_verifications
+        SET verified = 2,
+            consumed_by = ?
+        WHERE id = ?
+          AND otp_id = ?
+          AND phone = ?
+          AND verified = 1
+          AND expires_at > ?
+      `).bind(
+        sellerId,
+        verification.id,
+        otpId,
+        phone,
+        now
+      ),
 
-  env.DB.prepare(`
-    INSERT INTO sellers
-      (id, name, email, password_hash, country, phone)
-    SELECT ?, ?, ?, ?, ?, ?
-    WHERE EXISTS (
-      SELECT 1
-      FROM phone_verifications
-      WHERE id = ?
-        AND otp_id = ?
-        AND phone = ?
-        AND verified = 2
-    )
-  `).bind(
-    sellerId,
-    name,
-    email,
-    passwordHash,
-    country,
-    phone,
-    verification.id,
-    otpId,
-    phone
-  ),
+      env.DB.prepare(`
+        INSERT INTO sellers
+          (id, name, email, password_hash, country, phone)
+        SELECT ?, ?, ?, ?, ?, ?
+        WHERE EXISTS (
+          SELECT 1
+          FROM phone_verifications
+          WHERE id = ?
+            AND otp_id = ?
+            AND phone = ?
+            AND verified = 2
+            AND consumed_by = ?
+        )
+      `).bind(
+        sellerId,
+        name,
+        email,
+        passwordHash,
+        country,
+        phone,
+        verification.id,
+        otpId,
+        phone,
+        sellerId
+      ),
 
-  env.DB.prepare(`
-    INSERT INTO seller_sessions
-      (id, phone, token_hash, expires_at)
-    SELECT ?, ?, ?, ?
-    WHERE EXISTS (
-      SELECT 1 FROM sellers WHERE id = ?
-    )
-  `).bind(
-    sessionId,
-    "email:" + sellerId,
-    tokenHash,
-    expiresAt,
-    sellerId
-  )
-]);
+      env.DB.prepare(`
+        INSERT INTO seller_sessions
+          (id, phone, token_hash, expires_at)
+        SELECT ?, ?, ?, ?
+        WHERE EXISTS (
+          SELECT 1
+          FROM sellers
+          WHERE id = ?
+        )
+      `).bind(
+        sessionId,
+        "email:" + sellerId,
+        tokenHash,
+        expiresAt,
+        sellerId
+      )
+    ]);
 
-if (
-  results[0].meta.changes !== 1 ||
-  results[1].meta.changes !== 1 ||
-  results[2].meta.changes !== 1
-) {
-  throw new Error("Registration transaction did not complete.");
-}
+    if (
+      results[0].meta.changes !== 1 ||
+      results[1].meta.changes !== 1 ||
+      results[2].meta.changes !== 1
+    ) {
+      throw new Error("Registration transaction did not complete.");
+    }
 
     return json({
       success: true,
@@ -311,4 +370,4 @@ if (
       error: "Could not create account. Please try again."
     }, 500);
   }
-        }
+                }
