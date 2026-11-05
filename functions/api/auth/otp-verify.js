@@ -18,7 +18,10 @@ function json(data, status = 200, origin = "") {
     headers["Vary"] = "Origin";
   }
 
-  return new Response(JSON.stringify(data), { status, headers });
+  return new Response(JSON.stringify(data), {
+    status,
+    headers
+  });
 }
 
 async function hashKey(value) {
@@ -53,7 +56,14 @@ async function consumeLimit(db, key, limit, now) {
     WHERE otp_rate_limits.window_start <= ?
        OR otp_rate_limits.request_count < ?
     RETURNING request_count
-  `).bind(key, now, cutoff, cutoff, cutoff, limit).first();
+  `).bind(
+    key,
+    now,
+    cutoff,
+    cutoff,
+    cutoff,
+    limit
+  ).first();
 
   return row !== null;
 }
@@ -62,7 +72,9 @@ export async function onRequestPost({ request, env }) {
   const origin = request.headers.get("Origin") || "";
 
   if (!ALLOWED_ORIGINS.has(origin)) {
-    return json({ error: "Origin not allowed." }, 403, origin);
+    return json({
+      error: "Origin not allowed."
+    }, 403);
   }
 
   if (!env.DB || !env.AKOMASMS_API_KEY) {
@@ -71,29 +83,47 @@ export async function onRequestPost({ request, env }) {
     }, 503, origin);
   }
 
+  const contentType = request.headers.get("Content-Type") || "";
+
+  if (!contentType.toLowerCase().includes("application/json")) {
+    return json({
+      error: "Please submit a valid JSON request."
+    }, 415, origin);
+  }
+
   let body;
 
   try {
     const raw = await request.text();
 
     if (raw.length > 5000) {
-      return json({ error: "Request too large." }, 413, origin);
+      return json({
+        error: "Request too large."
+      }, 413, origin);
     }
 
     body = JSON.parse(raw);
   } catch {
-    return json({ error: "Invalid verification request." }, 400, origin);
+    return json({
+      error: "Invalid verification request."
+    }, 400, origin);
   }
 
-  const otpId = typeof body?.otp_id === "string"
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return json({
+      error: "Invalid verification request."
+    }, 400, origin);
+  }
+
+  const otpId = typeof body.otp_id === "string"
     ? body.otp_id.trim()
     : "";
 
-  const code = typeof body?.code === "string"
+  const code = typeof body.code === "string"
     ? body.code.trim()
     : "";
 
-  const phone = typeof body?.phone === "string"
+  const phone = typeof body.phone === "string"
     ? body.phone.trim()
     : "";
 
@@ -229,7 +259,9 @@ export async function onRequestOptions({ request }) {
   const origin = request.headers.get("Origin") || "";
 
   if (!ALLOWED_ORIGINS.has(origin)) {
-    return new Response(null, { status: 403 });
+    return new Response(null, {
+      status: 403
+    });
   }
 
   return new Response(null, {
@@ -243,3 +275,4 @@ export async function onRequestOptions({ request }) {
     }
   });
 }
+  
