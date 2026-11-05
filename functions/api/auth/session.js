@@ -76,7 +76,7 @@ export async function onRequestGet({ request, env }) {
     }
 
     // New email/password sessions use email:<seller ID>.
-    if (session.phone.startsWith("email:")) {
+    if (typeof session.phone === "string" && session.phone.startsWith("email:")) {
       const sellerId = session.phone.slice(6);
 
       const seller = await env.DB.prepare(`
