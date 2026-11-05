@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -113,7 +112,7 @@
       margin: 7px 0 0;
     }
 
-    .submit {
+    .submit, .secondary {
       width: 100%;
       border: 0;
       border-radius: 9px;
@@ -126,7 +125,16 @@
       cursor: pointer;
     }
 
-    .submit:disabled { opacity: .6; cursor: wait; }
+    .secondary {
+      margin-top: 12px;
+      background: #e9f2ec;
+      color: var(--green);
+    }
+
+    .submit:disabled, .secondary:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
 
     #message {
       display: none;
@@ -137,10 +145,41 @@
       overflow-wrap: anywhere;
     }
 
-    #message.error { display: block; background: #fff0ef; color: #9b2822; }
-    #message.success { display: block; background: #e8f6ed; color: #176b45; }
+    #message.error {
+      display: block;
+      background: #fff0ef;
+      color: #9b2822;
+    }
+
+    #message.success {
+      display: block;
+      background: #e8f6ed;
+      color: #176b45;
+    }
 
     .hidden { display: none !important; }
+
+    .verification-box {
+      margin-top: 18px;
+      padding: 15px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #f8fbf9;
+    }
+
+    .verification-box .hint {
+      margin-bottom: 8px;
+    }
+
+    .verification-status {
+      margin-top: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .verification-status.success { color: var(--green); }
+    .verification-status.error { color: #9b2822; }
 
     .bottom {
       text-align: center;
@@ -149,7 +188,10 @@
       margin-top: 22px;
     }
 
-    .bottom a { color: var(--green); font-weight: 700; }
+    .bottom a {
+      color: var(--green);
+      font-weight: 700;
+    }
 
     @media (max-width: 400px) {
       .card { padding: 20px; }
@@ -160,11 +202,15 @@
 <body>
   <main class="card">
     <div class="brand">Shuk<span>Africa</span></div>
-    <p class="intro">Create your seller account and reach customers across West Africa.</p>
+
+    <p class="intro">
+      Create your seller account and reach customers across West Africa.
+    </p>
 
     <div class="tabs" role="tablist" aria-label="Account access">
       <button class="tab active" id="registerTab" type="button"
         role="tab" aria-selected="true">Create account</button>
+
       <button class="tab" id="loginTab" type="button"
         role="tab" aria-selected="false">Log in</button>
     </div>
@@ -173,8 +219,8 @@
 
     <form id="registerForm">
       <label for="name">Full name</label>
-      <input id="name" name="name" type="text" autocomplete="name"
-        maxlength="100" required>
+      <input id="name" name="name" type="text"
+        autocomplete="name" maxlength="100" required>
 
       <label for="registerEmail">Email address</label>
       <input id="registerEmail" name="email" type="email"
@@ -184,17 +230,52 @@
       <select id="country" name="country" required>
         <option value="">Choose your country</option>
         <option value="GH">Ghana</option>
-        <option value="CI">Côte d’Ivoire</option>
+        <option value="CI" id="ivoryCoastOption">Côte d’Ivoire</option>
         <option value="BF">Burkina Faso</option>
         <option value="TG">Togo</option>
       </select>
 
+      <div id="phoneVerification" class="hidden">
+        <label for="phone">Mobile phone number</label>
+        <input id="phone" type="tel" inputmode="tel"
+          autocomplete="tel" maxlength="20"
+          placeholder="Enter your mobile number">
+
+        <p class="hint">
+          Use a number from your selected country. We will send a six-digit verification code by SMS.
+        </p>
+
+        <button class="secondary" id="sendOtpButton" type="button">
+          Send OTP
+        </button>
+
+        <div id="otpEntry" class="hidden">
+          <label for="otpCode">Six-digit verification code</label>
+          <input id="otpCode" type="text" inputmode="numeric"
+            autocomplete="one-time-code" maxlength="6"
+            placeholder="Enter your six-digit code">
+
+          <button class="secondary" id="verifyOtpButton" type="button">
+            Verify phone number
+          </button>
+        </div>
+
+        <div id="verificationStatus" class="verification-status"
+          aria-live="polite"></div>
+      </div>
+
       <label for="registerPassword">Password</label>
       <input id="registerPassword" name="password" type="password"
-        autocomplete="new-password" minlength="12" maxlength="128" required>
-      <p class="hint">Use at least 12 characters. Never share your password with anyone.</p>
+        autocomplete="new-password" minlength="12"
+        maxlength="128" required>
 
-      <button class="submit" type="submit">Create seller account</button>
+      <p class="hint">
+        Use at least 12 characters. Never share your password with anyone.
+      </p>
+
+      <button class="submit" id="registerButton" type="submit">
+        Create seller account
+      </button>
     </form>
 
     <form id="loginForm" class="hidden">
@@ -206,7 +287,9 @@
       <input id="loginPassword" name="password" type="password"
         autocomplete="current-password" maxlength="128" required>
 
-      <button class="submit" type="submit">Log in to your account</button>
+      <button class="submit" type="submit">
+        Log in to your account
+      </button>
     </form>
 
     <div class="bottom">
@@ -215,135 +298,371 @@
     </div>
   </main>
 
-    <script>
-  const registerTab = document.getElementById("registerTab");
-  const loginTab = document.getElementById("loginTab");
-  const registerForm = document.getElementById("registerForm");
-  const loginForm = document.getElementById("loginForm");
-  const message = document.getElementById("message");
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const isBuySell = params.get("account") === "buy-sell";
 
-  function showMessage(text, type) {
-    message.textContent = text;
-    message.className = type;
-  }
+    const registerTab = document.getElementById("registerTab");
+    const loginTab = document.getElementById("loginTab");
+    const registerForm = document.getElementById("registerForm");
+    const loginForm = document.getElementById("loginForm");
+    const message = document.getElementById("message");
 
-  function switchMode(mode) {
-    const registering = mode === "register";
+    const country = document.getElementById("country");
+    const phone = document.getElementById("phone");
+    const otpCode = document.getElementById("otpCode");
+    const phoneVerification = document.getElementById("phoneVerification");
+    const otpEntry = document.getElementById("otpEntry");
+    const sendOtpButton = document.getElementById("sendOtpButton");
+    const verifyOtpButton = document.getElementById("verifyOtpButton");
+    const registerButton = document.getElementById("registerButton");
+    const verificationStatus = document.getElementById("verificationStatus");
 
-    registerForm.classList.toggle("hidden", !registering);
-    loginForm.classList.toggle("hidden", registering);
-    registerTab.classList.toggle("active", registering);
-    loginTab.classList.toggle("active", !registering);
+    let otpId = "";
+    let verifiedPhone = "";
+    let otpRequestPhone = "";
 
-    registerTab.setAttribute("aria-selected", String(registering));
-    loginTab.setAttribute("aria-selected", String(!registering));
+    function showMessage(text, type) {
+      message.textContent = text;
+      message.className = type;
+    }
 
-    message.className = "";
-    message.textContent = "";
-  }
+    function clearMessage() {
+      message.textContent = "";
+      message.className = "";
+    }
 
-  registerTab.addEventListener("click", () => switchMode("register"));
-  loginTab.addEventListener("click", () => switchMode("login"));
+    function setVerificationStatus(text, type = "") {
+      verificationStatus.textContent = text;
+      verificationStatus.className =
+        "verification-status" + (type ? " " + type : "");
+    }
 
-  // Open the login tab when requested by the URL.
-  const params = new URLSearchParams(window.location.search);
-const isBuySell = params.get("account") === "buy-sell";
+    function resetPhoneVerification() {
+      otpId = "";
+      verifiedPhone = "";
+      otpRequestPhone = "";
 
-if (params.get("mode") === "login") {
-  switchMode("login");
-}
-
-  async function submitAccountForm(form, endpoint, buttonText) {
-    const button = form.querySelector('button[type="submit"]');
-    const originalText = button.textContent;
-
-    button.disabled = true;
-    button.textContent = "Please wait…";
-    message.className = "";
-    message.textContent = "";
-
-    const formData = new FormData(form);
-    const payload = Object.fromEntries(formData.entries());
-
-    // Only Open Market registration expects full_name.
-if (form === registerForm && !isBuySell) {
-  payload.full_name = payload.name;
-  delete payload.name;
-}
-
-    try {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        credentials: "same-origin",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
-        body: JSON.stringify(payload),
-        cache: "no-store"
-      });
-
-      const data = await response.json().catch(() => ({}));
-
-      
-if (!response.ok || !data.success) {
-  const details = data.diagnostic
-    ? `${data.error || "Registration failed."} Details: ${data.diagnostic}`
-    : data.error || "We couldn't complete your request. Please try again.";
-
-  throw new Error(details);
-}
-      showMessage("Success! Opening your account…", "success");
+      otpEntry.classList.add("hidden");
+      otpCode.value = "";
+      setVerificationStatus("");
 
       if (isBuySell) {
-  window.location.href = "seller-dashboard.html";
-} else {
-  const returnTo = params.get("return");
+        registerButton.disabled = true;
+      }
+    }
 
-  const allowedDestinations = [
-    "open-market-dashboard.html",
-    "open-market-listing.html"
-  ];
+    function switchMode(mode) {
+      const registering = mode === "register";
 
-  const destination = allowedDestinations.includes(returnTo)
-    ? returnTo
-    : "open-market-dashboard.html";
+      registerForm.classList.toggle("hidden", !registering);
+      loginForm.classList.toggle("hidden", registering);
 
-  window.location.href = destination;
+      registerTab.classList.toggle("active", registering);
+      loginTab.classList.toggle("active", !registering);
+
+      registerTab.setAttribute("aria-selected", String(registering));
+      loginTab.setAttribute("aria-selected", String(!registering));
+
+      clearMessage();
+    }
+
+    registerTab.addEventListener("click", () => switchMode("register"));
+    loginTab.addEventListener("click", () => switchMode("login"));
+
+    if (isBuySell) {
+      phoneVerification.classList.remove("hidden");
+
+      const ivoryCoastOption = document.getElementById("ivoryCoastOption");
+      ivoryCoastOption.disabled = true;
+      ivoryCoastOption.hidden = true;
+
+      registerButton.disabled = true;
+
+      country.addEventListener("change", () => {
+        resetPhoneVerification();
+        clearMessage();
+      });
+
+      phone.addEventListener("input", () => {
+        resetPhoneVerification();
+        clearMessage();
+      });
+
+      otpCode.addEventListener("input", () => {
+        otpCode.value = otpCode.value.replace(/\D/g, "").slice(0, 6);
+      });
+    }
+
+    if (params.get("mode") === "login") {
+      switchMode("login");
+    }
+
+    async function sendOtp() {
+      const selectedCountry = country.value;
+      const enteredPhone = phone.value.trim();
+
+      if (!selectedCountry) {
+        showMessage("Please select your country first.", "error");
+        country.focus();
+        return;
       }
 
-    } catch (error) {
-      showMessage(
-        error.message || "Connection problem. Please try again.",
-        "error"
-      );
-      button.disabled = false;
-      button.textContent = originalText || buttonText;
+      if (!enteredPhone) {
+        showMessage("Enter your mobile phone number.", "error");
+        phone.focus();
+        return;
+      }
+
+      sendOtpButton.disabled = true;
+      sendOtpButton.textContent = "Sending code…";
+      clearMessage();
+      resetPhoneVerification();
+
+      try {
+        const response = await fetch("/api/auth/otp-send", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({
+            country: selectedCountry,
+            phone: enteredPhone
+          }),
+          cache: "no-store"
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || "Could not send verification code.");
+        }
+
+        if (!data.otp_id || !data.phone) {
+          throw new Error("The verification service returned an incomplete response.");
+        }
+
+        otpId = data.otp_id;
+        otpRequestPhone = data.phone;
+        phone.value = data.phone;
+
+        otpEntry.classList.remove("hidden");
+        setVerificationStatus(
+          "Verification code sent. Check your SMS messages.",
+          "success"
+        );
+
+        showMessage("OTP sent successfully.", "success");
+
+      } catch (error) {
+        showMessage(
+          error.message || "Could not send the code. Please try again.",
+          "error"
+        );
+      } finally {
+        sendOtpButton.disabled = false;
+        sendOtpButton.textContent = "Send OTP";
+      }
     }
-  }
 
-  registerForm.addEventListener("submit", event => {
-    event.preventDefault();
-    if (!registerForm.reportValidity()) return;
+    async function verifyOtp() {
+      const code = otpCode.value.trim();
 
-    submitAccountForm(
-  registerForm,
-  isBuySell ? "/api/seller/register" : "/api/open-market/register",
-  "Create seller account"
-);
-  });
+      if (!otpId || !otpRequestPhone) {
+        showMessage("Please request a verification code first.", "error");
+        return;
+      }
 
-  loginForm.addEventListener("submit", event => {
-    event.preventDefault();
-    if (!loginForm.reportValidity()) return;
+      if (!/^\d{6}$/.test(code)) {
+        showMessage("Enter the complete six-digit code.", "error");
+        otpCode.focus();
+        return;
+      }
 
-    submitAccountForm(
-  loginForm,
-  isBuySell ? "/api/seller/login" : "/api/open-market/login",
-  "Log in to your account"
-);
-  });
-    
-</script>
+      verifyOtpButton.disabled = true;
+      verifyOtpButton.textContent = "Verifying…";
+      clearMessage();
+
+      try {
+        const response = await fetch("/api/auth/otp-verify", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({
+            otp_id: otpId,
+            code,
+            phone: otpRequestPhone
+          }),
+          cache: "no-store"
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok || !data.success || !data.verified) {
+          throw new Error(data.error || "Phone verification failed.");
+        }
+
+        verifiedPhone = data.phone || otpRequestPhone;
+
+        if (verifiedPhone !== otpRequestPhone) {
+          resetPhoneVerification();
+          throw new Error("The verified phone number did not match.");
+        }
+
+        phone.value = verifiedPhone;
+        phone.readOnly = true;
+        otpCode.readOnly = true;
+
+        registerButton.disabled = false;
+        sendOtpButton.disabled = true;
+        verifyOtpButton.disabled = true;
+
+        setVerificationStatus(
+          "Phone number successfully verified. You can now create your account.",
+          "success"
+        );
+
+        showMessage("Phone verified successfully.", "success");
+
+      } catch (error) {
+        showMessage(
+          error.message || "Verification failed. Please try again.",
+          "error"
+        );
+
+        verifyOtpButton.disabled = false;
+      } finally {
+        verifyOtpButton.textContent = "Verify phone number";
+      }
+    }
+
+    if (isBuySell) {
+      sendOtpButton.addEventListener("click", sendOtp);
+      verifyOtpButton.addEventListener("click", verifyOtp);
+    }
+
+    async function submitAccountForm(form, endpoint, buttonText) {
+      const button = form.querySelector('button[type="submit"]');
+      const originalText = button.textContent;
+
+      button.disabled = true;
+      button.textContent = "Please wait…";
+      clearMessage();
+
+      const formData = new FormData(form);
+      const payload = Object.fromEntries(formData.entries());
+
+      if (form === registerForm && isBuySell) {
+        if (!verifiedPhone || !otpId) {
+          showMessage("Verify your phone number before registering.", "error");
+          button.disabled = true;
+          button.textContent = originalText;
+          return;
+        }
+
+        payload.phone = verifiedPhone;
+        payload.otp_id = otpId;
+      }
+
+      if (form === registerForm && !isBuySell) {
+        payload.full_name = payload.name;
+        delete payload.name;
+      }
+
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify(payload),
+          cache: "no-store"
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok || !data.success) {
+          const details = data.diagnostic
+            ? `${data.error || "Registration failed."} Details: ${data.diagnostic}`
+            : data.error || "We couldn't complete your request. Please try again.";
+
+          throw new Error(details);
+        }
+
+        showMessage("Success! Opening your account…", "success");
+
+        if (isBuySell) {
+          window.location.href = "seller-dashboard.html";
+        } else {
+          const returnTo = params.get("return");
+
+          const allowedDestinations = [
+            "open-market-dashboard.html",
+            "open-market-listing.html"
+          ];
+
+          const destination = allowedDestinations.includes(returnTo)
+            ? returnTo
+            : "open-market-dashboard.html";
+
+          window.location.href = destination;
+        }
+
+      } catch (error) {
+        showMessage(
+          error.message || "Connection problem. Please try again.",
+          "error"
+        );
+
+        button.disabled = false;
+
+        if (isBuySell && form === registerForm && !verifiedPhone) {
+          button.disabled = true;
+        }
+
+        button.textContent = originalText || buttonText;
+      }
+    }
+
+    registerForm.addEventListener("submit", event => {
+      event.preventDefault();
+
+      if (!registerForm.reportValidity()) return;
+
+      if (isBuySell && !verifiedPhone) {
+        showMessage("Please verify your phone number first.", "error");
+        return;
+      }
+
+      submitAccountForm(
+        registerForm,
+        isBuySell
+          ? "/api/seller/register"
+          : "/api/open-market/register",
+        "Create seller account"
+      );
+    });
+
+    loginForm.addEventListener("submit", event => {
+      event.preventDefault();
+
+      if (!loginForm.reportValidity()) return;
+
+      submitAccountForm(
+        loginForm,
+        isBuySell
+          ? "/api/seller/login"
+          : "/api/open-market/login",
+        "Log in to your account"
+      );
+    });
+  </script>
 </body>
 </html>
