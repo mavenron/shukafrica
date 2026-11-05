@@ -1,6 +1,17 @@
-
 const SESSION_SECONDS = 7 * 24 * 60 * 60;
 const ITERATIONS = 100000;
+
+const ALLOWED_ORIGINS = new Set([
+  "https://shukafrica.com",
+  "https://www.shukafrica.com",
+  "https://shukafrica.pages.dev"
+]);
+
+const COUNTRY_PREFIXES = {
+  GH: { prefix: "+233", digits: 9 },
+  BF: { prefix: "+226", digits: 8 },
+  TG: { prefix: "+228", digits: 8 }
+};
 
 function json(data, status = 200, extra = {}) {
   return new Response(JSON.stringify(data), {
@@ -63,18 +74,13 @@ export async function onRequestPost({ request, env }) {
   }
 
   const origin = request.headers.get("Origin");
-  const allowed = new Set([
-    "https://shukafrica.com",
-    "https://www.shukafrica.com",
-    "https://shukafrica.pages.dev"
-  ]);
 
-  if (origin && !allowed.has(origin)) {
+  if (origin && !ALLOWED_ORIGINS.has(origin)) {
     return json({ success: false, error: "Origin not allowed." }, 403);
   }
 
-  const type = request.headers.get("Content-Type") || "";
-  if (!type.toLowerCase().includes("application/json")) {
+  if (!(request.headers.get("Content-Type") || "")
+    .toLowerCase().includes("application/json")) {
     return json({ success: false, error: "JSON required." }, 415);
   }
 
@@ -82,9 +88,11 @@ export async function onRequestPost({ request, env }) {
 
   try {
     const raw = await request.text();
+
     if (raw.length > 10000) {
       return json({ success: false, error: "Request too large." }, 413);
     }
+
     body = JSON.parse(raw);
   } catch {
     return json({ success: false, error: "Invalid JSON." }, 400);
@@ -99,9 +107,13 @@ export async function onRequestPost({ request, env }) {
     ? body.email.trim().toLowerCase()
     : "";
   const password = body.password;
-  const country = typeof body.country === "string" ? body.country.trim() : "";
+  const country = typeof body.country === "string"
+    ? body.country.trim().toUpperCase()
+    : "";
+  const phone = typeof body.phone === "string" ? body.phone.trim() : "";
+  const otpId = typeof body.otp_id === "string" ? body.otp_id.trim() : "";
 
-  const countries = new Set(["GH", "CI", "BF", "TG"]);
+  const countryInfo = COUNTRY_PREFIXES[country];
 
   if (name.length < 2 || name.length > 100) {
     return json({ success: false, error: "Enter a valid name." }, 400);
@@ -125,20 +137,70 @@ export async function onRequestPost({ request, env }) {
     }, 400);
   }
 
-  if (!countries.has(country)) {
-    return json({ success: false, error: "Select a supported country." }, 400);
+  if (!countryInfo) {
+    return json({
+      success: false,
+      error: "Only Ghana, Burkina Faso and Togo are supported."
+    }, 400);
+  }
+
+  const phonePattern = new RegExp(
+    "^" + countryInfo.prefix.replace("+", "\\+") +
+    "[0-9]{" + countryInfo.digits + "}$"
+  );
+
+  if (!phonePattern.test(phone)) {
+    return json({
+      success: false,
+      error: "Enter a valid phone number for the selected country."
+    }, 400);
+  }
+
+  if (!/^OTP-[A-Za-z0-9-]+$/.test(otpId)) {
+    return json({
+      success: false,
+      error: "Phone verification is required. Please verify your number first."
+    }, 400);
   }
 
   try {
-    const existing = await env.DB.prepare(
+    const existingEmail = await env.DB.prepare(
       "SELECT id FROM sellers WHERE email = ? LIMIT 1"
     ).bind(email).first();
 
-    if (existing) {
+    if (existingEmail) {
       return json({
         success: false,
         error: "An account with this email already exists."
       }, 409);
+    }
+
+    const existingPhone = await env.DB.prepare(
+      "SELECT id FROM sellers WHERE phone = ? LIMIT 1"
+    ).bind(phone).first();
+
+    if (existingPhone) {
+      return json({
+        success: false,
+        error: "This phone number is already registered."
+      }, 409);
+    }
+
+    const verification = await env.DB.prepare(`
+      SELECT id
+      FROM phone_verifications
+      WHERE otp_id = ?
+        AND phone = ?
+        AND verified = 1
+        AND expires_at > ?
+      LIMIT 1
+    `).bind(otpId, phone, new Date().toISOString()).first();
+
+    if (!verification) {
+      return json({
+        success: false,
+        error: "Phone verification is missing or expired. Please verify again."
+      }, 400);
     }
 
     const sellerId = crypto.randomUUID();
@@ -150,12 +212,35 @@ export async function onRequestPost({ request, env }) {
       Date.now() + SESSION_SECONDS * 1000
     ).toISOString();
 
+    // Consume this verified OTP so it cannot register another account.
+    const consumed = await env.DB.prepare(`
+      UPDATE phone_verifications
+      SET verified = 2
+      WHERE id = ?
+        AND otp_id = ?
+        AND phone = ?
+        AND verified = 1
+        AND expires_at > ?
+    `).bind(
+      verification.id,
+      otpId,
+      phone,
+      new Date().toISOString()
+    ).run();
+
+    if (consumed.meta.changes !== 1) {
+      return json({
+        success: false,
+        error: "Phone verification has expired or already been used. Please verify again."
+      }, 409);
+    }
+
     await env.DB.batch([
       env.DB.prepare(`
         INSERT INTO sellers
-          (id, name, email, password_hash, country)
-        VALUES (?, ?, ?, ?, ?)
-      `).bind(sellerId, name, email, passwordHash, country),
+          (id, name, email, password_hash, country, phone)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `).bind(sellerId, name, email, passwordHash, country, phone),
 
       env.DB.prepare(`
         INSERT INTO seller_sessions
@@ -170,7 +255,8 @@ export async function onRequestPost({ request, env }) {
         id: sellerId,
         name,
         email,
-        country
+        country,
+        phone
       }
     }, 201, {
       "Set-Cookie":
@@ -179,9 +265,20 @@ export async function onRequestPost({ request, env }) {
 
   } catch (error) {
     console.error("Registration error:", error);
+
+    if (
+      error?.message?.toLowerCase().includes("unique") ||
+      error?.message?.toLowerCase().includes("constraint")
+    ) {
+      return json({
+        success: false,
+        error: "This email or phone number is already registered."
+      }, 409);
+    }
+
     return json({
       success: false,
-      error: "Could not create account."
+      error: "Could not create account. Please try again."
     }, 500);
   }
-}
+        }
