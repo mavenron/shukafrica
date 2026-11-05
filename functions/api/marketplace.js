@@ -43,6 +43,7 @@ async function getAuthenticatedSeller(request, env) {
   const match = cookie.match(
     /(?:^|;\s*)shuk_seller_session=([^;]+)/
   );
+
   const token = match ? match[1] : "";
 
   if (!token || token.length > 200 || !env.DB) {
@@ -59,6 +60,7 @@ async function getAuthenticatedSeller(request, env) {
 
   const bytes = new TextEncoder().encode(decodedToken);
   const digest = await crypto.subtle.digest("SHA-256", bytes);
+
   const tokenHash = Array.from(new Uint8Array(digest))
     .map(byte => byte.toString(16).padStart(2, "0"))
     .join("");
@@ -72,7 +74,7 @@ async function getAuthenticatedSeller(request, env) {
 
   if (
     !session ||
-    !session.phone ||
+    typeof session.phone !== "string" ||
     !session.expires_at ||
     Date.parse(session.expires_at) <= Date.now()
   ) {
@@ -136,9 +138,21 @@ export async function onRequestGet({ request, env }) {
     }
 
     const url = new URL(request.url);
-    const category = clean(url.searchParams.get("category"), 100);
-    const search = clean(url.searchParams.get("search"), 100);
-    const location = clean(url.searchParams.get("location"), 100);
+
+    const category = clean(
+      url.searchParams.get("category"),
+      100
+    );
+
+    const search = clean(
+      url.searchParams.get("search"),
+      100
+    );
+
+    const location = clean(
+      url.searchParams.get("location"),
+      100
+    );
 
     let sql = `
       SELECT
@@ -252,7 +266,7 @@ export async function onRequestPost({ request, env }) {
       }, 403);
     }
 
-    // Validate all listing fields before using an OTP.
+    // Validate listing fields.
     const sellerName = seller.account_type === "email"
       ? clean(seller.name, 100)
       : clean(body.seller_name, 100);
@@ -305,7 +319,8 @@ export async function onRequestPost({ request, env }) {
     let submittedPhone = "";
     let otpId = "";
 
-    // Existing email sellers without a saved phone must verify one.
+    // Existing email sellers without a saved phone
+    // must verify a phone before publishing.
     if (seller.account_type === "email" && !sellerPhone) {
       submittedPhone = clean(body.phone, 30);
       otpId = clean(body.otp_id, 100);
@@ -348,6 +363,7 @@ export async function onRequestPost({ request, env }) {
       }, 403);
     }
 
+    // Validate an email seller's already-saved phone.
     if (sellerPhone && seller.account_type === "email") {
       if (!phoneMatchesCountry(sellerPhone, seller.country)) {
         return json({
@@ -384,10 +400,10 @@ export async function onRequestPost({ request, env }) {
     }
 
     /*
-      At this point, the listing fields are valid
-      and the seller has not exceeded the listing limit.
+      Consume the OTP and save the seller's verified phone.
 
-      Now check and consume the OTP, if required.
+      This applies only to existing email sellers whose
+      seller account does not yet have a saved phone.
     */
 
     if (seller.account_type === "email" && !seller.phone) {
@@ -401,7 +417,11 @@ export async function onRequestPost({ request, env }) {
           AND verified = 1
           AND expires_at > ?
         LIMIT 1
-      `).bind(otpId, submittedPhone, now).first();
+      `).bind(
+        otpId,
+        submittedPhone,
+        now
+      ).first();
 
       if (!verification) {
         return json({
@@ -410,43 +430,81 @@ export async function onRequestPost({ request, env }) {
         }, 403);
       }
 
-      const consumed = await env.DB.prepare(`
-        UPDATE phone_verifications
-        SET verified = 2
-        WHERE id = ?
-          AND otp_id = ?
-          AND phone = ?
-          AND verified = 1
-          AND expires_at > ?
+      // Prevent a phone number already belonging to
+      // another seller from being attached to this account.
+      const existingPhone = await env.DB.prepare(`
+        SELECT id
+        FROM sellers
+        WHERE phone = ?
+          AND id != ?
+        LIMIT 1
       `).bind(
-        verification.id,
-        otpId,
         submittedPhone,
-        new Date().toISOString()
-      ).run();
+        seller.seller_id
+      ).first();
 
-      if (!consumed.meta || consumed.meta.changes !== 1) {
+      if (existingPhone) {
         return json({
           success: false,
-          error: "This verification code has already been used or expired. Please verify again."
+          error: "This phone number is already registered to another seller."
         }, 409);
       }
 
-      const savedPhone = await env.DB.prepare(`
-        UPDATE sellers
-        SET phone = ?, updated_at = ?
-        WHERE id = ?
-          AND phone IS NULL
-      `).bind(
-        submittedPhone,
-        new Date().toISOString(),
-        seller.seller_id
-      ).run();
+      // Consume this exact OTP and save the phone to this seller.
+      const results = await env.DB.batch([
+        env.DB.prepare(`
+          UPDATE phone_verifications
+          SET verified = 2,
+              consumed_by = ?
+          WHERE id = ?
+            AND otp_id = ?
+            AND phone = ?
+            AND verified = 1
+            AND expires_at > ?
+        `).bind(
+          seller.seller_id,
+          verification.id,
+          otpId,
+          submittedPhone,
+          now
+        ),
 
-      if (!savedPhone.meta || savedPhone.meta.changes !== 1) {
+        env.DB.prepare(`
+          UPDATE sellers
+          SET phone = ?,
+              updated_at = ?
+          WHERE id = ?
+            AND phone IS NULL
+            AND EXISTS (
+              SELECT 1
+              FROM phone_verifications
+              WHERE id = ?
+                AND otp_id = ?
+                AND phone = ?
+                AND verified = 2
+                AND consumed_by = ?
+            )
+        `).bind(
+          submittedPhone,
+          now,
+          seller.seller_id,
+          verification.id,
+          otpId,
+          submittedPhone,
+          seller.seller_id
+        )
+      ]);
+
+      const otpConsumed =
+        results[0]?.meta?.changes === 1;
+
+      const phoneSaved =
+        results[1]?.meta?.changes === 1;
+
+      if (!otpConsumed || !phoneSaved) {
         return json({
           success: false,
-          error: "Could not save your verified phone number. Please contact support if this continues."
+          error: "Your phone verification could not be completed. Please verify again or contact support."
         }, 409);
       }
 
@@ -455,6 +513,7 @@ export async function onRequestPost({ request, env }) {
 
     const id = crypto.randomUUID();
 
+    // Email/password seller account.
     if (seller.seller_id) {
       const result = await env.DB.prepare(`
         INSERT INTO marketplace_listings (
@@ -541,4 +600,4 @@ export async function onRequestPost({ request, env }) {
       error: "Unable to submit your listing."
     }, 500);
   }
-      }
+            }
