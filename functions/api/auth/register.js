@@ -1,46 +1,26 @@
-const SESSION_SECONDS = 7 * 24 * 60 * 60;
-const ITERATIONS = 100000;
-
 const ALLOWED_ORIGINS = new Set([
   "https://shukafrica.com",
   "https://www.shukafrica.com",
   "https://shukafrica.pages.dev"
 ]);
 
-const COUNTRY_PREFIXES = {
+const COUNTRIES = {
   GH: { prefix: "+233", digits: 9 },
   BF: { prefix: "+226", digits: 8 },
   TG: { prefix: "+228", digits: 8 }
 };
 
-function json(data, status = 200, extra = {}) {
+const ITERATIONS = 100000;
+
+function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
     headers: {
       "Content-Type": "application/json; charset=utf-8",
       "Cache-Control": "no-store",
-      "X-Content-Type-Options": "nosniff",
-      ...extra
+      "X-Content-Type-Options": "nosniff"
     }
   });
-}
-
-function makeToken() {
-  const bytes = crypto.getRandomValues(new Uint8Array(32));
-
-  return btoa(String.fromCharCode(...bytes))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
-}
-
-async function sha256(value) {
-  const bytes = new TextEncoder().encode(value);
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
-
-  return Array.from(new Uint8Array(digest))
-    .map(x => x.toString(16).padStart(2, "0"))
-    .join("");
 }
 
 async function hashPassword(password) {
@@ -63,7 +43,7 @@ async function hashPassword(password) {
 
   const hex = bytes =>
     Array.from(new Uint8Array(bytes))
-      .map(x => x.toString(16).padStart(2, "0"))
+      .map(byte => byte.toString(16).padStart(2, "0"))
       .join("");
 
   return `pbkdf2_sha256$${ITERATIONS}$${hex(salt)}$${hex(derived)}`;
@@ -110,7 +90,7 @@ export async function onRequestPost({ request, env }) {
   } catch {
     return json({
       success: false,
-      error: "Invalid JSON."
+      error: "Invalid registration data."
     }, 400);
   }
 
@@ -139,12 +119,6 @@ export async function onRequestPost({ request, env }) {
     ? body.phone.trim()
     : "";
 
-  const otpId = typeof body.otp_id === "string"
-    ? body.otp_id.trim()
-    : "";
-
-  const countryInfo = COUNTRY_PREFIXES[country];
-
   if (name.length < 2 || name.length > 100) {
     return json({
       success: false,
@@ -158,7 +132,7 @@ export async function onRequestPost({ request, env }) {
   ) {
     return json({
       success: false,
-      error: "Enter a valid email."
+      error: "Enter a valid email address."
     }, 400);
   }
 
@@ -173,37 +147,43 @@ export async function onRequestPost({ request, env }) {
     }, 400);
   }
 
+  const countryInfo = COUNTRIES[country];
+
   if (!countryInfo) {
     return json({
       success: false,
-      error: "Only Ghana, Burkina Faso and Togo are supported."
+      error: "ShukAfrica seller registration is currently available in Ghana, Burkina Faso and Togo."
     }, 400);
   }
 
-  const phonePattern = new RegExp(
-    "^" + countryInfo.prefix.replace("+", "\\+") +
-    "[0-9]{" + countryInfo.digits + "}$"
-  );
+  // Cloudflare IP country restriction.
+  const ipCountry = request.headers.get("CF-IPCountry") || "";
 
-  if (!phonePattern.test(phone)) {
+  if (ipCountry !== country) {
     return json({
       success: false,
-      error: "Enter a valid phone number for the selected country."
-    }, 400);
+      error: "Your selected country does not match your current network location."
+    }, 403);
   }
 
-  if (!/^OTP-[A-Za-z0-9-]+$/.test(otpId)) {
-    return json({
-      success: false,
-      error: "Phone verification is required. Please verify your number first."
-    }, 400);
+  // Phone is optional. If supplied, validate its country format.
+  if (phone) {
+    const phonePattern = new RegExp(
+      "^" + countryInfo.prefix.replace("+", "\\+") +
+      "[0-9]{" + countryInfo.digits + "}$"
+    );
+
+    if (!phonePattern.test(phone)) {
+      return json({
+        success: false,
+        error: "Enter a valid phone number for the selected country."
+      }, 400);
+    }
   }
 
   try {
-    // Check whether the email already belongs to a seller.
     const existingEmail = await env.DB.prepare(`
-      SELECT id
-      FROM sellers
+      SELECT id FROM sellers
       WHERE email = ?
       LIMIT 1
     `).bind(email).first();
@@ -215,151 +195,59 @@ export async function onRequestPost({ request, env }) {
       }, 409);
     }
 
-    // Check whether the phone already belongs to a seller.
-    const existingPhone = await env.DB.prepare(`
-      SELECT id
-      FROM sellers
-      WHERE phone = ?
-      LIMIT 1
-    `).bind(phone).first();
+    if (phone) {
+      const existingPhone = await env.DB.prepare(`
+        SELECT id FROM sellers
+        WHERE phone = ?
+        LIMIT 1
+      `).bind(phone).first();
 
-    if (existingPhone) {
-      return json({
-        success: false,
-        error: "This phone number is already registered."
-      }, 409);
-    }
-
-    const now = new Date().toISOString();
-
-    // Confirm this exact OTP was verified and has not expired.
-    const verification = await env.DB.prepare(`
-      SELECT id
-      FROM phone_verifications
-      WHERE otp_id = ?
-        AND phone = ?
-        AND verified = 1
-        AND expires_at > ?
-      LIMIT 1
-    `).bind(
-      otpId,
-      phone,
-      now
-    ).first();
-
-    if (!verification) {
-      return json({
-        success: false,
-        error: "Phone verification is missing or expired. Please verify again."
-      }, 400);
+      if (existingPhone) {
+        return json({
+          success: false,
+          error: "This phone number is already registered."
+        }, 409);
+      }
     }
 
     const sellerId = crypto.randomUUID();
     const passwordHash = await hashPassword(password);
 
-    const token = makeToken();
-    const tokenHash = await sha256(token);
-
-    const sessionId = crypto.randomUUID();
-
-    const expiresAt = new Date(
-      Date.now() + SESSION_SECONDS * 1000
-    ).toISOString();
-
-    // Consume OTP, create seller and create session together.
-    const results = await env.DB.batch([
-      env.DB.prepare(`
-        UPDATE phone_verifications
-        SET verified = 2,
-            consumed_by = ?
-        WHERE id = ?
-          AND otp_id = ?
-          AND phone = ?
-          AND verified = 1
-          AND expires_at > ?
-      `).bind(
-        sellerId,
-        verification.id,
-        otpId,
-        phone,
-        now
-      ),
-
-      env.DB.prepare(`
-        INSERT INTO sellers
-          (id, name, email, password_hash, country, phone)
-        SELECT ?, ?, ?, ?, ?, ?
-        WHERE EXISTS (
-          SELECT 1
-          FROM phone_verifications
-          WHERE id = ?
-            AND otp_id = ?
-            AND phone = ?
-            AND verified = 2
-            AND consumed_by = ?
-            AND expires_at > ?
-        )
-      `).bind(
-        sellerId,
+    await env.DB.prepare(`
+      INSERT INTO sellers (
+        id,
         name,
         email,
-        passwordHash,
+        password_hash,
         country,
         phone,
-        verification.id,
-        otpId,
-        phone,
-        sellerId,
-        now
-      ),
-
-      env.DB.prepare(`
-        INSERT INTO seller_sessions
-          (id, phone, token_hash, expires_at)
-        SELECT ?, ?, ?, ?
-        WHERE EXISTS (
-          SELECT 1
-          FROM sellers
-          WHERE id = ?
-        )
-      `).bind(
-        sessionId,
-        "email:" + sellerId,
-        tokenHash,
-        expiresAt,
-        sellerId
+        email_verified,
+        email_verification_token_hash,
+        email_verification_expires_at
       )
-    ]);
-
-    // Confirm all three database operations succeeded.
-    if (
-      !Array.isArray(results) ||
-      results.length !== 3 ||
-      results[0]?.meta?.changes !== 1 ||
-      results[1]?.meta?.changes !== 1 ||
-      results[2]?.meta?.changes !== 1
-    ) {
-      throw new Error(
-        "Registration transaction did not complete."
-      );
-    }
+      VALUES (?, ?, ?, ?, ?, ?, 0, NULL, NULL)
+    `).bind(
+      sellerId,
+      name,
+      email,
+      passwordHash,
+      country,
+      phone || null
+    ).run();
 
     return json({
       success: true,
+      message: "Account created. Please verify your email to activate it.",
       seller: {
         id: sellerId,
         name,
         email,
-        country,
-        phone
+        country
       }
-    }, 201, {
-      "Set-Cookie":
-        `shuk_seller_session=${token}; Path=/; Max-Age=${SESSION_SECONDS}; HttpOnly; Secure; SameSite=Lax`
-    });
+    }, 201);
 
   } catch (error) {
-    console.error("Registration error:", error);
+    console.error("Seller registration failed:", error);
 
     if (
       error?.message?.toLowerCase().includes("unique") ||
@@ -373,7 +261,8 @@ export async function onRequestPost({ request, env }) {
 
     return json({
       success: false,
-      error: "Could not create account. Please try again."
+      error: "Could not create your account. Please try again."
     }, 500);
   }
-        }
+  }
+    
