@@ -1,21 +1,23 @@
-
 function json(data, status = 200) {
   return Response.json(data, {
     status,
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "no-store"
+      "Cache-Control": "no-store",
+      "X-Content-Type-Options": "nosniff"
     }
   });
 }
 
 async function getSeller(request, env) {
+  if (!env.DB) return null;
+
   const cookie = request.headers.get("Cookie") || "";
   const match = cookie.match(
     /(?:^|;\s*)shuk_seller_session=([^;]+)/
   );
 
-  if (!match || !env.DB) return null;
+  if (!match) return null;
 
   let token;
 
@@ -45,26 +47,35 @@ async function getSeller(request, env) {
 
   if (
     !session ||
-    !session.phone ||
-    !session.expires_at ||
-    Date.parse(session.expires_at) <= Date.now()
+    typeof session.phone !== "string" ||
+    !session.phone.startsWith("email:") ||
+    !session.expires_at
   ) {
     return null;
   }
 
-  // This dashboard API is for email-registered seller accounts.
-  if (!session.phone.startsWith("email:")) return null;
+  const expiry = Date.parse(session.expires_at);
+
+  if (!Number.isFinite(expiry) || expiry <= Date.now()) {
+    return null;
+  }
 
   const sellerId = session.phone.slice(6);
 
+  if (!sellerId) return null;
+
   const seller = await env.DB.prepare(`
-    SELECT id, name, email, country
+    SELECT id, name, email, country, email_verified
     FROM sellers
     WHERE id = ?
     LIMIT 1
   `).bind(sellerId).first();
 
-  return seller || null;
+  if (!seller || seller.email_verified !== 1) {
+    return null;
+  }
+
+  return seller;
 }
 
 export async function onRequestGet({ request, env }) {
@@ -74,7 +85,7 @@ export async function onRequestGet({ request, env }) {
     if (!seller) {
       return json({
         success: false,
-        error: "Please log in to your seller account."
+        error: "Please log in to your verified seller account."
       }, 401);
     }
 
@@ -99,7 +110,9 @@ export async function onRequestGet({ request, env }) {
       },
       listings: result.results || []
     });
-  } catch {
+  } catch (error) {
+    console.error("Seller listings GET failed:", error);
+
     return json({
       success: false,
       error: "Unable to load your listings."
@@ -114,7 +127,7 @@ export async function onRequestDelete({ request, env }) {
     if (!seller) {
       return json({
         success: false,
-        error: "Please log in to your seller account."
+        error: "Please log in to your verified seller account."
       }, 401);
     }
 
@@ -144,11 +157,12 @@ export async function onRequestDelete({ request, env }) {
       success: true,
       message: "Your listing has been deleted."
     });
-  } catch {
+  } catch (error) {
+    console.error("Seller listing DELETE failed:", error);
+
     return json({
       success: false,
       error: "Unable to delete the listing."
     }, 500);
   }
-}
-  
+        }
