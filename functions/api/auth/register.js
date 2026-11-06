@@ -156,29 +156,25 @@ export async function onRequestPost({ request, env }) {
     }, 400);
   }
 
-  // Cloudflare IP country restriction.
-  const ipCountry = request.headers.get("CF-IPCountry") || "";
-
-  if (ipCountry !== country) {
+  // Phone number is mandatory contact information.
+  // It is not verified through SMS.
+  if (!phone) {
     return json({
       success: false,
-      error: "Your selected country does not match your current network location."
-    }, 403);
+      error: "Your mobile phone number is required."
+    }, 400);
   }
 
-  // Phone is optional. If supplied, validate its country format.
-  if (phone) {
-    const phonePattern = new RegExp(
-      "^" + countryInfo.prefix.replace("+", "\\+") +
-      "[0-9]{" + countryInfo.digits + "}$"
-    );
+  const phonePattern = new RegExp(
+    "^" + countryInfo.prefix.replace("+", "\\+") +
+    "[0-9]{" + countryInfo.digits + "}$"
+  );
 
-    if (!phonePattern.test(phone)) {
-      return json({
-        success: false,
-        error: "Enter a valid phone number for the selected country."
-      }, 400);
-    }
+  if (!phonePattern.test(phone)) {
+    return json({
+      success: false,
+      error: "Enter a valid international phone number for the selected country."
+    }, 400);
   }
 
   try {
@@ -195,19 +191,17 @@ export async function onRequestPost({ request, env }) {
       }, 409);
     }
 
-    if (phone) {
-      const existingPhone = await env.DB.prepare(`
-        SELECT id FROM sellers
-        WHERE phone = ?
-        LIMIT 1
-      `).bind(phone).first();
+    const existingPhone = await env.DB.prepare(`
+      SELECT id FROM sellers
+      WHERE phone = ?
+      LIMIT 1
+    `).bind(phone).first();
 
-      if (existingPhone) {
-        return json({
-          success: false,
-          error: "This phone number is already registered."
-        }, 409);
-      }
+    if (existingPhone) {
+      return json({
+        success: false,
+        error: "This phone number is already registered."
+      }, 409);
     }
 
     const sellerId = crypto.randomUUID();
@@ -232,7 +226,7 @@ export async function onRequestPost({ request, env }) {
       email,
       passwordHash,
       country,
-      phone || null
+      phone
     ).run();
 
     return json({
@@ -264,5 +258,4 @@ export async function onRequestPost({ request, env }) {
       error: "Could not create your account. Please try again."
     }, 500);
   }
-  }
-    
+}
