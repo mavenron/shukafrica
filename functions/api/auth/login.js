@@ -1,5 +1,6 @@
 const SESSION_SECONDS = 7 * 24 * 60 * 60;
 const ITERATIONS = 100000;
+
 function json(data, status = 200, extra = {}) {
   return new Response(JSON.stringify(data), {
     status,
@@ -24,6 +25,8 @@ async function sha256(value) {
 }
 
 async function verifyPassword(password, stored) {
+  if (typeof stored !== "string") return false;
+
   const parts = stored.split("$");
 
   if (
@@ -81,6 +84,7 @@ export async function onRequestPost({ request, env }) {
   }
 
   const origin = request.headers.get("Origin") || "";
+
   const allowed = new Set([
     "https://shukafrica.com",
     "https://www.shukafrica.com",
@@ -125,6 +129,7 @@ export async function onRequestPost({ request, env }) {
   const email = typeof body?.email === "string"
     ? body.email.trim().toLowerCase()
     : "";
+
   const password = body?.password;
 
   if (
@@ -142,8 +147,15 @@ export async function onRequestPost({ request, env }) {
 
   try {
     const seller = await env.DB.prepare(`
-      SELECT id, name, email, country, phone, password_hash
-FROM sellers
+      SELECT
+        id,
+        name,
+        email,
+        country,
+        phone,
+        password_hash,
+        email_verified
+      FROM sellers
       WHERE email = ?
       LIMIT 1
     `).bind(email).first();
@@ -158,9 +170,19 @@ FROM sellers
       }, 401);
     }
 
+    // Block login until the seller verifies their email.
+    if (seller.email_verified !== 1) {
+      return json({
+        success: false,
+        error: "Please verify your email before logging in. Check your inbox for the verification link."
+      }, 403);
+    }
+
+    // Create a session only after successful email verification.
     const token = makeToken();
     const tokenHash = await sha256(token);
     const sessionId = crypto.randomUUID();
+
     const expiresAt = new Date(
       Date.now() + SESSION_SECONDS * 1000
     ).toISOString();
@@ -176,7 +198,7 @@ FROM sellers
       expiresAt
     ).run();
 
-        return json(
+    return json(
       {
         success: true,
         seller: {
