@@ -1,3 +1,4 @@
+
 const ALLOWED_ORIGINS = new Set([
   "https://shukafrica.com",
   "https://www.shukafrica.com",
@@ -11,6 +12,8 @@ const COUNTRIES = {
 };
 
 const ITERATIONS = 100000;
+const REGISTRATION_LIMIT = 5;
+const RATE_WINDOW_SECONDS = 15 * 60;
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -21,6 +24,47 @@ function json(data, status = 200) {
       "X-Content-Type-Options": "nosniff"
     }
   });
+}
+
+async function sha256(value) {
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(value)
+  );
+
+  return Array.from(new Uint8Array(digest))
+    .map(byte => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function checkRegistrationLimit(db, bucketKey, now) {
+  const result = await db.prepare(`
+    INSERT INTO email_verification_rate_limits
+      (bucket_key, window_start, request_count)
+    VALUES (?, ?, 1)
+    ON CONFLICT(bucket_key) DO UPDATE SET
+      window_start = CASE
+        WHEN ? - window_start >= ?
+        THEN ?
+        ELSE window_start
+      END,
+      request_count = CASE
+        WHEN ? - window_start >= ?
+        THEN 1
+        ELSE request_count + 1
+      END
+    RETURNING request_count
+  `).bind(
+    bucketKey,
+    now,
+    now,
+    RATE_WINDOW_SECONDS,
+    now,
+    now,
+    RATE_WINDOW_SECONDS
+  ).first();
+
+  return result && result.request_count <= REGISTRATION_LIMIT;
 }
 
 async function hashPassword(password) {
@@ -156,8 +200,6 @@ export async function onRequestPost({ request, env }) {
     }, 400);
   }
 
-  // Phone number is mandatory contact information.
-  // It is not verified through SMS.
   if (!phone) {
     return json({
       success: false,
@@ -178,6 +220,38 @@ export async function onRequestPost({ request, env }) {
   }
 
   try {
+    // Registration rate limit: 5 attempts per IP per 15 minutes.
+    const ip = request.headers.get("CF-Connecting-IP");
+
+    if (!ip) {
+      return json({
+        success: false,
+        error: "Unable to process this request."
+      }, 400);
+    }
+
+    const now = Math.floor(Date.now() / 1000);
+    const ipHash = await sha256(ip);
+    const bucketKey = "register:ip:" + ipHash;
+
+    await env.DB.prepare(`
+      DELETE FROM email_verification_rate_limits
+      WHERE window_start < ?
+    `).bind(now - 86400).run();
+
+    const allowed = await checkRegistrationLimit(
+      env.DB,
+      bucketKey,
+      now
+    );
+
+    if (!allowed) {
+      return json({
+        success: false,
+        error: "Too many registration attempts. Please try again in 15 minutes."
+      }, 429);
+    }
+
     const existingEmail = await env.DB.prepare(`
       SELECT id FROM sellers
       WHERE email = ?
