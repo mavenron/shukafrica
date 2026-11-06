@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111111">
+
+  <title>Verify Email | ShukAfrica</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f5f6f7;
+      font-family: Arial, sans-serif;
+      color: #171717;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 440px;
+      background: #fff;
+      padding: 35px 25px;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.06);
+    }
+
+    .logo {
+      font-size: 27px;
+      font-weight: 800;
+      margin-bottom: 25px;
+    }
+
+    .logo span {
+      color: #e58b22;
+    }
+
+    .icon {
+      width: 75px;
+      height: 75px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f1f1f1;
+      font-size: 34px;
+    }
+
+    h1 {
+      font-size: 25px;
+      margin: 0 0 12px;
+    }
+
+    p {
+      color: #666;
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    #message {
+      margin: 20px 0;
+      font-weight: 600;
+    }
+
+    .success {
+      color: #168344;
+    }
+
+    .error {
+      color: #c62828;
+    }
+
+    .loading {
+      color: #555;
+    }
+
+    .button {
+      display: block;
+      width: 100%;
+      padding: 15px;
+      margin-top: 22px;
+      background: #111;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .button:active {
+      opacity: 0.8;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="container">
+
+    <div class="logo">Shuk<span>Africa</span></div>
+
+    <div class="icon" id="icon">✉️</div>
+
+    <h1 id="heading">Verifying your email</h1>
+
+    <p id="message" class="loading">
+      Please wait while we verify your email address.
+    </p>
+
+    <a href="/signup.html" class="button hidden" id="loginButton">
+      Go to Seller Login
+    </a>
+
+  </main>
+
+  <script>
+    const heading = document.getElementById("heading");
+    const message = document.getElementById("message");
+    const icon = document.getElementById("icon");
+    const loginButton = document.getElementById("loginButton");
+
+    async function verifyEmail() {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token");
+
+      if (!token || token.length > 200) {
+        heading.textContent = "Invalid verification link";
+        message.textContent =
+          "This verification link is missing or invalid. Please request a new one.";
+        message.className = "error";
+        icon.textContent = "⚠️";
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/auth/email-verify", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ token })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(
+            result.error || "Email verification failed."
+          );
+        }
+
+        heading.textContent = "Email verified!";
+        message.textContent =
+          "Your ShukAfrica seller account email has been successfully verified. You can now log in.";
+        message.className = "success";
+        icon.textContent = "✓";
+
+        loginButton.classList.remove("hidden");
+
+        // Remove the token from the visible browser address.
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname
+        );
+
+      } catch (error) {
+        heading.textContent = "Verification unsuccessful";
+        message.textContent = error.message;
+        message.className = "error";
+        icon.textContent = "⚠️";
+      }
+    }
+
+    verifyEmail();
+  </script>
+
+</body>
+</html>
