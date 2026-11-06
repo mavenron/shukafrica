@@ -80,14 +80,14 @@ export async function onRequestGet({ request, env }) {
       const sellerId = session.phone.slice(6);
 
       const seller = await env.DB.prepare(`
-        SELECT id, name, email, country, phone
+        SELECT id, name, email, country, phone, email_verified
         FROM sellers
         WHERE id = ?
         LIMIT 1
       `).bind(sellerId).first();
 
-      if (!seller) {
-        return json({ authenticated: false }, 401, origin);
+      if (!seller || seller.email_verified !== 1) {
+      return json({ authenticated: false }, 401, origin);
       }
 
       return json({
