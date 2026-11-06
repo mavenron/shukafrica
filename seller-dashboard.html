@@ -892,22 +892,30 @@ if (
   }
 
   if (photos.length > 3) {
+  showFormMessage(
+    "You can upload a maximum of 3 photos.",
+    "error"
+  );
+  return;
+}
+
+for (const photo of photos) {
+  if (!["image/jpeg", "image/png", "image/webp"].includes(photo.type)) {
     showFormMessage(
-      "You can upload a maximum of 3 photos.",
+      "Please use JPG, PNG or WebP photos.",
       "error"
     );
     return;
   }
-if (
-      !["image/jpeg", "image/png", "image/webp"].includes(photo.type)
-    ) {
-      showFormMessage(
-        "Please use JPG, PNG or WebP photos.",
-        "error"
-      );
-      return;
-    }
+
+  if (photo.size > 2 * 1024 * 1024) {
+    showFormMessage(
+      "Each photo must be 2 MB or smaller.",
+      "error"
+    );
+    return;
   }
+}
 
   submitting = true;
   submitButton.disabled = true;
