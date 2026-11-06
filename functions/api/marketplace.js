@@ -85,7 +85,7 @@ async function getAuthenticatedSeller(request, env) {
     const sellerId = session.phone.slice(6);
 
     const seller = await env.DB.prepare(`
-      SELECT id, name, email, country, phone
+      SELECT id, name, email, country, phone, email_verified
       FROM sellers
       WHERE id = ?
       LIMIT 1
@@ -99,7 +99,8 @@ async function getAuthenticatedSeller(request, env) {
       name: seller.name,
       email: seller.email,
       country: seller.country,
-      phone: seller.phone || null
+      phone: seller.phone || null,
+      email_verified: seller.email_verified
     };
   }
 
@@ -255,6 +256,17 @@ export async function onRequestPost({ request, env }) {
       }, 400);
     }
 
+    // Email sellers must verify their email before publishing.
+    if (
+      seller.account_type === "email" &&
+      seller.email_verified !== 1
+    ) {
+      return json({
+        success: false,
+        error: "Please verify your email before publishing."
+      }, 403);
+    }
+
     // Validate seller eligibility.
     if (
       seller.account_type === "email" &&
@@ -315,32 +327,49 @@ export async function onRequestPost({ request, env }) {
       }, 400);
     }
 
-    let sellerPhone = seller.phone;
-    let submittedPhone = "";
-    let otpId = "";
+    // Seller phone is contact information, not SMS verification.
+    let sellerPhone = seller.phone || "";
 
-    // Existing email sellers without a saved phone
-    // must verify a phone before publishing.
-    if (seller.account_type === "email" && !sellerPhone) {
-      submittedPhone = clean(body.phone, 30);
-      otpId = clean(body.otp_id, 100);
+    if (seller.account_type === "email") {
+      if (!sellerPhone) {
+        sellerPhone = clean(body.phone, 30);
 
-      if (!phoneMatchesCountry(submittedPhone, seller.country)) {
+        if (!phoneMatchesCountry(sellerPhone, seller.country)) {
+          return json({
+            success: false,
+            error: "Please provide a valid phone number for your registered country."
+          }, 400);
+        }
+
+        // Prevent a phone number already belonging to
+        // another seller from being attached to this account.
+        const existingPhone = await env.DB.prepare(`
+          SELECT id
+          FROM sellers
+          WHERE phone = ?
+            AND id != ?
+          LIMIT 1
+        `).bind(
+          sellerPhone,
+          seller.seller_id
+        ).first();
+
+        if (existingPhone) {
+          return json({
+            success: false,
+            error: "This phone number is already registered to another seller."
+          }, 409);
+        }
+
+      } else if (!phoneMatchesCountry(sellerPhone, seller.country)) {
         return json({
           success: false,
-          error: "Verify a valid phone number for your registered country before publishing."
-        }, 403);
-      }
-
-      if (!/^OTP-[A-Za-z0-9-]+$/.test(otpId)) {
-        return json({
-          success: false,
-          error: "Phone verification is required before publishing."
+          error: "Your saved seller phone number is invalid. Please contact support."
         }, 403);
       }
     }
 
-    // Legacy SMS sessions retain their original verified phone.
+    // Preserve the legacy SMS seller session flow.
     if (seller.account_type === "sms") {
       if (
         !seller.country ||
@@ -363,26 +392,14 @@ export async function onRequestPost({ request, env }) {
       }, 403);
     }
 
-    // Validate an email seller's already-saved phone.
-    if (sellerPhone && seller.account_type === "email") {
-      if (!phoneMatchesCountry(sellerPhone, seller.country)) {
-        return json({
-          success: false,
-          error: "Your saved seller phone number is invalid. Please contact support."
-        }, 403);
-      }
-    }
-
-    sellerPhone = sellerPhone || submittedPhone;
-
     if (!sellerPhone) {
       return json({
         success: false,
-        error: "A verified seller phone number is required."
-      }, 403);
+        error: "A seller contact phone number is required."
+      }, 400);
     }
 
-    // Check the listing limit before consuming an OTP.
+    // Check the listing limit before inserting.
     if (seller.seller_id) {
       const count = await env.DB.prepare(`
         SELECT COUNT(*) AS total
@@ -399,116 +416,29 @@ export async function onRequestPost({ request, env }) {
       }
     }
 
-    /*
-      Consume the OTP and save the seller's verified phone.
-
-      This applies only to existing email sellers whose
-      seller account does not yet have a saved phone.
-    */
-
-    if (seller.account_type === "email" && !seller.phone) {
-      const now = new Date().toISOString();
-
-      const verification = await env.DB.prepare(`
-        SELECT id
-        FROM phone_verifications
-        WHERE otp_id = ?
-          AND phone = ?
-          AND verified = 1
-          AND expires_at > ?
-        LIMIT 1
+    // Save a contact phone for an existing email seller
+    // who did not previously have one. No SMS verification.
+    if (
+      seller.account_type === "email" &&
+      !seller.phone
+    ) {
+      const saved = await env.DB.prepare(`
+        UPDATE sellers
+        SET phone = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+          AND phone IS NULL
       `).bind(
-        otpId,
-        submittedPhone,
-        now
-      ).first();
-
-      if (!verification) {
-        return json({
-          success: false,
-          error: "Phone verification is missing or expired. Please verify again."
-        }, 403);
-      }
-
-      // Prevent a phone number already belonging to
-      // another seller from being attached to this account.
-      const existingPhone = await env.DB.prepare(`
-        SELECT id
-        FROM sellers
-        WHERE phone = ?
-          AND id != ?
-        LIMIT 1
-      `).bind(
-        submittedPhone,
+        sellerPhone,
         seller.seller_id
-      ).first();
+      ).run();
 
-      if (existingPhone) {
+      if (!saved.meta || saved.meta.changes !== 1) {
         return json({
           success: false,
-          error: "This phone number is already registered to another seller."
+          error: "Unable to save your contact phone. Please try again."
         }, 409);
       }
-
-      // Consume this exact OTP and save the phone to this seller.
-      const results = await env.DB.batch([
-        env.DB.prepare(`
-          UPDATE phone_verifications
-          SET verified = 2,
-              consumed_by = ?
-          WHERE id = ?
-            AND otp_id = ?
-            AND phone = ?
-            AND verified = 1
-            AND expires_at > ?
-        `).bind(
-          seller.seller_id,
-          verification.id,
-          otpId,
-          submittedPhone,
-          now
-        ),
-
-        env.DB.prepare(`
-          UPDATE sellers
-          SET phone = ?,
-              updated_at = ?
-          WHERE id = ?
-            AND phone IS NULL
-            AND EXISTS (
-              SELECT 1
-              FROM phone_verifications
-              WHERE id = ?
-                AND otp_id = ?
-                AND phone = ?
-                AND verified = 2
-                AND consumed_by = ?
-            )
-        `).bind(
-          submittedPhone,
-          now,
-          seller.seller_id,
-          verification.id,
-          otpId,
-          submittedPhone,
-          seller.seller_id
-        )
-      ]);
-
-      const otpConsumed =
-        results[0]?.meta?.changes === 1;
-
-      const phoneSaved =
-        results[1]?.meta?.changes === 1;
-
-      if (!otpConsumed || !phoneSaved) {
-        return json({
-          success: false,
-          error: "Your phone verification could not be completed. Please verify again or contact support."
-        }, 409);
-      }
-
-      sellerPhone = submittedPhone;
     }
 
     const id = crypto.randomUUID();
@@ -600,4 +530,5 @@ export async function onRequestPost({ request, env }) {
       error: "Unable to submit your listing."
     }, 500);
   }
-            }
+  }
+          
