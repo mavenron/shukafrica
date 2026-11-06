@@ -1059,8 +1059,9 @@ container.addEventListener("click", async event => {
 
   } catch (error) {
     showMessage(
-      error.message || "Unable to delete
-listing.",
+  error.message || "Unable to delete listing.",
+  "error"
+);
       "error"
     );
 
