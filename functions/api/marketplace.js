@@ -72,14 +72,18 @@ async function getAuthenticatedSeller(request, env) {
     LIMIT 1
   `).bind(tokenHash).first();
 
-  if (
-    !session ||
-    typeof session.phone !== "string" ||
-    !session.expires_at ||
-    Date.parse(session.expires_at) <= Date.now()
-  ) {
-    return null;
-  }
+const expiry = session?.expires_at
+  ? Date.parse(session.expires_at)
+  : NaN;
+
+if (
+  !session ||
+  typeof session.phone !== "string" ||
+  !Number.isFinite(expiry) ||
+  expiry <= Date.now()
+) {
+  return null;
+}
 
   if (session.phone.startsWith("email:")) {
     const sellerId = session.phone.slice(6);
@@ -91,7 +95,9 @@ async function getAuthenticatedSeller(request, env) {
       LIMIT 1
     `).bind(sellerId).first();
 
-    if (!seller) return null;
+    if (!seller || seller.email_verified !== 1) {
+  return null;
+    }
 
     return {
       account_type: "email",
