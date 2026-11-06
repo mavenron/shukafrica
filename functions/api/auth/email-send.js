@@ -1,4 +1,3 @@
-
 const ALLOWED_ORIGINS = new Set([
   "https://shukafrica.com",
   "https://www.shukafrica.com",
@@ -6,6 +5,9 @@ const ALLOWED_ORIGINS = new Set([
 ]);
 
 const TOKEN_SECONDS = 30 * 60;
+const RATE_WINDOW_SECONDS = 15 * 60;
+const EMAIL_LIMIT = 3;
+const IP_LIMIT = 10;
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -35,6 +37,56 @@ async function sha256(value) {
   return Array.from(new Uint8Array(digest))
     .map(byte => byte.toString(16).padStart(2, "0"))
     .join("");
+}
+
+async function checkRateLimit(db, bucketKey, limit, now) {
+  const result = await db.prepare(`
+    INSERT INTO email_verification_rate_limits
+      (bucket_key, window_start, request_count)
+    VALUES (?, ?, 1)
+    ON CONFLICT(bucket_key) DO UPDATE SET
+      window_start = CASE
+        WHEN ? - window_start >= ?
+        THEN ?
+        ELSE window_start
+      END,
+      request_count = CASE
+        WHEN ? - window_start >= ?
+        THEN 1
+        ELSE request_count + 1
+      END
+    RETURNING request_count
+  `).bind(
+    bucketKey,
+    now,
+    now,
+    RATE_WINDOW_SECONDS,
+    now,
+    now,
+    RATE_WINDOW_SECONDS
+  ).first();
+
+  return result && result.request_count <= limit;
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
+}
+
+async function clearToken(db, sellerId, tokenHash) {
+  await db.prepare(`
+    UPDATE sellers
+    SET email_verification_token_hash = NULL,
+        email_verification_expires_at = NULL
+    WHERE id = ?
+      AND email_verification_token_hash = ?
+  `).bind(sellerId, tokenHash).run();
 }
 
 export async function onRequestPost({ request, env }) {
@@ -97,6 +149,55 @@ export async function onRequestPost({ request, env }) {
   }
 
   try {
+    const ip = request.headers.get("CF-Connecting-IP");
+
+    if (!ip) {
+      return json({
+        success: false,
+        error: "Unable to process this request."
+      }, 400);
+    }
+
+    const now = Math.floor(Date.now() / 1000);
+
+    // Remove expired rate-limit records.
+    await env.DB.prepare(`
+      DELETE FROM email_verification_rate_limits
+      WHERE window_start < ?
+    `).bind(now - 86400).run();
+
+    // Hash identifiers so raw emails and IP addresses are not stored.
+    const emailKey = "email:" + await sha256(email);
+    const ipKey = "ip:" + await sha256(ip);
+
+    const ipAllowed = await checkRateLimit(
+      env.DB,
+      ipKey,
+      IP_LIMIT,
+      now
+    );
+
+    if (!ipAllowed) {
+      return json({
+        success: false,
+        error: "Too many requests. Please try again in 15 minutes."
+      }, 429);
+    }
+
+    const emailAllowed = await checkRateLimit(
+      env.DB,
+      emailKey,
+      EMAIL_LIMIT,
+      now
+    );
+
+    if (!emailAllowed) {
+      return json({
+        success: false,
+        error: "Too many requests for this email. Please try again in 15 minutes."
+      }, 429);
+    }
+
     const seller = await env.DB.prepare(`
       SELECT id, name, email, email_verified
       FROM sellers
@@ -125,7 +226,7 @@ export async function onRequestPost({ request, env }) {
       Date.now() + TOKEN_SECONDS * 1000
     ).toISOString();
 
-    await env.DB.prepare(`
+    const updateResult = await env.DB.prepare(`
       UPDATE sellers
       SET email_verification_token_hash = ?,
           email_verification_expires_at = ?,
@@ -138,13 +239,21 @@ export async function onRequestPost({ request, env }) {
       seller.id
     ).run();
 
+    if (Number(updateResult?.meta?.changes) !== 1) {
+      return json({
+        success: false,
+        error: "Could not prepare verification. Please try again."
+      }, 500);
+    }
+
     const verificationUrl =
       "https://shukafrica.com/verify-email.html?token=" +
       encodeURIComponent(token);
 
-    const response = await fetch(
-      "https://api.resend.com/emails",
-      {
+    let response;
+
+    try {
+      response = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${env.RESEND_API_KEY}`,
@@ -156,14 +265,7 @@ export async function onRequestPost({ request, env }) {
           subject: "Verify your ShukAfrica account",
           html: `
             <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;line-height:1.6">
-              <h2>Welcome to ShukAfrica, ${String(seller.name)
-                .replace(/[&<>"']/g, char => ({
-                  "&": "&amp;",
-                  "<": "&lt;",
-                  ">": "&gt;",
-                  '"': "&quot;",
-                  "'": "&#39;"
-                })[char])}!</h2>
+              <h2>Welcome to ShukAfrica, ${escapeHtml(seller.name)}!</h2>
 
               <p>Please verify your email address to activate your seller account.</p>
 
@@ -180,21 +282,23 @@ export async function onRequestPost({ request, env }) {
             </div>
           `
         })
-      }
-    );
+      });
+    } catch (error) {
+      console.error("Resend request failed:", error);
+      await clearToken(env.DB, seller.id, tokenHash);
+
+      return json({
+        success: false,
+        error: "Could not send verification email. Please try again."
+      }, 502);
+    }
 
     if (!response.ok) {
       const providerError = await response.text();
 
       console.error("Resend email error:", providerError);
 
-      await env.DB.prepare(`
-        UPDATE sellers
-        SET email_verification_token_hash = NULL,
-            email_verification_expires_at = NULL
-        WHERE id = ?
-          AND email_verification_token_hash = ?
-      `).bind(seller.id, tokenHash).run();
+      await clearToken(env.DB, seller.id, tokenHash);
 
       return json({
         success: false,
@@ -216,4 +320,3 @@ export async function onRequestPost({ request, env }) {
     }, 500);
   }
       }
-          
