@@ -104,11 +104,6 @@
       border-color: var(--green);
     }
 
-    input:disabled {
-      background: #edf2ee;
-      color: #66736b;
-    }
-
     .hint {
       font-size: 12px;
       color: var(--muted);
@@ -170,18 +165,6 @@
     }
 
     .hidden { display: none !important; }
-
-    .verification-status {
-      font-size: 13px;
-      line-height: 1.5;
-      margin-top: 9px;
-      color: var(--muted);
-    }
-
-    .verification-status.verified {
-      color: var(--green);
-      font-weight: 700;
-    }
 
     .bottom {
       text-align: center;
@@ -256,6 +239,7 @@
       <label for="phone">Mobile phone number</label>
       <input
         id="phone"
+        name="phone"
         type="tel"
         autocomplete="tel"
         inputmode="tel"
@@ -265,46 +249,8 @@
       >
 
       <p class="hint">
-        Use a phone number you can access. We will send you a six-digit SMS code.
+        Your phone number is required as contact information. No SMS verification is needed.
       </p>
-
-      <button
-        class="action"
-        id="sendOtpButton"
-        type="button"
-      >
-        Send verification code
-      </button>
-
-      <div id="otpSection" class="hidden">
-        <label for="otpCode">Six-digit verification code</label>
-
-        <input
-          id="otpCode"
-          type="text"
-          inputmode="numeric"
-          autocomplete="one-time-code"
-          maxlength="6"
-          pattern="[0-9]{6}"
-          placeholder="Enter six-digit code"
-        >
-
-        <button
-          class="action"
-          id="verifyOtpButton"
-          type="button"
-        >
-          Verify phone number
-        </button>
-      </div>
-
-      <div
-        id="verificationStatus"
-        class="verification-status"
-        aria-live="polite"
-      >
-        Your phone number must be verified before registration.
-      </div>
 
       <label for="registerPassword">Password</label>
       <input
@@ -321,13 +267,12 @@
         Use at least 12 characters. Never share your password with anyone.
       </p>
 
-      <button
-        class="submit"
-        id="registerButton"
-        type="submit"
-        disabled
-      >
-        Verify phone to create account
+      <button class="submit" id="registerButton" type="submit">
+        Create seller account
+      </button>
+
+      <button class="action hidden" id="resendEmailButton" type="button">
+        Resend verification email
       </button>
     </form>
 
@@ -375,27 +320,17 @@
 
     const countryInput = document.getElementById("country");
     const phoneInput = document.getElementById("phone");
-    const otpCodeInput = document.getElementById("otpCode");
 
-    const otpSection = document.getElementById("otpSection");
-    const sendOtpButton = document.getElementById("sendOtpButton");
-    const verifyOtpButton = document.getElementById("verifyOtpButton");
-
-    const verificationStatus =
-      document.getElementById("verificationStatus");
-
-    const registerButton =
-      document.getElementById("registerButton");
-
-    let currentOtpId = "";
-    let verifiedPhone = "";
-    let verifiedCountry = "";
+    const registerButton = document.getElementById("registerButton");
+    const resendEmailButton = document.getElementById("resendEmailButton");
 
     const COUNTRY_RULES = {
       GH: { prefix: "+233", digits: 9 },
       BF: { prefix: "+226", digits: 8 },
       TG: { prefix: "+228", digits: 8 }
     };
+
+    let pendingVerificationEmail = "";
 
     function showMessage(text, type) {
       message.textContent = text;
@@ -416,26 +351,14 @@
       registerTab.classList.toggle("active", registering);
       loginTab.classList.toggle("active", !registering);
 
-      registerTab.setAttribute(
-        "aria-selected",
-        String(registering)
-      );
-
-      loginTab.setAttribute(
-        "aria-selected",
-        String(!registering)
-      );
+      registerTab.setAttribute("aria-selected", String(registering));
+      loginTab.setAttribute("aria-selected", String(!registering));
 
       clearMessage();
     }
 
-    registerTab.addEventListener("click", () => {
-      switchMode("register");
-    });
-
-    loginTab.addEventListener("click", () => {
-      switchMode("login");
-    });
+    registerTab.addEventListener("click", () => switchMode("register"));
+    loginTab.addEventListener("click", () => switchMode("login"));
 
     function normalizePhone(value, country) {
       const rule = COUNTRY_RULES[country];
@@ -450,50 +373,73 @@
         digits = digits.slice(1);
       }
 
-      if (digits.length !== rule.digits) {
-        return null;
-      }
+      if (digits.length !== rule.digits) return null;
 
       return rule.prefix + digits;
     }
 
-    function resetVerification() {
-      currentOtpId = "";
-      verifiedPhone = "";
-      verifiedCountry = "";
+    // Suggest the country from Cloudflare's location trace.
+    // This is only a suggestion; the seller can change it.
+    async function suggestCountry() {
+      try {
+        const response = await fetch("/cdn-cgi/trace", {
+          cache: "no-store"
+        });
 
-      otpCodeInput.value = "";
-      otpCodeInput.disabled = false;
+        if (!response.ok) return;
 
-      otpSection.classList.add("hidden");
+        const trace = await response.text();
+        const match = trace.match(/(?:^|\n)loc=([A-Z]{2})(?:\n|$)/);
 
-      registerButton.disabled = true;
-      registerButton.textContent = "Verify phone to create account";
-
-      verificationStatus.textContent =
-        "Your phone number must be verified before registration.";
-
-      verificationStatus.classList.remove("verified");
+        if (match && COUNTRY_RULES[match[1]]) {
+          countryInput.value = match[1];
+        }
+      } catch (error) {
+        // Manual country selection remains available.
+      }
     }
 
-    countryInput.addEventListener("change", () => {
-      resetVerification();
-      clearMessage();
-    });
+    suggestCountry();
 
-    phoneInput.addEventListener("input", () => {
-      resetVerification();
-      clearMessage();
-    });
+    async function sendVerificationEmail(email) {
+      const response = await fetch("/api/auth/email-send", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({ email }),
+        cache: "no-store"
+      });
 
-    async function sendOtp() {
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok || data.success !== true) {
+        throw new Error(
+          data.error || "Could not send the verification email."
+        );
+      }
+
+      return data;
+    }
+
+    registerForm.addEventListener("submit", async event => {
+      event.preventDefault();
       clearMessage();
+
+      resendEmailButton.classList.add("hidden");
+
+      if (!registerForm.reportValidity()) return;
 
       const country = countryInput.value;
       const phone = normalizePhone(phoneInput.value, country);
 
       if (!country || !COUNTRY_RULES[country]) {
-        showMessage("Please choose Ghana, Burkina Faso or Togo.", "error");
+        showMessage(
+          "Please choose Ghana, Burkina Faso or Togo.",
+          "error"
+        );
         return;
       }
 
@@ -505,180 +451,20 @@
         return;
       }
 
-      sendOtpButton.disabled = true;
-      sendOtpButton.textContent = "Sending code…";
+      const email = document.getElementById("registerEmail").value.trim();
 
-      try {
-        const response = await fetch("/api/auth/otp-send", {
-          method: "POST",
-          credentials: "same-origin",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          body: JSON.stringify({
-            country,
-            phone
-          }),
-          cache: "no-store"
-        });
-
-        const data = await response.json().catch(() => ({}));
-
-        if (!response.ok || data.success !== true || !data.otp_id) {
-          throw new Error(
-            data.error || "Could not send the verification code."
-          );
-        }
-
-        currentOtpId = data.otp_id;
-        verifiedPhone = "";
-        verifiedCountry = "";
-
-        otpSection.classList.remove("hidden");
-        otpCodeInput.disabled = false;
-        otpCodeInput.value = "";
-
-        registerButton.disabled = true;
-
-        verificationStatus.textContent =
-          "A verification code has been sent. Enter it below.";
-
-        verificationStatus.classList.remove("verified");
-
-        showMessage(
-          "Verification code sent. Check your SMS messages.",
-          "success"
-        );
-
-        otpCodeInput.focus();
-
-      } catch (error) {
-        showMessage(
-          error.message || "Unable to send the code. Please try again.",
-          "error"
-        );
-      } finally {
-        sendOtpButton.disabled = false;
-        sendOtpButton.textContent = "Send verification code";
-      }
-    }
-
-    async function verifyOtp() {
-      clearMessage();
-
-      const country = countryInput.value;
-      const phone = normalizePhone(phoneInput.value, country);
-      const code = otpCodeInput.value.trim();
-
-      if (!currentOtpId || !phone) {
-        showMessage("Please request a new verification code.", "error");
-        return;
-      }
-
-      if (!/^\d{6}$/.test(code)) {
-        showMessage("Enter the six-digit verification code.", "error");
-        return;
-      }
-
-      verifyOtpButton.disabled = true;
-      verifyOtpButton.textContent = "Verifying…";
-
-      try {
-        const response = await fetch("/api/auth/otp-verify", {
-          method: "POST",
-          credentials: "same-origin",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          body: JSON.stringify({
-            otp_id: currentOtpId,
-            code,
-            phone
-          }),
-          cache: "no-store"
-        });
-
-        const data = await response.json().catch(() => ({}));
-
-        if (!response.ok || data.success !== true || data.verified !== true) {
-          throw new Error(
-            data.error || "Phone verification failed."
-          );
-        }
-
-        verifiedPhone = phone;
-        verifiedCountry = country;
-
-        otpCodeInput.disabled = true;
-        phoneInput.disabled = true;
-        countryInput.disabled = true;
-
-        registerButton.disabled = false;
-        registerButton.textContent = "Create seller account";
-
-        verificationStatus.textContent =
-          "Phone number successfully verified.";
-
-        verificationStatus.classList.add("verified");
-
-        sendOtpButton.disabled = true;
-
-        showMessage(
-          "Phone verified successfully. You can now create your account.",
-          "success"
-        );
-
-      } catch (error) {
-        showMessage(
-          error.message || "Verification failed. Please try again.",
-          "error"
-        );
-      } finally {
-        verifyOtpButton.disabled = false;
-        verifyOtpButton.textContent = "Verify phone number";
-      }
-    }
-
-    sendOtpButton.addEventListener("click", sendOtp);
-    verifyOtpButton.addEventListener("click", verifyOtp);
-
-    registerForm.addEventListener("submit", async event => {
-      event.preventDefault();
-      clearMessage();
-
-      if (!registerForm.reportValidity()) return;
-
-      const country = countryInput.value;
-      const phone = normalizePhone(phoneInput.value, country);
-
-      if (
-        !currentOtpId ||
-        !verifiedPhone ||
-        verifiedPhone !== phone ||
-        verifiedCountry !== country
-      ) {
-        showMessage(
-          "Please verify your phone number before creating your account.",
-          "error"
-        );
-        return;
-      }
+      const payload = {
+        name: document.getElementById("name").value.trim(),
+        email,
+        country,
+        password: document.getElementById("registerPassword").value,
+        phone
+      };
 
       registerButton.disabled = true;
       registerButton.textContent = "Creating account…";
 
       try {
-        const payload = {
-          name: document.getElementById("name").value.trim(),
-          email: document.getElementById("registerEmail").value.trim(),
-          country,
-          password: document.getElementById("registerPassword").value,
-          phone,
-          otp_id: currentOtpId
-        };
-
         const response = await fetch("/api/seller/register", {
           method: "POST",
           credentials: "same-origin",
@@ -698,21 +484,69 @@
           );
         }
 
-        showMessage(
-          "Account created successfully. Opening your dashboard…",
-          "success"
-        );
+        pendingVerificationEmail = email;
 
-        window.location.href = "seller-dashboard.html";
+        registerButton.textContent = "Sending verification email…";
+
+        try {
+          await sendVerificationEmail(email);
+
+          showMessage(
+            "Your account has been created. Check your email inbox for the verification link. You must verify your email before logging in.",
+            "success"
+          );
+        } catch (emailError) {
+          showMessage(
+            "Your account was created, but the verification email could not be sent. Please try sending it again.",
+            "error"
+          );
+
+          resendEmailButton.classList.remove("hidden");
+        }
 
       } catch (error) {
         showMessage(
           error.message || "Registration failed. Please try again.",
           "error"
         );
-
+      } finally {
         registerButton.disabled = false;
         registerButton.textContent = "Create seller account";
+      }
+    });
+
+    resendEmailButton.addEventListener("click", async () => {
+      clearMessage();
+
+      const email = pendingVerificationEmail ||
+        document.getElementById("registerEmail").value.trim();
+
+      if (!email) {
+        showMessage("Enter your registration email address.", "error");
+        return;
+      }
+
+      resendEmailButton.disabled = true;
+      resendEmailButton.textContent = "Sending email…";
+
+      try {
+        await sendVerificationEmail(email);
+
+        pendingVerificationEmail = email;
+
+        showMessage(
+          "Verification email sent. Please check your inbox and spam folder.",
+          "success"
+        );
+
+      } catch (error) {
+        showMessage(
+          error.message || "Unable to resend the verification email.",
+          "error"
+        );
+      } finally {
+        resendEmailButton.disabled = false;
+        resendEmailButton.textContent = "Resend verification email";
       }
     });
 
