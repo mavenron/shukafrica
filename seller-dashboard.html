@@ -5,59 +5,211 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#10251c">
 <title>Seller Dashboard | ShukAfrica</title>
+
 <style>
-:root{--green:#176b45;--dark:#10251c;--gold:#e6b64c;--bg:#f4f7f5;--muted:#66736b;--border:#dce5df}
+:root{
+  --green:#176b45;
+  --dark:#10251c;
+  --gold:#e6b64c;
+  --bg:#f4f7f5;
+  --muted:#66736b;
+  --border:#dce5df;
+}
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:#1c2b22}
-header{background:var(--dark);color:white;padding:18px 20px}
-.header-inner,main{width:min(100% - 32px,1000px);margin:auto}
-.header-inner{display:flex;justify-content:space-between;align-items:center;gap:12px}
-.brand{font-size:22px;font-weight:800}.brand span{color:var(--gold)}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:var(--bg);
+  color:#1c2b22;
+}
+header{
+  background:var(--dark);
+  color:white;
+  padding:18px 20px;
+}
+.header-inner,main{
+  width:min(100% - 32px,1000px);
+  margin:auto;
+}
+.header-inner{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+.brand{font-size:22px;font-weight:800}
+.brand span{color:var(--gold)}
 main{padding:26px 0 50px}
-.welcome{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-bottom:22px}
-h1{margin:0 0 8px;font-size:28px}h2{font-size:19px;margin-top:0}h3{margin-top:0}
-p{line-height:1.5}.muted{color:var(--muted)}
-.button{display:inline-block;border:0;border-radius:9px;padding:12px 16px;font-size:14px;font-weight:700;text-decoration:none;cursor:pointer}
+.welcome{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:16px;
+  margin-bottom:22px;
+}
+h1{margin:0 0 8px;font-size:28px}
+h2{font-size:19px;margin-top:0}
+h3{margin-top:0}
+p{line-height:1.5}
+.muted{color:var(--muted)}
+.button{
+  display:inline-block;
+  border:0;
+  border-radius:9px;
+  padding:12px 16px;
+  font-size:14px;
+  font-weight:700;
+  text-decoration:none;
+  cursor:pointer;
+}
 .button:disabled{opacity:.6;cursor:not-allowed}
 .primary{background:var(--green);color:white}
-.secondary{background:white;color:var(--dark);border:1px solid var(--border)}
+.secondary{
+  background:white;
+  color:var(--dark);
+  border:1px solid var(--border);
+}
 .danger{background:#fff0ef;color:#a52b25}
-.panel,.stat{background:white;border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px}
-.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:20px}
+.panel,.stat{
+  background:white;
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:20px;
+  margin-bottom:20px;
+}
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin-bottom:20px;
+}
 .stat{padding:16px;margin:0;border-radius:12px}
-.stat strong{display:block;font-size:26px;margin-bottom:6px}.stat span{color:var(--muted);font-size:13px}
-.listing{border:1px solid var(--border);border-radius:12px;padding:15px;margin-top:12px;display:grid;grid-template-columns:88px minmax(0,1fr);gap:15px}
-.listing img,.no-image{width:88px;height:88px;border-radius:8px;object-fit:cover;background:#edf2ee}
-.no-image{display:flex;align-items:center;justify-content:center;font-size:28px}
-.listing h3{margin:0 0 7px;font-size:17px}.listing p{margin:5px 0;font-size:14px}
-.status{display:inline-block;padding:5px 9px;border-radius:20px;font-size:12px;font-weight:700;text-transform:capitalize;background:#f0f1f2;color:#40484b}
-.status.published{background:#e4f7eb;color:#176b45}.status.pending{background:#fff4d8;color:#805900}.status.removed{background:#fce9e7;color:#a52b25}
-.listing-actions,.form-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-#message,#formMessage{padding:12px;border-radius:8px;margin-bottom:15px;display:none;overflow-wrap:anywhere}
-#message.error,#formMessage.error{display:block;background:#fff0ef;color:#a52b25}
-#message.info,#formMessage.info{display:block;background:#e9f4ee;color:#176b45}
+.stat strong{
+  display:block;
+  font-size:26px;
+  margin-bottom:6px;
+}
+.stat span{color:var(--muted);font-size:13px}
+.listing{
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:15px;
+  margin-top:12px;
+  display:grid;
+  grid-template-columns:88px minmax(0,1fr);
+  gap:15px;
+}
+.listing img,.no-image{
+  width:88px;
+  height:88px;
+  border-radius:8px;
+  object-fit:cover;
+  background:#edf2ee;
+}
+.no-image{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+}
+.listing h3{margin:0 0 7px;font-size:17px}
+.listing p{margin:5px 0;font-size:14px}
+.status{
+  display:inline-block;
+  padding:5px 9px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:700;
+  text-transform:capitalize;
+  background:#f0f1f2;
+  color:#40484b;
+}
+.status.published{background:#e4f7eb;color:#176b45}
+.status.pending{background:#fff4d8;color:#805900}
+.status.removed{background:#fce9e7;color:#a52b25}
+.listing-actions,.form-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:10px;
+}
+#message,#formMessage{
+  padding:12px;
+  border-radius:8px;
+  margin-bottom:15px;
+  display:none;
+  overflow-wrap:anywhere;
+}
+#message.error,#formMessage.error{
+  display:block;
+  background:#fff0ef;
+  color:#a52b25;
+}
+#message.info,#formMessage.info{
+  display:block;
+  background:#e9f4ee;
+  color:#176b45;
+}
 #loading{padding:20px 0;color:var(--muted)}
 .empty{text-align:center;padding:28px 10px;color:var(--muted)}
-.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-.field{min-width:0}.field.full{grid-column:1/-1}
-.field label{display:block;font-weight:700;font-size:14px;margin-bottom:6px}
-.field input,.field select,.field textarea{display:block;width:100%;padding:12px;border:1px solid var(--border);border-radius:9px;background:white;color:#1c2b22;font:inherit}
-.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid #a6d6bb;border-color:var(--green)}
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+.field{min-width:0}
+.field.full{grid-column:1/-1}
+.field label{
+  display:block;
+  font-weight:700;
+  font-size:14px;
+  margin-bottom:6px;
+}
+.field input,.field select,.field textarea{
+  display:block;
+  width:100%;
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  background:white;
+  color:#1c2b22;
+  font:inherit;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  outline:2px solid #a6d6bb;
+  border-color:var(--green);
+}
 .help{color:var(--muted);font-size:12px;margin-top:6px}
-#sellerOtpSection{border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:14px}
-footer{text-align:center;padding:22px;color:var(--muted);font-size:13px}
+footer{
+  text-align:center;
+  padding:22px;
+  color:var(--muted);
+  font-size:13px;
+}
 [hidden]{display:none!important}
 @media(max-width:520px){
-h1{font-size:23px}.stats{gap:8px}.stat{padding:12px 9px}
-.stat strong{font-size:22px}.stat span{font-size:11px}
-.listing{grid-template-columns:68px minmax(0,1fr);gap:10px;padding:11px}
-.listing img,.no-image{width:68px;height:68px}.panel{padding:15px}
-.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}
-.header-inner{flex-wrap:wrap}
+  h1{font-size:23px}
+  .stats{gap:8px}
+  .stat{padding:12px 9px}
+  .stat strong{font-size:22px}
+  .stat span{font-size:11px}
+  .listing{
+    grid-template-columns:68px minmax(0,1fr);
+    gap:10px;
+    padding:11px;
+  }
+  .listing img,.no-image{width:68px;height:68px}
+  .panel{padding:15px}
+  .form-grid{grid-template-columns:1fr}
+  .field.full{grid-column:auto}
+  .header-inner{flex-wrap:wrap}
 }
 </style>
 </head>
+
 <body>
+
 <header>
   <div class="header-inner">
     <div class="brand">Shuk<span>Africa</span></div>
@@ -69,138 +221,179 @@ h1{font-size:23px}.stats{gap:8px}.stat{padding:12px 9px}
   <div class="welcome">
     <div>
       <h1>Seller Dashboard</h1>
-      <p class="muted" id="sellerGreeting">Checking your seller account…</p>
+      <p class="muted" id="sellerGreeting">
+        Checking your seller account…
+      </p>
     </div>
+
     <div>
-      <button class="button primary" id="addListingButton" type="button" hidden>＋ Add a listing</button>
-      <button class="button secondary" id="logoutButton" type="button">Log out</button>
+      <button
+        class="button primary"
+        id="addListingButton"
+        type="button"
+        hidden
+      >＋ Add a listing</button>
+
+      <button
+        class="button secondary"
+        id="logoutButton"
+        type="button"
+      >Log out</button>
     </div>
   </div>
 
   <div id="message" role="status" aria-live="polite"></div>
 
   <section class="stats" aria-label="Listing summary">
-    <div class="stat"><strong id="totalCount">—</strong><span>Total listings</span></div>
-    <div class="stat"><strong id="pendingCount">—</strong><span>Awaiting approval</span></div>
-    <div class="stat"><strong id="publishedCount">—</strong><span>Published</span></div>
+    <div class="stat">
+      <strong id="totalCount">—</strong>
+      <span>Total listings</span>
+    </div>
+    <div class="stat">
+      <strong id="pendingCount">—</strong>
+      <span>Awaiting approval</span>
+    </div>
+    <div class="stat">
+      <strong id="publishedCount">—</strong>
+      <span>Published</span>
+    </div>
   </section>
 
   <section class="panel" id="addListingPanel" hidden>
     <h2>Add a new product</h2>
-    <p class="muted">Complete the details below. Your product will be reviewed before publication.</p>
+    <p class="muted">
+      Complete the details below. Your product will be reviewed before publication.
+    </p>
+
     <div id="formMessage" role="status" aria-live="polite"></div>
 
-  <form id="sellerForm" enctype="multipart/form-data">
+    <form id="sellerForm" enctype="multipart/form-data">
       <div class="form-grid">
+
         <div class="field">
           <label for="sellerName">Seller name</label>
-          <input id="sellerName" type="text" maxlength="100" autocomplete="name" required>
+          <input
+            id="sellerName"
+            type="text"
+            maxlength="100"
+            autocomplete="name"
+            required
+          >
         </div>
+
         <div class="field">
           <label for="sellerProductName">Product name</label>
-          <input id="sellerProductName" type="text" maxlength="150" required>
+          <input
+            id="sellerProductName"
+            type="text"
+            maxlength="150"
+            required
+          >
         </div>
+
         <div class="field">
           <label for="sellerPrice">Price (GH₵)</label>
-          <input id="sellerPrice" type="number" min="0" step="0.01" required>
+          <input
+            id="sellerPrice"
+            type="number"
+            min="0"
+            step="0.01"
+            required
+          >
         </div>
+
         <div class="field">
           <label for="sellerCategory">Category</label>
           <select id="sellerCategory" required>
             <option value="">Select category</option>
-            <option>Electronics</option><option>Vehicles</option>
-            <option>Equipment</option><option>Agriculture</option>
-            <option>Fashion</option><option>Property</option><option>Other</option>
+            <option>Electronics</option>
+            <option>Vehicles</option>
+            <option>Equipment</option>
+            <option>Agriculture</option>
+            <option>Fashion</option>
+            <option>Property</option>
+            <option>Other</option>
           </select>
         </div>
-        
-<div class="field">
-  <label for="sellerLocation">Town / City, Region, Country</label>
-  <input
-    id="sellerLocation"
-    type="text"
-    maxlength="150"
-    placeholder="e.g. Anomabo, Central Region, Ghana"
-    autocomplete="street-address"
-    required
-  >
-  <p class="help">
-    Enter your town or city, region (if applicable), and country.
-    Example: Accra, Greater Accra Region, Ghana.
-  </p>
-</div>
+
         <div class="field">
-  <label for="sellerPhone">Phone / WhatsApp number</label>
-  <input
-    id="sellerPhone"
-    type="tel"
-    maxlength="30"
-    autocomplete="tel"
-    required
-  >
-  <p class="help">Buyers can use this number to contact you.</p>
-</div>
+          <label for="sellerLocation">
+            Town / City, Region, Country
+          </label>
+          <input
+            id="sellerLocation"
+            type="text"
+            maxlength="150"
+            placeholder="e.g. Anomabo, Central Region, Ghana"
+            autocomplete="street-address"
+            required
+          >
+          <p class="help">
+            Enter your town or city, region (if applicable), and country.
+          </p>
+        </div>
+
+        <div class="field">
+          <label for="sellerPhone">Phone / WhatsApp number</label>
+          <input
+            id="sellerPhone"
+            type="tel"
+            maxlength="30"
+            autocomplete="tel"
+            required
+          >
+          <p class="help">
+            Buyers can use this number to contact you. SMS verification is not required.
+          </p>
+        </div>
+
         <div class="field full">
           <label for="sellerPhotos">Product photos</label>
-          <input id="sellerPhotos" type="file" accept="image/jpeg,image/png,image/webp" multiple>
-          <p class="help">Maximum 3 photos, 2 MB per photo. JPG, PNG or WebP.</p>
+          <input
+            id="sellerPhotos"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+          >
+          <p class="help">
+            Maximum 3 photos, 2 MB per photo. JPG, PNG or WebP.
+          </p>
         </div>
+
         <div class="field full">
           <label for="sellerDescription">Product description</label>
-          <textarea id="sellerDescription" rows="5" maxlength="5000" required></textarea>
+          <textarea
+            id="sellerDescription"
+            rows="5"
+            maxlength="5000"
+            required
+          ></textarea>
         </div>
+
       </div>
 
-      <div id="sellerOtpSection" hidden>
-  <h3>Verify your phone</h3>
-  <p class="muted">
-    Verify your phone number before publishing your next listing.
-  </p>
-
-  <div class="field" style="margin-top:12px">
-    <label for="sellerOtpCountry">Country</label>
-    <select id="sellerOtpCountry">
-      <option value="GH">Ghana (+233)</option>
-      <option value="BF">Burkina Faso (+226)</option>
-      <option value="TG">Togo (+228)</option>
-    </select>
-  </div>
-
-  <button class="button secondary" id="sendSellerOtp" type="button">
-    Send verification code
-  </button>
-
-  <div class="field" style="margin-top:12px">
-    <label for="sellerOtpCode">Six-digit SMS code</label>
-    <input
-      id="sellerOtpCode"
-      type="text"
-      inputmode="numeric"
-      autocomplete="one-time-code"
-      maxlength="6"
-      pattern="[0-9]{6}"
-    >
-  </div>
-
-  <button class="button secondary" id="verifySellerOtp" type="button" style="margin-top:10px">
-    Verify code
-  </button>
-
-  <p id="sellerOtpStatus" class="help" role="status" aria-live="polite">
-    Phone verification required.
-  </p>
-</div>
-
       <div class="form-actions">
-        <button class="button primary" id="submitListingButton" type="submit">Submit for approval</button>
-        <button class="button secondary" id="cancelListingButton" type="button">Cancel</button>
+        <button
+          class="button primary"
+          id="submitListingButton"
+          type="submit"
+        >Submit for approval</button>
+
+        <button
+          class="button secondary"
+          id="cancelListingButton"
+          type="button"
+        >Cancel</button>
       </div>
     </form>
   </section>
 
   <section class="panel">
     <h2>My listings</h2>
-    <p class="muted">New products remain pending until the ShukAfrica admin approves them.</p>
+    <p class="muted">
+      New products remain pending until the ShukAfrica admin approves them.
+    </p>
+
     <div id="loading">Loading your listings…</div>
     <div id="listingContainer"></div>
   </section>
@@ -223,23 +416,15 @@ const form = $("sellerForm");
 const addButton = $("addListingButton");
 const addPanel = $("addListingPanel");
 const submitButton = $("submitListingButton");
-const otpSection = $("sellerOtpSection");
-
 const phoneInput = $("sellerPhone");
-const countrySelect = $("sellerOtpCountry");
-const otpCodeInput = $("sellerOtpCode");
-const sendOtpButton = $("sendSellerOtp");
-const verifyOtpButton = $("verifySellerOtp");
 
 const COUNTRIES = {
-  GH: { prefix: "+233", digits: 9, localDigits: 10, label: "Ghana" },
-  BF: { prefix: "+226", digits: 8, localDigits: 9, label: "Burkina Faso" },
-  TG: { prefix: "+228", digits: 8, localDigits: 9, label: "Togo" }
+  GH: { prefix: "+233", digits: 9, label: "Ghana" },
+  BF: { prefix: "+226", digits: 8, label: "Burkina Faso" },
+  TG: { prefix: "+228", digits: 8, label: "Togo" }
 };
 
 let submitting = false;
-let sellerOtpId = "";
-let sellerVerifiedPhone = "";
 let sellerAccountType = "";
 let sessionSeller = null;
 let sellerCountry = "";
@@ -258,12 +443,6 @@ function showFormMessage(text, type = "info") {
 function clearFormMessage() {
   formMessage.textContent = "";
   formMessage.className = "";
-}
-
-function setOtpStatus(text, success = false) {
-  $("sellerOtpStatus").textContent = text;
-  $("sellerOtpStatus").style.color =
-    success ? "#176b45" : "var(--muted)";
 }
 
 function escapeHTML(value) {
@@ -288,14 +467,19 @@ function countryFromPhone(value) {
 
 function normalizePhone(value, country) {
   const config = COUNTRIES[country];
+
   if (!config) return "";
 
-  let phone = String(value || "").trim().replace(/[\s()-]/g, "");
+  let phone = String(value || "")
+    .trim()
+    .replace(/[\s()-]/g, "");
+
+  const internationalPrefix = "00" + config.prefix.slice(1);
 
   if (phone.startsWith(config.prefix)) {
     phone = phone.slice(config.prefix.length);
-  } else if (phone.startsWith("00" + config.prefix.slice(1))) {
-    phone = phone.slice(("00" + config.prefix.slice(1)).length);
+  } else if (phone.startsWith(internationalPrefix)) {
+    phone = phone.slice(internationalPrefix.length);
   } else if (phone.startsWith("0")) {
     phone = phone.slice(1);
   }
@@ -334,7 +518,9 @@ function formatPrice(value) {
   const n = Number(value);
 
   return Number.isFinite(n)
-    ? "GH₵ " + n.toLocaleString("en-GH", { maximumFractionDigits: 2 })
+    ? "GH₵ " + n.toLocaleString("en-GH", {
+        maximumFractionDigits: 2
+      })
     : "Price unavailable";
 }
 
@@ -361,47 +547,6 @@ async function getSession() {
   }
 
   return null;
-}
-
-function configurePhoneVerification() {
-  const isEmailWithoutPhone =
-    sellerAccountType === "email" && !sellerSavedPhone;
-
-  const isPhoneAlreadySaved = Boolean(sellerSavedPhone);
-
-  if (isPhoneAlreadySaved) {
-    phoneInput.value = sellerSavedPhone;
-    phoneInput.readOnly = true;
-    countrySelect.disabled = true;
-    otpSection.hidden = true;
-    sellerVerifiedPhone = sellerSavedPhone;
-    return;
-  }
-
-  if (sellerAccountType === "sms") {
-    phoneInput.value = sellerSavedPhone;
-    phoneInput.readOnly = true;
-    countrySelect.disabled = true;
-    otpSection.hidden = true;
-
-    sellerVerifiedPhone = sellerSavedPhone;
-    return;
-  }
-
-  if (isEmailWithoutPhone) {
-    otpSection.hidden = false;
-    phoneInput.readOnly = false;
-    countrySelect.disabled = true;
-    countrySelect.value = sellerCountry;
-
-    phoneInput.value = "";
-    sellerVerifiedPhone = "";
-    sellerOtpId = "";
-
-    setOtpStatus(
-      "Verify your phone number before publishing your next listing."
-    );
-  }
 }
 
 async function startDashboard() {
@@ -435,6 +580,7 @@ async function startDashboard() {
           "Your seller account country is not supported for Buy & Sell.",
           "error"
         );
+
         loading.textContent = "Account country verification failed.";
         return;
       }
@@ -445,10 +591,11 @@ async function startDashboard() {
 
       if (!sellerCountry) {
         showMessage(
-          "Your seller phone number could not be verified.",
+          "Your seller phone number could not be identified.",
           "error"
         );
-        loading.textContent = "Phone verification failed.";
+
+        loading.textContent = "Phone number check failed.";
         return;
       }
     }
@@ -459,10 +606,16 @@ async function startDashboard() {
 
     $("sellerName").value = sessionSeller.name || "";
 
+    if (sellerSavedPhone) {
+      phoneInput.value = sellerSavedPhone;
+      phoneInput.readOnly = true;
+    } else {
+      phoneInput.value = "";
+      phoneInput.readOnly = false;
+    }
+
     addButton.hidden = false;
     addButton.setAttribute("aria-expanded", "false");
-
-    configurePhoneVerification();
 
     await loadListings();
 
@@ -480,6 +633,7 @@ async function startDashboard() {
 
 function openAddForm() {
   clearFormMessage();
+
   addPanel.hidden = false;
   addButton.setAttribute("aria-expanded", "true");
 
@@ -623,154 +777,7 @@ $("cancelListingButton").addEventListener("click", closeAddForm);
 
 phoneInput.addEventListener("input", () => {
   if (phoneInput.readOnly) return;
-
-  sellerVerifiedPhone = "";
-  sellerOtpId = "";
-
-  setOtpStatus(
-    "Phone changed. Request and verify a new code."
-  );
-});
-
-/* Send OTP */
-
-sendOtpButton.addEventListener("click", async () => {
-  const country = sellerCountry;
-  const phone = normalizePhone(phoneInput.value, country);
-
-  if (!phone) {
-    const config = COUNTRIES[country];
-
-    setOtpStatus(
-      config
-        ? `Enter a valid ${config.label} phone number.`
-        : "Your account country is not supported."
-    );
-
-    return;
-  }
-
-  sendOtpButton.disabled = true;
-  sendOtpButton.textContent = "Sending code…";
-
-  sellerOtpId = "";
-  sellerVerifiedPhone = "";
-
-  try {
-    const response = await fetch("/api/auth/otp-send", {
-      method: "POST",
-      credentials: "same-origin",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-      body: JSON.stringify({
-        country,
-        phone
-      })
-    });
-
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok || !data.success || !data.otp_id) {
-      throw new Error(
-        data.error || "Could not send the verification code."
-      );
-    }
-
-    sellerOtpId = data.otp_id;
-
-    setOtpStatus(
-      "Code sent. Enter the six digits from your SMS."
-    );
-
-  } catch (error) {
-    setOtpStatus(
-      error.message || "Could not send the code."
-    );
-
-  } finally {
-    sendOtpButton.disabled = false;
-    sendOtpButton.textContent = "Send verification code";
-  }
-});
-
-/* Verify OTP */
-
-verifyOtpButton.addEventListener("click", async () => {
-  const phone = normalizePhone(
-    phoneInput.value,
-    sellerCountry
-  );
-
-  const code = otpCodeInput.value.trim();
-
-  if (
-    !phone ||
-    !sellerOtpId ||
-    !/^\d{6}$/.test(code)
-  ) {
-    setOtpStatus(
-      "Enter your phone number, request a code, and type all six digits."
-    );
-    return;
-  }
-
-  verifyOtpButton.disabled = true;
-  verifyOtpButton.textContent = "Verifying…";
-
-  try {
-    const response = await fetch("/api/auth/otp-verify", {
-      method: "POST",
-      credentials: "same-origin",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-      body: JSON.stringify({
-        otp_id: sellerOtpId,
-        code,
-        phone
-      })
-    });
-
-    const data = await response.json().catch(() => ({}));
-
-    if (
-      !response.ok ||
-      !data.success ||
-      data.verified !== true
-    ) {
-      throw new Error(
-        data.error || "Phone verification failed."
-      );
-    }
-
-    /*
-      Keep sellerOtpId.
-      The listing API needs it to consume
-      the verified OTP when saving the phone.
-    */
-
-    sellerVerifiedPhone = phone;
-    phoneInput.readOnly = true;
-
-    setOtpStatus(
-      "Phone verified successfully. You can now submit your listing.",
-      true
-    );
-
-  } catch (error) {
-    sellerVerifiedPhone = "";
-
-    setOtpStatus(
-      error.message || "Verification failed."
-    );
-
-  } finally {
-    verifyOtpButton.disabled = false;
-    verifyOtpButton.textContent = "Verify code";
-  }
+  clearFormMessage();
 });
 
 /* Submit listing */
@@ -782,7 +789,17 @@ form.addEventListener("submit", async event => {
 
   clearFormMessage();
 
-  const session = await getSession();
+  let session;
+
+  try {
+    session = await getSession();
+  } catch {
+    showFormMessage(
+      "We couldn't verify your session. Please try again.",
+      "error"
+    );
+    return;
+  }
 
   if (!session) {
     showFormMessage(
@@ -816,59 +833,31 @@ form.addEventListener("submit", async event => {
     currentSeller.country || sellerCountry || ""
   ).toUpperCase();
 
-  let normalizedPhone = "";
+  if (!COUNTRIES[country]) {
+    showFormMessage(
+      "Your seller account country is not supported.",
+      "error"
+    );
+    return;
+  }
 
-  if (accountType === "sms") {
-    normalizedPhone = savedPhone;
+  const phoneValue = savedPhone || phoneInput.value;
+  const normalizedPhone = normalizePhone(phoneValue, country);
 
-    if (!normalizedPhone) {
-      showFormMessage(
-        "Your seller phone number is missing. Please log in again.",
-        "error"
-      );
-      return;
-    }
+  if (!normalizedPhone) {
+    showFormMessage(
+      "Please enter a valid phone number for your account country.",
+      "error"
+    );
+    return;
+  }
 
-  } else {
-    if (!COUNTRIES[country]) {
-      showFormMessage(
-        "Your seller account country is not supported.",
-        "error"
-      );
-      return;
-    }
-
-    if (savedPhone) {
-      normalizedPhone = savedPhone;
-
-      if (
-        normalizePhone(savedPhone, country) !== savedPhone
-      ) {
-        showFormMessage(
-          "Your saved seller phone number is invalid. Please contact support.",
-          "error"
-        );
-        return;
-      }
-
-    } else {
-      normalizedPhone = normalizePhone(
-        phoneInput.value,
-        country
-      );
-
-      if (
-        !normalizedPhone ||
-        normalizedPhone !== sellerVerifiedPhone ||
-        !sellerOtpId
-      ) {
-        showFormMessage(
-          "Please verify your phone number before publishing.",
-          "error"
-        );
-        return;
-      }
-    }
+  if (savedPhone && normalizedPhone !== savedPhone) {
+    showFormMessage(
+      "Your saved seller phone number is invalid. Please contact support.",
+      "error"
+    );
+    return;
   }
 
   const sellerName = $("sellerName").value.trim();
@@ -878,8 +867,8 @@ form.addEventListener("submit", async event => {
   const locationValue = $("sellerLocation").value.trim();
   const description = $("sellerDescription").value.trim();
   const photos = [...$("sellerPhotos").files];
-
-  if (
+  
+if (
     !sellerName ||
     !itemName ||
     !category ||
@@ -909,17 +898,7 @@ form.addEventListener("submit", async event => {
     );
     return;
   }
-
-  for (const photo of photos) {
-    if (photo.size < 1 || photo.size > 2 * 1024 * 1024) {
-      showFormMessage(
-        "Each photo must be no larger than 2 MB.",
-        "error"
-      );
-      return;
-    }
-
-    if (
+if (
       !["image/jpeg", "image/png", "image/webp"].includes(photo.type)
     ) {
       showFormMessage(
@@ -952,16 +931,16 @@ form.addEventListener("submit", async event => {
       image_1: urls[0] || null,
       image_2: urls[1] || null,
       image_3: urls[2] || null
-    };
+};
 
     /*
-      Existing email sellers without a saved phone
-      must send the verified phone and OTP ID.
+      For existing email sellers without a saved phone,
+      send the contact phone to the listing API.
+      No SMS OTP is required.
     */
 
     if (accountType === "email" && !savedPhone) {
       listing.phone = normalizedPhone;
-      listing.otp_id = sellerOtpId;
     }
 
     const response = await fetch("/api/marketplace", {
@@ -979,13 +958,8 @@ form.addEventListener("submit", async event => {
     if (!response.ok || !data.success) {
       throw new Error(
         data.error || "The listing could not be submitted."
-      );
+);
     }
-
-    /*
-      If this was the seller's first verified phone,
-      remember it locally and lock the field.
-    */
 
     if (accountType === "email" && !savedPhone) {
       sellerSavedPhone = normalizedPhone;
@@ -994,12 +968,8 @@ form.addEventListener("submit", async event => {
         sessionSeller.phone = normalizedPhone;
       }
 
-      sellerVerifiedPhone = normalizedPhone;
-      sellerOtpId = "";
-
       phoneInput.value = normalizedPhone;
       phoneInput.readOnly = true;
-      otpSection.hidden = true;
     }
 
     form.reset();
@@ -1010,25 +980,16 @@ form.addEventListener("submit", async event => {
     if (sellerSavedPhone) {
       phoneInput.value = sellerSavedPhone;
       phoneInput.readOnly = true;
-    }
-
-    if (sellerCountry) {
-      countrySelect.value = sellerCountry;
-    }
-
-    sellerOtpId = "";
-    sellerVerifiedPhone = sellerSavedPhone;
-
-    if (sellerAccountType === "email" && !sellerSavedPhone) {
-      otpSection.hidden = false;
+    } else {
+      phoneInput.value = "";
+      phoneInput.readOnly = false;
     }
 
     showFormMessage(
       "Your product was submitted for review. It should remain pending until the ShukAfrica admin approves it.",
       "info"
     );
-
-    await loadListings();
+await loadListings();
 
   } catch (error) {
     console.error("Listing submission failed:", error);
@@ -1059,7 +1020,7 @@ container.addEventListener("click", async event => {
     !confirm("Delete this listing permanently? This cannot be undone.")
   ) {
     return;
-  }
+}
 
   button.disabled = true;
 
@@ -1090,7 +1051,8 @@ container.addEventListener("click", async event => {
 
   } catch (error) {
     showMessage(
-      error.message || "Unable to delete listing.",
+      error.message || "Unable to delete
+listing.",
       "error"
     );
 
@@ -1118,7 +1080,6 @@ $("logoutButton").addEventListener("click", async event => {
 
   } catch (error) {
     console.error("Logout request failed:", error);
-
   } finally {
     location.href = "/signup.html?account=buy-sell&mode=login";
   }
@@ -1130,5 +1091,9 @@ startDashboard();
 
 })();
 </script>
+
 </body>
 </html>
+
+
+  
