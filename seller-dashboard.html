@@ -695,6 +695,7 @@ function renderListings(listings) {
   }).join("");
 }
 
+
 async function loadListings() {
   loading.hidden = false;
   loading.textContent = "Loading your listings…";
@@ -1057,11 +1058,10 @@ container.addEventListener("click", async event => {
 
     await loadListings();
 
+  
   } catch (error) {
     showMessage(
-  error.message || "Unable to delete listing.",
-  "error"
-);
+      error.message || "Unable to delete listing.",
       "error"
     );
 
