@@ -485,9 +485,9 @@
         }
 
         pendingVerificationEmail = email;
-        resendEmailButton.classList.remove("hidden");
 
         registerButton.textContent = "Sending verification email…";
+        resendEmailButton.classList.remove("hidden");
 
         try {
           await sendVerificationEmail(email);
