@@ -104,14 +104,8 @@ export async function onRequestGet({ request, env }) {
       }, 200, origin);
     }
 
-    // Temporary compatibility for existing SMS sessions.
-    return json({
-      authenticated: true,
-      account_type: "sms",
-      phone: session.phone,
-      seller_id: null,
-      expires_at: session.expires_at
-    }, 200, origin);
+  // Reject legacy SMS sessions. Only email-verified sellers are supported.
+return json({ authenticated: false }, 401, origin);
 
   } catch (error) {
     console.error("Session check failed:", error);
