@@ -102,13 +102,18 @@ async function checkRegistrationLimit(db, bucketKey, now) {
 }
 
 export async function onRequestPost({ request, env }) {
+  
+  console.log("Registration environment check:", {
+    hasDB: !!env.DB,
+    hasResendApiKey: !!env.RESEND_API_KEY
+  });
+
   if (!env.DB || !env.RESEND_API_KEY) {
     return json({
       success: false,
       error: "Registration service temporarily unavailable."
     }, 503);
   }
-
   const origin = request.headers.get("Origin") || "";
 
   if (origin && !ALLOWED_ORIGINS.has(origin)) {
