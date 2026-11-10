@@ -187,6 +187,10 @@ export async function onRequestPost({ request, env }) {
       Date.now() + SESSION_SECONDS * 1000
     ).toISOString();
 
+    console.log("LOGIN DIAGNOSTIC: verified seller; creating session", {
+  sellerId: seller.id
+});
+    
     await env.DB.prepare(`
       INSERT INTO seller_sessions
         (id, phone, token_hash, expires_at)
@@ -197,6 +201,10 @@ export async function onRequestPost({ request, env }) {
       tokenHash,
       expiresAt
     ).run();
+
+    console.log("LOGIN DIAGNOSTIC: session inserted", {
+  sessionId
+});
 
     return json(
       {
