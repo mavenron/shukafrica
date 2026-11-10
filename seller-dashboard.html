@@ -542,11 +542,11 @@ async function getSession() {
     return data;
   }
 
-  if (data.account_type === "sms" && data.phone) {
-    return data;
-  }
+  if (data.account_type === "email" && data.seller?.id) {
+  return data;
+}
 
-  return null;
+return null;
 }
 
 async function startDashboard() {
@@ -582,20 +582,6 @@ async function startDashboard() {
         );
 
         loading.textContent = "Account country verification failed.";
-        return;
-      }
-    }
-
-    if (sellerAccountType === "sms") {
-      sellerCountry = countryFromPhone(sellerSavedPhone);
-
-      if (!sellerCountry) {
-        showMessage(
-          "Your seller phone number could not be identified.",
-          "error"
-        );
-
-        loading.textContent = "Phone number check failed.";
         return;
       }
     }
