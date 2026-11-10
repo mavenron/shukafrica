@@ -558,10 +558,19 @@ updatePhoneCountry();
         }
 
       } catch (error) {
-        showMessage(
-          error.message || "Registration failed. Please try again.",
-          "error"
-        );
+  const errorText = error.message || "Registration failed. Please try again.";
+
+  if (errorText.includes("already pending")) {
+    pendingVerificationEmail = email;
+    resendEmailButton.classList.remove("hidden");
+
+    showMessage(
+      "You already have a pending registration. Click Resend verification email to receive a fresh link.",
+      "error"
+    );
+  } else {
+    showMessage(errorText, "error");
+  }
       } finally {
         registerButton.disabled = false;
         registerButton.textContent = "Create seller account";
