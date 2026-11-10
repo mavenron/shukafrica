@@ -40,17 +40,22 @@ export async function onRequestGet({ request, env }) {
   }
 
   if (!env.DB) {
-    return json({
-      authenticated: false,
-      error: "Database is not configured."
-    }, 503, origin);
+    console.error("SESSION DIAGNOSTIC: DB binding missing");
+    return json({ authenticated: false }, 503, origin);
   }
 
   const cookie = request.headers.get("Cookie") || "";
   const match = cookie.match(
     /(?:^|;\s*)shuk_seller_session=([^;]+)/
   );
+
   const token = match ? match[1] : "";
+
+  console.log("SESSION DIAGNOSTIC: cookie check", {
+    cookiePresent: Boolean(cookie),
+    sessionCookiePresent: Boolean(token),
+    tokenLength: token.length
+  });
 
   if (!token || token.length > 200) {
     return json({ authenticated: false }, 401, origin);
@@ -66,6 +71,13 @@ export async function onRequestGet({ request, env }) {
       LIMIT 1
     `).bind(tokenHash).first();
 
+    console.log("SESSION DIAGNOSTIC: database session lookup", {
+      sessionFound: Boolean(session),
+      sessionId: session?.id || null,
+      phonePrefix: session?.phone?.startsWith("email:") || false,
+      expiresAt: session?.expires_at || null
+    });
+
     if (
       !session ||
       !session.expires_at ||
@@ -75,8 +87,10 @@ export async function onRequestGet({ request, env }) {
       return json({ authenticated: false }, 401, origin);
     }
 
-    // New email/password sessions use email:<seller ID>.
-    if (typeof session.phone === "string" && session.phone.startsWith("email:")) {
+    if (
+      typeof session.phone === "string" &&
+      session.phone.startsWith("email:")
+    ) {
       const sellerId = session.phone.slice(6);
 
       const seller = await env.DB.prepare(`
@@ -86,8 +100,15 @@ export async function onRequestGet({ request, env }) {
         LIMIT 1
       `).bind(sellerId).first();
 
-      if (!seller || seller.email_verified !== 1) {
-      return json({ authenticated: false }, 401, origin);
+      console.log("SESSION DIAGNOSTIC: seller lookup", {
+        sellerFound: Boolean(seller),
+        sellerId: seller?.id || null,
+        emailVerified: seller?.email_verified ?? null,
+        emailVerifiedType: typeof seller?.email_verified
+      });
+
+      if (!seller || Number(seller.email_verified) !== 1) {
+        return json({ authenticated: false }, 401, origin);
       }
 
       return json({
@@ -104,8 +125,9 @@ export async function onRequestGet({ request, env }) {
       }, 200, origin);
     }
 
-  // Reject legacy SMS sessions. Only email-verified sellers are supported.
-return json({ authenticated: false }, 401, origin);
+    console.log("SESSION DIAGNOSTIC: legacy session rejected");
+
+    return json({ authenticated: false }, 401, origin);
 
   } catch (error) {
     console.error("Session check failed:", error);
