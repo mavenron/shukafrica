@@ -1,4 +1,3 @@
-
 const ALLOWED_ORIGINS = new Set([
   "https://shukafrica.com",
   "https://www.shukafrica.com",
@@ -14,6 +13,7 @@ const COUNTRIES = {
 const ITERATIONS = 100000;
 const REGISTRATION_LIMIT = 5;
 const RATE_WINDOW_SECONDS = 15 * 60;
+const TOKEN_SECONDS = 30 * 60;
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -35,6 +35,40 @@ async function sha256(value) {
   return Array.from(new Uint8Array(digest))
     .map(byte => byte.toString(16).padStart(2, "0"))
     .join("");
+}
+
+function makeToken() {
+  const bytes = crypto.getRandomValues(new Uint8Array(32));
+
+  return Array.from(bytes)
+    .map(byte => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function hashPassword(password) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(password),
+    "PBKDF2",
+    false,
+    ["deriveBits"]
+  );
+
+  const derived = await crypto.subtle.deriveBits({
+    name: "PBKDF2",
+    salt,
+    iterations: ITERATIONS,
+    hash: "SHA-256"
+  }, key, 256);
+
+  const hex = bytes =>
+    Array.from(new Uint8Array(bytes))
+      .map(byte => byte.toString(16).padStart(2, "0"))
+      .join("");
+
+  return `pbkdf2_sha256$${ITERATIONS}$${hex(salt)}$${hex(derived)}`;
 }
 
 async function checkRegistrationLimit(db, bucketKey, now) {
@@ -67,37 +101,11 @@ async function checkRegistrationLimit(db, bucketKey, now) {
   return result && result.request_count <= REGISTRATION_LIMIT;
 }
 
-async function hashPassword(password) {
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-
-  const key = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(password),
-    "PBKDF2",
-    false,
-    ["deriveBits"]
-  );
-
-  const derived = await crypto.subtle.deriveBits({
-    name: "PBKDF2",
-    salt,
-    iterations: ITERATIONS,
-    hash: "SHA-256"
-  }, key, 256);
-
-  const hex = bytes =>
-    Array.from(new Uint8Array(bytes))
-      .map(byte => byte.toString(16).padStart(2, "0"))
-      .join("");
-
-  return `pbkdf2_sha256$${ITERATIONS}$${hex(salt)}$${hex(derived)}`;
-}
-
 export async function onRequestPost({ request, env }) {
-  if (!env.DB) {
+  if (!env.DB || !env.RESEND_API_KEY) {
     return json({
       success: false,
-      error: "Database unavailable."
+      error: "Registration service temporarily unavailable."
     }, 503);
   }
 
@@ -164,20 +172,14 @@ export async function onRequestPost({ request, env }) {
     : "";
 
   if (name.length < 2 || name.length > 100) {
-    return json({
-      success: false,
-      error: "Enter a valid name."
-    }, 400);
+    return json({ success: false, error: "Enter a valid name." }, 400);
   }
 
   if (
     email.length > 254 ||
     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
   ) {
-    return json({
-      success: false,
-      error: "Enter a valid email address."
-    }, 400);
+    return json({ success: false, error: "Enter a valid email address." }, 400);
   }
 
   if (
@@ -196,14 +198,7 @@ export async function onRequestPost({ request, env }) {
   if (!countryInfo) {
     return json({
       success: false,
-      error: "ShukAfrica seller registration is currently available in Ghana, Burkina Faso and Togo."
-    }, 400);
-  }
-
-  if (!phone) {
-    return json({
-      success: false,
-      error: "Your mobile phone number is required."
+      error: "Registration is currently available in Ghana, Burkina Faso and Togo."
     }, 400);
   }
 
@@ -215,12 +210,13 @@ export async function onRequestPost({ request, env }) {
   if (!phonePattern.test(phone)) {
     return json({
       success: false,
-      error: "Enter a valid international phone number for the selected country."
+      error: "Enter a valid international phone number."
     }, 400);
   }
 
+  let pendingId = null;
+
   try {
-    // Registration rate limit: 5 attempts per IP per 15 minutes.
     const ip = request.headers.get("CF-Connecting-IP");
 
     if (!ip) {
@@ -231,17 +227,12 @@ export async function onRequestPost({ request, env }) {
     }
 
     const now = Math.floor(Date.now() / 1000);
-    const ipHash = await sha256(ip);
-    const bucketKey = "register:ip:" + ipHash;
 
-    await env.DB.prepare(`
-      DELETE FROM email_verification_rate_limits
-      WHERE window_start < ?
-    `).bind(now - 86400).run();
+    const ipHash = await sha256(ip);
 
     const allowed = await checkRegistrationLimit(
       env.DB,
-      bucketKey,
+      "register:ip:" + ipHash,
       now
     );
 
@@ -252,9 +243,16 @@ export async function onRequestPost({ request, env }) {
       }, 429);
     }
 
+    // Clean expired pending registrations.
+    await env.DB.prepare(`
+      DELETE FROM pending_seller_registrations
+      WHERE verification_expires_at <= ?
+    `).bind(new Date().toISOString()).run();
+
+    // Protect existing permanent seller accounts.
     const existingEmail = await env.DB.prepare(`
       SELECT id FROM sellers
-      WHERE email = ?
+      WHERE email = ? COLLATE NOCASE
       LIMIT 1
     `).bind(email).first();
 
@@ -278,44 +276,128 @@ export async function onRequestPost({ request, env }) {
       }, 409);
     }
 
-    const sellerId = crypto.randomUUID();
+    const pendingEmail = await env.DB.prepare(`
+      SELECT id FROM pending_seller_registrations
+      WHERE email = ? COLLATE NOCASE
+      LIMIT 1
+    `).bind(email).first();
+
+    const pendingPhone = await env.DB.prepare(`
+      SELECT id FROM pending_seller_registrations
+      WHERE phone = ?
+      LIMIT 1
+    `).bind(phone).first();
+
+    if (pendingEmail || pendingPhone) {
+      return json({
+        success: false,
+        error: "A registration with this email or phone is already pending. Please use the resend verification option."
+      }, 409);
+    }
+
     const passwordHash = await hashPassword(password);
+    const token = makeToken();
+    const tokenHash = await sha256(token);
+    const expiresAt = new Date(
+      Date.now() + TOKEN_SECONDS * 1000
+    ).toISOString();
+
+    pendingId = crypto.randomUUID();
 
     await env.DB.prepare(`
-      INSERT INTO sellers (
+      INSERT INTO pending_seller_registrations (
         id,
         name,
         email,
         password_hash,
         country,
         phone,
-        email_verified,
-        email_verification_token_hash,
-        email_verification_expires_at
+        verification_token_hash,
+        verification_expires_at
       )
-      VALUES (?, ?, ?, ?, ?, ?, 0, NULL, NULL)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
-      sellerId,
+      pendingId,
       name,
       email,
       passwordHash,
       country,
-      phone
+      phone,
+      tokenHash,
+      expiresAt
     ).run();
+
+    const verificationUrl =
+      "https://shukafrica.com/verify-email.html?token=" + token;
+
+    const emailResponse = await fetch(
+      "https://api.resend.com/emails",
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${env.RESEND_API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          from: "ShukAfrica <verify@mail.shukafrica.com>",
+          to: [email],
+          subject: "Verify your ShukAfrica seller email",
+          html: `
+            <div style="font-family:Arial,sans-serif;max-width:560px;margin:auto">
+              <h2>Welcome to ShukAfrica</h2>
+              <p>Hello ${name.replace(/[&<>"']/g, "")},</p>
+              <p>Please verify your email address to activate your seller account.</p>
+              <p>
+                <a href="${verificationUrl}"
+                  style="display:inline-block;padding:14px 22px;background:#176b45;color:white;text-decoration:none;border-radius:7px">
+                  Verify my email
+                </a>
+              </p>
+              <p>This link expires in 30 minutes.</p>
+              <p>If you did not request this account, you can ignore this email.</p>
+            </div>
+          `
+        })
+      }
+    );
+
+    if (!emailResponse.ok) {
+      const providerError = await emailResponse.text();
+
+      console.error("Resend email error:", {
+        status: emailResponse.status,
+        response: providerError
+      });
+
+      await env.DB.prepare(`
+        DELETE FROM pending_seller_registrations
+        WHERE id = ?
+      `).bind(pendingId).run();
+
+      return json({
+        success: false,
+        error: "We could not send your verification email. Please try again."
+      }, 502);
+    }
 
     return json({
       success: true,
-      message: "Account created. Please verify your email to activate it.",
-      seller: {
-        id: sellerId,
-        name,
-        email,
-        country
-      }
+      message: "A verification link has been sent. Please check your inbox and spam folder. The link expires in 30 minutes."
     }, 201);
 
   } catch (error) {
     console.error("Seller registration failed:", error);
+
+    if (pendingId) {
+      try {
+        await env.DB.prepare(`
+          DELETE FROM pending_seller_registrations
+          WHERE id = ?
+        `).bind(pendingId).run();
+      } catch (cleanupError) {
+        console.error("Pending registration cleanup failed:", cleanupError);
+      }
+    }
 
     if (
       error?.message?.toLowerCase().includes("unique") ||
@@ -323,13 +405,14 @@ export async function onRequestPost({ request, env }) {
     ) {
       return json({
         success: false,
-        error: "This email or phone number is already registered."
+        error: "This email or phone number is already registered or pending."
       }, 409);
     }
 
     return json({
       success: false,
-      error: "Could not create your account. Please try again."
+      error: "Could not complete registration. Please try again."
     }, 500);
   }
 }
+  
