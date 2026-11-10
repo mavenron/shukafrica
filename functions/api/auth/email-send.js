@@ -200,12 +200,12 @@ export async function onRequestPost({ request, env }) {
     `).bind(email).first();
 
     // Do not disclose whether an email is registered.
-    if (!pending) {
-      return json({
-        success: true,
-        message: "If an eligible registration exists, a verification email will be sent."
-      });
-    }
+  if (!pending) {
+  return json({
+    success: false,
+    error: "No active pending registration was found. Please register again."
+  }, 404);
+}
 
     const token = makeToken();
     const tokenHash = await sha256(token);
