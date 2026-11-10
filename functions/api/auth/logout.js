@@ -50,7 +50,7 @@ export async function onRequestPost({ request, env }) {
     let decodedToken;
 
     try {
-      decodedToken = decodeURIComponent(token);
+      decodedToken = token;
     } catch {
       return json({ error: "Invalid session cookie." }, 400, headers);
     }
