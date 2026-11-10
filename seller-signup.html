@@ -587,16 +587,19 @@ updatePhoneCountry();
 
         pendingVerificationEmail = email;
 
-        showMessage(
-          "Verification email sent. Please check your inbox and spam folder.",
-          "success"
-        );
+resendEmailButton.classList.remove("hidden");
 
-      } catch (error) {
-        showMessage(
-          error.message || "Unable to resend the verification email.",
-          "error"
-        );
+showMessage(
+  data.message ||
+  "A verification link has been sent. Please check your inbox and spam folder. The link expires in 30 minutes.",
+  "success"
+);
+
+} catch (error) {
+  showMessage(
+    error.message || "Registration failed. Please try again.",
+    "error"
+  );
       } finally {
         resendEmailButton.disabled = false;
         resendEmailButton.textContent = "Resend verification email";
