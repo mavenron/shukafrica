@@ -408,9 +408,11 @@
   }
 
   return rule.prefix + digits;
-    }
+}
 
-    const phonePrefix = document.getElementById("phonePrefix");
+// AUTOMATIC COUNTRY PHONE PREFIX
+
+const phonePrefix = document.getElementById("phonePrefix");
 
 function updatePhoneCountry() {
   const rule = COUNTRY_RULES[countryInput.value];
@@ -441,8 +443,9 @@ updatePhoneCountry();
         const match = trace.match(/(?:^|\n)loc=([A-Z]{2})(?:\n|$)/);
 
         if (match && COUNTRY_RULES[match[1]]) {
-          countryInput.value = match[1];
-        }
+  countryInput.value = match[1];
+  updatePhoneCountry();
+}
       } catch (error) {
         // Manual country selection remains available.
       }
