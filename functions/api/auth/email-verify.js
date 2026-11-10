@@ -1,4 +1,3 @@
-
 const ALLOWED_ORIGINS = new Set([
   "https://shukafrica.com",
   "https://www.shukafrica.com",
