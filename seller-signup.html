@@ -229,24 +229,33 @@
       >
 
       <label for="country">Country</label>
-      <select id="country" name="country" required>
-        <option value="">Choose your country</option>
-        <option value="GH">Ghana (+233)</option>
-        <option value="BF">Burkina Faso (+226)</option>
-        <option value="TG">Togo (+228)</option>
-      </select>
+<select id="country" name="country" required>
+  <option value="">Choose your country</option>
+  <option value="GH">Ghana (+233)</option>
+  <option value="BF">Burkina Faso (+226)</option>
+  <option value="TG">Togo (+228)</option>
+</select>
 
-      <label for="phone">Mobile phone number</label>
-      <input
-        id="phone"
-        name="phone"
-        type="tel"
-        autocomplete="tel"
-        inputmode="tel"
-        placeholder="Enter your phone number"
-        maxlength="20"
-        required
-      >
+<label for="phone">Mobile phone number</label>
+
+<div class="phone-input">
+  <span id="phonePrefix">+233</span>
+  <input
+    id="phone"
+    name="phone"
+    type="tel"
+    autocomplete="tel-national"
+    inputmode="numeric"
+    placeholder="Enter 9 digits"
+    maxlength="9"
+    pattern="[0-9]{9}"
+    required
+  >
+</div>
+
+<p class="hint">
+  Select your country and enter only the remaining digits. Do not enter the country code again.
+</p>
 
       <p class="hint">
         Your phone number is required as contact information. No SMS verification is needed.
