@@ -79,16 +79,6 @@ function escapeHtml(value) {
   })[char]);
 }
 
-async function clearToken(db, sellerId, tokenHash) {
-  await db.prepare(`
-    UPDATE sellers
-    SET email_verification_token_hash = NULL,
-        email_verification_expires_at = NULL
-    WHERE id = ?
-      AND email_verification_token_hash = ?
-  `).bind(sellerId, tokenHash).run();
-}
-
 export async function onRequestPost({ request, env }) {
   if (!env.DB || !env.RESEND_API_KEY) {
     return json({
@@ -160,13 +150,17 @@ export async function onRequestPost({ request, env }) {
 
     const now = Math.floor(Date.now() / 1000);
 
-    // Remove expired rate-limit records.
     await env.DB.prepare(`
       DELETE FROM email_verification_rate_limits
       WHERE window_start < ?
     `).bind(now - 86400).run();
 
-    // Hash identifiers so raw emails and IP addresses are not stored.
+    // Remove expired pending registrations.
+    await env.DB.prepare(`
+      DELETE FROM pending_seller_registrations
+      WHERE verification_expires_at <= ?
+    `).bind(new Date().toISOString()).run();
+
     const emailKey = "email:" + await sha256(email);
     const ipKey = "ip:" + await sha256(ip);
 
@@ -198,24 +192,18 @@ export async function onRequestPost({ request, env }) {
       }, 429);
     }
 
-    const seller = await env.DB.prepare(`
-      SELECT id, name, email, email_verified
-      FROM sellers
-      WHERE email = ?
+    const pending = await env.DB.prepare(`
+      SELECT id, name, email
+      FROM pending_seller_registrations
+      WHERE email = ? COLLATE NOCASE
       LIMIT 1
     `).bind(email).first();
 
-    if (!seller) {
+    // Do not disclose whether an email is registered.
+    if (!pending) {
       return json({
         success: true,
-        message: "If the account requires verification, an email will be sent."
-      });
-    }
-
-    if (seller.email_verified === 1) {
-      return json({
-        success: true,
-        message: "This email is already verified."
+        message: "If an eligible registration exists, a verification email will be sent."
       });
     }
 
@@ -227,16 +215,14 @@ export async function onRequestPost({ request, env }) {
     ).toISOString();
 
     const updateResult = await env.DB.prepare(`
-      UPDATE sellers
-      SET email_verification_token_hash = ?,
-          email_verification_expires_at = ?,
-          updated_at = CURRENT_TIMESTAMP
+      UPDATE pending_seller_registrations
+      SET verification_token_hash = ?,
+          verification_expires_at = ?
       WHERE id = ?
-        AND email_verified = 0
     `).bind(
       tokenHash,
       expiresAt,
-      seller.id
+      pending.id
     ).run();
 
     if (Number(updateResult?.meta?.changes) !== 1) {
@@ -261,23 +247,20 @@ export async function onRequestPost({ request, env }) {
         },
         body: JSON.stringify({
           from: "ShukAfrica <verify@mail.shukafrica.com>",
-          to: [seller.email],
-          subject: "Verify your ShukAfrica account",
+          to: [pending.email],
+          subject: "Verify your ShukAfrica seller account",
           html: `
             <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;line-height:1.6">
-              <h2>Welcome to ShukAfrica, ${escapeHtml(seller.name)}!</h2>
-
+              <h2>Welcome to ShukAfrica, ${escapeHtml(pending.name)}!</h2>
               <p>Please verify your email address to activate your seller account.</p>
-
               <p>
                 <a href="${verificationUrl}"
-                   style="display:inline-block;padding:13px 22px;background:#111;color:#fff;text-decoration:none;border-radius:6px">
+                   style="display:inline-block;padding:13px 22px;background:#176b45;color:#fff;text-decoration:none;border-radius:6px">
                   Verify my email
                 </a>
               </p>
-
               <p>This link expires in 30 minutes and can only be used once.</p>
-              <p>If you did not create this account, you can ignore this email.</p>
+              <p>If you did not request this account, you can ignore this email.</p>
               <p>ShukAfrica Team</p>
             </div>
           `
@@ -285,7 +268,6 @@ export async function onRequestPost({ request, env }) {
       });
     } catch (error) {
       console.error("Resend request failed:", error);
-      await clearToken(env.DB, seller.id, tokenHash);
 
       return json({
         success: false,
@@ -296,9 +278,10 @@ export async function onRequestPost({ request, env }) {
     if (!response.ok) {
       const providerError = await response.text();
 
-      console.error("Resend email error:", providerError);
-
-      await clearToken(env.DB, seller.id, tokenHash);
+      console.error("Resend email error:", {
+        status: response.status,
+        response: providerError
+      });
 
       return json({
         success: false,
@@ -319,4 +302,5 @@ export async function onRequestPost({ request, env }) {
       error: "Unable to send verification email right now."
     }, 500);
   }
-      }
+}
+  
