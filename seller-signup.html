@@ -410,6 +410,23 @@
   return rule.prefix + digits;
     }
 
+    const phonePrefix = document.getElementById("phonePrefix");
+
+function updatePhoneCountry() {
+  const rule = COUNTRY_RULES[countryInput.value];
+
+  phonePrefix.textContent = rule ? rule.prefix : "";
+  phoneInput.maxLength = rule ? rule.digits : 9;
+  phoneInput.placeholder = rule
+    ? `Enter ${rule.digits} digits`
+    : "Select your country first";
+
+  phoneInput.value = "";
+}
+
+countryInput.addEventListener("change", updatePhoneCountry);
+updatePhoneCountry();
+
     // Suggest the country from Cloudflare's location trace.
     // This is only a suggestion; the seller can change it.
     async function suggestCountry() {
