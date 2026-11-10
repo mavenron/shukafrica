@@ -554,7 +554,7 @@ async function startDashboard() {
     const data = await getSession();
 
     if (!data) {
-      location.href = "/signup.html?account=buy-sell&mode=login";
+      location.replace("/seller-signup.html?mode=login");
       return;
     }
 
@@ -1096,8 +1096,7 @@ $("logoutButton").addEventListener("click", async event => {
       );
     }
 
-    location.replace(
-      "/signup.html?account=buy-sell&mode=login"
+    location.replace("/seller-signup.html?mode=login");
     );
 
   } catch (error) {
