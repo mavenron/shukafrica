@@ -798,15 +798,12 @@ form.addEventListener("submit", async event => {
 
   const accountType = session.account_type;
 
-  if (
-    accountType !== "email" &&
-    accountType !== "sms"
-  ) {
-    showFormMessage(
-      "Please log in to your seller account again.",
-      "error"
-    );
-    return;
+  if (accountType !== "email") {
+  showFormMessage(
+    "Please log in to your email-verified seller account again.",
+    "error"
+  );
+  return;
   }
 
   const currentSeller =
