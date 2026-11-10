@@ -1069,6 +1069,7 @@ container.addEventListener("click", async event => {
   }
 });
 
+
 /* Logout */
 
 $("logoutButton").addEventListener("click", async event => {
@@ -1078,7 +1079,7 @@ $("logoutButton").addEventListener("click", async event => {
   button.textContent = "Logging out…";
 
   try {
-    await fetch("/api/seller/logout", {
+    const response = await fetch("/api/auth/logout", {
       method: "POST",
       credentials: "same-origin",
       headers: {
@@ -1087,10 +1088,28 @@ $("logoutButton").addEventListener("click", async event => {
       cache: "no-store"
     });
 
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || data.success !== true) {
+      throw new Error(
+        data.error || "Logout could not be completed."
+      );
+    }
+
+    location.replace(
+      "/signup.html?account=buy-sell&mode=login"
+    );
+
   } catch (error) {
-    console.error("Logout request failed:", error);
-  } finally {
-    location.href = "/signup.html?account=buy-sell&mode=login";
+    console.error("Logout failed:", error);
+
+    button.disabled = false;
+    button.textContent = "Log out";
+
+    showMessage(
+      error.message || "Unable to log out. Please try again.",
+      "error"
+    );
   }
 });
 
@@ -1099,6 +1118,7 @@ $("logoutButton").addEventListener("click", async event => {
 startDashboard();
 
 })();
+  
 </script>
 
 </body>
