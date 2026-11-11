@@ -1595,9 +1595,113 @@
     try {
       let media = { ...existingMedia };
 
+      
       // Upload newly selected photos.
       if (selectedPhotoFiles.length) {
-        me
+        media.image_1 = "";
+        media.image_2 = "";
+        media.image_3 = "";
+
+        for (let i = 0; i < selectedPhotoFiles.length; i++) {
+          const key = await uploadMedia(
+            selectedPhotoFiles[i],
+            "photo"
+          );
+
+          media["image_" + (i + 1)] = key;
+        }
+      }
+
+      // Upload newly selected video.
+      if (selectedVideoFile) {
+        media.video_key = await uploadMedia(
+          selectedVideoFile,
+          "video"
+        );
+      }
+
+      const payload = {
+        action: isEditing ? "update" : "create",
+        id: $("listingId").value || undefined,
+        title,
+        description,
+        price,
+        condition,
+        location,
+        contact,
+        availability: $("availabilityCheckbox").checked
+          ? "available"
+          : "unavailable",
+        terms: true,
+        image_1: media.image_1,
+        image_2: media.image_2,
+        image_3: media.image_3,
+        video_key: media.video_key
+      };
+
+      const data = await postJSON(API + "/manage", payload);
+
+      showMessage(
+        "rentalMessage",
+        data.message ||
+          (isEditing
+            ? "Your rental has been updated."
+            : "Your rental has been published."),
+        "success"
+      );
+
+      resetRentalForm();
+      await loadListings();
+
+    } catch (error) {
+      showMessage("rentalMessage", error.message, "error");
+    } finally {
+      button.disabled = false;
+      button.textContent = isEditing
+        ? "Update Rental"
+        : "Publish Rental";
+    }
+  });
+
+  // DELETE RENTAL
+  async function deleteListing(listing) {
+    const id = listing.id || listing.listing_id;
+
+    if (!id) {
+      showMessage("listingMessage", "This listing has no valid ID.", "error");
+      return;
+    }
+
+    if (!window.confirm("Are you sure you want to delete this rental listing?")) {
+      return;
+    }
+
+    try {
+      await postJSON(API + "/manage", {
+        action: "delete",
+        id
+      });
+
+      showMessage(
+        "listingMessage",
+        "Rental listing deleted successfully.",
+        "success"
+      );
+
+      await loadListings();
+
+    } catch (error) {
+      showMessage("listingMessage", error.message, "error");
+    }
+  }
+
+  // START APPLICATION
+  updatePhoneSettings();
+  checkSession();
+
+})();
+</script>
+
 </body>
-                </html>
+</html>
                 
