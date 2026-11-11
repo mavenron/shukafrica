@@ -1504,7 +1504,9 @@
     $("contact").value = listing.contact || "";
 
     const isAvailable =
-      listing.availability !== "unavailable";
+  !["unavailable", "not available"].includes(
+    String(listing.availability || "").toLowerCase()
+  );
 
     $("availabilityCheckbox").checked = isAvailable;
     $("availability").value =
