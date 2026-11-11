@@ -1409,9 +1409,10 @@
 
       const availability = document.createElement("p");
       availability.textContent =
-        listing.availability === "unavailable"
-          ? "Currently unavailable"
-          : "Available";
+  listing.availability === "unavailable" ||
+  listing.availability === "Not Available"
+    ? "Currently unavailable"
+    : "Available";
 
       const actions = document.createElement("div");
       actions.className = "card-actions";
