@@ -37,21 +37,25 @@ async function sha256(value) {
     .join("");
 }
 
+// SHARED SHUKAFRICA SELLER AUTHENTICATION
 async function getOwner(request, env) {
   const cookie = request.headers.get("Cookie") || "";
+
   const match = cookie.match(
-    /(?:^|;\s*)shuk_rental_session=([^;]+)/
+    /(?:^|;\s*)shuk_seller_session=([^;]+)/
   );
 
   const token = match ? match[1] : "";
 
-  if (!token || token.length > 200) return null;
+  if (!token || token.length > 200) {
+    return null;
+  }
 
   const tokenHash = await sha256(token);
 
   const session = await env.DB.prepare(`
-    SELECT owner_id, expires_at
-    FROM rental_owner_sessions
+    SELECT phone, expires_at
+    FROM seller_sessions
     WHERE token_hash = ?
     LIMIT 1
   `).bind(tokenHash).first();
@@ -65,14 +69,42 @@ async function getOwner(request, env) {
     return null;
   }
 
-  return await env.DB.prepare(`
-    SELECT id
-    FROM rental_owners
+  if (
+    typeof session.phone !== "string" ||
+    !session.phone.startsWith("email:")
+  ) {
+    return null;
+  }
+
+  const sellerId = session.phone.slice(6);
+
+  const seller = await env.DB.prepare(`
+    SELECT id, email_verified
+    FROM sellers
     WHERE id = ?
     LIMIT 1
-  `).bind(session.owner_id).first();
+  `).bind(sellerId).first();
+
+  if (!seller || Number(seller.email_verified) !== 1) {
+    return null;
+  }
+
+  // Find the Rentals owner linked to this seller.
+  const owner = await env.DB.prepare(`
+    SELECT id, seller_id
+    FROM rental_owners
+    WHERE seller_id = ?
+    LIMIT 1
+  `).bind(seller.id).first();
+
+  if (!owner) {
+    return null;
+  }
+
+  return owner;
 }
 
+// VERIFY ACTUAL FILE CONTENTS
 function detectFileType(bytes) {
   if (
     bytes.length >= 3 &&
@@ -124,7 +156,12 @@ function detectFileType(bytes) {
     const brand = String.fromCharCode(...bytes.slice(8, 12));
 
     if ([
-      "isom", "iso2", "mp41", "mp42", "avc1", "M4V "
+      "isom",
+      "iso2",
+      "mp41",
+      "mp42",
+      "avc1",
+      "M4V "
     ].includes(brand)) {
       return {
         type: "video/mp4",
@@ -203,6 +240,7 @@ export async function onRequest({ request, env }) {
   }
 
   const kind = request.headers.get("X-Upload-Kind");
+
   const contentType = (
     request.headers.get("Content-Type") || ""
   ).split(";")[0].trim().toLowerCase();
@@ -227,7 +265,10 @@ export async function onRequest({ request, env }) {
     }, 415, origin);
   }
 
-  const limit = kind === "photo" ? PHOTO_LIMIT : VIDEO_LIMIT;
+  const limit = kind === "photo"
+    ? PHOTO_LIMIT
+    : VIDEO_LIMIT;
+
   const lengthHeader = request.headers.get("Content-Length");
 
   if (lengthHeader !== null) {
@@ -253,11 +294,11 @@ export async function onRequest({ request, env }) {
     if (!owner) {
       return json({
         success: false,
-        error: "Please log in to upload rental media."
+        error: "Please log in to your ShukAfrica account before uploading rental media."
       }, 401, origin);
     }
 
-    // The dashboard now sends raw file bytes, not FormData.
+    // Receive raw file bytes from the dashboard.
     const buffer = await request.arrayBuffer();
 
     if (buffer.byteLength === 0) {
@@ -320,4 +361,4 @@ export async function onRequest({ request, env }) {
       error: "Upload failed. Please try again."
     }, 500, origin);
   }
-}
+        }
