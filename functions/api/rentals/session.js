@@ -94,8 +94,28 @@ export async function onRequestGet({ request, env }) {
       return json({ authenticated: false }, 401, origin);
     }
 
+    // Create the Rentals owner link automatically.
+    // The seller ID is also used as the owner ID.
+    await env.DB.prepare(`
+      INSERT INTO rental_owners (
+        id,
+        name,
+        email,
+        password_hash,
+        seller_id
+      )
+      VALUES (?, ?, ?, ?, ?)
+      ON CONFLICT(seller_id) DO NOTHING
+    `).bind(
+      seller.id,
+      seller.name,
+      seller.email,
+      "SHUKAFRICA_SHARED_ACCOUNT_ONLY",
+      seller.id
+    ).run();
+
     const owner = await env.DB.prepare(`
-      SELECT id
+      SELECT id, seller_id
       FROM rental_owners
       WHERE seller_id = ?
       LIMIT 1
@@ -104,9 +124,8 @@ export async function onRequestGet({ request, env }) {
     if (!owner) {
       return json({
         authenticated: false,
-        needs_rental_link: true,
-        error: "Your ShukAfrica account is verified, but your Rentals account has not been linked yet."
-      }, 403, origin);
+        error: "Could not connect your Rentals account."
+      }, 500, origin);
     }
 
     return json({
@@ -150,4 +169,4 @@ export async function onRequestOptions({ request }) {
       "Vary": "Origin"
     }
   });
-        }
+}
