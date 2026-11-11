@@ -155,12 +155,6 @@ export async function onRequestPost({ request, env }) {
       WHERE window_start < ?
     `).bind(now - 86400).run();
 
-    // Remove expired pending registrations.
-    await env.DB.prepare(`
-      DELETE FROM pending_seller_registrations
-      WHERE verification_expires_at <= ?
-    `).bind(new Date().toISOString()).run();
-
     const emailKey = "email:" + await sha256(email);
     const ipKey = "ip:" + await sha256(ip);
 
@@ -192,6 +186,8 @@ export async function onRequestPost({ request, env }) {
       }, 429);
     }
 
+    // Find the pending registration, including expired records.
+    // Expired registrations can request a fresh verification email.
     const pending = await env.DB.prepare(`
       SELECT id, name, email
       FROM pending_seller_registrations
@@ -199,13 +195,12 @@ export async function onRequestPost({ request, env }) {
       LIMIT 1
     `).bind(email).first();
 
-    // Do not disclose whether an email is registered.
-  if (!pending) {
-  return json({
-    success: false,
-    error: "No active pending registration was found. Please register again."
-  }, 404);
-}
+    if (!pending) {
+      return json({
+        success: false,
+        error: "No pending registration was found. Please register again."
+      }, 404);
+    }
 
     const token = makeToken();
     const tokenHash = await sha256(token);
@@ -214,28 +209,11 @@ export async function onRequestPost({ request, env }) {
       Date.now() + TOKEN_SECONDS * 1000
     ).toISOString();
 
-    const updateResult = await env.DB.prepare(`
-      UPDATE pending_seller_registrations
-      SET verification_token_hash = ?,
-          verification_expires_at = ?
-      WHERE id = ?
-    `).bind(
-      tokenHash,
-      expiresAt,
-      pending.id
-    ).run();
-
-    if (Number(updateResult?.meta?.changes) !== 1) {
-      return json({
-        success: false,
-        error: "Could not prepare verification. Please try again."
-      }, 500);
-    }
-
     const verificationUrl =
       "https://shukafrica.com/verify-email.html?token=" +
       encodeURIComponent(token);
 
+    // Send the new email before replacing the existing token.
     let response;
 
     try {
@@ -289,6 +267,29 @@ export async function onRequestPost({ request, env }) {
       }, 502);
     }
 
+    // Only activate the new token after Resend accepts the email.
+    const updateResult = await env.DB.prepare(`
+      UPDATE pending_seller_registrations
+      SET verification_token_hash = ?,
+          verification_expires_at = ?
+      WHERE id = ?
+    `).bind(
+      tokenHash,
+      expiresAt,
+      pending.id
+    ).run();
+
+    if (Number(updateResult?.meta?.changes) !== 1) {
+      console.error("Pending registration token update failed", {
+        id: pending.id
+      });
+
+      return json({
+        success: false,
+        error: "Email was accepted, but verification could not be prepared. Please contact support."
+      }, 500);
+    }
+
     return json({
       success: true,
       message: "Verification email sent. Please check your inbox."
@@ -302,5 +303,4 @@ export async function onRequestPost({ request, env }) {
       error: "Unable to send verification email right now."
     }, 500);
   }
-}
-  
+        }
