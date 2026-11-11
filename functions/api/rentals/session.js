@@ -169,4 +169,4 @@ export async function onRequestOptions({ request }) {
       "Vary": "Origin"
     }
   });
-}
+  }
