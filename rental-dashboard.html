@@ -815,6 +815,14 @@
 <script>
 (() => {
   "use strict";
+  window.addEventListener("error", (event) => {
+  alert(
+    "Dashboard JavaScript error: " +
+    event.message +
+    " at line " +
+    event.lineno
+  );
+});
 
   const API = "/api/rentals";
 
