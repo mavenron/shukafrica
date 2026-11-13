@@ -1671,9 +1671,17 @@ if (!isEditing && selectedPhotoFiles.length === 0) {
       resetRentalForm();
       await loadListings();
 
+    
     } catch (error) {
       showMessage("rentalMessage", error.message, "error");
-    finally {
+    } finally {
+      button.disabled = false;
+      button.textContent = $("listingId").value
+        ? "Update Rental"
+        : "Publish Rental";
+    }
+  });
+  
   button.disabled = false;
   button.textContent = $("listingId").value
     ? "Update Rental"
