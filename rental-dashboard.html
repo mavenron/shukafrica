@@ -475,7 +475,7 @@
       </div>
 
       <!-- REGISTRATION -->
-      <form id="registerForm">
+      <form id="registerForm" onsubmit="alert('Registration form is responding'); return false;">
 
         <div class="field">
           <label for="ownerName">Full Name</label>
@@ -815,15 +815,6 @@
 <script>
 (() => {
   "use strict";
-  window.addEventListener("error", (event) => {
-  alert(
-    "Dashboard JavaScript error: " +
-    event.message +
-    " at line " +
-    event.lineno
-  );
-});
-
   const API = "/api/rentals";
 
   const $ = (id) => document.getElementById(id);
