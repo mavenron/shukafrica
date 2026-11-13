@@ -1681,14 +1681,6 @@ if (!isEditing && selectedPhotoFiles.length === 0) {
         : "Publish Rental";
     }
   });
-  
-  button.disabled = false;
-  button.textContent = $("listingId").value
-    ? "Update Rental"
-    : "Publish Rental";
-}
-        
-  });
 
   // DELETE RENTAL
   async function deleteListing(listing) {
