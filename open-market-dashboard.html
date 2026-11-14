@@ -647,30 +647,47 @@
             </div>
           </div>
 
-          <div class="grid">
-            <div class="field">
-              <label for="contact">Contact / WhatsApp number *</label>
-              <input
-                id="contact"
-                name="contact"
-                type="tel"
-                maxlength="30"
-                required
-                placeholder="Enter your contact number"
-              >
-            </div>
+          
+<div class="grid">
+  <div class="field">
+    <label for="contact">Contact / WhatsApp number *</label>
 
-            <div class="field">
-              <label for="price">Price</label>
-              <input
-                id="price"
-                name="price"
-                type="text"
-                maxlength="50"
-                placeholder="e.g. GHS 250 or Negotiable"
-              >
-            </div>
-          </div>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <select
+        id="contactCountryCode"
+        style="width:115px; flex-shrink:0;"
+        aria-label="Phone country code"
+      >
+        <option value="+233">GH +233</option>
+        <option value="+226">BF +226</option>
+        <option value="+228">TG +228</option>
+      </select>
+
+      <input
+        id="contact"
+        name="contact"
+        type="tel"
+        inputmode="numeric"
+        maxlength="9"
+        required
+        placeholder="Phone number"
+        style="min-width:0; flex:1;"
+      >
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="price">Price</label>
+    <input
+      id="price"
+      name="price"
+      type="text"
+      maxlength="50"
+      placeholder="e.g. GHS 250 or Negotiable"
+    >
+  </div>
+</div>
+          
 
           <div class="grid">
             
