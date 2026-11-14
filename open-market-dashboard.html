@@ -1272,59 +1272,78 @@
     }
   });
 
-  function validateListingForm() {
-    const category = getSelectedCategory();
+  
+  
+function validateListingForm() {
+  const category = getSelectedCategory();
 
-    if (!category) {
-      return "Please select a listing category.";
-    }
-
-    if (category === "jobs") {
-      const jobType = document.querySelector(
-        'input[name="job_type"]:checked'
-      );
-
-      if (!jobType) {
-        return "For Jobs, choose Workers Needed or Looking for Work.";
-      }
-    }
-
-    const requiredFields = [
-      ["listingTitle", "listing title"],
-      ["sellerName", "seller name"],
-      ["contact", "contact number"],
-      ["location", "location"],
-      ["description", "description"]
-    ];
-
-    for (const [id, label] of requiredFields) {
-      if (!$(id).value.trim()) {
-        return `Please enter the ${label}.`;
-      }
-    }
-
-    if ($("listingTitle").value.trim().length > 120) {
-      return "The listing title cannot exceed 120 characters.";
-    }
-
-    if ($("sellerName").value.trim().length > 100) {
-      return "The seller name cannot exceed 100 characters.";
-    }
-
-    if ($("contact").value.trim().length > 30) {
-      return "The contact number cannot exceed 30 characters.";
-    }
-
-    if ($("location").value.trim().length > 160) {
-      return "The location cannot exceed 160 characters.";
-    }
-
-    if ($("description").value.trim().length > 5000) {
-      return "The description cannot exceed 5,000 characters.";
-    }
-
-    return validateImages() || validateVideo();
+  if (!category) {
+    return "Please select a listing category.";
   }
+
+  if (category === "jobs") {
+    const jobType = document.querySelector(
+      'input[name="job_type"]:checked'
+    );
+
+    if (!jobType) {
+      return "For Jobs, choose Workers Needed or Looking for Work.";
+    }
+  }
+
+  const requiredFields = [
+    ["listingTitle", "listing title"],
+    ["sellerName", "seller name"],
+    ["contact", "contact number"],
+    ["location", "location"],
+    ["description", "description"]
+  ];
+
+  for (const [id, label] of requiredFields) {
+    if (!$(id).value.trim()) {
+      return `Please enter the ${label}.`;
+    }
+  }
+
+  if ($("listingTitle").value.trim().length > 120) {
+    return "The listing title cannot exceed 120 characters.";
+  }
+
+  if ($("sellerName").value.trim().length > 100) {
+    return "The seller name cannot exceed 100 characters.";
+  }
+
+  const phonePrefix = $("contactCountryCode").value;
+  const phoneDigits = $("contact").value.replace(/\D/g, "");
+
+  const requiredDigits = {
+    "+233": 9,
+    "+226": 8,
+    "+228": 8
+  };
+
+  if (!requiredDigits[phonePrefix]) {
+    return "Please select a supported phone country code.";
+  }
+
+  if (phoneDigits.length !== requiredDigits[phonePrefix]) {
+    return phonePrefix + " requires exactly " +
+      requiredDigits[phonePrefix] + " digits.";
+  }
+
+  $("contact").value = phoneDigits;
+
+  if ($("location").value.trim().length > 160) {
+    return "The location cannot exceed 160 characters.";
+  }
+
+  if ($("description").value.trim().length > 5000) {
+    return "The description cannot exceed 5,000 characters.";
+  }
+
+  return validateImages() || validateVideo();
+}
+
 
   // Clear the form and leave edit mode.
   clearBtn.addEventListener("click", () => {
