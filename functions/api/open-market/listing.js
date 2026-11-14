@@ -299,6 +299,20 @@ export async function onRequestPost({ request, env }) {
         error: "Please complete the title, seller name, contact, location, and description."
       }, 400);
     }
+    
+    // Enforce supported international phone numbers.
+    const validPhone =
+      /^\+233\d{9}$/.test(contact) ||
+      /^\+226\d{8}$/.test(contact) ||
+      /^\+228\d{8}$/.test(contact);
+
+    if (!validPhone) {
+      return json({
+        success: false,
+        error: "Only Ghana (+233), Burkina Faso (+226), and Togo (+228) phone numbers are accepted. Check the country code and number of digits."
+      }, 400);
+    }
+    
 
     if (category === "jobs") {
       const allowedJobTypes = [
