@@ -128,18 +128,35 @@ export async function onRequestGet({ request, env }) {
       }, 500, origin);
     }
 
-    return json({
-      authenticated: true,
-      owner: {
-        id: owner.id,
-        seller_id: seller.id,
-        name: seller.name,
-        email: seller.email,
-        phone: seller.phone,
-        country: seller.country
-      },
-      expires_at: session.expires_at
-    }, 200, origin);
+    const owner = await env.DB.prepare(`
+  SELECT id, name, email, seller_id
+  FROM rental_owners
+  WHERE seller_id = ?
+  LIMIT 1
+`).bind(seller.id).first();
+
+if (!owner) {
+  return json({ authenticated: false }, 401, origin);
+}
+
+return json({
+  authenticated: true,
+  account_type: "email",
+  seller: {
+    id: seller.id,
+    name: seller.name,
+    email: seller.email,
+    country: seller.country,
+    phone: seller.phone || null
+  },
+  owner: {
+    id: owner.id,
+    name: owner.name,
+    email: owner.email,
+    seller_id: owner.seller_id
+  },
+  expires_at: session.expires_at
+}, 200, origin);
 
   } catch (error) {
     console.error("Shared Rentals session check failed:", error);
