@@ -1396,11 +1396,19 @@ if (category !== "jobs") {
 }
 
 // Convert listing fields to JSON.
+
 const listingData = Object.fromEntries(formData.entries());
+
+// Attach the selected international phone prefix.
+const phonePrefix = $("contactCountryCode").value;
+const phoneDigits = $("contact").value.replace(/\D/g, "");
+
+listingData.contact = phonePrefix + phoneDigits;
 
 // Do not send local file objects as JSON.
 delete listingData.images;
 delete listingData.video;
+    
 
 // Store uploaded image URLs here.
 const imageUrls = [];
