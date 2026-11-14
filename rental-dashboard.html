@@ -677,49 +677,53 @@
               >
             </div>
 
-            <div class="field dashboard-field full-width">
-              <label for="description">Description</label>
-              <textarea
-                id="description"
-                placeholder="Describe the property, facilities and rental conditions..."
-                required
-              ></textarea>
-            </div>
+            
+<div class="field dashboard-field">
+  <label for="condition">Property Condition</label>
+  <select id="condition" required>
+    <option value="">Select property condition</option>
+    <option value="New">New</option>
+    <option value="Old">Old</option>
+    <option value="Average">Average</option>
+    <option value="Refurbished">Refurbished</option>
+  </select>
+</div>
 
-            <div class="field dashboard-field">
-              <label for="condition">Property Type / Condition</label>
-              <select id="condition" required>
-                <option value="">Select an option</option>
-                <option value="Apartment">Apartment</option>
-                <option value="House">House</option>
-                <option value="Single Room">Single Room</option>
-                <option value="Chamber and Hall">Chamber and Hall</option>
-                <option value="Shop">Shop</option>
-                <option value="Office">Office</option>
-                <option value="Land">Land</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
+<div class="field dashboard-field">
+  <label for="location">Location</label>
+  <input
+    id="location"
+    type="text"
+    placeholder="Town, city or area"
+    required
+  >
+</div>
 
-            <div class="field dashboard-field">
-              <label for="location">Location</label>
-              <input
-                id="location"
-                type="text"
-                placeholder="Town, city or area"
-                required
-              >
-            </div>
+<div class="field dashboard-field full-width">
+  <label for="contact">Contact / WhatsApp Number</label>
 
-            <div class="field dashboard-field full-width">
-              <label for="contact">Contact / WhatsApp Number</label>
-              <input
-                id="contact"
-                type="tel"
-                placeholder="Enter contact number"
-                required
-              >
-            </div>
+  <div class="phone-input-group">
+    <select id="contactCountry" required>
+      <option value="GH" selected>Ghana (+233)</option>
+      <option value="BF">Burkina Faso (+226)</option>
+      <option value="TG">Togo (+228)</option>
+    </select>
+
+    <input
+      id="contact"
+      type="tel"
+      inputmode="numeric"
+      placeholder="Enter phone number"
+      autocomplete="tel-national"
+      required
+    >
+  </div>
+
+  <small id="contactHelp">
+    Enter 9 digits for Ghana, 8 for Burkina Faso or Togo.
+  </small>
+</div>
+
 
           </div>
 
