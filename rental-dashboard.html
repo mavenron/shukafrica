@@ -665,17 +665,27 @@
               >
             </div>
 
-            <div class="field dashboard-field">
-              <label for="price">Rental Price</label>
-              <input
-                id="price"
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="Enter price"
-                required
-              >
-            </div>
+            
+<div class="field dashboard-field">
+  <label for="price">Rental Price</label>
+
+  <div class="price-input-group">
+    <input
+      id="price"
+      type="number"
+      min="0"
+      step="0.01"
+      placeholder="Enter price"
+      required
+    >
+
+    <select id="currency" required>
+      <option value="GHS" selected>GHS ₵</option>
+      <option value="XOF">XOF CFA</option>
+    </select>
+  </div>
+</div>
+            
 
             
 <div class="field dashboard-field">
