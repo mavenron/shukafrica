@@ -1791,7 +1791,6 @@ try {
       "job_type",
       "title",
       "seller_name",
-      "contact",
       "price",
       "location",
       "country",
@@ -1815,6 +1814,23 @@ try {
         field.value = value;
       }
     });
+
+    
+    // Restore the saved international phone number.
+    const savedContact = String(listing.contact ?? "").trim();
+
+    const supportedPrefixes = ["+233", "+226", "+228"];
+
+    const matchedPrefix = supportedPrefixes.find((prefix) =>
+      savedContact.startsWith(prefix)
+    );
+
+    $("contactCountryCode").value = matchedPrefix || "+233";
+
+    $("contact").value = matchedPrefix
+      ? savedContact.slice(matchedPrefix.length).replace(/\D/g, "")
+      : savedContact.replace(/\D/g, "");
+    
 
     updateCategory(listing.category || "shop");
 
