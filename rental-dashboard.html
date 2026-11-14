@@ -952,6 +952,62 @@
       $("ownerPhone").value.replace(/\D/g, "");
   });
 
+  
+  // --------------------------------------------------
+  // RENTAL CONTACT / WHATSAPP NUMBER LIMIT
+  // --------------------------------------------------
+
+  function updateRentalContactSettings() {
+    const country = $("contactCountry").value;
+    const settings = COUNTRIES[country] || COUNTRIES.GH;
+
+    $("contact").maxLength = settings.digits;
+    $("contact").placeholder =
+      settings.digits + " digits";
+
+    $("contactHelp").textContent = settings.help;
+
+    $("contact").value =
+      $("contact").value
+        .replace(/\D/g, "")
+        .slice(0, settings.digits);
+
+    $("contact").setCustomValidity("");
+  }
+
+  $("contactCountry").addEventListener(
+    "change",
+    updateRentalContactSettings
+  );
+
+  $("contact").addEventListener("input", () => {
+    const country = $("contactCountry").value;
+    const settings = COUNTRIES[country] || COUNTRIES.GH;
+
+    $("contact").value =
+      $("contact").value
+        .replace(/\D/g, "")
+        .slice(0, settings.digits);
+
+    $("contact").setCustomValidity("");
+  });
+
+  $("contact").addEventListener("blur", () => {
+    const country = $("contactCountry").value;
+    const settings = COUNTRIES[country] || COUNTRIES.GH;
+
+    if ($("contact").value.length !== settings.digits) {
+      $("contact").setCustomValidity(
+        `Enter exactly ${settings.digits} digits for ${country}.`
+      );
+    } else {
+      $("contact").setCustomValidity("");
+    }
+  });
+
+  updateRentalContactSettings();
+  
+
   // --------------------------------------------------
   // REGISTRATION - SHARED SHUKAFRICA ACCOUNT
   // --------------------------------------------------
